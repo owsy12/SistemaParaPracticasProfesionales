@@ -1,6 +1,7 @@
 package Logic.DAO;
 
-import Logic.DTOs.UserDTO;
+import Logic.DTOs.User;
+
 import Logic.Interface.IUserDAO;
 
 import java.sql.*;
@@ -16,13 +17,13 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean save(UserDTO user) {
+    public boolean saveUser(User user) {
         String sql = "INSERT INTO usuario (matricula, nombre, apellido_paterno, apellido_materno, contrasenia, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
 
             prepareStatement.setString(1, user.getMatricula());
-            prepareStatement.setString(2, user.getName());
+            prepareStatement.setString(2, user.getFirstName());
             prepareStatement.setString(3, user.getLastName());
             prepareStatement.setString(4, user.getSecondLastName());
             prepareStatement.setString(5, user.getPassword());
@@ -37,7 +38,7 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public UserDTO findById(int id) {
+    public User findById(int id) {
         String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -55,8 +56,8 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public List<UserDTO> findAll() {
-        List<UserDTO> list = new ArrayList<>();
+    public List<User> findAll() {
+        List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
 
         try (PreparedStatement ps = connection.prepareStatement(sql);
@@ -73,12 +74,12 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean update(UserDTO user) {
+    public boolean update(User user) {
         String sql = "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? WHERE id_usuario=?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, user.getName());
+            ps.setString(1, user.getFirstName());
             ps.setString(2, user.getLastName());
             ps.setString(3, user.getSecondLastName());
             ps.setString(4, user.getStatus());
@@ -106,7 +107,7 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public UserDTO findByMatricula(String matricula) {
+    public User findByMatricula(String matricula) {
         String sql = "SELECT * FROM usuario WHERE matricula=?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -123,8 +124,8 @@ public class UserDAO implements IUserDAO {
         return null;
     }
 
-    private UserDTO mapUser(ResultSet rs) throws Exception {
-        UserDTO user = new UserDTO();
+    private User mapUser(ResultSet rs) throws Exception {
+        User user = new User();
 
         user.setId(rs.getInt("id_usuario"));
         user.setMatricula(rs.getString("matricula"));

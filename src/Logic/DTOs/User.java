@@ -1,6 +1,6 @@
 package Logic.DTOs;
 
-public abstract class User{
+public class User{
 
     protected int id;
     protected String matricula;
@@ -30,7 +30,7 @@ public abstract class User{
     public void setMatricula(String matricula) { this.matricula = matricula; }
 
     public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public void setName(String firstName) { this.firstName = firstName; }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }

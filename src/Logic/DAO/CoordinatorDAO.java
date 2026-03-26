@@ -15,7 +15,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     @Override
     public boolean save(Coordinator c) {
         try {
-            insertUser(c, "Coordinador");
+            saveUser(c);
             return true;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -25,7 +25,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     @Override
     public boolean update(Coordinator c) {
         try {
-            return updateUser(c);
+            return update(c);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -34,14 +34,14 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     @Override
     public boolean delete(int id) {
         try {
-            return deleteUser(id);
+            return delete(id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public CoordinatorDTO findById(int id) {
+    public Coordinator findById(int id) {
 
         String sql = "SELECT * FROM usuario WHERE id_usuario=? AND rol='Coordinador'";
 
@@ -51,7 +51,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return new CoordinatorDTO(
+                return new Coordinator(
                         rs.getInt("id_usuario"),
                         rs.getString("matricula"),
                         rs.getString("nombre"),
@@ -72,14 +72,14 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     @Override
     public List<Coordinator> findAll() {
 
-        List<CoordinatorDTO> list = new ArrayList<>();
+        List<Coordinator> list = new ArrayList<>();
         String sql = "SELECT * FROM usuario WHERE rol='Coordinador'";
 
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                list.add(new CoordinatorDTO(
+                list.add(new Coordinator(
                         rs.getInt("id_usuario"),
                         rs.getString("matricula"),
                         rs.getString("nombre"),

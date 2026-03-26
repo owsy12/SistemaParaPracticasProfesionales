@@ -21,7 +21,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
         try {
             connection.setAutoCommit(false);
 
-            int id = insertUser(i, "Practicante");
+            int id = saveUser(i);
 
             PreparedStatement ps = connection.prepareStatement(sqlIntern);
             ps.setInt(1, id);
@@ -47,7 +47,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
         try {
             connection.setAutoCommit(false);
 
-            updateUser(i);
+            update(i);
 
             PreparedStatement ps = connection.prepareStatement(sqlIntern);
             ps.setInt(1, i.getCredits());
@@ -66,7 +66,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
     @Override
     public boolean delete(int id) {
         try {
-            return deleteUser(id);
+            return delete(id);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
