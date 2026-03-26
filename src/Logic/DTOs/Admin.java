@@ -8,14 +8,17 @@ public class Admin extends User {
 
     public Admin(int idAdmin, int idUser, String name, String firstLastName,
                  String secondLastName, String matricula, String password,
-                 String state, Date insertDate) {
+                 String state) {
 
-        super(idUser, name, firstLastName, secondLastName, matricula, password, state, insertDate);
+        super(idUser, name, firstLastName, secondLastName, matricula, password, state);
         this.idAdmin = idAdmin;
     }
 
     public Admin() {
         super();
+    }
+
+    public Admin(int idUsuario, String matricula, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, String estado) {
     }
 
     public int getIdAdmin() {
