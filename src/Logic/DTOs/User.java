@@ -1,93 +1,46 @@
 package Logic.DTOs;
 
-import java.util.Date;
+public class User{
 
-public abstract class User {
-    private int idUser;
-    private String name;
-    private String firstLastName;
-    private String secondLastName;
-    private String matricula;
-    private String password;
-    private String state;
-    private Date insertDate;
+    protected int id;
+    protected String matricula;
+    protected String firstName;
+    protected String lastName;
+    protected String secondLastName;
+    protected String password;
+    protected String status;
 
-    public User() {
-    }
+    public User() {}
 
-    public User(int idUser, String name, String firstLastName, String secondLastName, String matricula, String password, String state, Date insertDate) {
-        this.idUser = idUser;
-        this.name = name;
-        this.firstLastName = firstLastName;
-        this.secondLastName = secondLastName;
+    public User(int id, String matricula, String firstName, String lastName,
+                   String secondLastName, String password, String status) {
+        this.id = id;
         this.matricula = matricula;
-        this.password = password;
-        this.state = state;
-        this.insertDate = insertDate;
-    }
-
-
-    public int getIdUser() {
-        return idUser;
-    }
-
-    public void setIdUser(int idUser) {
-        this.idUser = idUser;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getFirstLastName() {
-        return firstLastName;
-    }
-
-    public void setFirstLastName(String firstLastName) {
-        this.firstLastName = firstLastName;
-    }
-
-    public String getSecondLastName() {
-        return secondLastName;
-    }
-
-    public void setSecondLastName(String secondLastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.secondLastName = secondLastName;
-    }
-
-    public String getMatricula() {
-        return matricula;
-    }
-
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
         this.password = password;
+        this.status = status;
     }
 
-    public String getState() {
-        return state;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setState(String state) {
-        this.state = state;
-    }
+    public String getMatricula() { return matricula; }
+    public void setMatricula(String matricula) { this.matricula = matricula; }
 
-    public Date getInsertDate() {
-        return insertDate;
-    }
+    public String getFirstName() { return firstName; }
+    public void setName(String firstName) { this.firstName = firstName; }
 
-    public void setInsertDate(Date insertDate) {
-        this.insertDate = insertDate;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+
+    public String getSecondLastName() { return secondLastName; }
+    public void setSecondLastName(String secondLastName) { this.secondLastName = secondLastName; }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
