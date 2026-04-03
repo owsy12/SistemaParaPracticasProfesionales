@@ -40,7 +40,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al guardar usuario con matricula {0}: {1}",
-                    new Object[]{ user.getMatricula(), sqlException.getMessage() });
+                    new Object[]{user.getMatricula(), sqlException.getMessage()});
             return false;
         }
     }
@@ -60,7 +60,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar usuario con id {0}: {1}",
-                    new Object[]{ id, sqlException.getMessage() });
+                    new Object[]{id, sqlException.getMessage()});
         }
         return null;
     }
@@ -80,7 +80,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar usuario con matricula {0}: {1}",
-                    new Object[]{ matricula, sqlException.getMessage() });
+                    new Object[]{matricula, sqlException.getMessage()});
         }
         return null;
     }
@@ -121,7 +121,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al actualizar usuario con id {0}: {1}",
-                    new Object[]{ user.getId(), sqlException.getMessage() });
+                    new Object[]{user.getId(), sqlException.getMessage()});
             return false;
         }
     }
@@ -136,7 +136,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al eliminar usuario con id {0}: {1}",
-                    new Object[]{ id, sqlException.getMessage() });
+                    new Object[]{id, sqlException.getMessage()});
             return false;
         }
     }
