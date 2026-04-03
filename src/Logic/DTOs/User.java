@@ -9,11 +9,12 @@ public class User{
     protected String secondLastName;
     protected String password;
     protected String status;
+    protected String role;
 
     public User() {}
 
     public User(int id, String matricula, String firstName, String lastName,
-                   String secondLastName, String password, String status) {
+                   String secondLastName, String password, String status, String role) {
         this.id = id;
         this.matricula = matricula;
         this.firstName = firstName;
@@ -21,6 +22,7 @@ public class User{
         this.secondLastName = secondLastName;
         this.password = password;
         this.status = status;
+        this.role = role;
     }
 
     public int getId() { return id; }
@@ -43,4 +45,7 @@ public class User{
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }
