@@ -1,7 +1,6 @@
 package Logic.Interface;
 
 import Logic.DTOs.User;
-
 import java.util.List;
 
 public interface IUserDAO {
