@@ -8,14 +8,18 @@ import java.util.*;
 
 public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
+    private Connection connection;
+
     public CoordinatorDAO(Connection connection) {
         super(connection);
+        this.connection = connection;
     }
 
     @Override
     public boolean save(Coordinator c) {
         try {
             saveUser(c);
+            
             return true;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -70,7 +74,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public List<Coordinator> findAll() {
+    public List<Coordinator> findAllCoordinators() {
 
         List<Coordinator> list = new ArrayList<>();
         String sql = "SELECT * FROM usuario WHERE rol='Coordinador'";

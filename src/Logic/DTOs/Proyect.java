@@ -1,70 +1,103 @@
 package Logic.DTOs;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 public class Proyect {
-
-    private int idProject;
-    private int idOrganization;
-    private int idTechnician;
-    private int idCoordinator;
+    private int idProyect;
+    private int idLinkedOrganization;
+    private LinkedOrganization linkedOrganization;
     private String name;
-    private String description;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private int maximumCapacity;
-    private int availableCapacity;
+    private String generalObject;
+    private String methodology;
+    private String maximumPlaces;
     private String state;
+    private Date insertDate;
 
-    public Proyect() {}
+    public Proyect() {
+    }
 
-    public Proyect(int idProject, int idOrganization, int idTechnician, int idCoordinator,
-                   String name, String description,
-                   LocalDate startDate, LocalDate endDate,
-                   int maximumCapacity, int availableCapacity, String state) {
-        this.idProject = idProject;
-        this.idOrganization = idOrganization;
-        this.idTechnician = idTechnician;
-        this.idCoordinator = idCoordinator;
+    public Proyect(int idProyect, int idLinkedOrganization, LinkedOrganization linkedOrganization, String name, String generalObject, String methodology, String maximumPlaces, String state, Date insertDate) {
+        this.idProyect = idProyect;
+        this.idLinkedOrganization = idLinkedOrganization;
+        this.linkedOrganization = linkedOrganization;
         this.name = name;
-        this.description = description;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.maximumCapacity = maximumCapacity;
-        this.availableCapacity = availableCapacity;
+        this.generalObject = generalObject;
+        this.methodology = methodology;
+        this.maximumPlaces = maximumPlaces;
+        this.state = state;
+        this.insertDate = insertDate;
+    }
+
+
+    public int getIdProyect() {
+        return idProyect;
+    }
+
+    public int getIdLinkedOrganization() {
+        return idLinkedOrganization;
+    }
+
+    public LinkedOrganization getLinkedOrganization() {
+        return linkedOrganization;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getGeneralObject() {
+        return generalObject;
+    }
+
+    public String getMethodology() {
+        return methodology;
+    }
+
+    public Date getInsertDate() {
+        return insertDate;
+    }
+
+    public void setInsertDate(Date insertDate) {
+        this.insertDate = insertDate;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
         this.state = state;
     }
 
-    public int getIdProject() { return idProject; }
-    public void setIdProject(int idProject) { this.idProject = idProject; }
+    public String getMaximumPlaces() {
+        return maximumPlaces;
+    }
 
-    public int getIdOrganization() { return idOrganization; }
-    public void setIdOrganization(int idOrganization) { this.idOrganization = idOrganization; }
+    public void setMaximumPlaces(String maximumPlaces) {
+        this.maximumPlaces = maximumPlaces;
+    }
 
-    public int getIdTechnician() { return idTechnician; }
-    public void setIdTechnician(int idTechnician) { this.idTechnician = idTechnician; }
+    public void setMethodology(String methodology) {
+        this.methodology = methodology;
+    }
 
-    public int getIdCoordinator() { return idCoordinator; }
-    public void setIdCoordinator(int idCoordinator) { this.idCoordinator = idCoordinator; }
+    public void setGeneralObject(String generalObject) {
+        this.generalObject = generalObject;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public void setLinkedOrganization(LinkedOrganization linkedOrganization) {
+        this.linkedOrganization = linkedOrganization;
+    }
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public void setIdLinkedOrganization(int idLinkedOrganization) {
+        this.idLinkedOrganization = idLinkedOrganization;
+    }
 
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
-
-    public int getMaximumCapacity() { return maximumCapacity; }
-    public void setMaximumCapacity(int maximumCapacity) { this.maximumCapacity = maximumCapacity; }
-
-    public int getAvailableCapacity() { return availableCapacity; }
-    public void setAvailableCapacity(int availableCapacity) { this.availableCapacity = availableCapacity; }
-
-    public String getState() { return state; }
-    public void setState(String state) { this.state = state; }
+    public void setIdProyect(int idProyect) {
+        this.idProyect = idProyect;
+    }
 }

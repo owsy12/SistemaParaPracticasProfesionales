@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface ICoordinatorDAO {
     Coordinator findById(int id);
-    List<Coordinator> findAll();
+    List<Coordinator> findAllCoordinators();
     boolean save(Coordinator coordinator);
     boolean update(Coordinator coordinator);
     boolean delete(int id);
