@@ -27,7 +27,6 @@ public class UserDAO implements IUserDAO {
             prepareStatement.setString(3, user.getLastName());
             prepareStatement.setString(4, user.getSecondLastName());
             prepareStatement.setString(5, user.getPassword());
-            prepareStatement.setString(6, user.getRole());
             prepareStatement.setString(7, user.getStatus());
 
             return prepareStatement.executeUpdate() > 0;
@@ -133,7 +132,6 @@ public class UserDAO implements IUserDAO {
         user.setLastName(rs.getString("apellido_paterno"));
         user.setSecondLastName(rs.getString("apellido_materno"));
         user.setPassword(rs.getString("contrasenia"));
-        user.setRole(rs.getString("rol"));
         user.setStatus(rs.getString("estado"));
 
         return user;

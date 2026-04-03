@@ -4,100 +4,100 @@ import java.util.Date;
 
 public class Proyect {
     private int idProyect;
-    private int idLinkedOrganization;
-    private LinkedOrganization linkedOrganization;
+    private int idOrganization;
+    private int idOrganizationtTech;
     private String name;
-    private String generalObject;
-    private String methodology;
-    private String maximumPlaces;
-    private String state;
-    private Date insertDate;
+    private String description;
+    private Date startDate;
+    private Date endDate;
+    private int avaliablePlaces;
+    private int maximumPlaces;
+
+
+    public Proyect(int idProyect, int idOrganization, int idOrganizationtTech, String name, String description, Date startDate, Date endDate, int avaliablePlaces, int maximumPlaces) {
+        this.idProyect = idProyect;
+        this.idOrganization = idOrganization;
+        this.idOrganizationtTech = idOrganizationtTech;
+        this.name = name;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.avaliablePlaces = avaliablePlaces;
+        this.maximumPlaces = maximumPlaces;
+    }
 
     public Proyect() {
     }
-
-    public Proyect(int idProyect, int idLinkedOrganization, LinkedOrganization linkedOrganization, String name, String generalObject, String methodology, String maximumPlaces, String state, Date insertDate) {
-        this.idProyect = idProyect;
-        this.idLinkedOrganization = idLinkedOrganization;
-        this.linkedOrganization = linkedOrganization;
-        this.name = name;
-        this.generalObject = generalObject;
-        this.methodology = methodology;
-        this.maximumPlaces = maximumPlaces;
-        this.state = state;
-        this.insertDate = insertDate;
-    }
-
 
     public int getIdProyect() {
         return idProyect;
     }
 
-    public int getIdLinkedOrganization() {
-        return idLinkedOrganization;
+    public void setIdProyect(int idProyect) {
+        this.idProyect = idProyect;
     }
 
-    public LinkedOrganization getLinkedOrganization() {
-        return linkedOrganization;
+    public int getIdOrganization() {
+        return idOrganization;
+    }
+
+    public void setIdOrganization(int idOrganization) {
+        this.idOrganization = idOrganization;
+    }
+
+    public int getIdOrganizationtTech() {
+        return idOrganizationtTech;
+    }
+
+    public void setIdOrganizationtTech(int idOrganizationtTech) {
+        this.idOrganizationtTech = idOrganizationtTech;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getGeneralObject() {
-        return generalObject;
-    }
-
-    public String getMethodology() {
-        return methodology;
-    }
-
-    public Date getInsertDate() {
-        return insertDate;
-    }
-
-    public void setInsertDate(Date insertDate) {
-        this.insertDate = insertDate;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getMaximumPlaces() {
-        return maximumPlaces;
-    }
-
-    public void setMaximumPlaces(String maximumPlaces) {
-        this.maximumPlaces = maximumPlaces;
-    }
-
-    public void setMethodology(String methodology) {
-        this.methodology = methodology;
-    }
-
-    public void setGeneralObject(String generalObject) {
-        this.generalObject = generalObject;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setLinkedOrganization(LinkedOrganization linkedOrganization) {
-        this.linkedOrganization = linkedOrganization;
+    public String getDescription() {
+        return description;
     }
 
-    public void setIdLinkedOrganization(int idLinkedOrganization) {
-        this.idLinkedOrganization = idLinkedOrganization;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setIdProyect(int idProyect) {
-        this.idProyect = idProyect;
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public int getAvaliablePlaces() {
+        return avaliablePlaces;
+    }
+
+    public void setAvaliablePlaces(int avaliablePlaces) {
+        this.avaliablePlaces = avaliablePlaces;
+    }
+
+    public int getMaximumPlaces() {
+        return maximumPlaces;
+    }
+
+    public void setMaximumPlaces(int maximumPlaces) {
+        this.maximumPlaces = maximumPlaces;
     }
 }
