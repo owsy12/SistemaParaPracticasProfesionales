@@ -368,29 +368,11 @@ CREATE TABLE reporte (
                          ruta_documento      VARCHAR(500)  NOT NULL COMMENT 'Ruta del PDF firmado (CU-21)',
                          estado              ENUM('Pendiente','En revisión','Evaluado')
                              NOT NULL DEFAULT 'Pendiente',
-
-    -- Evaluación (llenados por Profesor en CU-17)
-                         calificacion        DECIMAL(4,2)  NULL COMMENT '0.00 – 10.00',
-                         retroalimentacion   TEXT          NULL,
-                         porcentaje_avance   DECIMAL(5,2)  NULL COMMENT '0.00 – 100.00',
                          fecha_entrega       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                         fecha_evaluacion    DATETIME      NULL,
 
-    -- Campos compartidos Parcial / Final
-                         numero_informe      TINYINT       NULL COMMENT 'Solo Parcial: nº de informe',
-                         horas_cubiertas     DECIMAL(6,2)  NULL COMMENT 'Parcial/Final: horas al momento',
-                         objetivo_general    TEXT          NULL COMMENT 'Parcial/Final',
-                         metodologia         TEXT          NULL COMMENT 'Solo Parcial',
-                         resultados_obtenidos TEXT         NULL COMMENT 'Solo Parcial',
-                         observaciones       TEXT          NULL COMMENT 'Todos los tipos',
+
 
     -- Campos exclusivos Mensual (CU-20)
-                         mes                 TINYINT       NULL COMMENT 'Solo Mensual: 1-12',
-                         anio                YEAR          NULL COMMENT 'Solo Mensual',
-                         horas_reportadas    DECIMAL(6,2)  NULL COMMENT 'Solo Mensual: horas del mes',
-                         bloque              VARCHAR(100)  NULL COMMENT 'Solo Mensual: bloque de la EE',
-                         seccion             VARCHAR(50)   NULL COMMENT 'Solo Mensual: sección del grupo',
-
                          PRIMARY KEY (id_reporte),
                          UNIQUE KEY uq_rep_prac_tipo_periodo (id_practicante, tipo_reporte, periodo),
                          CONSTRAINT fk_rep_prac
@@ -404,16 +386,57 @@ CREATE TABLE reporte (
                          CONSTRAINT fk_rep_prof
                              FOREIGN KEY (id_profesor)
                                  REFERENCES profesor (id_usuario)
-                                 ON UPDATE CASCADE ON DELETE SET NULL,
-                         CONSTRAINT chk_rep_calificacion
-                             CHECK (calificacion IS NULL OR calificacion BETWEEN 0 AND 10),
-                         CONSTRAINT chk_rep_avance
-                             CHECK (porcentaje_avance IS NULL OR porcentaje_avance BETWEEN 0 AND 100),
-                         CONSTRAINT chk_rep_mes
-                             CHECK (mes IS NULL OR mes BETWEEN 1 AND 12)
+                                 ON UPDATE CASCADE ON DELETE SET NULL
+
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-20 genera; CU-21 sube firmado; CU-17 evalúa';
 
+CREATE TABLE reporte_parcial_y_final(
+    id_reporte_parcial INT NOT NULL,
+    -- Campos compartidos Parcial / Final
+    numero_informe      TINYINT       NULL COMMENT 'Solo Parcial: nº de informe',
+    horas_cubiertas     DECIMAL(6,2)  NULL COMMENT 'Parcial/Final: horas al momento',
+    objetivo_general    TEXT          NULL COMMENT 'Parcial/Final',
+    metodologia         TEXT          NULL COMMENT 'Solo Parcial',
+    resultados_obtenidos TEXT         NULL COMMENT 'Solo Parcial',
+    observaciones       TEXT          NULL COMMENT 'Todos los tipos',
+
+foreign key (id_reporte_parcial) references reporte (id_reporte)
+                            on update cascade on delete cascade
+);
+
+Create table reporte_mensual(
+    id_reporte_mensual int not null ,
+    mes                 TINYINT       NULL COMMENT 'Solo Mensual: 1-12',
+    anio                YEAR          NULL COMMENT 'Solo Mensual',
+    horas_reportadas    DECIMAL(6,2)  NULL COMMENT 'Solo Mensual: horas del mes',
+    bloque              VARCHAR(100)  NULL COMMENT 'Solo Mensual: bloque de la EE',
+    seccion             VARCHAR(50)   NULL COMMENT 'Solo Mensual: sección del grupo',
+
+    foreign key (id_reporte_mensual) references reporte (id_reporte)
+                            on update cascade on delete cascade,
+    CONSTRAINT chk_rep_mes
+        CHECK (mes IS NULL OR mes BETWEEN 1 AND 12)
+
+);
+
+CREATE TABLE evaluacion_reporte(
+    -- Evaluación (llenados por Profesor en CU-17)
+    id_evaluacion_reporte int not null,
+    id_reporte int not null ,
+                                   calificacion        DECIMAL(4,2)  NULL COMMENT '0.00 – 10.00',
+                                   retroalimentacion   TEXT          NULL,
+                                   porcentaje_avance   DECIMAL(5,2)  NULL COMMENT '0.00 – 100.00',
+                                   fecha_evaluacion    DATETIME      NULL,
+    foreign key (id_reporte) references reporte (id_reporte),
+                                   CONSTRAINT chk_rep_calificacion
+                                       CHECK (calificacion IS NULL OR calificacion BETWEEN 0 AND 10),
+                                   CONSTRAINT chk_rep_avance
+                                       CHECK (porcentaje_avance IS NULL OR porcentaje_avance BETWEEN 0 AND 100)
+
+
+
+);
 
 -- ============================================================
 --  12. AUTOEVALUACIÓN
