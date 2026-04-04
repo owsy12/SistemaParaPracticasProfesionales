@@ -4,102 +4,100 @@ import Logic.DTOs.Coordinator;
 import Logic.Interface.ICoordinatorDAO;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
 
-public class CoordinatorDAO implements ICoordinatorDAO {
+public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
-    private static final Logger LOGGER = Logger.getLogger(CoordinatorDAO.class.getName());
-
-    private final Connection connection;
+    private Connection connection;
 
     public CoordinatorDAO(Connection connection) {
+        super(connection);
         this.connection = connection;
     }
 
     @Override
-    public boolean saveCoordinator(Coordinator coordinator) {
-        String sql = "INSERT INTO coordinador (id_usuario) VALUES (?)";
+    public boolean save(Coordinator c) {
+        try {
+            saveUser(c);
+            
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, coordinator.getId());
-            return preparedStatement.executeUpdate() > 0;
+    @Override
+    public boolean update(Coordinator c) {
+        try {
+            return update(c);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-        } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar coordinador con id {0}: {1}",
-                    new Object[]{ coordinator.getId(), sqlException.getMessage() });
-            return false;
+    @Override
+    public boolean delete(int id) {
+        try {
+            return delete(id);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public Coordinator findById(int id) {
-        String sql = "SELECT u.* FROM usuario u " +
-                "JOIN coordinador c ON u.id_usuario = c.id_usuario " +
-                "WHERE u.id_usuario = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, id);
+        String sql = "SELECT * FROM usuario WHERE id_usuario=? AND rol='Coordinador'";
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapCoordinator(resultSet);
-                }
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new Coordinator(
+                        rs.getInt("id_usuario"),
+                        rs.getString("matricula"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido_paterno"),
+                        rs.getString("apellido_materno"),
+                        rs.getString("contrasenia"),
+                        rs.getString("estado")
+                );
             }
 
-        } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar coordinador con id {0}: {1}",
-                    new Object[]{ id, sqlException.getMessage() });
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
+
         return null;
     }
 
     @Override
-    public List<Coordinator> findAll() {
-        List<Coordinator> coordinatorList = new ArrayList<>();
-        String sql = "SELECT u.* FROM usuario u " +
-                "JOIN coordinador c ON u.id_usuario = c.id_usuario";
+    public List<Coordinator> findAllCoordinators() {
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+        List<Coordinator> list = new ArrayList<>();
+        String sql = "SELECT * FROM usuario WHERE rol='Coordinador'";
 
-            while (resultSet.next()) {
-                coordinatorList.add(mapCoordinator(resultSet));
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(new Coordinator(
+                        rs.getInt("id_usuario"),
+                        rs.getString("matricula"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido_paterno"),
+                        rs.getString("apellido_materno"),
+                        rs.getString("contrasenia"),
+                        rs.getString("estado")
+                ));
             }
 
-        } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al obtener todos los coordinadores: {0}",
-                    sqlException.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-        return coordinatorList;
-    }
 
-    @Override
-    public boolean deactivateCoordinator(int id) {
-        String sql = "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, id);
-            return preparedStatement.executeUpdate() > 0;
-
-        } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al inactivar coordinador con id {0}: {1}",
-                    new Object[]{ id, sqlException.getMessage() });
-            return false;
-        }
-    }
-
-    private Coordinator mapCoordinator(ResultSet resultSet) throws SQLException {
-        return new Coordinator(
-                resultSet.getInt("id_usuario"),
-                resultSet.getString("matricula"),
-                resultSet.getString("nombre"),
-                resultSet.getString("apellido_paterno"),
-                resultSet.getString("apellido_materno"),
-                resultSet.getString("contrasenia"),
-                resultSet.getString("estado")
-        );
+        return list;
     }
 }

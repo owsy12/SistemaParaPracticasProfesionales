@@ -1,38 +1,64 @@
 package Logic.DTOs;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 public class Assignment {
+    private int idAssignment;
+    private int idIntern;
+    private int idProyect;
+    private int idApplication;
+    private Date assignmentDate;
 
-    private int           idAsignacion;
-    private int           idPracticante;
-    private int           idProyecto;
-    private int           idSolicitud;
-    private LocalDateTime fechaAsignacion;
 
-    public Assignment() {}
-
-    public Assignment(int idAsignacion, int idPracticante, int idProyecto,
-                      int idSolicitud, LocalDateTime fechaAsignacion) {
-        this.idAsignacion   = idAsignacion;
-        this.idPracticante  = idPracticante;
-        this.idProyecto     = idProyecto;
-        this.idSolicitud    = idSolicitud;
-        this.fechaAsignacion = fechaAsignacion;
+    public Assignment(int idAssignment, int idIntern, int idProyect, int idApplication, Date assignmentDate) {
+        this.idAssignment = idAssignment;
+        this.idIntern = idIntern;
+        this.idProyect = idProyect;
+        this.idApplication = idApplication;
+        this.assignmentDate = assignmentDate;
     }
 
-    public int           getIdAsignacion()                         { return idAsignacion; }
-    public void          setIdAsignacion(int idAsignacion)         { this.idAsignacion = idAsignacion; }
+    public Assignment() {
+    }
 
-    public int           getIdPracticante()                            { return idPracticante; }
-    public void          setIdPracticante(int idPracticante)           { this.idPracticante = idPracticante; }
+    public int getIdAssignment() {
+        return idAssignment;
+    }
 
-    public int           getIdProyecto()                           { return idProyecto; }
-    public void          setIdProyecto(int idProyecto)             { this.idProyecto = idProyecto; }
+    public void setIdAssignment(int idAssignment) {
+        this.idAssignment = idAssignment;
+    }
 
-    public int           getIdSolicitud()                          { return idSolicitud; }
-    public void          setIdSolicitud(int idSolicitud)           { this.idSolicitud = idSolicitud; }
+    public int getIdIntern() {
+        return idIntern;
+    }
 
-    public LocalDateTime getFechaAsignacion()                                  { return fechaAsignacion; }
-    public void          setFechaAsignacion(LocalDateTime fechaAsignacion)     { this.fechaAsignacion = fechaAsignacion; }
+    public void setIdIntern(int idIntern) {
+        this.idIntern = idIntern;
+    }
+
+    public int getIdProyect() {
+        return idProyect;
+    }
+
+    public void setIdProyect(int idProyect) {
+        this.idProyect = idProyect;
+    }
+
+    public int getIdApplication() {
+        return idApplication;
+    }
+
+    public void setIdApplication(int idApplication) {
+        this.idApplication = idApplication;
+    }
+
+    public Date getAssignmentDate() {
+        return assignmentDate;
+    }
+
+    public void setAssignmentDate(Date assignmentDate) {
+        this.assignmentDate = assignmentDate;
+    }
 }
+

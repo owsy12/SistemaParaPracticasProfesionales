@@ -1,6 +1,6 @@
 package Logic.DTOs;
 
-public class User {
+public class User{
 
     protected int id;
     protected String matricula;
@@ -10,11 +10,10 @@ public class User {
     protected String password;
     protected String status;
 
-    public User() {
-    }
+    public User() {}
 
     public User(int id, String matricula, String firstName, String lastName,
-                String secondLastName, String password, String status) {
+                   String secondLastName, String password, String status) {
         this.id = id;
         this.matricula = matricula;
         this.firstName = firstName;
@@ -24,68 +23,24 @@ public class User {
         this.status = status;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getMatricula() { return matricula; }
+    public void setMatricula(String matricula) { this.matricula = matricula; }
 
-    public String getMatricula() {
-        return matricula;
-    }
+    public String getFirstName() { return firstName; }
+    public void setName(String firstName) { this.firstName = firstName; }
 
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getFirstName() {
-        return firstName;
-    }
+    public String getSecondLastName() { return secondLastName; }
+    public void setSecondLastName(String secondLastName) { this.secondLastName = secondLastName; }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getSecondLastName() {
-        return secondLastName;
-    }
-
-    public void setSecondLastName(String secondLastName) {
-        this.secondLastName = secondLastName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-
-    public String getFullName() {
-        return firstName + " " + lastName + " " + secondLastName;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
