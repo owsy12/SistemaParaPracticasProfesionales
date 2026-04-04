@@ -1,13 +1,16 @@
 package Logic.Interface;
 
-import Logic.DTOs.Proyect;
-
+import Logic.DTOs.Project;
 import java.util.List;
 
 public interface IProjectDAO {
-    Proyect findById(int id);
-    List<Proyect> findAll();
-    boolean save(Proyect project);
-    boolean update(Proyect project);
-    boolean delete(int id);
+    boolean saveProject(Project project);
+    Project findById(int idProyecto);
+    List<Project> findAll();
+    List<Project> findAllAvailable();
+    List<Project> findByCoordinator(int idCoordinador);
+    boolean update(Project project);
+    boolean cancelProject(int idProyecto);
+    
+    boolean decrementAvailableSlot(int idProyecto);
 }

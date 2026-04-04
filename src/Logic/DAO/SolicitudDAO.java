@@ -1,164 +1,143 @@
 package Logic.DAO;
 
 import Logic.DTOs.Solicitud;
-import Logic.DTOs.SolicitudProject;
 import Logic.Interface.ISolicitudDAO;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class SolicitudDAO implements ISolicitudDAO {
 
-    private Connection connection;
+    private static final Logger LOGGER = Logger.getLogger(SolicitudDAO.class.getName());
+
+    private final Connection connection;
 
     public SolicitudDAO(Connection connection) {
         this.connection = connection;
     }
 
     @Override
-    public boolean save(Solicitud solicitud) {
+    public boolean saveSolicitud(Solicitud solicitud) {
+        String sql = "INSERT INTO solicitud (id_practicante, estado) VALUES (?, ?)";
 
-        String sqlSolicitud = "INSERT INTO solicitud (id_practicante, estado) VALUES (?, 'Pendiente')";
-        String sqlOption = "INSERT INTO solicitud_proyecto (id_solicitud, id_proyecto, orden_preferencia) VALUES (?, ?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, solicitud.getIdPracticante());
+            preparedStatement.setString(2, solicitud.getEstado());
+            return preparedStatement.executeUpdate() > 0;
 
-        try {
-            connection.setAutoCommit(false);
-
-            int idSolicitud;
-
-            try (PreparedStatement ps = connection.prepareStatement(sqlSolicitud, Statement.RETURN_GENERATED_KEYS)) {
-
-                ps.setInt(1, solicitud.getIdIntern());
-                ps.executeUpdate();
-
-                ResultSet keys = ps.getGeneratedKeys();
-                if (!keys.next()) {
-                    throw new SQLException("No se generó ID para la solicitud.");
-                }
-                idSolicitud = keys.getInt(1);
-            }
-
-            try (PreparedStatement ps = connection.prepareStatement(sqlOption)) {
-
-                for (SolicitudProject option : solicitud.getProjectOptions()) {
-                    ps.setInt(1, idSolicitud);
-                    ps.setInt(2, option.getIdProject());
-                    ps.setInt(3, option.getPreferenceOrder());
-                    ps.addBatch();
-                }
-
-                ps.executeBatch();
-            }
-
-            connection.commit();
-            solicitud.setIdSolicitud(idSolicitud);
-            return true;
-
-        } catch (SQLException e) {
-            try { connection.rollback(); } catch (SQLException ex) { throw new RuntimeException(ex); }
-            throw new RuntimeException(e);
-        } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException e) { throw new RuntimeException(e); }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al guardar solicitud del practicante {0}: {1}",
+                    new Object[]{ solicitud.getIdPracticante(), sqlException.getMessage() });
+            return false;
         }
     }
 
     @Override
-    public Solicitud findById(int id) {
+    public Solicitud findById(int idSolicitud) {
+        String sql = "SELECT * FROM solicitud WHERE id_solicitud = ?";
 
-        String sql = "SELECT id_solicitud, id_practicante, estado, fecha_solicitud FROM solicitud WHERE id_solicitud = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, idSolicitud);
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                Solicitud solicitud = mapSolicitud(rs);
-                solicitud.setProjectOptions(findOptions(solicitud.getIdSolicitud()));
-                return solicitud;
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapSolicitud(resultSet);
+                }
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al buscar solicitud con id {0}: {1}",
+                    new Object[]{ idSolicitud, sqlException.getMessage() });
         }
-
         return null;
     }
 
     @Override
-    public List<Solicitud> findPending() {
+    public Solicitud findByIntern(int idPracticante) {
+        String sql = "SELECT * FROM solicitud WHERE id_practicante = ? " +
+                "ORDER BY fecha_solicitud DESC LIMIT 1";
 
-        List<Solicitud> list = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, idPracticante);
 
-        String sql = "SELECT id_solicitud, id_practicante, estado, fecha_solicitud FROM solicitud WHERE estado = 'Pendiente' ORDER BY fecha_solicitud";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                Solicitud solicitud = mapSolicitud(rs);
-                solicitud.setProjectOptions(findOptions(solicitud.getIdSolicitud()));
-                list.add(solicitud);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapSolicitud(resultSet);
+                }
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al buscar solicitud del practicante {0}: {1}",
+                    new Object[]{ idPracticante, sqlException.getMessage() });
         }
-
-        return list;
+        return null;
     }
 
     @Override
-    public boolean updateState(int idSolicitud, String newState) {
+    public List<Solicitud> findAll() {
+        List<Solicitud> solicitudList = new ArrayList<>();
+        String sql = "SELECT * FROM solicitud";
 
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                solicitudList.add(mapSolicitud(resultSet));
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al obtener todas las solicitudes: {0}",
+                    sqlException.getMessage());
+        }
+        return solicitudList;
+    }
+
+    @Override
+    public List<Solicitud> findByStatus(String estado) {
+        List<Solicitud> solicitudList = new ArrayList<>();
+        String sql = "SELECT * FROM solicitud WHERE estado = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, estado);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    solicitudList.add(mapSolicitud(resultSet));
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al buscar solicitudes con estado {0}: {1}",
+                    new Object[]{ estado, sqlException.getMessage() });
+        }
+        return solicitudList;
+    }
+
+    @Override
+    public boolean updateStatus(int idSolicitud, String estado) {
         String sql = "UPDATE solicitud SET estado = ? WHERE id_solicitud = ?";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, estado);
+            preparedStatement.setInt(2, idSolicitud);
+            return preparedStatement.executeUpdate() > 0;
 
-            ps.setString(1, newState);
-            ps.setInt(2, idSolicitud);
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al actualizar estado de solicitud {0}: {1}",
+                    new Object[]{ idSolicitud, sqlException.getMessage() });
+            return false;
         }
     }
 
-    private List<SolicitudProject> findOptions(int idSolicitud) throws SQLException {
-
-        List<SolicitudProject> options = new ArrayList<>();
-
-        String sql = "SELECT id_solicitud, id_proyecto, orden_preferencia FROM solicitud_proyecto WHERE id_solicitud = ? ORDER BY orden_preferencia";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, idSolicitud);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                SolicitudProject option = new SolicitudProject();
-                option.setIdSolicitud(rs.getInt("id_solicitud"));
-                option.setIdProject(rs.getInt("id_proyecto"));
-                option.setPreferenceOrder(rs.getInt("orden_preferencia"));
-                options.add(option);
-            }
-        }
-
-        return options;
-    }
-
-    private Solicitud mapSolicitud(ResultSet rs) throws SQLException {
-        Solicitud solicitud = new Solicitud();
-
-        solicitud.setIdSolicitud(rs.getInt("id_solicitud"));
-        solicitud.setIdIntern(rs.getInt("id_practicante"));
-        solicitud.setState(rs.getString("estado"));
-
-        Timestamp requestDate = rs.getTimestamp("fecha_solicitud");
-        if (requestDate != null) {
-            solicitud.setRequestDate(requestDate.toLocalDateTime());
-        }
-
-        return solicitud;
+    private Solicitud mapSolicitud(ResultSet resultSet) throws SQLException {
+        return new Solicitud(
+                resultSet.getInt("id_solicitud"),
+                resultSet.getInt("id_practicante"),
+                resultSet.getString("estado"),
+                resultSet.getTimestamp("fecha_solicitud").toLocalDateTime()
+        );
     }
 }

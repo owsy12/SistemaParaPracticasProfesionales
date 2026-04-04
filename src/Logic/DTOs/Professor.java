@@ -1,25 +1,17 @@
 package Logic.DTOs;
 
-public class Professor extends User{
-    private String academicArea;
+public class Professor extends User {
 
+    private String academica;
 
-    public Professor() {
-        super();
-    }
+    public Professor() {}
 
-    public Professor(int id, String matricula, String firstName,
-                        String lastName, String secondLastName,
-                        String password, String status,
-                        String academicArea) {
-
+    public Professor(int id, String matricula, String firstName, String lastName,
+                     String secondLastName, String password, String status, String academica) {
         super(id, matricula, firstName, lastName, secondLastName, password, status);
-        this.academicArea = academicArea;
-
+        this.academica = academica;
     }
 
-    public String getAcademicArea() { return academicArea; }
-    public void setAcademicArea(String academicArea) { this.academicArea = academicArea; }
-
-
+    public String getAcademica()               { return academica; }
+    public void setAcademica(String academica) { this.academica = academica; }
 }

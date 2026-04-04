@@ -4,142 +4,87 @@ import Logic.DTOs.Admin;
 import Logic.Interface.IAdminDAO;
 
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AdministratorDAO implements IAdminDAO {
 
-    private Connection connection;
+    private static final Logger LOGGER = Logger.getLogger(AdministratorDAO.class.getName());
+
+    private final Connection connection;
 
     public AdministratorDAO(Connection connection) {
         this.connection = connection;
     }
 
     @Override
+    public boolean saveAdmin(Admin admin) {
+        String sql = "INSERT INTO administrador (id_usuario) VALUES (?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, admin.getId());
+            return preparedStatement.executeUpdate() > 0;
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al guardar administrador con id {0}: {1}",
+                    new Object[]{ admin.getId(), sqlException.getMessage() });
+            return false;
+        }
+    }
+
+    @Override
     public Admin findById(int id) {
+        String sql = "SELECT u.* FROM usuario u " +
+                "JOIN administrador a ON u.id_usuario = a.id_usuario " +
+                "WHERE u.id_usuario = ?";
 
-        String sql = """
-            SELECT u.*
-            FROM usuario u
-            WHERE u.id_usuario = ? AND u.rol = 'Administrador'
-        """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return new Admin(
-                        rs.getInt("id_usuario"),
-                        rs.getString("matricula"),
-                        rs.getString("nombre"),
-                        rs.getString("apellido_paterno"),
-                        rs.getString("apellido_materno"),
-                        rs.getString("contrasenia"),
-                        rs.getString("estado")
-                );
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapAdmin(resultSet);
+                }
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al buscar administrador con id {0}: {1}",
+                    new Object[]{ id, sqlException.getMessage() });
         }
-
         return null;
     }
 
     @Override
     public List<Admin> findAll() {
+        List<Admin> adminList = new ArrayList<>();
+        String sql = "SELECT u.* FROM usuario u " +
+                "JOIN administrador a ON u.id_usuario = a.id_usuario";
 
-        List<Admin> list = new ArrayList<>();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-        String sql = "SELECT * FROM usuario WHERE rol = 'Administrador'";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                list.add(new Admin(
-                        rs.getInt("id_usuario"),
-                        rs.getString("matricula"),
-                        rs.getString("nombre"),
-                        rs.getString("apellido_paterno"),
-                        rs.getString("apellido_materno"),
-                        rs.getString("contrasenia"),
-                        rs.getString("estado")
-                ));
+            while (resultSet.next()) {
+                adminList.add(mapAdmin(resultSet));
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al obtener todos los administradores: {0}",
+                    sqlException.getMessage());
         }
-
-        return list;
+        return adminList;
     }
 
-    @Override
-    public boolean save(Admin a) {
-
-        String sql = """
-            INSERT INTO usuario 
-            (matricula,nombre,apellido_paterno,apellido_materno,contrasenia,rol,estado)
-            VALUES (?,?,?,?,?,'Administrador','Activo')
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setString(1, a.getMatricula());
-            ps.setString(2, a.getFirstName());
-            ps.setString(3, a.getLastName());
-            ps.setString(4, a.getSecondLastName());
-            ps.setString(5, a.getPassword());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-
-    @Override
-    public boolean update(Admin a) {
-
-        String sql = """
-            UPDATE usuario 
-            SET matricula=?, nombre=?, apellido_paterno=?, apellido_materno=?, contrasenia=?, estado=?
-            WHERE id_usuario=? AND rol='Administrador'
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setString(1, a.getMatricula());
-            ps.setString(2, a.getFirstName());
-            ps.setString(3, a.getLastName());
-            ps.setString(4, a.getSecondLastName());
-            ps.setString(5, a.getPassword());
-            ps.setString(6, a.getStatus());
-            ps.setInt(7, a.getId());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public boolean delete(int id) {
-
-        String sql = "DELETE FROM usuario WHERE id_usuario=? AND rol='Administrador'";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    private Admin mapAdmin(ResultSet resultSet) throws SQLException {
+        return new Admin(
+                resultSet.getInt("id_usuario"),
+                resultSet.getString("matricula"),
+                resultSet.getString("nombre"),
+                resultSet.getString("apellido_paterno"),
+                resultSet.getString("apellido_materno"),
+                resultSet.getString("contrasenia"),
+                resultSet.getString("estado")
+        );
     }
 }

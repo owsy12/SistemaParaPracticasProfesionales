@@ -1,12 +1,13 @@
 package Logic.Interface;
 
 import Logic.DTOs.Solicitud;
-
 import java.util.List;
 
 public interface ISolicitudDAO {
-    Solicitud findById(int id);
-    List<Solicitud> findPending();
-    boolean save(Solicitud solicitud);
-    boolean updateState(int idSolicitud, String newState);
+    boolean saveSolicitud(Solicitud solicitud);
+    Solicitud findById(int idSolicitud);
+    Solicitud findByIntern(int idPracticante);
+    List<Solicitud> findAll();
+    List<Solicitud> findByStatus(String estado);
+    boolean updateStatus(int idSolicitud, String estado);
 }

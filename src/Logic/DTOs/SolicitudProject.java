@@ -2,23 +2,30 @@ package Logic.DTOs;
 
 public class SolicitudProject {
 
+    private int idSolicitudProyecto;
     private int idSolicitud;
-    private int idProject;
-    private int preferenceOrder;
+    private int idProyecto;
+    private int ordenPreferencia;
 
     public SolicitudProject() {}
 
-    public SolicitudProject(int idProject, int preferenceOrder) {
-        this.idProject = idProject;
-        this.preferenceOrder = preferenceOrder;
+    public SolicitudProject(int idSolicitudProyecto, int idSolicitud,
+                            int idProyecto, int ordenPreferencia) {
+        this.idSolicitudProyecto = idSolicitudProyecto;
+        this.idSolicitud         = idSolicitud;
+        this.idProyecto          = idProyecto;
+        this.ordenPreferencia    = ordenPreferencia;
     }
 
-    public int getIdSolicitud() { return idSolicitud; }
-    public void setIdSolicitud(int idSolicitud) { this.idSolicitud = idSolicitud; }
+    public int getIdSolicitudProyecto()                              { return idSolicitudProyecto; }
+    public void setIdSolicitudProyecto(int idSolicitudProyecto)      { this.idSolicitudProyecto = idSolicitudProyecto; }
 
-    public int getIdProject() { return idProject; }
-    public void setIdProject(int idProject) { this.idProject = idProject; }
+    public int getIdSolicitud()                        { return idSolicitud; }
+    public void setIdSolicitud(int idSolicitud)        { this.idSolicitud = idSolicitud; }
 
-    public int getPreferenceOrder() { return preferenceOrder; }
-    public void setPreferenceOrder(int preferenceOrder) { this.preferenceOrder = preferenceOrder; }
+    public int getIdProyecto()                         { return idProyecto; }
+    public void setIdProyecto(int idProyecto)          { this.idProyecto = idProyecto; }
+
+    public int getOrdenPreferencia()                               { return ordenPreferencia; }
+    public void setOrdenPreferencia(int ordenPreferencia)          { this.ordenPreferencia = ordenPreferencia; }
 }

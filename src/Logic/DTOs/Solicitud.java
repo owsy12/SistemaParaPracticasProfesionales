@@ -1,36 +1,33 @@
 package Logic.DTOs;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public class Solicitud {
 
-    private int idSolicitud;
-    private int idIntern;
-    private String state;
-    private LocalDateTime requestDate;
-    private List<SolicitudProject> projectOptions;
+    private int           idSolicitud;
+    private int           idPracticante;
+    private String        estado;
+    private LocalDateTime fechaSolicitud;
 
     public Solicitud() {}
 
-    public Solicitud(int idIntern, List<SolicitudProject> projectOptions) {
-        this.idIntern = idIntern;
-        this.projectOptions = projectOptions;
-        this.state = "Pendiente";
+    public Solicitud(int idSolicitud, int idPracticante,
+                     String estado, LocalDateTime fechaSolicitud) {
+        this.idSolicitud    = idSolicitud;
+        this.idPracticante  = idPracticante;
+        this.estado         = estado;
+        this.fechaSolicitud = fechaSolicitud;
     }
 
-    public int getIdSolicitud() { return idSolicitud; }
-    public void setIdSolicitud(int idSolicitud) { this.idSolicitud = idSolicitud; }
+    public int           getIdSolicitud()                      { return idSolicitud; }
+    public void          setIdSolicitud(int idSolicitud)       { this.idSolicitud = idSolicitud; }
 
-    public int getIdIntern() { return idIntern; }
-    public void setIdIntern(int idIntern) { this.idIntern = idIntern; }
+    public int           getIdPracticante()                            { return idPracticante; }
+    public void          setIdPracticante(int idPracticante)           { this.idPracticante = idPracticante; }
 
-    public String getState() { return state; }
-    public void setState(String state) { this.state = state; }
+    public String        getEstado()                 { return estado; }
+    public void          setEstado(String estado)    { this.estado = estado; }
 
-    public LocalDateTime getRequestDate() { return requestDate; }
-    public void setRequestDate(LocalDateTime requestDate) { this.requestDate = requestDate; }
-
-    public List<SolicitudProject> getProjectOptions() { return projectOptions; }
-    public void setProjectOptions(List<SolicitudProject> projectOptions) { this.projectOptions = projectOptions; }
+    public LocalDateTime getFechaSolicitud()                               { return fechaSolicitud; }
+    public void          setFechaSolicitud(LocalDateTime fechaSolicitud)   { this.fechaSolicitud = fechaSolicitud; }
 }

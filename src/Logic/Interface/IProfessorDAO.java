@@ -1,13 +1,11 @@
 package Logic.Interface;
 
 import Logic.DTOs.Professor;
-
 import java.util.List;
 
 public interface IProfessorDAO {
+    boolean saveProfessor(Professor professor);
     Professor findById(int id);
     List<Professor> findAll();
-    boolean save(Professor professor);
-    boolean update(Professor professor);
-    boolean delete(int id);
+    boolean deactivateProfessor(int id);
 }
