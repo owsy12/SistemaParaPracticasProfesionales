@@ -1,145 +1,100 @@
 package Logic.DAO;
 
+import DataAccess.BDConnection;
 import Logic.DTOs.Administrator;
-import Logic.Interface.IAdminDAO;
+import Logic.Interface.IAdministratorDAO;
 
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class AdministratorDAO implements IAdminDAO {
+public class AdministratorDAO implements IAdministratorDAO {
 
-    private Connection connection;
+    private static final Logger LOGGER = Logger.getLogger(AdministratorDAO.class.getName());
+    private static final String INSERT_ADMINISTRATOR_SQL =
+            "INSERT INTO administrador (id_usuario) VALUES (?)";
+    private static final String SELECT_ADMINISTRATOR_BY_ID_SQL =
+            "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
+            "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
+            "JOIN administrador a ON u.id_usuario = a.id_usuario " +
+            "WHERE u.id_usuario = ?";
+    private static final String SELECT_ALL_ADMINISTRATORS_SQL =
+            "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
+            "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
+            "JOIN administrador a ON u.id_usuario = a.id_usuario";
 
-    public AdministratorDAO(Connection connection) {
-        this.connection = connection;
+    @Override
+    public boolean saveAdmin(Administrator administrator) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(INSERT_ADMINISTRATOR_SQL)) {
+            preparedStatement.setInt(1, administrator.getId());
+            return preparedStatement.executeUpdate() > 0;
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error saving administrator with ID {0}: {1}",
+                    new Object[]{administrator.getId(), sqlException.getMessage()});
+            return false;
+        }
     }
 
     @Override
     public Administrator findById(int id) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_ADMINISTRATOR_BY_ID_SQL)) {
+            preparedStatement.setInt(1, id);
 
-        String sql = """
-            SELECT u.*
-            FROM usuario u
-            WHERE u.id_usuario = ? AND u.rol = 'Administrador'
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                return new Administrator(
-                        rs.getInt("id_usuario"),
-                        rs.getString("matricula"),
-                        rs.getString("nombre"),
-                        rs.getString("apellido_paterno"),
-                        rs.getString("apellido_materno"),
-                        rs.getString("contrasenia"),
-                        rs.getString("estado")
-                );
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapAdministrator(resultSet);
+                }
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error finding administrator with ID {0}: {1}",
+                    new Object[]{id, sqlException.getMessage()});
         }
-
         return null;
     }
 
     @Override
     public List<Administrator> findAll() {
+        List<Administrator> administratorList = new ArrayList<>();
 
-        List<Administrator> list = new ArrayList<>();
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_ALL_ADMINISTRATORS_SQL);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-        String sql = "SELECT * FROM usuario WHERE rol = 'Administrador'";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-                list.add(new Administrator(
-                        rs.getInt("id_usuario"),
-                        rs.getString("matricula"),
-                        rs.getString("nombre"),
-                        rs.getString("apellido_paterno"),
-                        rs.getString("apellido_materno"),
-                        rs.getString("contrasenia"),
-                        rs.getString("estado")
-                ));
+            while (resultSet.next()) {
+                administratorList.add(mapAdministrator(resultSet));
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error retrieving all administrators: {0}",
+                    sqlException.getMessage());
         }
-
-        return list;
+        return administratorList;
     }
 
-    @Override
-    public boolean save(Administrator a) {
-
-        String sql = """
-            INSERT INTO usuario 
-            (matricula,nombre,apellido_paterno,apellido_materno,contrasenia,rol,estado)
-            VALUES (?,?,?,?,?,'Administrador','Activo')
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setString(1, a.getMatricula());
-            ps.setString(2, a.getFirstName());
-            ps.setString(3, a.getLastName());
-            ps.setString(4, a.getSecondLastName());
-            ps.setString(5, a.getPassword());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-
-
-    @Override
-    public boolean update(Administrator a) {
-
-        String sql = """
-            UPDATE usuario 
-            SET matricula=?, nombre=?, apellido_paterno=?, apellido_materno=?, contrasenia=?, estado=?
-            WHERE id_usuario=? AND rol='Administrador'
-        """;
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setString(1, a.getMatricula());
-            ps.setString(2, a.getFirstName());
-            ps.setString(3, a.getLastName());
-            ps.setString(4, a.getSecondLastName());
-            ps.setString(5, a.getPassword());
-            ps.setString(6, a.getStatus());
-            ps.setInt(7, a.getId());
-
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public boolean delete(int id) {
-
-        String sql = "DELETE FROM usuario WHERE id_usuario=? AND rol='Administrador'";
-
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
-
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    private Administrator mapAdministrator(ResultSet resultSet) throws SQLException {
+        return new Administrator(
+                resultSet.getInt("id_usuario"),
+                resultSet.getString("matricula"),
+                resultSet.getString("nombre"),
+                resultSet.getString("apellido_paterno"),
+                resultSet.getString("apellido_materno"),
+                resultSet.getString("contrasenia"),
+                resultSet.getString("estado")
+        );
     }
 }
