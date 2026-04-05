@@ -18,11 +18,13 @@ public class AdministratorDAO implements IAdministratorDAO {
     private static final Logger LOGGER = Logger.getLogger(AdministratorDAO.class.getName());
     private static final String INSERT_ADMINISTRATOR_SQL =
             "INSERT INTO administrador (id_usuario) VALUES (?)";
+
     private static final String SELECT_ADMINISTRATOR_BY_ID_SQL =
             "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
             "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
             "JOIN administrador a ON u.id_usuario = a.id_usuario " +
             "WHERE u.id_usuario = ?";
+
     private static final String SELECT_ALL_ADMINISTRATORS_SQL =
             "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
             "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
