@@ -1,83 +1,93 @@
 package Logic.DAO;
 
-import Logic.DTOs.Admin;
-import Logic.Interface.IAdminDAO;
+import DataAccess.BDConnection;
+import Logic.DTOs.Administrator;
+import Logic.Interface.IAdministratorDAO;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AdministratorDAO implements IAdminDAO {
+public class AdministratorDAO implements IAdministratorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(AdministratorDAO.class.getName());
-
-    private final Connection connection;
-
-    public AdministratorDAO(Connection connection) {
-        this.connection = connection;
-    }
+    private static final String INSERT_ADMINISTRATOR_SQL =
+            "INSERT INTO administrador (id_usuario) VALUES (?)";
+    private static final String SELECT_ADMINISTRATOR_BY_ID_SQL =
+            "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
+            "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
+            "JOIN administrador a ON u.id_usuario = a.id_usuario " +
+            "WHERE u.id_usuario = ?";
+    private static final String SELECT_ALL_ADMINISTRATORS_SQL =
+            "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
+            "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
+            "JOIN administrador a ON u.id_usuario = a.id_usuario";
 
     @Override
-    public boolean saveAdmin(Admin admin) {
-        String sql = "INSERT INTO administrador (id_usuario) VALUES (?)";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, admin.getId());
+    public boolean saveAdmin(Administrator administrator) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(INSERT_ADMINISTRATOR_SQL)) {
+            preparedStatement.setInt(1, administrator.getId());
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar administrador con id {0}: {1}",
-                    new Object[]{ admin.getId(), sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error saving administrator with ID {0}: {1}",
+                    new Object[]{administrator.getId(), sqlException.getMessage()});
             return false;
         }
     }
 
     @Override
-    public Admin findById(int id) {
-        String sql = "SELECT u.* FROM usuario u " +
-                "JOIN administrador a ON u.id_usuario = a.id_usuario " +
-                "WHERE u.id_usuario = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+    public Administrator findById(int id) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_ADMINISTRATOR_BY_ID_SQL)) {
             preparedStatement.setInt(1, id);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return mapAdmin(resultSet);
+                    return mapAdministrator(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar administrador con id {0}: {1}",
-                    new Object[]{ id, sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error finding administrator with ID {0}: {1}",
+                    new Object[]{id, sqlException.getMessage()});
         }
         return null;
     }
 
     @Override
-    public List<Admin> findAll() {
-        List<Admin> adminList = new ArrayList<>();
-        String sql = "SELECT u.* FROM usuario u " +
-                "JOIN administrador a ON u.id_usuario = a.id_usuario";
+    public List<Administrator> findAll() {
+        List<Administrator> administratorList = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_ALL_ADMINISTRATORS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                adminList.add(mapAdmin(resultSet));
+                administratorList.add(mapAdministrator(resultSet));
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al obtener todos los administradores: {0}",
+            LOGGER.log(Level.SEVERE,
+                    "Error retrieving all administrators: {0}",
                     sqlException.getMessage());
         }
-        return adminList;
+        return administratorList;
     }
 
-    private Admin mapAdmin(ResultSet resultSet) throws SQLException {
-        return new Admin(
+    private Administrator mapAdministrator(ResultSet resultSet) throws SQLException {
+        return new Administrator(
                 resultSet.getInt("id_usuario"),
                 resultSet.getString("matricula"),
                 resultSet.getString("nombre"),

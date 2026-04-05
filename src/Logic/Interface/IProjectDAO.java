@@ -11,6 +11,5 @@ public interface IProjectDAO {
     List<Project> findByCoordinator(int idCoordinador);
     boolean update(Project project);
     boolean cancelProject(int idProyecto);
-    
     boolean decrementAvailableSlot(int idProyecto);
 }

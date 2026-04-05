@@ -6,7 +6,6 @@ import java.util.List;
 public interface ILinkedOrganizationDAO {
 
     boolean saveLinkedOrganization(LinkedOrganization linkedOrganization);
-
     LinkedOrganization findById(int idOrganizacion);
     List<LinkedOrganization> findAll();
     List<LinkedOrganization> findAllActive();

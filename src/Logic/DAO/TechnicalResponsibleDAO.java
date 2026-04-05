@@ -1,9 +1,13 @@
 package Logic.DAO;
 
-import Logic.DTOs.TechnicalResponsible;
+import DataAccess.BDConnection;
+import Logic.DTOs.TechnicalSupervisor;
 import Logic.Interface.ITechnicalResponsibleDAO;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -12,117 +16,134 @@ import java.util.logging.Logger;
 public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     private static final Logger LOGGER = Logger.getLogger(TechnicalResponsibleDAO.class.getName());
-
-    private final Connection connection;
-
-    public TechnicalResponsibleDAO(Connection connection) {
-        this.connection = connection;
-    }
+    private static final String INSERT_TECHNICAL_SUPERVISOR_SQL =
+            "INSERT INTO tecnico_responsable " +
+            "(id_organizacion, nombre, apellido_paterno, apellido_materno, " +
+            "correo_responsable, cargo) " +
+            "VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL =
+            "SELECT id_tecnico, id_organizacion, nombre, apellido_paterno, " +
+            "apellido_materno, correo_responsable, cargo FROM tecnico_responsable " +
+            "WHERE id_tecnico = ?";
+    private static final String SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL =
+            "SELECT id_tecnico, id_organizacion, nombre, apellido_paterno, " +
+            "apellido_materno, correo_responsable, cargo FROM tecnico_responsable " +
+            "WHERE id_organizacion = ?";
+    private static final String UPDATE_TECHNICAL_SUPERVISOR_SQL =
+            "UPDATE tecnico_responsable " +
+            "SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, " +
+            "correo_responsable = ?, cargo = ? " +
+            "WHERE id_tecnico = ?";
+    private static final String DELETE_TECHNICAL_SUPERVISOR_SQL =
+            "DELETE FROM tecnico_responsable WHERE id_tecnico = ?";
 
     @Override
-    public boolean saveTechnicalResponsible(TechnicalResponsible technicalResponsible) {
-        String sql = "INSERT INTO tecnico_responsable " +
-                "(id_organizacion, nombre, apellido_paterno, apellido_materno, " +
-                "correo_responsable, cargo) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1, technicalResponsible.getIdOrganizacion());
-            preparedStatement.setString(2, technicalResponsible.getNombre());
-            preparedStatement.setString(3, technicalResponsible.getApellidoPaterno());
-            preparedStatement.setString(4, technicalResponsible.getApellidoMaterno());
-            preparedStatement.setString(5, technicalResponsible.getCorreoResponsable());
-            preparedStatement.setString(6, technicalResponsible.getCargo());
+    public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(INSERT_TECHNICAL_SUPERVISOR_SQL)) {
+            preparedStatement.setInt(1, technicalResponsible.getIdOrganization());
+            preparedStatement.setString(2, technicalResponsible.getName());
+            preparedStatement.setString(3, technicalResponsible.getLastName());
+            preparedStatement.setString(4, technicalResponsible.getSecondLastName());
+            preparedStatement.setString(5, technicalResponsible.geteMail());
+            preparedStatement.setString(6, technicalResponsible.getPosition());
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar técnico responsable {0}: {1}",
-                    new Object[]{ technicalResponsible.getFullName(), sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error saving technical supervisor {0} {1}: {2}",
+                    new Object[]{technicalResponsible.getName(),
+                            technicalResponsible.getLastName(),
+                            sqlException.getMessage()});
             return false;
         }
     }
 
     @Override
-    public TechnicalResponsible findById(int idTecnico) {
-        String sql = "SELECT * FROM tecnico_responsable WHERE id_tecnico = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+    public TechnicalSupervisor findById(int idTecnico) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
             preparedStatement.setInt(1, idTecnico);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return mapTechnicalResponsible(resultSet);
+                    return mapTechnicalSupervisor(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar técnico con id {0}: {1}",
-                    new Object[]{ idTecnico, sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error finding technical supervisor with ID {0}: {1}",
+                    new Object[]{idTecnico, sqlException.getMessage()});
         }
         return null;
     }
 
     @Override
-    public List<TechnicalResponsible> findByOrganization(int idOrganizacion) {
-        List<TechnicalResponsible> technicalList = new ArrayList<>();
-        String sql = "SELECT * FROM tecnico_responsable WHERE id_organizacion = ?";
+    public List<TechnicalSupervisor> findByOrganization(int idOrganizacion) {
+        List<TechnicalSupervisor> technicalList = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL)) {
             preparedStatement.setInt(1, idOrganizacion);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    technicalList.add(mapTechnicalResponsible(resultSet));
+                    technicalList.add(mapTechnicalSupervisor(resultSet));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar técnicos de organización {0}: {1}",
-                    new Object[]{ idOrganizacion, sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error finding technical supervisors for organization {0}: {1}",
+                    new Object[]{idOrganizacion, sqlException.getMessage()});
         }
         return technicalList;
     }
 
     @Override
-    public boolean update(TechnicalResponsible technicalResponsible) {
-        String sql = "UPDATE tecnico_responsable " +
-                "SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, " +
-                "correo_responsable = ?, cargo = ? " +
-                "WHERE id_tecnico = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, technicalResponsible.getNombre());
-            preparedStatement.setString(2, technicalResponsible.getApellidoPaterno());
-            preparedStatement.setString(3, technicalResponsible.getApellidoMaterno());
-            preparedStatement.setString(4, technicalResponsible.getCorreoResponsable());
-            preparedStatement.setString(5, technicalResponsible.getCargo());
-            preparedStatement.setInt(6, technicalResponsible.getIdTecnico());
+    public boolean update(TechnicalSupervisor technicalResponsible) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(UPDATE_TECHNICAL_SUPERVISOR_SQL)) {
+            preparedStatement.setString(1, technicalResponsible.getName());
+            preparedStatement.setString(2, technicalResponsible.getLastName());
+            preparedStatement.setString(3, technicalResponsible.getSecondLastName());
+            preparedStatement.setString(4, technicalResponsible.geteMail());
+            preparedStatement.setString(5, technicalResponsible.getPosition());
+            preparedStatement.setInt(6, technicalResponsible.getIdTechnicalSupervisor());
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar técnico con id {0}: {1}",
-                    new Object[]{ technicalResponsible.getIdTecnico(), sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error updating technical supervisor with ID {0}: {1}",
+                    new Object[]{technicalResponsible.getIdTechnicalSupervisor(),
+                            sqlException.getMessage()});
             return false;
         }
     }
 
     @Override
     public boolean delete(int idTecnico) {
-        String sql = "DELETE FROM tecnico_responsable WHERE id_tecnico = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(DELETE_TECHNICAL_SUPERVISOR_SQL)) {
             preparedStatement.setInt(1, idTecnico);
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al eliminar técnico con id {0}: {1}",
-                    new Object[]{ idTecnico, sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error deleting technical supervisor with ID {0}: {1}",
+                    new Object[]{idTecnico, sqlException.getMessage()});
             return false;
         }
     }
 
-    private TechnicalResponsible mapTechnicalResponsible(ResultSet resultSet) throws SQLException {
-        return new TechnicalResponsible(
+    private TechnicalSupervisor mapTechnicalSupervisor(ResultSet resultSet) throws SQLException {
+        return new TechnicalSupervisor(
                 resultSet.getInt("id_tecnico"),
                 resultSet.getInt("id_organizacion"),
                 resultSet.getString("nombre"),

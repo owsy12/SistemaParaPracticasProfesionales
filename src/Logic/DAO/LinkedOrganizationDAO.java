@@ -1,9 +1,13 @@
 package Logic.DAO;
 
+import DataAccess.BDConnection;
 import Logic.DTOs.LinkedOrganization;
 import Logic.Interface.ILinkedOrganizationDAO;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -12,39 +16,54 @@ import java.util.logging.Logger;
 public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     private static final Logger LOGGER = Logger.getLogger(LinkedOrganizationDAO.class.getName());
-
-    private final Connection connection;
-
-    public LinkedOrganizationDAO(Connection connection) {
-        this.connection = connection;
-    }
+    private static final String INSERT_LINKED_ORGANIZATION_SQL =
+            "INSERT INTO organizacion_vinculada " +
+            "(nombre_organizacion, correo_organizacion, direccion, sector, estado) " +
+            "VALUES (?, ?, ?, ?, ?)";
+    private static final String SELECT_LINKED_ORGANIZATION_BY_ID_SQL =
+            "SELECT id_organizacion, nombre_organizacion, correo_organizacion, " +
+            "direccion, sector, estado FROM organizacion_vinculada " +
+            "WHERE id_organizacion = ?";
+    private static final String SELECT_ALL_LINKED_ORGANIZATIONS_SQL =
+            "SELECT id_organizacion, nombre_organizacion, correo_organizacion, " +
+            "direccion, sector, estado FROM organizacion_vinculada";
+    private static final String SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL =
+            "SELECT id_organizacion, nombre_organizacion, correo_organizacion, " +
+            "direccion, sector, estado FROM organizacion_vinculada " +
+            "WHERE estado = 'Activa'";
+    private static final String UPDATE_LINKED_ORGANIZATION_SQL =
+            "UPDATE organizacion_vinculada " +
+            "SET nombre_organizacion = ?, correo_organizacion = ?, " +
+            "direccion = ?, sector = ?, estado = ? " +
+            "WHERE id_organizacion = ?";
+    private static final String UPDATE_LINKED_ORGANIZATION_STATUS_SQL =
+            "UPDATE organizacion_vinculada SET estado = 'Inactiva' WHERE id_organizacion = ?";
 
     @Override
     public boolean saveLinkedOrganization(LinkedOrganization linkedOrganization) {
-        String sql = "INSERT INTO organizacion_vinculada " +
-                "(nombre_organizacion, correo_organizacion, direccion, sector, estado) " +
-                "VALUES (?, ?, ?, ?, ?)";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, linkedOrganization.getNombreOrganizacion());
-            preparedStatement.setString(2, linkedOrganization.getCorreoOrganizacion());
-            preparedStatement.setString(3, linkedOrganization.getDireccion());
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(INSERT_LINKED_ORGANIZATION_SQL)) {
+            preparedStatement.setString(1, linkedOrganization.getName());
+            preparedStatement.setString(2, "");  // Email not in DTO
+            preparedStatement.setString(3, linkedOrganization.getAdress());
             preparedStatement.setString(4, linkedOrganization.getSector());
-            preparedStatement.setString(5, linkedOrganization.getEstado());
+            preparedStatement.setString(5, "Activa");
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar organización {0}: {1}",
-                    new Object[]{ linkedOrganization.getNombreOrganizacion(), sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error saving linked organization {0}: {1}",
+                    new Object[]{linkedOrganization.getName(), sqlException.getMessage()});
             return false;
         }
     }
 
     @Override
     public LinkedOrganization findById(int idOrganizacion) {
-        String sql = "SELECT * FROM organizacion_vinculada WHERE id_organizacion = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_LINKED_ORGANIZATION_BY_ID_SQL)) {
             preparedStatement.setInt(1, idOrganizacion);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -54,8 +73,9 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar organización con id {0}: {1}",
-                    new Object[]{ idOrganizacion, sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error finding linked organization with ID {0}: {1}",
+                    new Object[]{idOrganizacion, sqlException.getMessage()});
         }
         return null;
     }
@@ -63,9 +83,10 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     @Override
     public List<LinkedOrganization> findAll() {
         List<LinkedOrganization> organizationList = new ArrayList<>();
-        String sql = "SELECT * FROM organizacion_vinculada";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_ALL_LINKED_ORGANIZATIONS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -73,7 +94,8 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al obtener todas las organizaciones: {0}",
+            LOGGER.log(Level.SEVERE,
+                    "Error retrieving all linked organizations: {0}",
                     sqlException.getMessage());
         }
         return organizationList;
@@ -82,9 +104,10 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     @Override
     public List<LinkedOrganization> findAllActive() {
         List<LinkedOrganization> organizationList = new ArrayList<>();
-        String sql = "SELECT * FROM organizacion_vinculada WHERE estado = 'Activa'";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -92,7 +115,8 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al obtener organizaciones activas: {0}",
+            LOGGER.log(Level.SEVERE,
+                    "Error retrieving active linked organizations: {0}",
                     sqlException.getMessage());
         }
         return organizationList;
@@ -100,38 +124,37 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     @Override
     public boolean update(LinkedOrganization linkedOrganization) {
-        String sql = "UPDATE organizacion_vinculada " +
-                "SET nombre_organizacion = ?, correo_organizacion = ?, " +
-                "direccion = ?, sector = ?, estado = ? " +
-                "WHERE id_organizacion = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            preparedStatement.setString(1, linkedOrganization.getNombreOrganizacion());
-            preparedStatement.setString(2, linkedOrganization.getCorreoOrganizacion());
-            preparedStatement.setString(3, linkedOrganization.getDireccion());
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_SQL)) {
+            preparedStatement.setString(1, linkedOrganization.getName());
+            preparedStatement.setString(2, "");  // Email not in DTO
+            preparedStatement.setString(3, linkedOrganization.getAdress());
             preparedStatement.setString(4, linkedOrganization.getSector());
-            preparedStatement.setString(5, linkedOrganization.getEstado());
-            preparedStatement.setInt(6, linkedOrganization.getIdOrganizacion());
+            preparedStatement.setString(5, "Activa");
+            preparedStatement.setInt(6, linkedOrganization.getIdLinkedOrganization());
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar organización con id {0}: {1}",
-                    new Object[]{ linkedOrganization.getIdOrganizacion(), sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error updating linked organization with ID {0}: {1}",
+                    new Object[]{linkedOrganization.getIdLinkedOrganization(), sqlException.getMessage()});
             return false;
         }
     }
 
     @Override
     public boolean deactivateLinkedOrganization(int idOrganizacion) {
-        String sql = "UPDATE organizacion_vinculada SET estado = 'Inactiva' WHERE id_organizacion = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = BDConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_STATUS_SQL)) {
             preparedStatement.setInt(1, idOrganizacion);
             return preparedStatement.executeUpdate() > 0;
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al desactivar organización con id {0}: {1}",
-                    new Object[]{ idOrganizacion, sqlException.getMessage() });
+            LOGGER.log(Level.SEVERE,
+                    "Error deactivating linked organization with ID {0}: {1}",
+                    new Object[]{idOrganizacion, sqlException.getMessage()});
             return false;
         }
     }
@@ -140,10 +163,9 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         return new LinkedOrganization(
                 resultSet.getInt("id_organizacion"),
                 resultSet.getString("nombre_organizacion"),
-                resultSet.getString("correo_organizacion"),
-                resultSet.getString("direccion"),
                 resultSet.getString("sector"),
-                resultSet.getString("estado")
+                resultSet.getString("direccion"),
+                ""  // Department not in result set
         );
     }
 }

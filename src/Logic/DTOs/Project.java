@@ -1,69 +1,103 @@
 package Logic.DTOs;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 public class Project {
+    private int idProyect;
+    private int idOrganization;
+    private int idTechnicalSupervisor;
+    private String name;
+    private String description;
+    private Date startDate;
+    private Date endDate;
+    private int avaliablePlaces;
+    private int maximumPlaces;
 
-    private int       idProyecto;
-    private int       idOrganizacion;
-    private int       idTecnico;
-    private int       idCoordinador;
-    private String    nombre;
-    private String    descripcion;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
-    private int       cupoMaximo;
-    private int       cupoDisponible;
-    private String    estado;
 
-    public Project() {}
-
-    public Project(int idProyecto, int idOrganizacion, int idTecnico, int idCoordinador,
-                   String nombre, String descripcion, LocalDate fechaInicio, LocalDate fechaFin,
-                   int cupoMaximo, int cupoDisponible, String estado) {
-        this.idProyecto     = idProyecto;
-        this.idOrganizacion = idOrganizacion;
-        this.idTecnico      = idTecnico;
-        this.idCoordinador  = idCoordinador;
-        this.nombre         = nombre;
-        this.descripcion    = descripcion;
-        this.fechaInicio    = fechaInicio;
-        this.fechaFin       = fechaFin;
-        this.cupoMaximo     = cupoMaximo;
-        this.cupoDisponible = cupoDisponible;
-        this.estado         = estado;
+    public Project(int idProyect, int idOrganization, int idTechnicalSupervisor, String name, String description, Date startDate, Date endDate, int avaliablePlaces, int maximumPlaces) {
+        this.idProyect = idProyect;
+        this.idOrganization = idOrganization;
+        this.idTechnicalSupervisor = idTechnicalSupervisor;
+        this.name = name;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.avaliablePlaces = avaliablePlaces;
+        this.maximumPlaces = maximumPlaces;
     }
 
-    public int       getIdProyecto()                       { return idProyecto; }
-    public void      setIdProyecto(int idProyecto)         { this.idProyecto = idProyecto; }
+    public Project() {
+    }
 
-    public int       getIdOrganizacion()                           { return idOrganizacion; }
-    public void      setIdOrganizacion(int idOrganizacion)         { this.idOrganizacion = idOrganizacion; }
+    public int getIdProyect() {
+        return idProyect;
+    }
 
-    public int       getIdTecnico()                        { return idTecnico; }
-    public void      setIdTecnico(int idTecnico)           { this.idTecnico = idTecnico; }
+    public void setIdProyect(int idProyect) {
+        this.idProyect = idProyect;
+    }
 
-    public int       getIdCoordinador()                            { return idCoordinador; }
-    public void      setIdCoordinador(int idCoordinador)           { this.idCoordinador = idCoordinador; }
+    public int getIdOrganization() {
+        return idOrganization;
+    }
 
-    public String    getNombre()                 { return nombre; }
-    public void      setNombre(String nombre)    { this.nombre = nombre; }
+    public void setIdOrganization(int idOrganization) {
+        this.idOrganization = idOrganization;
+    }
 
-    public String    getDescripcion()                    { return descripcion; }
-    public void      setDescripcion(String descripcion)  { this.descripcion = descripcion; }
+    public int getIdTechnicalSupervisor() {
+        return idTechnicalSupervisor;
+    }
 
-    public LocalDate getFechaInicio()                        { return fechaInicio; }
-    public void      setFechaInicio(LocalDate fechaInicio)   { this.fechaInicio = fechaInicio; }
+    public void setIdTechnicalSupervisor(int idTechnicalSupervisor) {
+        this.idTechnicalSupervisor = idTechnicalSupervisor;
+    }
 
-    public LocalDate getFechaFin()                     { return fechaFin; }
-    public void      setFechaFin(LocalDate fechaFin)   { this.fechaFin = fechaFin; }
+    public String getName() {
+        return name;
+    }
 
-    public int       getCupoMaximo()                       { return cupoMaximo; }
-    public void      setCupoMaximo(int cupoMaximo)         { this.cupoMaximo = cupoMaximo; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public int       getCupoDisponible()                           { return cupoDisponible; }
-    public void      setCupoDisponible(int cupoDisponible)         { this.cupoDisponible = cupoDisponible; }
+    public String getDescription() {
+        return description;
+    }
 
-    public String    getEstado()                 { return estado; }
-    public void      setEstado(String estado)    { this.estado = estado; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public int getAvaliablePlaces() {
+        return avaliablePlaces;
+    }
+
+    public void setAvaliablePlaces(int avaliablePlaces) {
+        this.avaliablePlaces = avaliablePlaces;
+    }
+
+    public int getMaximumPlaces() {
+        return maximumPlaces;
+    }
+
+    public void setMaximumPlaces(int maximumPlaces) {
+        this.maximumPlaces = maximumPlaces;
+    }
 }

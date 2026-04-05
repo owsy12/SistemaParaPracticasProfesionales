@@ -1,13 +1,12 @@
 package Logic.Interface;
 
-import Logic.DTOs.TechnicalResponsible;
+import Logic.DTOs.TechnicalSupervisor;
 import java.util.List;
 
 public interface ITechnicalResponsibleDAO {
-
-    boolean saveTechnicalResponsible(TechnicalResponsible technicalResponsible);
-    TechnicalResponsible findById(int idTecnico);
-    List<TechnicalResponsible> findByOrganization(int idOrganizacion);
-    boolean update(TechnicalResponsible technicalResponsible);
+    boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible);
+    TechnicalSupervisor findById(int idTecnico);
+    List<TechnicalSupervisor> findByOrganization(int idOrganizacion);
+    boolean update(TechnicalSupervisor technicalResponsible);
     boolean delete(int idTecnico);
 }
