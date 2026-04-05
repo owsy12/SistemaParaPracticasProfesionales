@@ -142,26 +142,26 @@ public class MonthlyReortDAO extends ReportDAO implements IReportDAO {
         return reports;
     }
 
-    private MonthlyReport mapResultSet(ResultSet rs) throws SQLException {
+    private MonthlyReport mapResultSet(ResultSet resultSet) throws SQLException {
         MonthlyReport report = new MonthlyReport();
 
         // Campos base (heredados de Report)
-        report.setIdReport    (rs.getInt   ("id_reporte"));
-        report.setIdIntern    (rs.getInt   ("id_practicante"));
-        report.setIdProyect   (rs.getInt   ("id_proyecto"));
-        report.setIdProfessor (rs.getInt   ("id_profesor"));
-        report.setReportType  (rs.getString("tipo_reporte"));
-        report.setPeriod      (rs.getString("periodo"));
-        report.setDocumentPath(rs.getString("ruta_documento"));
-        report.setStatus      (rs.getString("estado"));
-        report.setSumissionDate(rs.getDate ("fecha_entrega"));
+        report.setIdReport    (resultSet.getInt   ("id_reporte"));
+        report.setIdIntern    (resultSet.getInt   ("id_practicante"));
+        report.setIdProyect   (resultSet.getInt   ("id_proyecto"));
+        report.setIdProfessor (resultSet.getInt   ("id_profesor"));
+        report.setReportType  (resultSet.getString("tipo_reporte"));
+        report.setPeriod      (resultSet.getString("periodo"));
+        report.setDocumentPath(resultSet.getString("ruta_documento"));
+        report.setStatus      (resultSet.getString("estado"));
+        report.setSumissionDate(resultSet.getDate ("fecha_entrega"));
 
         // Campos específicos
-        report.setIdMonthlyReport(rs.getInt   ("id_reporte"));
-        report.setMonth          (rs.getString("mes"));
-        report.setYear           (rs.getInt   ("anio"));
-        report.setBlock          (rs.getString("bloque"));
-        report.setSection        (rs.getString("seccion"));
+        report.setIdMonthlyReport(resultSet.getInt   ("id_reporte"));
+        report.setMonth          (resultSet.getString("mes"));
+        report.setYear           (resultSet.getInt   ("anio"));
+        report.setBlock          (resultSet.getString("bloque"));
+        report.setSection        (resultSet.getString("seccion"));
 
         return report;
     }

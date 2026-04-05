@@ -146,28 +146,28 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     }
 
 
-    private PartialAndFinalReport mapResultSet(ResultSet rs) throws SQLException {
+    private PartialAndFinalReport mapResultSet(ResultSet resultSet) throws SQLException {
         PartialAndFinalReport report = new PartialAndFinalReport();
 
         // Campos base (heredados de Report)
-        report.setIdReport    (rs.getInt   ("id_reporte"));
-        report.setIdIntern    (rs.getInt   ("id_practicante"));
-        report.setIdProyect   (rs.getInt   ("id_proyecto"));
-        report.setIdProfessor (rs.getInt   ("id_profesor"));
-        report.setReportType  (rs.getString("tipo_reporte"));
-        report.setPeriod      (rs.getString("periodo"));
-        report.setDocumentPath(rs.getString("ruta_documento"));
-        report.setStatus      (rs.getString("estado"));
-        report.setSumissionDate(rs.getDate ("fecha_entrega"));
+        report.setIdReport    (resultSet.getInt   ("id_reporte"));
+        report.setIdIntern    (resultSet.getInt   ("id_practicante"));
+        report.setIdProyect   (resultSet.getInt   ("id_proyecto"));
+        report.setIdProfessor (resultSet.getInt   ("id_profesor"));
+        report.setReportType  (resultSet.getString("tipo_reporte"));
+        report.setPeriod      (resultSet.getString("periodo"));
+        report.setDocumentPath(resultSet.getString("ruta_documento"));
+        report.setStatus      (resultSet.getString("estado"));
+        report.setSumissionDate(resultSet.getDate ("fecha_entrega"));
 
         // Campos específicos
-        report.setIdPartialAndFinalReport(rs.getInt   ("id_reporte"));
-        report.setReportNumber           (rs.getInt   ("numero_informe"));
-        report.setCoveredHours           (rs.getInt   ("horas_cubiertas"));
-        report.setGeneralObjective       (rs.getString("objetivo_general"));
-        report.setMethodology            (rs.getString("metodologia"));
-        report.setObtainedResults        (rs.getString("resultados_obtenidos"));
-        report.setObservations           (rs.getString("observaciones"));
+        report.setIdPartialAndFinalReport(resultSet.getInt   ("id_reporte"));
+        report.setReportNumber           (resultSet.getInt   ("numero_informe"));
+        report.setCoveredHours           (resultSet.getInt   ("horas_cubiertas"));
+        report.setGeneralObjective       (resultSet.getString("objetivo_general"));
+        report.setMethodology            (resultSet.getString("metodologia"));
+        report.setObtainedResults        (resultSet.getString("resultados_obtenidos"));
+        report.setObservations           (resultSet.getString("observaciones"));
 
         return report;
     }
