@@ -164,7 +164,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 resultSet.getInt("id_organizacion"),
                 resultSet.getString("nombre_organizacion"),
                 resultSet.getString("sector"),
-                resultSet.getString("direccion"),
+                resultSet.getString("direccion "),
                 ""  // Department not in result set
         );
     }

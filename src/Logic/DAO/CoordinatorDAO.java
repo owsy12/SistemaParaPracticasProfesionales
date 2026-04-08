@@ -19,10 +19,12 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     public boolean save(Coordinator c) {
         try {
             saveUser(c);
-            
+
             return true;
-        } catch (SQLException e) {
+        } /*catch (SQLException e) {
             throw new RuntimeException(e);
+        }*/ finally {
+
         }
     }
 
@@ -30,8 +32,10 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     public boolean update(Coordinator c) {
         try {
             return update(c);
-        } catch (SQLException e) {
+        } /*catch (SQLException e) {
             throw new RuntimeException(e);
+        }*/finally {
+
         }
     }
 
@@ -39,8 +43,10 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     public boolean delete(int id) {
         try {
             return delete(id);
-        } catch (SQLException e) {
+        } /*catch (SQLException e) {
             throw new RuntimeException(e);
+        }*/finally {
+
         }
     }
 

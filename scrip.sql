@@ -407,22 +407,21 @@ foreign key (id_reporte_parcial) references reporte (id_reporte)
 
 Create table reporte_mensual(
     id_reporte_mensual int not null ,
-    mes                 TINYINT       NULL COMMENT 'Solo Mensual: 1-12',
+    mes                 varchar(500)  NULL COMMENT 'Solo Mensual: 1-12',
     anio                YEAR          NULL COMMENT 'Solo Mensual',
     horas_reportadas    DECIMAL(6,2)  NULL COMMENT 'Solo Mensual: horas del mes',
     bloque              VARCHAR(100)  NULL COMMENT 'Solo Mensual: bloque de la EE',
     seccion             VARCHAR(50)   NULL COMMENT 'Solo Mensual: sección del grupo',
 
     foreign key (id_reporte_mensual) references reporte (id_reporte)
-                            on update cascade on delete cascade,
-    CONSTRAINT chk_rep_mes
-        CHECK (mes IS NULL OR mes BETWEEN 1 AND 12)
+                            on update cascade on delete cascade
+
 
 );
 
 CREATE TABLE evaluacion_reporte(
     -- Evaluación (llenados por Profesor en CU-17)
-    id_evaluacion_reporte int not null,
+    id_evaluacion_reporte int not null auto_increment primary key ,
     id_reporte int not null ,
                                    calificacion        DECIMAL(4,2)  NULL COMMENT '0.00 – 10.00',
                                    retroalimentacion   TEXT          NULL,

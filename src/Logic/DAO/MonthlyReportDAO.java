@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MonthlyReortDAO extends ReportDAO implements IReportDAO {
+public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
     private static final String SQL_INSERT_SPECIFIC =
             "INSERT INTO reporte_mensual " +
                     "(id_reporte_mensual, mes, anio, horas_reportadas, bloque, seccion) " +

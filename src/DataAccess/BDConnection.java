@@ -8,10 +8,9 @@ import java.util.logging.Logger;
 
 public class BDConnection {
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/spp" +
-            "?useSSL=false&serverTimezone=UTC";
-    private static final String DB_USER = "app_user";
-    private static final String DB_PASSWORD = "AppPass123!";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/spp?allowPublicKeyRetrieval=true&useSSL=false";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "30dtv0105k";
     private static final Logger LOGGER = Logger.getLogger(BDConnection.class.getName());
 
     private BDConnection() {
