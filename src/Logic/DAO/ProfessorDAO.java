@@ -17,6 +17,7 @@ public class ProfessorDAO implements IProfessorDAO {
     private static final Logger LOGGER = Logger.getLogger(ProfessorDAO.class.getName());
     private static final String INSERT_PROFESSOR_SQL =
             "INSERT INTO profesor (id_usuario, academica) VALUES (?, ?)";
+
     private static final String SELECT_PROFESSOR_BY_ID_SQL =
             "SELECT u.*, p.academica FROM usuario u " +
             "JOIN profesor p ON u.id_usuario = p.id_usuario " +

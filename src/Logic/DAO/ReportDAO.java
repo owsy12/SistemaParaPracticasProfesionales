@@ -1,6 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.Report;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
 
@@ -33,7 +34,7 @@ public class ReportDAO implements IReportDAO {
                     "WHERE estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws SQLException {
+    public int save(Report report) throws DataAccessException{
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -51,19 +52,20 @@ public class ReportDAO implements IReportDAO {
 
             rowsAffected = statement.executeUpdate();
 
-            // Recuperar el ID generado y asignarlo al DTO
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     report.setIdReport(generatedKeys.getInt(1));
                 }
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error saving report " + sqlException.getMessage(), sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public Report getById(int idReport) throws SQLException {
+    public Report getById(int idReport) throws DataAccessException {
         Report report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -76,13 +78,15 @@ public class ReportDAO implements IReportDAO {
                     report = mapResultSetToReport(resultSet);
                 }
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving report with ID " + idReport, sqlException);
         }
 
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws SQLException {
+    public List<Report> getAll() throws DataAccessException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -92,13 +96,15 @@ public class ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSetToReport(resultSet));
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving all reports", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws SQLException {
+    public List<Report> getByStatusPending() throws DataAccessException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -108,22 +114,24 @@ public class ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSetToReport(resultSet));
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving pending reports", sqlException);
         }
 
         return reports;
     }
 
-    protected Report mapResultSetToReport(ResultSet rs) throws SQLException {
+    protected Report mapResultSetToReport(ResultSet rresultSet) throws SQLException {
         Report report = new Report();
-        report.setIdReport    (rs.getInt   ("id_reporte"));
-        report.setIdIntern    (rs.getInt   ("id_practicante"));
-        report.setIdProyect   (rs.getInt   ("id_proyecto"));
-        report.setIdProfessor (rs.getInt   ("id_profesor"));
-        report.setReportType  (rs.getString("tipo_reporte"));
-        report.setPeriod      (rs.getString("periodo"));
-        report.setDocumentPath(rs.getString("ruta_documento"));
-        report.setStatus      (rs.getString("estado"));
-        report.setSumissionDate(rs.getDate ("fecha_entrega"));
+        report.setIdReport    (rresultSet.getInt   ("id_reporte"));
+        report.setIdIntern    (rresultSet.getInt   ("id_practicante"));
+        report.setIdProyect   (rresultSet.getInt   ("id_proyecto"));
+        report.setIdProfessor (rresultSet.getInt   ("id_profesor"));
+        report.setReportType  (rresultSet.getString("tipo_reporte"));
+        report.setPeriod      (rresultSet.getString("periodo"));
+        report.setDocumentPath(rresultSet.getString("ruta_documento"));
+        report.setStatus      (rresultSet.getString("estado"));
+        report.setSumissionDate(rresultSet.getDate ("fecha_entrega"));
         return report;
     }
 }
