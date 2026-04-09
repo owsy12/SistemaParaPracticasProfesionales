@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 public class UserRoleDAO implements IUserRoleDAO {
 
     private static final Logger LOGGER = Logger.getLogger(UserRoleDAO.class.getName());
+
     private static final String INSERT_USER_ROLE_SQL =
             "INSERT INTO usuario_rol (id_usuario, rol) VALUES (?, ?)";
     private static final String SELECT_ROLES_BY_USER_ID_SQL =
@@ -28,19 +29,24 @@ public class UserRoleDAO implements IUserRoleDAO {
 
     @Override
     public boolean saveUserRole(int userId, String role) {
+        boolean isSaved = false;
+
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement =
-                     connection.prepareStatement(INSERT_USER_ROLE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_ROLE_SQL)) {
+
             preparedStatement.setInt(1, userId);
             preparedStatement.setString(2, role);
-            return preparedStatement.executeUpdate() > 0;
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isSaved = true;
+            }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error saving role {0} for user {1}: {2}",
+            LOGGER.log(Level.SEVERE, "Error saving role {0} for user {1}: {2}",
                     new Object[]{role, userId, sqlException.getMessage()});
-            return false;
         }
+
+        return isSaved;
     }
 
     @Override
@@ -48,8 +54,8 @@ public class UserRoleDAO implements IUserRoleDAO {
         List<String> roleList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement =
-                     connection.prepareStatement(SELECT_ROLES_BY_USER_ID_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ROLES_BY_USER_ID_SQL)) {
+
             preparedStatement.setInt(1, userId);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -59,10 +65,10 @@ public class UserRoleDAO implements IUserRoleDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error finding roles for user {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding roles for user {0}: {1}",
                     new Object[]{userId, sqlException.getMessage()});
         }
+
         return roleList;
     }
 
@@ -71,8 +77,8 @@ public class UserRoleDAO implements IUserRoleDAO {
         List<Map<String, Object>> userList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement =
-                     connection.prepareStatement(SELECT_USERS_BY_ROLE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USERS_BY_ROLE_SQL)) {
+
             preparedStatement.setString(1, role);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -85,27 +91,32 @@ public class UserRoleDAO implements IUserRoleDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error finding users with role {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding users with role {0}: {1}",
                     new Object[]{role, sqlException.getMessage()});
         }
+
         return userList;
     }
 
     @Override
     public boolean deleteUserRole(int userId, String role) {
+        boolean isDeleted = false;
+
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement =
-                     connection.prepareStatement(DELETE_USER_ROLE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER_ROLE_SQL)) {
+
             preparedStatement.setInt(1, userId);
             preparedStatement.setString(2, role);
-            return preparedStatement.executeUpdate() > 0;
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isDeleted = true;
+            }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error deleting role {0} from user {1}: {2}",
+            LOGGER.log(Level.SEVERE, "Error deleting role {0} from user {1}: {2}",
                     new Object[]{role, userId, sqlException.getMessage()});
-            return false;
         }
+
+        return isDeleted;
     }
 }
