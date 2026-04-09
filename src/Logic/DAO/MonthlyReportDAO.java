@@ -3,6 +3,7 @@ package Logic.DAO;
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.MonthlyReport;
 import Logic.DTOs.Report;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IReportDAO;
 
 import java.sql.*;
@@ -33,12 +34,12 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     " WHERE r.tipo_reporte = 'Mensual' AND r.estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws SQLException {
+    public int save(Report report) throws DataAccessException{
         MonthlyReport monthlyReport = (MonthlyReport) report;
         int rowsAffected = 0;
 
-        Connection connection = DataBaseConnection.connectDatabase();
         try {
+            Connection   connection  = DataBaseConnection.connectDatabase();
             connection.setAutoCommit(false);
 
             try (PreparedStatement stamentBase = connection.prepareStatement(
@@ -71,27 +72,24 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                 stamentSpecific.setInt   (1, monthlyReport.getIdReport());
                 stamentSpecific.setString(2, monthlyReport.getMonth());
                 stamentSpecific.setInt   (3, monthlyReport.getYear());
-                stamentSpecific.setFloat (4, 0);     // horas_reportadas no está en el DTO aún
+                stamentSpecific.setFloat (4, 0);
                 stamentSpecific.setString(5, monthlyReport.getBlock());
                 stamentSpecific.setString(6, monthlyReport.getSection());
                 stamentSpecific.executeUpdate();
+
+                connection.commit();
+
             }
 
-            connection.commit();
+        }catch (SQLException ex) {
+            throw new DataAccessException("Error saving report in the database.", ex);
 
-        } catch (SQLException e) {
-            connection.rollback();
-            throw e;
-        } finally {
-            connection.setAutoCommit(true);
-            connection.close();
         }
-
         return rowsAffected;
     }
 
     @Override
-    public MonthlyReport getById(int idReport) throws SQLException {
+    public MonthlyReport getById(int idReport) throws DataAccessException {
         MonthlyReport report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -104,13 +102,15 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     report = mapResultSet(resultSet);
                 }
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving monthly report with ID " + idReport, sqlException);
         }
 
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws SQLException {
+    public List<Report> getAll() throws DataAccessException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -120,13 +120,15 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSet(resultSet));
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving all monthly reports", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws SQLException {
+    public List<Report> getByStatusPending() throws DataAccessException{
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -136,6 +138,8 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSet(resultSet));
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving pending monthly reports", sqlException);
         }
 
         return reports;

@@ -2,6 +2,7 @@ package Logic;
 
 import Logic.DAO.PartialAndFinalReportDAO;
 import Logic.DTOs.PartialAndFinalReport;
+import Logic.Exceptions.DataAccessException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -97,13 +98,13 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_duplicatePeriodSameIntern_throwsSQLException() throws Exception {
+    void save_duplicatePeriodSameIntern() throws DataAccessException{
         PartialAndFinalReport first = buildValidReport();
         dao.save(first);
 
         PartialAndFinalReport duplicate = buildValidReport(); // mismo periodo
 
-        assertThrows(Exception.class, () -> dao.save(duplicate),
-                "Debe lanzar excepción por periodo duplicado para el mismo practicante");
+        assertThrows(DataAccessException.class, () -> dao.save(duplicate),
+                "Error saving report");
     }
 }

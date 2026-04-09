@@ -2,6 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.InitialFormat;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IInitialFormatDAO;
 
 import java.sql.*;
@@ -35,7 +36,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
 
     @Override
-    public int save(InitialFormat initialFormat) throws SQLException {
+    public int save(InitialFormat initialFormat) throws DataAccessException {
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -61,13 +62,15 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                     initialFormat.setIdInitialFormat(generatedKeys.getInt(1));
                 }
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error saving initial format for intern", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public InitialFormat getById(int idInitialFormat) throws SQLException {
+    public InitialFormat getById(int idInitialFormat) throws DataAccessException {
         InitialFormat initialFormat = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -80,13 +83,15 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                     initialFormat = mapResultSet(resultSet);
                 }
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving initial format with ID " + idInitialFormat, sqlException);
         }
 
         return initialFormat;
     }
 
     @Override
-    public List<InitialFormat> getAll() throws SQLException {
+    public List<InitialFormat> getAll() throws DataAccessException {
         List<InitialFormat> initialFormats = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -96,13 +101,15 @@ public class InitialFormatDAO implements IInitialFormatDAO {
             while (resultSet.next()) {
                 initialFormats.add(mapResultSet(resultSet));
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving all initial formats", sqlException);
         }
 
         return initialFormats;
     }
 
     @Override
-    public List<InitialFormat> getByIdIntern(int idIntern) throws SQLException {
+    public List<InitialFormat> getByIdIntern(int idIntern) throws DataAccessException {
         List<InitialFormat> initialFormats = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -115,6 +122,8 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                     initialFormats.add(mapResultSet(resultSet));
                 }
             }
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving initial formats for intern with ID " + idIntern, sqlException);
         }
 
         return initialFormats;

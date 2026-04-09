@@ -1,13 +1,13 @@
 package Logic.Interface;
 
 import Logic.DTOs.InitialFormat;
+import Logic.Exceptions.DataAccessException;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public interface IInitialFormatDAO {
-    int save(InitialFormat initialFormat) throws SQLException;
-    InitialFormat getById(int idInitialFormat) throws SQLException;
-    List<InitialFormat> getAll() throws SQLException;
-    List<InitialFormat> getByIdIntern(int idIntern) throws SQLException;
+    int save(InitialFormat initialFormat) throws DataAccessException;
+    InitialFormat getById(int idInitialFormat) throws DataAccessException;
+    List<InitialFormat> getAll() throws DataAccessException  ;
+    List<InitialFormat> getByIdIntern(int idIntern) throws DataAccessException;
 }

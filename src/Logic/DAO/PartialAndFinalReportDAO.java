@@ -2,6 +2,7 @@ package Logic.DAO;
 
 import Logic.DTOs.PartialAndFinalReport;
 import Logic.DTOs.Report;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
 
@@ -36,12 +37,13 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
 
     @Override
-    public int save(Report report) throws SQLException {
+    public int save(Report report) throws DataAccessException {
         PartialAndFinalReport pfReport = (PartialAndFinalReport) report;
         int rowsAffected = 0;
 
-        Connection connection = DataBaseConnection.connectDatabase();
+
         try {
+            Connection connection = DataBaseConnection.connectDatabase();
             connection.setAutoCommit(false);
 
             try (PreparedStatement stmtBase = connection.prepareStatement(
@@ -68,6 +70,9 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                         pfReport.setIdPartialAndFinalReport(generatedKeys.getInt(1));
                     }
                 }
+            }catch (SQLException e){
+                connection.rollback();
+                throw new DataAccessException("Error saving base report", e);
             }
 
             try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
@@ -79,23 +84,27 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                 stmtSpecific.setString(6, pfReport.getObtainedResults());
                 stmtSpecific.setString(7, pfReport.getObservations());
                 stmtSpecific.executeUpdate();
+            }catch (SQLException e){
+                connection.rollback();
+                throw new DataAccessException("Error saving specific report details", e);
             }
 
             connection.commit();
 
-        } catch (SQLException e) {
-            connection.rollback();
-            throw e;
-        } finally {
-            connection.setAutoCommit(true);
-            connection.close();
+        }catch (SQLException e){
+            throw new DataAccessException("Error in the database.", e);
+
+        } catch (DataAccessException e) {
+
+            throw new DataAccessException("Error saving report", e);
         }
+
 
         return rowsAffected;
     }
 
     @Override
-    public PartialAndFinalReport getById(int idReport) throws SQLException {
+    public PartialAndFinalReport getById(int idReport) throws DataAccessException{
         PartialAndFinalReport report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -108,13 +117,15 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                     report = mapResultSet(resultSet);
                 }
             }
-        }
 
+        }catch (SQLException sqlException) {
+            throw new DataAccessException("Error retrieving report with ID " + idReport, sqlException);
+        }
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws SQLException {
+    public List<Report> getAll() throws DataAccessException{
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -124,13 +135,16 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSet(resultSet));
             }
+
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving all partial and final reports", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws SQLException {
+    public List<Report> getByStatusPending() throws DataAccessException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -140,6 +154,9 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSet(resultSet));
             }
+
+        }catch (SQLException sqlException){
+            throw new DataAccessException("Error retrieving pending partial and final reports", sqlException);
         }
 
         return reports;
@@ -149,7 +166,6 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     private PartialAndFinalReport mapResultSet(ResultSet resultSet) throws SQLException {
         PartialAndFinalReport report = new PartialAndFinalReport();
 
-        // Campos base (heredados de Report)
         report.setIdReport    (resultSet.getInt   ("id_reporte"));
         report.setIdIntern    (resultSet.getInt   ("id_practicante"));
         report.setIdProyect   (resultSet.getInt   ("id_proyecto"));
@@ -159,8 +175,6 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
         report.setDocumentPath(resultSet.getString("ruta_documento"));
         report.setStatus      (resultSet.getString("estado"));
         report.setSumissionDate(resultSet.getDate ("fecha_entrega"));
-
-        // Campos específicos
         report.setIdPartialAndFinalReport(resultSet.getInt   ("id_reporte"));
         report.setReportNumber           (resultSet.getInt   ("numero_informe"));
         report.setCoveredHours           (resultSet.getInt   ("horas_cubiertas"));
@@ -171,4 +185,5 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
         return report;
     }
+
 }
