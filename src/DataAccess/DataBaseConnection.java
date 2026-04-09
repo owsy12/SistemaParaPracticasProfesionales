@@ -5,20 +5,29 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import io.github.cdimascio.dotenv.Dotenv;
 
-public class BDConnection {
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/spp?allowPublicKeyRetrieval=true&useSSL=false";
-    private static final String DB_USER = "spp_user";
-    private static final String DB_PASSWORD = "30dtv01015k";
-    private static final Logger LOGGER = Logger.getLogger(BDConnection.class.getName());
+public class DataBaseConnection {
 
-    private BDConnection() {
+    private static final Dotenv dotenv = Dotenv.load();
+
+    private static final String DB_URL = get("DB_URL");
+    private static final String DB_USER = get("DB_USER");
+    private static final String DB_PASSWORD = get("DB_PASSWORD");
+    private static final Logger LOGGER = Logger.getLogger(DataBaseConnection.class.getName());
+
+    private DataBaseConnection() {
+    }
+
+
+    public static String get(String key) {
+        return dotenv.get(key);
     }
 
     public static Connection connectDatabase() throws SQLException {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName(get("DB_DRIVER"));
         } catch (ClassNotFoundException classNotFoundException) {
             LOGGER.log(Level.SEVERE, "Driver MySQL no encontrado: {0}",
                     classNotFoundException.getMessage());

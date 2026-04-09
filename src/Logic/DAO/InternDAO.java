@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.Intern;
 import Logic.Interface.IInternDAO;
 
@@ -34,7 +34,7 @@ public class InternDAO implements IInternDAO {
 
     @Override
     public boolean saveIntern(Intern intern) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(INSERT_INTERN_SQL)) {
             preparedStatement.setInt(1, intern.getId());
@@ -51,7 +51,7 @@ public class InternDAO implements IInternDAO {
 
     @Override
     public Intern findById(int id) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_INTERN_BY_ID_SQL)) {
             preparedStatement.setInt(1, id);
@@ -74,7 +74,7 @@ public class InternDAO implements IInternDAO {
     public List<Intern> findAll() {
         List<Intern> internList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_INTERNS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -93,7 +93,7 @@ public class InternDAO implements IInternDAO {
 
     @Override
     public boolean deactivateIntern(int id) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_INTERN_STATUS_SQL)) {
             preparedStatement.setInt(1, id);
@@ -109,7 +109,7 @@ public class InternDAO implements IInternDAO {
 
     @Override
     public boolean updateCredits(int id, int credits) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_INTERN_CREDITS_SQL)) {
             preparedStatement.setInt(1, credits);

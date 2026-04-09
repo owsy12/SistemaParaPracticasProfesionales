@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.Interface.IUserRoleDAO;
 
 import java.sql.Connection;
@@ -28,7 +28,7 @@ public class UserRoleDAO implements IUserRoleDAO {
 
     @Override
     public boolean saveUserRole(int userId, String role) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(INSERT_USER_ROLE_SQL)) {
             preparedStatement.setInt(1, userId);
@@ -47,7 +47,7 @@ public class UserRoleDAO implements IUserRoleDAO {
     public List<String> findRolesByUserId(int userId) {
         List<String> roleList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ROLES_BY_USER_ID_SQL)) {
             preparedStatement.setInt(1, userId);
@@ -70,7 +70,7 @@ public class UserRoleDAO implements IUserRoleDAO {
     public List<Map<String, Object>> findUsersByRole(String role) {
         List<Map<String, Object>> userList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_USERS_BY_ROLE_SQL)) {
             preparedStatement.setString(1, role);
@@ -94,7 +94,7 @@ public class UserRoleDAO implements IUserRoleDAO {
 
     @Override
     public boolean deleteUserRole(int userId, String role) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(DELETE_USER_ROLE_SQL)) {
             preparedStatement.setInt(1, userId);

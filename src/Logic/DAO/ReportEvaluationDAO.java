@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.ReportEvaluation;
 import Logic.Interface.IReportEvaluation;
 
@@ -36,7 +36,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
     public int save(ReportEvaluation reportEvaluation) throws SQLException {
         int rowsAffected = 0;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -62,7 +62,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
     public ReportEvaluation getById(int idReportEvaluation) throws SQLException {
         ReportEvaluation reportEvaluation = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
             statement.setInt(1, idReportEvaluation);
@@ -81,7 +81,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
     public ReportEvaluation getByIdReport(int idReport) throws SQLException {
         ReportEvaluation reportEvaluation = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID_REPORT)) {
 
             statement.setInt(1, idReport);
@@ -100,7 +100,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
     public List<ReportEvaluation> getAll() throws SQLException {
         List<ReportEvaluation> reportEvaluations = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = statement.executeQuery()) {
 

@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.Assignment;
 import Logic.Interface.IAssignmentDAO;
 
@@ -43,7 +43,7 @@ public class AssignmentDAO implements IAssignmentDAO {
     public int save(Assignment assignment) throws SQLException {
         int rowsAffected = 0;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -69,7 +69,7 @@ public class AssignmentDAO implements IAssignmentDAO {
     public Assignment getById(int idAssignment) throws SQLException {
         Assignment assignment = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
             statement.setInt(1, idAssignment);
@@ -88,7 +88,7 @@ public class AssignmentDAO implements IAssignmentDAO {
     public List<Assignment> getAll() throws SQLException {
         List<Assignment> assignments = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -104,7 +104,7 @@ public class AssignmentDAO implements IAssignmentDAO {
     public Assignment getByIdIntern(int idIntern) throws SQLException {
         Assignment assignment = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_INTERN)) {
 
             statement.setInt(1, idIntern);
@@ -123,7 +123,7 @@ public class AssignmentDAO implements IAssignmentDAO {
     public List<Assignment> getByIdProject(int idProject) throws SQLException {
         List<Assignment> assignments = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_PROJECT)) {
 
             statement.setInt(1, idProject);

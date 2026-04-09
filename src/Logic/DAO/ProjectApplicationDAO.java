@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.ProjectApplication;
 import Logic.Interface.IProjectApplicationDAO;
 
@@ -36,7 +36,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
     @Override
     public boolean create(ProjectApplication projectApplication) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
 
             preparedStatement.setInt(1, projectApplication.getIdApplication());
@@ -54,7 +54,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
     @Override
     public ProjectApplication findById(int projectApplicationId) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID_SQL)) {
 
             preparedStatement.setInt(1, projectApplicationId);
@@ -77,7 +77,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
     public List<ProjectApplication> findByApplication(int applicationId) {
         List<ProjectApplication> projectApplicationList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_BY_APPLICATION_SQL)) {
 
@@ -101,7 +101,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
     public List<ProjectApplication> findAll() {
         List<ProjectApplication> projectApplicationList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
@@ -119,7 +119,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
     @Override
     public boolean delete(int projectApplicationId) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) {
 
             preparedStatement.setInt(1, projectApplicationId);

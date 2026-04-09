@@ -22,8 +22,6 @@ class AssignmentDAOTest extends BaseDAOTest {
         return assignment;
     }
 
-    // ---------------------------------------------------------------
-
     @Test
     void save_withValidData_returnsOneRowAffected() throws Exception {
         Assignment assignment = buildValidAssignment();

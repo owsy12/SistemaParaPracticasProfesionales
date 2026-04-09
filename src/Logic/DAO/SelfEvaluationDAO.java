@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.SelfEvaluation;
 import Logic.Interface.ISelfEvaluationDAO;
 
@@ -38,7 +38,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
     public int save(SelfEvaluation selfEvaluation) throws SQLException {
         int rowsAffected = 0;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -77,7 +77,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
     public SelfEvaluation getById(int idSelfEvaluation) throws SQLException {
         SelfEvaluation selfEvaluation = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
             statement.setInt(1, idSelfEvaluation);
@@ -96,7 +96,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
     public List<SelfEvaluation> getAll() throws SQLException {
         List<SelfEvaluation> selfEvaluations = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = statement.executeQuery()) {
 

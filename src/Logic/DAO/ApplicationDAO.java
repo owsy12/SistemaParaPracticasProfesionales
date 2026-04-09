@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.Application;
 import Logic.Interface.IApplicationDAO;
 
@@ -38,7 +38,7 @@ public class ApplicationDAO implements IApplicationDAO {
 
     @Override
     public boolean create(Application application) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
 
             preparedStatement.setInt(1, application.getIdIntern());
@@ -55,7 +55,7 @@ public class ApplicationDAO implements IApplicationDAO {
 
     @Override
     public Application findById(int applicationId) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID_SQL)) {
 
             preparedStatement.setInt(1, applicationId);
@@ -76,7 +76,7 @@ public class ApplicationDAO implements IApplicationDAO {
 
     @Override
     public Application findByIntern(int internId) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_INTERN_SQL)) {
 
             preparedStatement.setInt(1, internId);
@@ -99,7 +99,7 @@ public class ApplicationDAO implements IApplicationDAO {
     public List<Application> findAll() {
         List<Application> applicationList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
@@ -119,7 +119,7 @@ public class ApplicationDAO implements IApplicationDAO {
     public List<Application> findByStatus(String status) {
         List<Application> applicationList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_STATUS_SQL)) {
 
             preparedStatement.setString(1, status);
@@ -140,7 +140,7 @@ public class ApplicationDAO implements IApplicationDAO {
 
     @Override
     public boolean updateStatus(int applicationId, String status) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_STATUS_SQL)) {
 
             preparedStatement.setString(1, status);

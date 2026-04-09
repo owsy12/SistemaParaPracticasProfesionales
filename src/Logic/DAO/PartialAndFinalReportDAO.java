@@ -3,7 +3,7 @@ package Logic.DAO;
 import Logic.DTOs.PartialAndFinalReport;
 import Logic.DTOs.Report;
 import Logic.Interface.IReportDAO;
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
         PartialAndFinalReport pfReport = (PartialAndFinalReport) report;
         int rowsAffected = 0;
 
-        Connection connection = BDConnection.connectDatabase();
+        Connection connection = DataBaseConnection.connectDatabase();
         try {
             connection.setAutoCommit(false);
 
@@ -98,7 +98,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     public PartialAndFinalReport getById(int idReport) throws SQLException {
         PartialAndFinalReport report = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
             statement.setInt(1, idReport);
@@ -117,7 +117,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     public List<Report> getAll() throws SQLException {
         List<Report> reports = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -133,7 +133,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     public List<Report> getByStatusPending() throws SQLException {
         List<Report> reports = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_PENDING);
              ResultSet resultSet = statement.executeQuery()) {
 

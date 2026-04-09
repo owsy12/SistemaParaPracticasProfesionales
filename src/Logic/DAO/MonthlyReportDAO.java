@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.MonthlyReport;
 import Logic.DTOs.Report;
 import Logic.Interface.IReportDAO;
@@ -37,30 +37,29 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
         MonthlyReport monthlyReport = (MonthlyReport) report;
         int rowsAffected = 0;
 
-        Connection connection = BDConnection.connectDatabase();
+        Connection connection = DataBaseConnection.connectDatabase();
         try {
             connection.setAutoCommit(false);
 
-            // Paso 1: insertar en tabla base
-            try (PreparedStatement stmtBase = connection.prepareStatement(
+            try (PreparedStatement stamentBase = connection.prepareStatement(
                     "INSERT INTO reporte " +
                             "(id_practicante, id_proyecto, id_profesor, " +
                             " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
                             "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     Statement.RETURN_GENERATED_KEYS)) {
 
-                stmtBase.setInt   (1, monthlyReport.getIdIntern());
-                stmtBase.setInt   (2, monthlyReport.getIdProyect());
-                stmtBase.setInt   (3, monthlyReport.getIdProfessor());
-                stmtBase.setString(4, monthlyReport.getReportType());
-                stmtBase.setString(5, monthlyReport.getPeriod());
-                stmtBase.setString(6, monthlyReport.getDocumentPath());
-                stmtBase.setString(7, monthlyReport.getStatus());
-                stmtBase.setDate  (8, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
+                stamentBase.setInt   (1, monthlyReport.getIdIntern());
+                stamentBase.setInt   (2, monthlyReport.getIdProyect());
+                stamentBase.setInt   (3, monthlyReport.getIdProfessor());
+                stamentBase.setString(4, monthlyReport.getReportType());
+                stamentBase.setString(5, monthlyReport.getPeriod());
+                stamentBase.setString(6, monthlyReport.getDocumentPath());
+                stamentBase.setString(7, monthlyReport.getStatus());
+                stamentBase.setDate  (8, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
 
-                rowsAffected = stmtBase.executeUpdate();
+                rowsAffected = stamentBase.executeUpdate();
 
-                try (ResultSet generatedKeys = stmtBase.getGeneratedKeys()) {
+                try (ResultSet generatedKeys = stamentBase.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         monthlyReport.setIdReport(generatedKeys.getInt(1));
                         monthlyReport.setIdMonthlyReport(generatedKeys.getInt(1));
@@ -68,14 +67,14 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                 }
             }
 
-            try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
-                stmtSpecific.setInt   (1, monthlyReport.getIdReport());
-                stmtSpecific.setString(2, monthlyReport.getMonth());
-                stmtSpecific.setInt   (3, monthlyReport.getYear());
-                stmtSpecific.setFloat (4, 0);     // horas_reportadas no está en el DTO aún
-                stmtSpecific.setString(5, monthlyReport.getBlock());
-                stmtSpecific.setString(6, monthlyReport.getSection());
-                stmtSpecific.executeUpdate();
+            try (PreparedStatement stamentSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
+                stamentSpecific.setInt   (1, monthlyReport.getIdReport());
+                stamentSpecific.setString(2, monthlyReport.getMonth());
+                stamentSpecific.setInt   (3, monthlyReport.getYear());
+                stamentSpecific.setFloat (4, 0);     // horas_reportadas no está en el DTO aún
+                stamentSpecific.setString(5, monthlyReport.getBlock());
+                stamentSpecific.setString(6, monthlyReport.getSection());
+                stamentSpecific.executeUpdate();
             }
 
             connection.commit();
@@ -95,7 +94,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
     public MonthlyReport getById(int idReport) throws SQLException {
         MonthlyReport report = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
             statement.setInt(1, idReport);
@@ -114,7 +113,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
     public List<Report> getAll() throws SQLException {
         List<Report> reports = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -130,7 +129,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
     public List<Report> getByStatusPending() throws SQLException {
         List<Report> reports = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_PENDING);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -145,7 +144,6 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
     private MonthlyReport mapResultSet(ResultSet resultSet) throws SQLException {
         MonthlyReport report = new MonthlyReport();
 
-        // Campos base (heredados de Report)
         report.setIdReport    (resultSet.getInt   ("id_reporte"));
         report.setIdIntern    (resultSet.getInt   ("id_practicante"));
         report.setIdProyect   (resultSet.getInt   ("id_proyecto"));
@@ -155,8 +153,6 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
         report.setDocumentPath(resultSet.getString("ruta_documento"));
         report.setStatus      (resultSet.getString("estado"));
         report.setSumissionDate(resultSet.getDate ("fecha_entrega"));
-
-        // Campos específicos
         report.setIdMonthlyReport(resultSet.getInt   ("id_reporte"));
         report.setMonth          (resultSet.getString("mes"));
         report.setYear           (resultSet.getInt   ("anio"));

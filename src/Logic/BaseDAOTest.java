@@ -1,6 +1,6 @@
 package Logic;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -35,7 +35,7 @@ public abstract class BaseDAOTest {
 
     @BeforeEach
     void setUpDatabase() throws SQLException {
-        try (Connection conn = BDConnection.connectDatabase();
+        try (Connection conn = DataBaseConnection.connectDatabase();
              Statement stmt = conn.createStatement()) {
 
             stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
@@ -47,7 +47,7 @@ public abstract class BaseDAOTest {
 
     @AfterEach
     void tearDownDatabase() throws SQLException {
-        try (Connection conn = BDConnection.connectDatabase();
+        try (Connection conn = DataBaseConnection.connectDatabase();
              Statement stmt = conn.createStatement()) {
 
             stmt.execute("SET FOREIGN_KEY_CHECKS = 0");

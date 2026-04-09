@@ -1,10 +1,3 @@
--- ============================================================
---  SISTEMA DE GESTIÓN DE PRÁCTICAS PROFESIONALES
---  Base de datos MySQL — versión derivada de CU-01 a CU-24 (v4)
---  + documentos: reporte_parcial, reporte_final, autoevaluacion
---
---  Ejecutar: mysql -u root -p < spp_completo.sql
--- ============================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP DATABASE IF EXISTS spp;
@@ -13,42 +6,10 @@ CREATE DATABASE spp
     COLLATE utf8mb4_unicode_ci;
 USE spp;
 
--- ============================================================
---  DECISIONES DE DISEÑO
--- ============================================================
---
---  [A] ROL DUAL  (coordinador ↔ profesor)
---      Un mismo id_usuario puede tener varios roles. Se resuelve
---      con una tabla usuario_rol(id_usuario, rol). Las tablas
---      coordinador y profesor siguen existiendo para sus atributos
---      propios. El login consulta usuario_rol para saber qué menú
---      mostrar; si un usuario tiene ambos roles, el sistema puede
---      elegir el contexto activo.
---
---  [B] AUTOEVALUACION
---      CU-22 paso 7: "el sistema guarda en la base de datos"
---      → las 10 afirmaciones, puntuacion_final y lugar_fecha
---      SÍ se persisten en ese paso.
---      CU-23: sube el PDF firmado → actualiza ruta_documento
---      y estado a 'Pendiente'.
---
---  [C] REPORTE MENSUAL
---      CU-20 define tres tipos: Parcial, Final, Mensual.
---      Se usa una sola tabla reporte con columnas opcionales
---      (NULL) propias de cada tipo.
---
---  [D] HERENCIA DE USUARIOS (Class Table Inheritance)
---      Tabla base: usuario  (campos comunes)
---      Tablas hija: administrador, coordinador, profesor,
---                   practicante  (atributos propios)
---      La matrícula es el identificador de login (CU-01…CU-14).
---
--- ============================================================
 
 
--- ============================================================
 --  1. USUARIO BASE
--- ============================================================
+
 
 CREATE TABLE usuario (
                          id_usuario        INT          NOT NULL AUTO_INCREMENT,
@@ -64,12 +25,7 @@ CREATE TABLE usuario (
     COMMENT='Tabla base de todos los actores del sistema';
 
 
--- ============================================================
---  2. ROL POR USUARIO  — soporta rol dual coordinador/profesor
---     CU-01 registra Coordinador, CU-02 registra Profesor;
---     ambos pueden coexistir en el mismo id_usuario.
--- ============================================================
-
+--  2. ROL POR USUARIO
 CREATE TABLE usuario_rol (
                              id_usuario  INT  NOT NULL,
                              rol         ENUM('Administrador','Coordinador','Profesor','Practicante')
@@ -154,90 +110,6 @@ CREATE TABLE organizacion_vinculada (
     COMMENT='CU-05 registra; CU-06 consulta; CU-09 referencia';
 
 
--- ============================================================
---  5. TÉCNICO RESPONSABLE
---     CU-07: campos nombreResponsable, apellidoPaternoResponsable,
---            apellidoMaternoResponsable, correoResponsable,
---            cargoResponsable, id_organizacion
--- ============================================================
-
-CREATE TABLE tecnico_responsable (
-                                     id_tecnico            INT          NOT NULL AUTO_INCREMENT,
-                                     id_organizacion       INT          NOT NULL,
-                                     nombre                VARCHAR(80)  NOT NULL,
-                                     apellido_paterno      VARCHAR(60)  NOT NULL,
-                                     apellido_materno      VARCHAR(60)  NOT NULL,
-                                     correo_responsable    VARCHAR(120) NOT NULL,
-                                     cargo                 VARCHAR(100) NOT NULL,
-                                     PRIMARY KEY (id_tecnico),
-                                     UNIQUE KEY uq_tec_correo_org (correo_responsable, id_organizacion),
-                                     CONSTRAINT fk_tec_org
-                                         FOREIGN KEY (id_organizacion)
-                                             REFERENCES organizacion_vinculada (id_organizacion)
-                                             ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-07 registra; CU-08 consulta; CU-09 referencia';
-
-
--- ============================================================
---  6. PROYECTO
---     CU-09: nombre, descripcion, fechaInicio, fechaFin,
---            cupoMaximo; selecciona org. vinculada y técnico.
---     CU-10: asigna practicante → reduce cupo_disponible.
---     CU-11: elimina. CU-12: actualiza.
--- ============================================================
-
-CREATE TABLE proyecto (
-                          id_proyecto      INT          NOT NULL AUTO_INCREMENT,
-                          id_organizacion  INT          NOT NULL,
-                          id_tecnico       INT          NOT NULL,
-                          id_coordinador   INT          NOT NULL COMMENT 'FK → coordinador.id_usuario',
-                          nombre           VARCHAR(150) NOT NULL,
-                          descripcion      TEXT         NOT NULL,
-                          fecha_inicio     DATE         NOT NULL,
-                          fecha_fin        DATE         NOT NULL,
-                          cupo_maximo      INT          NOT NULL,
-                          cupo_disponible  INT          NOT NULL,
-                          estado           ENUM('Disponible','Lleno','Concluido','Cancelado')
-                                                        NOT NULL DEFAULT 'Disponible',
-                          PRIMARY KEY (id_proyecto),
-                          UNIQUE KEY uq_proy_nombre_org (nombre, id_organizacion),
-                          CONSTRAINT fk_proy_org
-                              FOREIGN KEY (id_organizacion)
-                                  REFERENCES organizacion_vinculada (id_organizacion)
-                                  ON UPDATE CASCADE ON DELETE RESTRICT,
-                          CONSTRAINT fk_proy_tec
-                              FOREIGN KEY (id_tecnico)
-                                  REFERENCES tecnico_responsable (id_tecnico)
-                                  ON UPDATE CASCADE ON DELETE RESTRICT,
-                          CONSTRAINT fk_proy_coord
-                              FOREIGN KEY (id_coordinador)
-                                  REFERENCES coordinador (id_usuario)
-                                  ON UPDATE CASCADE ON DELETE RESTRICT,
-                          CONSTRAINT chk_fechas
-                              CHECK (fecha_fin > fecha_inicio),
-                          CONSTRAINT chk_cupo_maximo
-                              CHECK (cupo_maximo > 0),
-                          CONSTRAINT chk_cupo_disponible
-                              CHECK (cupo_disponible >= 0)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-09 registra; CU-10 asigna; CU-11 elimina; CU-12 actualiza';
-
-
--- ============================================================
---  7. ACTIVIDAD
---     CU-16 (extiende a CU-09): título, descripción, fecha
---     de entrega, criterios de evaluación, porcentaje.
---     El PDF generado se almacena en disco (ruta_documento).
--- ============================================================
-
--- ============================================================
---  8. SOLICITUD Y SUS OPCIONES DE PROYECTO
---     CU-19: practicante elige hasta 3 proyectos en orden de
---            preferencia y envía solicitud.
---     CU-10: coordinador la acepta → estado 'Aceptada'.
--- ============================================================
-
 CREATE TABLE solicitud (
                            id_solicitud     INT      NOT NULL AUTO_INCREMENT,
                            id_practicante   INT      NOT NULL,
@@ -253,9 +125,6 @@ CREATE TABLE solicitud (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-19 registra; CU-10 acepta';
 
--- ----------------------------------------------------------
--- Opciones de proyecto dentro de una solicitud (1 a 3)
--- CU-19 paso 2: selecciona 3 proyectos en orden de preferencia
 
 CREATE TABLE solicitud_proyecto (
                                     id_solicitud_proyecto  INT     NOT NULL AUTO_INCREMENT,
@@ -279,10 +148,6 @@ CREATE TABLE solicitud_proyecto (
     COMMENT='CU-19: hasta 3 opciones por solicitud';
 
 
--- ============================================================
---  9. ASIGNACIÓN
---     CU-10: coordinador asigna proyecto a practicante.
--- ============================================================
 
 CREATE TABLE asignacion (
                             id_asignacion     INT      NOT NULL AUTO_INCREMENT,
@@ -308,15 +173,6 @@ CREATE TABLE asignacion (
     COMMENT='CU-10 registra; un practicante solo puede tener una asignación';
 
 
--- ============================================================
---  10. FORMATOS INICIALES
---      CU-18: practicante sube 4 documentos obligatorios.
---      Tipos según el documento del CU:
---        · Carta de Asignación
---        · Horario
---        · Certificado de Seguro
---        · Cronograma de Actividades
--- ============================================================
 
 CREATE TABLE formato_inicial (
                                  id_formato        INT          NOT NULL AUTO_INCREMENT,
@@ -340,23 +196,6 @@ CREATE TABLE formato_inicial (
     COMMENT='CU-18: practicante sube los 4 formatos iniciales';
 
 
--- ============================================================
---  11. REPORTE
---      CU-20 genera el PDF (3 tipos: Parcial, Final, Mensual).
---      CU-21 sube el firmado → estado 'Pendiente'.
---      CU-17 evalúa        → estado 'Evaluado'.
---
---      Columnas por tipo:
---        Todos    : periodo, ruta_documento, calificacion,
---                   retroalimentacion, porcentaje_avance,
---                   observaciones
---        Parcial  : numero_informe, horas_cubiertas,
---                   objetivo_general, metodologia,
---                   resultados_obtenidos
---        Final    : horas_cubiertas, objetivo_general,
---                   metodologia (reutiliza columnas de Parcial)
---        Mensual  : mes, anio, horas_reportadas, bloque, seccion
--- ============================================================
 
 CREATE TABLE reporte (
                          id_reporte          INT           NOT NULL AUTO_INCREMENT,
@@ -372,7 +211,7 @@ CREATE TABLE reporte (
 
 
 
-    -- Campos exclusivos Mensual (CU-20)
+
                          PRIMARY KEY (id_reporte),
                          UNIQUE KEY uq_rep_prac_tipo_periodo (id_practicante, tipo_reporte, periodo),
                          CONSTRAINT fk_rep_prac
@@ -437,18 +276,6 @@ CREATE TABLE evaluacion_reporte(
 
 );
 
--- ============================================================
---  12. AUTOEVALUACIÓN
---      CU-22: genera PDF Y guarda en BD las 10 afirmaciones,
---             puntuacion_final y lugar_fecha.
---      CU-23: sube el PDF firmado → actualiza ruta_documento,
---             estado queda 'Pendiente'.
---
---      El documento autoevaluacion.docx confirma:
---        · 10 afirmaciones escala 1-5
---        · PUNTUACIÓN FINAL (suma 10-50)
---        · LUGAR Y FECHA (texto libre)
--- ============================================================
 
 CREATE TABLE autoevaluacion (
                                 id_autoevaluacion  INT          NOT NULL AUTO_INCREMENT,
@@ -456,7 +283,7 @@ CREATE TABLE autoevaluacion (
                                 id_proyecto        INT          NOT NULL,
                                 periodo            VARCHAR(50)  NOT NULL,
 
-    -- 10 afirmaciones (CU-22 paso 7: se guardan en BD)
+
                                 afirmacion_01  TINYINT  NULL COMMENT '1=Tot. desacuerdo…5=Tot. acuerdo',
                                 afirmacion_02  TINYINT  NULL,
                                 afirmacion_03  TINYINT  NULL,
@@ -469,8 +296,6 @@ CREATE TABLE autoevaluacion (
                                 afirmacion_10  TINYINT  NULL,
                                 puntuacion_final TINYINT NULL COMMENT 'Suma afirmaciones (10-50)',
                                 lugar_fecha    VARCHAR(200) NULL COMMENT 'Campo lugarYFecha (CU-22)',
-
-    -- Subida del firmado (CU-23)
                                 ruta_documento VARCHAR(500) NOT NULL COMMENT 'Ruta del PDF firmado (CU-23)',
                                 estado         ENUM('Pendiente','Revisada') NOT NULL DEFAULT 'Pendiente',
                                 fecha_entrega  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -495,14 +320,9 @@ CREATE TABLE autoevaluacion (
                                 CONSTRAINT chk_af08 CHECK (afirmacion_08 IS NULL OR afirmacion_08 BETWEEN 1 AND 5),
                                 CONSTRAINT chk_af09 CHECK (afirmacion_09 IS NULL OR afirmacion_09 BETWEEN 1 AND 5),
                                 CONSTRAINT chk_af10 CHECK (afirmacion_10 IS NULL OR afirmacion_10 BETWEEN 1 AND 5)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-22 genera y guarda datos; CU-23 sube PDF firmado';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
--- ============================================================
---  13. EVALUACIÓN DE LA ORGANIZACIÓN VINCULADA
---      CU-24: practicante solo sube el documento firmado.
--- ============================================================
 
 CREATE TABLE evaluacion_ov (
                                id_evaluacion_ov  INT          NOT NULL AUTO_INCREMENT,

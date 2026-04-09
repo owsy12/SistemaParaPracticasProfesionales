@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.Project;
 import Logic.Interface.IProjectDAO;
 
@@ -54,7 +54,7 @@ public class ProjectDAO implements IProjectDAO {
 
     @Override
     public boolean saveProject(Project project) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(INSERT_PROJECT_SQL)) {
             preparedStatement.setInt(1, project.getIdOrganization());
@@ -81,7 +81,7 @@ public class ProjectDAO implements IProjectDAO {
 
     @Override
     public Project findById(int idProyecto) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_PROJECT_BY_ID_SQL)) {
             preparedStatement.setInt(1, idProyecto);
@@ -104,7 +104,7 @@ public class ProjectDAO implements IProjectDAO {
     public List<Project> findAll() {
         List<Project> projectList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_PROJECTS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -125,7 +125,7 @@ public class ProjectDAO implements IProjectDAO {
     public List<Project> findAllAvailable() {
         List<Project> projectList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_AVAILABLE_PROJECTS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -146,7 +146,7 @@ public class ProjectDAO implements IProjectDAO {
     public List<Project> findByCoordinator(int idCoordinador) {
         List<Project> projectList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_PROJECTS_BY_COORDINATOR_SQL)) {
             preparedStatement.setInt(1, idCoordinador);
@@ -167,7 +167,7 @@ public class ProjectDAO implements IProjectDAO {
 
     @Override
     public boolean update(Project project) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_PROJECT_SQL)) {
             preparedStatement.setInt(1, project.getIdOrganization());
@@ -194,7 +194,7 @@ public class ProjectDAO implements IProjectDAO {
 
     @Override
     public boolean cancelProject(int idProyecto) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_PROJECT_STATUS_SQL)) {
             preparedStatement.setInt(1, idProyecto);
@@ -210,7 +210,7 @@ public class ProjectDAO implements IProjectDAO {
 
     @Override
     public boolean decrementAvailableSlot(int idProyecto) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_AVAILABLE_SLOT_SQL)) {
             preparedStatement.setInt(1, idProyecto);

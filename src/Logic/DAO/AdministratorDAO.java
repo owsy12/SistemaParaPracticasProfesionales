@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.Administrator;
 import Logic.Interface.IAdministratorDAO;
 
@@ -32,7 +32,7 @@ public class AdministratorDAO implements IAdministratorDAO {
 
     @Override
     public boolean saveAdmin(Administrator administrator) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(INSERT_ADMINISTRATOR_SQL)) {
             preparedStatement.setInt(1, administrator.getId());
@@ -48,7 +48,7 @@ public class AdministratorDAO implements IAdministratorDAO {
 
     @Override
     public Administrator findById(int id) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ADMINISTRATOR_BY_ID_SQL)) {
             preparedStatement.setInt(1, id);
@@ -71,7 +71,7 @@ public class AdministratorDAO implements IAdministratorDAO {
     public List<Administrator> findAll() {
         List<Administrator> administratorList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_ADMINISTRATORS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {

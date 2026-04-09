@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import Logic.DTOs.Report;
 import Logic.Interface.IReportDAO;
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class ReportDAO implements IReportDAO {
     public int save(Report report) throws SQLException {
         int rowsAffected = 0;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -66,7 +66,7 @@ public class ReportDAO implements IReportDAO {
     public Report getById(int idReport) throws SQLException {
         Report report = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
             statement.setInt(1, idReport);
@@ -85,7 +85,7 @@ public class ReportDAO implements IReportDAO {
     public List<Report> getAll() throws SQLException {
         List<Report> reports = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -101,7 +101,7 @@ public class ReportDAO implements IReportDAO {
     public List<Report> getByStatusPending() throws SQLException {
         List<Report> reports = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_PENDING);
              ResultSet resultSet = statement.executeQuery()) {
 

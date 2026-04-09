@@ -1,12 +1,11 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.InitialFormat;
 import Logic.Interface.IInitialFormatDAO;
 
 import java.sql.*;
 
-import java.sql.Types.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +38,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
     public int save(InitialFormat initialFormat) throws SQLException {
         int rowsAffected = 0;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -71,7 +70,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
     public InitialFormat getById(int idInitialFormat) throws SQLException {
         InitialFormat initialFormat = null;
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
             statement.setInt(1, idInitialFormat);
@@ -90,7 +89,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
     public List<InitialFormat> getAll() throws SQLException {
         List<InitialFormat> initialFormats = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -106,7 +105,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
     public List<InitialFormat> getByIdIntern(int idIntern) throws SQLException {
         List<InitialFormat> initialFormats = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_INTERN)) {
 
             statement.setInt(1, idIntern);

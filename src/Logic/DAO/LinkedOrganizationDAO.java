@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.LinkedOrganization;
 import Logic.Interface.ILinkedOrganizationDAO;
 
@@ -20,17 +20,21 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             "INSERT INTO organizacion_vinculada " +
             "(nombre_organizacion, correo_organizacion, direccion, sector, estado) " +
             "VALUES (?, ?, ?, ?, ?)";
+
     private static final String SELECT_LINKED_ORGANIZATION_BY_ID_SQL =
             "SELECT id_organizacion, nombre_organizacion, correo_organizacion, " +
             "direccion, sector, estado FROM organizacion_vinculada " +
             "WHERE id_organizacion = ?";
+
     private static final String SELECT_ALL_LINKED_ORGANIZATIONS_SQL =
             "SELECT id_organizacion, nombre_organizacion, correo_organizacion, " +
             "direccion, sector, estado FROM organizacion_vinculada";
+
     private static final String SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL =
             "SELECT id_organizacion, nombre_organizacion, correo_organizacion, " +
             "direccion, sector, estado FROM organizacion_vinculada " +
             "WHERE estado = 'Activa'";
+    
     private static final String UPDATE_LINKED_ORGANIZATION_SQL =
             "UPDATE organizacion_vinculada " +
             "SET nombre_organizacion = ?, correo_organizacion = ?, " +
@@ -41,7 +45,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     @Override
     public boolean saveLinkedOrganization(LinkedOrganization linkedOrganization) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(INSERT_LINKED_ORGANIZATION_SQL)) {
             preparedStatement.setString(1, linkedOrganization.getName());
@@ -61,7 +65,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     @Override
     public LinkedOrganization findById(int idOrganizacion) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_LINKED_ORGANIZATION_BY_ID_SQL)) {
             preparedStatement.setInt(1, idOrganizacion);
@@ -84,7 +88,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     public List<LinkedOrganization> findAll() {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_LINKED_ORGANIZATIONS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -105,7 +109,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     public List<LinkedOrganization> findAllActive() {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -124,7 +128,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     @Override
     public boolean update(LinkedOrganization linkedOrganization) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_SQL)) {
             preparedStatement.setString(1, linkedOrganization.getName());
@@ -145,7 +149,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     @Override
     public boolean deactivateLinkedOrganization(int idOrganizacion) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_STATUS_SQL)) {
             preparedStatement.setInt(1, idOrganizacion);
@@ -165,7 +169,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 resultSet.getString("nombre_organizacion"),
                 resultSet.getString("sector"),
                 resultSet.getString("direccion "),
-                ""  // Department not in result set
+                ""
         );
     }
 }

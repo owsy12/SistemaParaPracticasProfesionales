@@ -1,6 +1,6 @@
 package Logic.DAO;
 
-import DataAccess.BDConnection;
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.TechnicalSupervisor;
 import Logic.Interface.ITechnicalResponsibleDAO;
 
@@ -39,7 +39,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     @Override
     public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(INSERT_TECHNICAL_SUPERVISOR_SQL)) {
             preparedStatement.setInt(1, technicalResponsible.getIdOrganization());
@@ -62,7 +62,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     @Override
     public TechnicalSupervisor findById(int idTecnico) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
             preparedStatement.setInt(1, idTecnico);
@@ -85,7 +85,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     public List<TechnicalSupervisor> findByOrganization(int idOrganizacion) {
         List<TechnicalSupervisor> technicalList = new ArrayList<>();
 
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL)) {
             preparedStatement.setInt(1, idOrganizacion);
@@ -106,7 +106,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     @Override
     public boolean update(TechnicalSupervisor technicalResponsible) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_TECHNICAL_SUPERVISOR_SQL)) {
             preparedStatement.setString(1, technicalResponsible.getName());
@@ -128,7 +128,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     @Override
     public boolean delete(int idTecnico) {
-        try (Connection connection = BDConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(DELETE_TECHNICAL_SUPERVISOR_SQL)) {
             preparedStatement.setInt(1, idTecnico);
