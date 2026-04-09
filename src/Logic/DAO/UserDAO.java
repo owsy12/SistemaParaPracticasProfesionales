@@ -1,36 +1,18 @@
 package Logic.DAO;
 
 import Logic.DTOs.User;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IUserDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserDAO implements IUserDAO {
 
     private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
-
-    private static final String INSERT_USER_SQL =
-            "INSERT INTO usuario (matricula, nombre, apellido_paterno, apellido_materno, contrasenia, rol, estado) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
-    private static final String SELECT_USER_BY_ID_SQL =
-            "SELECT * FROM usuario WHERE id_usuario = ?";
-    private static final String SELECT_ALL_USERS_SQL =
-            "SELECT * FROM usuario";
-    private static final String UPDATE_USER_SQL =
-            "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? WHERE id_usuario=?";
-    private static final String DELETE_USER_SQL =
-            "DELETE FROM usuario WHERE id_usuario=?";
-    private static final String SELECT_USER_BY_MATRICULA_SQL =
-            "SELECT * FROM usuario WHERE matricula=?";
-
     private final Connection connection;
 
     public UserDAO(Connection connection) {
@@ -38,137 +20,154 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean saveUser(User user) {
+    public boolean saveUser(User user) throws DataAccessException {
         boolean isSaved = false;
+        String sql = "INSERT INTO usuario (matricula, nombre, apellido_paterno, apellido_materno, contrasenia, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_SQL)) {
+        try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, user.getMatricula());
-            preparedStatement.setString(2, user.getFirstName());
-            preparedStatement.setString(3, user.getLastName());
-            preparedStatement.setString(4, user.getSecondLastName());
-            preparedStatement.setString(5, user.getPassword());
-            preparedStatement.setString(7, user.getStatus());
+            prepareStatement.setString(1, user.getMatricula());
+            prepareStatement.setString(2, user.getFirstName());
+            prepareStatement.setString(3, user.getLastName());
+            prepareStatement.setString(4, user.getSecondLastName());
+            prepareStatement.setString(5, user.getPassword());
+            prepareStatement.setString(7, user.getStatus());
 
-            if (preparedStatement.executeUpdate() > 0) {
+            if (prepareStatement.executeUpdate() > 0) {
                 isSaved = true;
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "General SQL error in UserDAO.save(): {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al guardar el usuario en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Optional<User> findById(int id) {
-        Optional<User> userResult = Optional.empty();
+    public User findById(int id) throws DataAccessException {
+        User userResult = null;
+        String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_ID_SQL)) {
-            preparedStatement.setInt(1, id);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    userResult = Optional.of(mapUser(resultSet));
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    userResult = mapUser(rs);
                 }
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding user by ID: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al buscar el usuario por ID.", sqlException);
         }
 
         return userResult;
     }
 
     @Override
-    public List<User> findAll() {
+    public List<User> findAll() throws DataAccessException {
         List<User> userList = new ArrayList<>();
+        String sql = "SELECT * FROM usuario";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_USERS_SQL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
 
-            while (resultSet.next()) {
-                userList.add(mapUser(resultSet));
+            while (rs.next()) {
+                userList.add(mapUser(rs));
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving all users: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar la lista de usuarios.", sqlException);
         }
 
         return userList;
     }
 
     @Override
-    public boolean update(User user) {
+    public boolean update(User user) throws DataAccessException {
         boolean isUpdated = false;
+        String sql = "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? WHERE id_usuario=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_SQL)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, user.getFirstName());
-            preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setString(3, user.getSecondLastName());
-            preparedStatement.setString(4, user.getStatus());
-            preparedStatement.setInt(5, user.getId());
+            ps.setString(1, user.getFirstName());
+            ps.setString(2, user.getLastName());
+            ps.setString(3, user.getSecondLastName());
+            ps.setString(4, user.getStatus());
+            ps.setInt(5, user.getId());
 
-            if (preparedStatement.executeUpdate() > 0) {
+            if (ps.executeUpdate() > 0) {
                 isUpdated = true;
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating user: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al actualizar el usuario.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean delete(int id) {
+    public boolean delete(int id) throws DataAccessException {
         boolean isDeleted = false;
+        String sql = "DELETE FROM usuario WHERE id_usuario=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(DELETE_USER_SQL)) {
-            preparedStatement.setInt(1, id);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            if (preparedStatement.executeUpdate() > 0) {
+            ps.setInt(1, id);
+
+            if (ps.executeUpdate() > 0) {
                 isDeleted = true;
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deleting user: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al eliminar el usuario.", sqlException);
         }
 
         return isDeleted;
     }
 
     @Override
-    public Optional<User> findByMatricula(String matricula) {
-        Optional<User> userResult = Optional.empty();
+    public User findByMatricula(String matricula) throws DataAccessException {
+        User userResult = null;
+        String sql = "SELECT * FROM usuario WHERE matricula=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(SELECT_USER_BY_MATRICULA_SQL)) {
-            preparedStatement.setString(1, matricula);
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    userResult = Optional.of(mapUser(resultSet));
+            ps.setString(1, matricula);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    userResult = mapUser(rs);
                 }
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding user by matricula: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al buscar usuario por matrícula.", sqlException);
         }
 
         return userResult;
     }
 
-    private User mapUser(ResultSet resultSet) throws SQLException {
+    private User mapUser(ResultSet rs) throws SQLException {
         User user = new User();
-        user.setId(resultSet.getInt("id_usuario"));
-        user.setMatricula(resultSet.getString("matricula"));
-        user.setName(resultSet.getString("nombre"));
-        user.setLastName(resultSet.getString("apellido_paterno"));
-        user.setSecondLastName(resultSet.getString("apellido_materno"));
-        user.setPassword(resultSet.getString("contrasenia"));
-        user.setStatus(resultSet.getString("estado"));
+
+        user.setId(rs.getInt("id_usuario"));
+        user.setMatricula(rs.getString("matricula"));
+        user.setName(rs.getString("nombre"));
+        user.setLastName(rs.getString("apellido_paterno"));
+        user.setSecondLastName(rs.getString("apellido_materno"));
+        user.setPassword(rs.getString("contrasenia"));
+        user.setStatus(rs.getString("estado"));
+
         return user;
     }
 }

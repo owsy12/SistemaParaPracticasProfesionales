@@ -2,16 +2,12 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Assignment;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IAssignmentDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,140 +16,138 @@ public class AssignmentDAO implements IAssignmentDAO {
     private static final Logger LOGGER = Logger.getLogger(AssignmentDAO.class.getName());
 
     private static final String SQL_INSERT =
-            "INSERT INTO asignacion " +
-                    "(id_practicante, id_proyecto, id_solicitud, fecha_asignacion) " +
+            "INSERT INTO asignacion (id_practicante, id_proyecto, id_solicitud, fecha_asignacion) " +
                     "VALUES (?, ?, ?, ?)";
 
     private static final String SQL_SELECT_BY_ID =
-            "SELECT id_asignacion, id_practicante, id_proyecto, " +
-                    "id_solicitud, fecha_asignacion " +
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion WHERE id_asignacion = ?";
 
     private static final String SQL_SELECT_ALL =
-            "SELECT id_asignacion, id_practicante, id_proyecto, " +
-                    "id_solicitud, fecha_asignacion FROM asignacion";
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
+                    "FROM asignacion";
 
     private static final String SQL_SELECT_BY_INTERN =
-            "SELECT id_asignacion, id_practicante, id_proyecto, " +
-                    "id_solicitud, fecha_asignacion " +
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion WHERE id_practicante = ?";
 
     private static final String SQL_SELECT_BY_PROJECT =
-            "SELECT id_asignacion, id_practicante, id_proyecto, " +
-                    "id_solicitud, fecha_asignacion " +
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion WHERE id_proyecto = ?";
 
     @Override
-    public int save(Assignment assignment) {
+    public int save(Assignment assignment) throws DataAccessException {
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(
+             PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            preparedStatement.setInt(1, assignment.getIdIntern());
-            preparedStatement.setInt(2, assignment.getIdProyect());
-            preparedStatement.setInt(3, assignment.getIdApplication());
-            preparedStatement.setDate(4, new java.sql.Date(assignment.getAssignmentDate().getTime()));
+            statement.setInt (1, assignment.getIdIntern());
+            statement.setInt (2, assignment.getIdProyect());
+            statement.setInt (3, assignment.getIdApplication());
+            statement.setDate(4, new java.sql.Date(assignment.getAssignmentDate().getTime()));
 
-            rowsAffected = preparedStatement.executeUpdate();
+            rowsAffected = statement.executeUpdate();
 
-            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     assignment.setIdAssignment(generatedKeys.getInt(1));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error saving assignment: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al guardar asignación: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al guardar la asignación.", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public Optional<Assignment> getById(int idAssignment) {
-        Optional<Assignment> assignmentResult = Optional.empty();
+    public Assignment getById(int idAssignment) throws DataAccessException {
+        Assignment assignmentResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
 
-            preparedStatement.setInt(1, idAssignment);
+            statement.setInt(1, idAssignment);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    assignmentResult = Optional.of(mapResultSet(resultSet));
+                    assignmentResult = mapResultSet(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding assignment by ID {0}: {1}",
-                    new Object[]{idAssignment, sqlException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error al buscar asignación por ID: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar la asignación.", sqlException);
         }
 
         return assignmentResult;
     }
 
     @Override
-    public List<Assignment> getAll() {
+    public List<Assignment> getAll() throws DataAccessException {
         List<Assignment> assignments = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
+             ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
                 assignments.add(mapResultSet(resultSet));
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error retrieving all assignments: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al buscar todas las asignaciones: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar las asignaciones.", sqlException);
         }
 
         return assignments;
     }
 
     @Override
-    public Optional<Assignment> getByIdIntern(int idIntern) {
-        Optional<Assignment> assignmentResult = Optional.empty();
+    public Assignment getByIdIntern(int idIntern) throws DataAccessException {
+        Assignment assignmentResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_BY_INTERN)) {
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_INTERN)) {
 
-            preparedStatement.setInt(1, idIntern);
+            statement.setInt(1, idIntern);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    assignmentResult = Optional.of(mapResultSet(resultSet));
+                    assignmentResult = mapResultSet(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding assignment by intern ID {0}: {1}",
-                    new Object[]{idIntern, sqlException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error al buscar asignación por practicante: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar la asignación del practicante.", sqlException);
         }
 
         return assignmentResult;
     }
 
     @Override
-    public List<Assignment> getByIdProject(int idProject) {
+    public List<Assignment> getByIdProject(int idProject) throws DataAccessException {
         List<Assignment> assignments = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(SQL_SELECT_BY_PROJECT)) {
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_PROJECT)) {
 
-            preparedStatement.setInt(1, idProject);
+            statement.setInt(1, idProject);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     assignments.add(mapResultSet(resultSet));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding assignments by project ID {0}: {1}",
-                    new Object[]{idProject, sqlException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error al buscar asignación por proyecto: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar las asignaciones del proyecto.", sqlException);
         }
 
         return assignments;
@@ -161,10 +155,10 @@ public class AssignmentDAO implements IAssignmentDAO {
 
     private Assignment mapResultSet(ResultSet resultSet) throws SQLException {
         Assignment assignment = new Assignment();
-        assignment.setIdAssignment(resultSet.getInt("id_asignacion"));
-        assignment.setIdIntern(resultSet.getInt("id_practicante"));
-        assignment.setIdProyect(resultSet.getInt("id_proyecto"));
-        assignment.setIdApplication(resultSet.getInt("id_solicitud"));
+        assignment.setIdAssignment (resultSet.getInt ("id_asignacion"));
+        assignment.setIdIntern     (resultSet.getInt ("id_practicante"));
+        assignment.setIdProyect    (resultSet.getInt ("id_proyecto"));
+        assignment.setIdApplication(resultSet.getInt ("id_solicitud"));
         assignment.setAssignmentDate(resultSet.getDate("fecha_asignacion"));
         return assignment;
     }

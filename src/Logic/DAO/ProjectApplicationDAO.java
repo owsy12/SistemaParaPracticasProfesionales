@@ -2,15 +2,12 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.ProjectApplication;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IProjectApplicationDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +36,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             "DELETE FROM solicitud_proyecto WHERE id_solicitud_proyecto = ?";
 
     @Override
-    public boolean create(ProjectApplication projectApplication) {
+    public boolean create(ProjectApplication projectApplication) throws DataAccessException {
         boolean isCreated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -54,16 +51,17 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error creating project application choice {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al registrar opción de proyecto para solicitud {0}: {1}",
                     new Object[]{ projectApplication.getIdApplication(), sqlException.getMessage() });
+            throw new DataAccessException("Error al crear la opción de proyecto.", sqlException);
         }
 
         return isCreated;
     }
 
     @Override
-    public Optional<ProjectApplication> findById(int projectApplicationId) {
-        Optional<ProjectApplication> projectResult = Optional.empty();
+    public ProjectApplication findById(int projectApplicationId) throws DataAccessException {
+        ProjectApplication projectApplicationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID_SQL)) {
@@ -72,20 +70,21 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    projectResult = Optional.of(mapProjectApplication(resultSet));
+                    projectApplicationResult = mapProjectApplication(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding project application choice ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar opción de proyecto con ID {0}: {1}",
                     new Object[]{ projectApplicationId, sqlException.getMessage() });
+            throw new DataAccessException("Error al buscar la opción de proyecto por ID.", sqlException);
         }
 
-        return projectResult;
+        return projectApplicationResult;
     }
 
     @Override
-    public List<ProjectApplication> findByApplication(int applicationId) {
+    public List<ProjectApplication> findByApplication(int applicationId) throws DataAccessException {
         List<ProjectApplication> projectApplicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -100,15 +99,16 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding project choices for application {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar opciones de proyecto para solicitud {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
+            throw new DataAccessException("Error al buscar las opciones de proyecto para la solicitud.", sqlException);
         }
 
         return projectApplicationList;
     }
 
     @Override
-    public List<ProjectApplication> findAll() {
+    public List<ProjectApplication> findAll() throws DataAccessException {
         List<ProjectApplication> projectApplicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -120,28 +120,30 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error retrieving all project applications: {0}",
-                    sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al recuperar todas las opciones de proyecto: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar la lista de opciones de proyecto.", sqlException);
         }
 
         return projectApplicationList;
     }
 
     @Override
-    public boolean delete(int projectApplicationId) {
+    public boolean delete(int projectApplicationId) throws DataAccessException {
         boolean isDeleted = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) {
 
             preparedStatement.setInt(1, projectApplicationId);
+
             if (preparedStatement.executeUpdate() > 0) {
                 isDeleted = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error deleting project application ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al eliminar opción de proyecto con ID {0}: {1}",
                     new Object[]{ projectApplicationId, sqlException.getMessage() });
+            throw new DataAccessException("Error al eliminar la opción de proyecto.", sqlException);
         }
 
         return isDeleted;

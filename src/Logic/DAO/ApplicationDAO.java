@@ -2,15 +2,12 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Application;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IApplicationDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,7 +38,7 @@ public class ApplicationDAO implements IApplicationDAO {
             "UPDATE solicitud SET estado = ? WHERE id_solicitud = ?";
 
     @Override
-    public boolean create(Application application) {
+    public boolean create(Application application) throws DataAccessException {
         boolean isCreated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -55,16 +52,17 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error creating application for intern {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al registrar solicitud para practicante {0}: {1}",
                     new Object[]{ application.getIdIntern(), sqlException.getMessage() });
+            throw new DataAccessException("Error al crear la solicitud.", sqlException);
         }
 
         return isCreated;
     }
 
     @Override
-    public Optional<Application> findById(int applicationId) {
-        Optional<Application> applicationResult = Optional.empty();
+    public Application findById(int applicationId) throws DataAccessException {
+        Application applicationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID_SQL)) {
@@ -73,21 +71,22 @@ public class ApplicationDAO implements IApplicationDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    applicationResult = Optional.of(mapApplication(resultSet));
+                    applicationResult = mapApplication(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding application with ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar solicitud con ID {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
+            throw new DataAccessException("Error al buscar la solicitud por ID.", sqlException);
         }
 
         return applicationResult;
     }
 
     @Override
-    public Optional<Application> findByIntern(int internId) {
-        Optional<Application> applicationResult = Optional.empty();
+    public Application findByIntern(int internId) throws DataAccessException {
+        Application applicationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_INTERN_SQL)) {
@@ -96,20 +95,21 @@ public class ApplicationDAO implements IApplicationDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    applicationResult = Optional.of(mapApplication(resultSet));
+                    applicationResult = mapApplication(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding application for intern {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar solicitud para practicante {0}: {1}",
                     new Object[]{ internId, sqlException.getMessage() });
+            throw new DataAccessException("Error al buscar la solicitud del practicante.", sqlException);
         }
 
         return applicationResult;
     }
 
     @Override
-    public List<Application> findAll() {
+    public List<Application> findAll() throws DataAccessException {
         List<Application> applicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -121,14 +121,15 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error retrieving all applications: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al recuperar todas las solicitudes: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar la lista de solicitudes.", sqlException);
         }
 
         return applicationList;
     }
 
     @Override
-    public List<Application> findByStatus(String status) {
+    public List<Application> findByStatus(String status) throws DataAccessException {
         List<Application> applicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -143,15 +144,16 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding applications with status {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar solicitudes con estado {0}: {1}",
                     new Object[]{ status, sqlException.getMessage() });
+            throw new DataAccessException("Error al recuperar las solicitudes por estado.", sqlException);
         }
 
         return applicationList;
     }
 
     @Override
-    public boolean updateStatus(int applicationId, String status) {
+    public boolean updateStatus(int applicationId, String status) throws DataAccessException {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -165,8 +167,9 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error updating status for application {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al actualizar estado de solicitud {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
+            throw new DataAccessException("Error al actualizar el estado de la solicitud.", sqlException);
         }
 
         return isUpdated;

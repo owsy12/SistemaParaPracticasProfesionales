@@ -1,6 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.Professor;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IProfessorDAO;
 
 import java.sql.Connection;
@@ -9,26 +10,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProfessorDAO implements IProfessorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ProfessorDAO.class.getName());
-
     private static final String INSERT_PROFESSOR_SQL =
             "INSERT INTO profesor (id_usuario, academica) VALUES (?, ?)";
-
     private static final String SELECT_PROFESSOR_BY_ID_SQL =
             "SELECT u.*, p.academica FROM usuario u " +
                     "JOIN profesor p ON u.id_usuario = p.id_usuario " +
                     "WHERE u.id_usuario = ?";
-
     private static final String SELECT_ALL_PROFESSORS_SQL =
             "SELECT u.*, p.academica FROM usuario u " +
                     "JOIN profesor p ON u.id_usuario = p.id_usuario";
-
     private static final String UPDATE_PROFESSOR_STATUS_SQL =
             "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
 
@@ -39,7 +35,7 @@ public class ProfessorDAO implements IProfessorDAO {
     }
 
     @Override
-    public boolean saveProfessor(Professor professor) {
+    public boolean saveProfessor(Professor professor) throws DataAccessException {
         boolean isSaved = false;
 
         try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
@@ -52,16 +48,17 @@ public class ProfessorDAO implements IProfessorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error saving professor with ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving professor with id {0}: {1}",
                     new Object[]{professor.getId(), sqlException.getMessage()});
+            throw new DataAccessException("Error al guardar el profesor en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Optional<Professor> findById(int id) {
-        Optional<Professor> professorResult = Optional.empty();
+    public Professor findById(int id) throws DataAccessException {
+        Professor professorResult = null;
 
         try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_PROFESSOR_BY_ID_SQL)) {
 
@@ -69,20 +66,21 @@ public class ProfessorDAO implements IProfessorDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    professorResult = Optional.of(mapProfessor(resultSet));
+                    professorResult = mapProfessor(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding professor with ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding professor with id {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+            throw new DataAccessException("Error al buscar el profesor por ID.", sqlException);
         }
 
         return professorResult;
     }
 
     @Override
-    public List<Professor> findAll() {
+    public List<Professor> findAll() throws DataAccessException {
         List<Professor> professorList = new ArrayList<>();
 
         try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
@@ -94,13 +92,14 @@ public class ProfessorDAO implements IProfessorDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving all professors: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar la lista de profesores.", sqlException);
         }
 
         return professorList;
     }
 
     @Override
-    public boolean deactivateProfessor(int id) {
+    public boolean deactivateProfessor(int id) throws DataAccessException {
         boolean isDeactivated = false;
 
         try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(UPDATE_PROFESSOR_STATUS_SQL)) {
@@ -112,8 +111,9 @@ public class ProfessorDAO implements IProfessorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error deactivating professor with ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deactivating professor with id {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+            throw new DataAccessException("Error al desactivar al profesor.", sqlException);
         }
 
         return isDeactivated;

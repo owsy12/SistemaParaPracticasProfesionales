@@ -2,6 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.LinkedOrganization;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.ILinkedOrganizationDAO;
 
 import java.sql.Connection;
@@ -10,14 +11,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     private static final Logger LOGGER = Logger.getLogger(LinkedOrganizationDAO.class.getName());
-
     private static final String INSERT_LINKED_ORGANIZATION_SQL =
             "INSERT INTO organizacion_vinculada " +
                     "(nombre_organizacion, correo_organizacion, direccion, sector, estado) " +
@@ -47,7 +46,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             "UPDATE organizacion_vinculada SET estado = 'Inactiva' WHERE id_organizacion = ?";
 
     @Override
-    public boolean saveLinkedOrganization(LinkedOrganization linkedOrganization) {
+    public boolean saveLinkedOrganization(LinkedOrganization linkedOrganization) throws DataAccessException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -66,14 +65,15 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving linked organization {0}: {1}",
                     new Object[]{linkedOrganization.getName(), sqlException.getMessage()});
+            throw new DataAccessException("Error al guardar la organización vinculada.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Optional<LinkedOrganization> findById(int idOrganizacion) {
-        Optional<LinkedOrganization> organizationResult = Optional.empty();
+    public LinkedOrganization findById(int idOrganizacion) throws DataAccessException {
+        LinkedOrganization organizationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_LINKED_ORGANIZATION_BY_ID_SQL)) {
@@ -82,20 +82,21 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    organizationResult = Optional.of(mapLinkedOrganization(resultSet));
+                    organizationResult = mapLinkedOrganization(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding linked organization with ID {0}: {1}",
                     new Object[]{idOrganizacion, sqlException.getMessage()});
+            throw new DataAccessException("Error al buscar la organización vinculada por ID.", sqlException);
         }
 
         return organizationResult;
     }
 
     @Override
-    public List<LinkedOrganization> findAll() {
+    public List<LinkedOrganization> findAll() throws DataAccessException {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -107,15 +108,15 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error retrieving all linked organizations: {0}",
-                    sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving all linked organizations: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar todas las organizaciones vinculadas.", sqlException);
         }
 
         return organizationList;
     }
 
     @Override
-    public List<LinkedOrganization> findAllActive() {
+    public List<LinkedOrganization> findAllActive() throws DataAccessException {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -127,15 +128,15 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error retrieving active linked organizations: {0}",
-                    sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving active linked organizations: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar organizaciones vinculadas activas.", sqlException);
         }
 
         return organizationList;
     }
 
     @Override
-    public boolean update(LinkedOrganization linkedOrganization) {
+    public boolean update(LinkedOrganization linkedOrganization) throws DataAccessException {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -155,13 +156,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating linked organization with ID {0}: {1}",
                     new Object[]{linkedOrganization.getIdLinkedOrganization(), sqlException.getMessage()});
+            throw new DataAccessException("Error al actualizar la organización vinculada.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean deactivateLinkedOrganization(int idOrganizacion) {
+    public boolean deactivateLinkedOrganization(int idOrganizacion) throws DataAccessException {
         boolean isDeactivated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -176,6 +178,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deactivating linked organization with ID {0}: {1}",
                     new Object[]{idOrganizacion, sqlException.getMessage()});
+            throw new DataAccessException("Error al desactivar la organización vinculada.", sqlException);
         }
 
         return isDeactivated;
@@ -187,7 +190,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 resultSet.getString("nombre_organizacion"),
                 resultSet.getString("sector"),
                 resultSet.getString("direccion"),
-                ""
+                "" // Según lo establecido en el método mapLinkedOrganization que me proporcionaste
         );
     }
 }
