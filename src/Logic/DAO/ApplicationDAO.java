@@ -4,9 +4,13 @@ import DataAccess.DataBaseConnection;
 import Logic.DTOs.Application;
 import Logic.Interface.IApplicationDAO;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,23 +42,30 @@ public class ApplicationDAO implements IApplicationDAO {
 
     @Override
     public boolean create(Application application) {
+        boolean isCreated = false;
+
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
 
             preparedStatement.setInt(1, application.getIdIntern());
             preparedStatement.setString(2, application.getStatus());
-            return preparedStatement.executeUpdate() > 0;
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isCreated = true;
+            }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error al registrar solicitud para practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error creating application for intern {0}: {1}",
                     new Object[]{ application.getIdIntern(), sqlException.getMessage() });
-            return false;
         }
+
+        return isCreated;
     }
 
     @Override
-    public Application findById(int applicationId) {
+    public Optional<Application> findById(int applicationId) {
+        Optional<Application> applicationResult = Optional.empty();
+
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID_SQL)) {
 
@@ -62,20 +73,22 @@ public class ApplicationDAO implements IApplicationDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return mapApplication(resultSet);
+                    applicationResult = Optional.of(mapApplication(resultSet));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error al buscar solicitud con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding application with ID {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
         }
-        return null;
+
+        return applicationResult;
     }
 
     @Override
-    public Application findByIntern(int internId) {
+    public Optional<Application> findByIntern(int internId) {
+        Optional<Application> applicationResult = Optional.empty();
+
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_INTERN_SQL)) {
 
@@ -83,16 +96,16 @@ public class ApplicationDAO implements IApplicationDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return mapApplication(resultSet);
+                    applicationResult = Optional.of(mapApplication(resultSet));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error al buscar solicitud para practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding application for intern {0}: {1}",
                     new Object[]{ internId, sqlException.getMessage() });
         }
-        return null;
+
+        return applicationResult;
     }
 
     @Override
@@ -108,10 +121,9 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error al recuperar todas las solicitudes: {0}",
-                    sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving all applications: {0}", sqlException.getMessage());
         }
+
         return applicationList;
     }
 
@@ -131,28 +143,33 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error al buscar solicitudes con estado {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding applications with status {0}: {1}",
                     new Object[]{ status, sqlException.getMessage() });
         }
+
         return applicationList;
     }
 
     @Override
     public boolean updateStatus(int applicationId, String status) {
+        boolean isUpdated = false;
+
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_STATUS_SQL)) {
 
             preparedStatement.setString(1, status);
             preparedStatement.setInt(2, applicationId);
-            return preparedStatement.executeUpdate() > 0;
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error al actualizar estado de solicitud {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating status for application {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
-            return false;
         }
+
+        return isUpdated;
     }
 
     private Application mapApplication(ResultSet resultSet) throws SQLException {

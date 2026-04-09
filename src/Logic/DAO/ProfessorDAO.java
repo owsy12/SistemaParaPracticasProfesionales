@@ -9,22 +9,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProfessorDAO implements IProfessorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ProfessorDAO.class.getName());
+
     private static final String INSERT_PROFESSOR_SQL =
             "INSERT INTO profesor (id_usuario, academica) VALUES (?, ?)";
 
     private static final String SELECT_PROFESSOR_BY_ID_SQL =
             "SELECT u.*, p.academica FROM usuario u " +
-            "JOIN profesor p ON u.id_usuario = p.id_usuario " +
-            "WHERE u.id_usuario = ?";
+                    "JOIN profesor p ON u.id_usuario = p.id_usuario " +
+                    "WHERE u.id_usuario = ?";
+
     private static final String SELECT_ALL_PROFESSORS_SQL =
             "SELECT u.*, p.academica FROM usuario u " +
-            "JOIN profesor p ON u.id_usuario = p.id_usuario";
+                    "JOIN profesor p ON u.id_usuario = p.id_usuario";
+
     private static final String UPDATE_PROFESSOR_STATUS_SQL =
             "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
 
@@ -36,46 +40,52 @@ public class ProfessorDAO implements IProfessorDAO {
 
     @Override
     public boolean saveProfessor(Professor professor) {
-        try (PreparedStatement preparedStatement =
-                databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
+        boolean isSaved = false;
+
+        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
+
             preparedStatement.setInt(1, professor.getId());
             preparedStatement.setString(2, professor.getAcademicArea());
-            return preparedStatement.executeUpdate() > 0;
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isSaved = true;
+            }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error saving professor with id {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving professor with ID {0}: {1}",
                     new Object[]{professor.getId(), sqlException.getMessage()});
-            return false;
         }
+
+        return isSaved;
     }
 
     @Override
-    public Professor findById(int id) {
-        try (PreparedStatement preparedStatement =
-                databaseConnection.prepareStatement(SELECT_PROFESSOR_BY_ID_SQL)) {
+    public Optional<Professor> findById(int id) {
+        Optional<Professor> professorResult = Optional.empty();
+
+        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_PROFESSOR_BY_ID_SQL)) {
+
             preparedStatement.setInt(1, id);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return mapProfessor(resultSet);
+                    professorResult = Optional.of(mapProfessor(resultSet));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error finding professor with id {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding professor with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
         }
-        return null;
+
+        return professorResult;
     }
 
     @Override
     public List<Professor> findAll() {
         List<Professor> professorList = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement =
-                databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
+        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -83,27 +93,30 @@ public class ProfessorDAO implements IProfessorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error retrieving all professors: {0}",
-                    sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving all professors: {0}", sqlException.getMessage());
         }
+
         return professorList;
     }
 
-
     @Override
     public boolean deactivateProfessor(int id) {
-        try (PreparedStatement preparedStatement =
-                databaseConnection.prepareStatement(UPDATE_PROFESSOR_STATUS_SQL)) {
+        boolean isDeactivated = false;
+
+        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(UPDATE_PROFESSOR_STATUS_SQL)) {
+
             preparedStatement.setInt(1, id);
-            return preparedStatement.executeUpdate() > 0;
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isDeactivated = true;
+            }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error deactivating professor with id {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deactivating professor with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
-            return false;
         }
+
+        return isDeactivated;
     }
 
     private Professor mapProfessor(ResultSet resultSet) throws SQLException {
