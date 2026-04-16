@@ -2,6 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Intern;
+import Logic.Exceptions.DataAccessException;
 import Logic.Interface.IInternDAO;
 
 import java.sql.Connection;
@@ -10,36 +11,30 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InternDAO implements IInternDAO {
 
     private static final Logger LOGGER = Logger.getLogger(InternDAO.class.getName());
-
     private static final String INSERT_INTERN_SQL =
             "INSERT INTO practicante (id_usuario, creditos) VALUES (?, ?)";
-
     private static final String SELECT_INTERN_BY_ID_SQL =
             "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
                     "u.apellido_materno, u.contrasenia, u.estado, p.creditos FROM usuario u " +
                     "JOIN practicante p ON u.id_usuario = p.id_usuario " +
                     "WHERE u.id_usuario = ?";
-
     private static final String SELECT_ALL_INTERNS_SQL =
             "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
                     "u.apellido_materno, u.contrasenia, u.estado, p.creditos FROM usuario u " +
                     "JOIN practicante p ON u.id_usuario = p.id_usuario";
-
     private static final String UPDATE_INTERN_STATUS_SQL =
             "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
-
     private static final String UPDATE_INTERN_CREDITS_SQL =
             "UPDATE practicante SET creditos = ? WHERE id_usuario = ?";
 
     @Override
-    public boolean saveIntern(Intern intern) {
+    public boolean saveIntern(Intern intern) throws DataAccessException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -55,14 +50,15 @@ public class InternDAO implements IInternDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving intern with ID {0}: {1}",
                     new Object[]{intern.getId(), sqlException.getMessage()});
+            throw new DataAccessException("Error al guardar el practicante en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Optional<Intern> findById(int id) {
-        Optional<Intern> internResult = Optional.empty();
+    public Intern findById(int id) throws DataAccessException {
+        Intern internResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_INTERN_BY_ID_SQL)) {
@@ -71,20 +67,21 @@ public class InternDAO implements IInternDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    internResult = Optional.of(mapIntern(resultSet));
+                    internResult = mapIntern(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+            throw new DataAccessException("Error al buscar el practicante por ID.", sqlException);
         }
 
         return internResult;
     }
 
     @Override
-    public List<Intern> findAll() {
+    public List<Intern> findAll() throws DataAccessException {
         List<Intern> internList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -97,13 +94,14 @@ public class InternDAO implements IInternDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving all interns: {0}", sqlException.getMessage());
+            throw new DataAccessException("Error al recuperar la lista de practicantes.", sqlException);
         }
 
         return internList;
     }
 
     @Override
-    public boolean deactivateIntern(int id) {
+    public boolean deactivateIntern(int id) throws DataAccessException {
         boolean isDeactivated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -118,13 +116,14 @@ public class InternDAO implements IInternDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deactivating intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+            throw new DataAccessException("Error al desactivar el practicante.", sqlException);
         }
 
         return isDeactivated;
     }
 
     @Override
-    public boolean updateCredits(int id, int credits) {
+    public boolean updateCredits(int id, int credits) throws DataAccessException {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -140,6 +139,7 @@ public class InternDAO implements IInternDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating credits for intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+            throw new DataAccessException("Error al actualizar los créditos del practicante.", sqlException);
         }
 
         return isUpdated;
