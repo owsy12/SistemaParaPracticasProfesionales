@@ -2,12 +2,11 @@ package Logic.DAO;
 
 import Logic.DTOs.Professor;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.IProfessorDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -30,26 +29,35 @@ public class ProfessorDAO implements IProfessorDAO {
 
     private final Connection databaseConnection;
 
-    public ProfessorDAO(Connection databaseConnection) {
+    public ProfessorDAO(Connection databaseConnection) throws ValidationException {
         this.databaseConnection = databaseConnection;
     }
 
     @Override
-    public boolean saveProfessor(Professor professor) throws DatabaseException {
+    public boolean saveProfessor(Professor professor) throws DatabaseException, ValidationException {
+        if (professor.getId() <= 0) {
+            throw new ValidationException(
+                    "El ID del profesor debe ser mayor a cero. ID recibido: " + professor.getId());
+        }
         boolean isSaved = false;
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
+        try (PreparedStatement ps = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
 
-            preparedStatement.setInt(1, professor.getId());
-            preparedStatement.setString(2, professor.getAcademicArea());
+            ps.setInt   (1, professor.getId());
+            ps.setString(2, professor.getAcademicArea());
 
-            if (preparedStatement.executeUpdate() > 0) {
+            if (ps.executeUpdate() > 0) {
                 isSaved = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error saving professor with id {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al guardar profesor con ID {0}: {1}",
                     new Object[]{professor.getId(), sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al guardar el profesor en la base de datos.", sqlException);
         }
 
@@ -57,22 +65,31 @@ public class ProfessorDAO implements IProfessorDAO {
     }
 
     @Override
-    public Professor findById(int id) throws DatabaseException {
+    public Professor findById(int id) throws DatabaseException, ValidationException {
+        if (id <= 0) {
+            throw new ValidationException(
+                    "El ID del profesor debe ser mayor a cero. ID recibido: " + id);
+        }
         Professor professorResult = null;
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_PROFESSOR_BY_ID_SQL)) {
+        try (PreparedStatement ps = databaseConnection.prepareStatement(SELECT_PROFESSOR_BY_ID_SQL)) {
 
-            preparedStatement.setInt(1, id);
+            ps.setInt(1, id);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    professorResult = mapProfessor(resultSet);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    professorResult = mapProfessor(rs);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding professor with id {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar profesor con ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar el profesor por ID.", sqlException);
         }
 
@@ -83,15 +100,21 @@ public class ProfessorDAO implements IProfessorDAO {
     public List<Professor> findAll() throws DatabaseException {
         List<Professor> professorList = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+        try (PreparedStatement ps = databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
+             ResultSet rs = ps.executeQuery()) {
 
-            while (resultSet.next()) {
-                professorList.add(mapProfessor(resultSet));
+            while (rs.next()) {
+                professorList.add(mapProfessor(rs));
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error retrieving all professors: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al recuperar la lista de profesores: {0}",
+                    sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar la lista de profesores.", sqlException);
         }
 
@@ -99,36 +122,45 @@ public class ProfessorDAO implements IProfessorDAO {
     }
 
     @Override
-    public boolean deactivateProfessor(int id) throws DatabaseException {
+    public boolean deactivateProfessor(int id) throws DatabaseException, ValidationException {
+        if (id <= 0) {
+            throw new ValidationException(
+                    "El ID del profesor debe ser mayor a cero. ID recibido: " + id);
+        }
         boolean isDeactivated = false;
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(UPDATE_PROFESSOR_STATUS_SQL)) {
+        try (PreparedStatement ps = databaseConnection.prepareStatement(UPDATE_PROFESSOR_STATUS_SQL)) {
 
-            preparedStatement.setInt(1, id);
+            ps.setInt(1, id);
 
-            if (preparedStatement.executeUpdate() > 0) {
+            if (ps.executeUpdate() > 0) {
                 isDeactivated = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error deactivating professor with id {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al desactivar profesor con ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al desactivar al profesor.", sqlException);
         }
 
         return isDeactivated;
     }
 
-    private Professor mapProfessor(ResultSet resultSet) throws SQLException {
+    private Professor mapProfessor(ResultSet rs) throws SQLException {
         return new Professor(
-                resultSet.getInt("id_usuario"),
-                resultSet.getString("matricula"),
-                resultSet.getString("nombre"),
-                resultSet.getString("apellido_paterno"),
-                resultSet.getString("apellido_materno"),
-                resultSet.getString("contrasenia"),
-                resultSet.getString("estado"),
-                resultSet.getString("academica")
+                rs.getInt   ("id_usuario"),
+                rs.getString("matricula"),
+                rs.getString("nombre"),
+                rs.getString("apellido_paterno"),
+                rs.getString("apellido_materno"),
+                rs.getString("contrasenia"),
+                rs.getString("estado"),
+                rs.getString("academica")
         );
     }
 }

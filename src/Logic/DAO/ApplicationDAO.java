@@ -3,6 +3,8 @@ package Logic.DAO;
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Application;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.IApplicationDAO;
 
 import java.sql.*;
@@ -38,7 +40,11 @@ public class ApplicationDAO implements IApplicationDAO {
             "UPDATE solicitud SET estado = ? WHERE id_solicitud = ?";
 
     @Override
-    public boolean create(Application application) throws DatabaseException {
+    public boolean create(Application application) throws DatabaseException, ValidationException {
+        if (application.getIdIntern() <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + application.getIdIntern());
+        }
         boolean isCreated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -54,6 +60,11 @@ public class ApplicationDAO implements IApplicationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al registrar solicitud para practicante {0}: {1}",
                     new Object[]{ application.getIdIntern(), sqlException.getMessage() });
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al crear la solicitud.", sqlException);
         }
 
@@ -78,6 +89,11 @@ public class ApplicationDAO implements IApplicationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar solicitud con ID {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar la solicitud por ID.", sqlException);
         }
 
@@ -102,6 +118,11 @@ public class ApplicationDAO implements IApplicationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar solicitud para practicante {0}: {1}",
                     new Object[]{ internId, sqlException.getMessage() });
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar la solicitud del practicante.", sqlException);
         }
 
@@ -122,6 +143,11 @@ public class ApplicationDAO implements IApplicationDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar todas las solicitudes: {0}", sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar la lista de solicitudes.", sqlException);
         }
 
@@ -129,7 +155,7 @@ public class ApplicationDAO implements IApplicationDAO {
     }
 
     @Override
-    public List<Application> findByStatus(String status) throws DatabaseException {
+    public List<Application> findByStatus(String status) throws DatabaseException, ValidationException {
         List<Application> applicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -146,6 +172,11 @@ public class ApplicationDAO implements IApplicationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar solicitudes con estado {0}: {1}",
                     new Object[]{ status, sqlException.getMessage() });
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar las solicitudes por estado.", sqlException);
         }
 
@@ -169,6 +200,11 @@ public class ApplicationDAO implements IApplicationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al actualizar estado de solicitud {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al actualizar el estado de la solicitud.", sqlException);
         }
 

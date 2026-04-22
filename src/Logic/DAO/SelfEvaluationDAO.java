@@ -3,6 +3,8 @@ package Logic.DAO;
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.ISelfEvaluationDAO;
 
 import java.sql.*;
@@ -14,7 +16,6 @@ import java.util.logging.Logger;
 public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
     private static final Logger LOGGER = Logger.getLogger(SelfEvaluationDAO.class.getName());
-
     private static final String SQL_INSERT =
             "INSERT INTO autoevaluacion " +
                     "(id_practicante, id_proyecto, periodo, " +
@@ -22,15 +23,12 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                     " afirmacion_06, afirmacion_07, afirmacion_08, afirmacion_09, afirmacion_10, " +
                     " puntuacion_final, lugar_fecha, ruta_documento, estado) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
     private static final String SQL_SELECT_BY_ID =
             "SELECT id_autoevaluacion, id_practicante, id_proyecto, periodo, " +
                     "       afirmacion_01, afirmacion_02, afirmacion_03, afirmacion_04, afirmacion_05, " +
                     "       afirmacion_06, afirmacion_07, afirmacion_08, afirmacion_09, afirmacion_10, " +
                     "       puntuacion_final, lugar_fecha, ruta_documento, estado, fecha_entrega " +
-                    "FROM autoevaluacion " +
-                    "WHERE id_autoevaluacion = ?";
-
+                    "FROM autoevaluacion WHERE id_autoevaluacion = ?";
     private static final String SQL_SELECT_ALL =
             "SELECT id_autoevaluacion, id_practicante, id_proyecto, periodo, " +
                     "       afirmacion_01, afirmacion_02, afirmacion_03, afirmacion_04, afirmacion_05, " +
@@ -39,7 +37,12 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                     "FROM autoevaluacion";
 
     @Override
-    public int save(SelfEvaluation selfEvaluation) throws DatabaseException {
+    public int save(SelfEvaluation selfEvaluation) throws DatabaseException, ValidationException {
+        if (selfEvaluation.getIdIntern() <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: "
+                            + selfEvaluation.getIdIntern());
+        }
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -72,7 +75,13 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar autoevaluacion: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al guardar autoevaluación del practicante {0}: {1}",
+                    new Object[]{selfEvaluation.getIdIntern(), sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al guardar la autoevaluación.", sqlException);
         }
 
@@ -80,7 +89,12 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
     }
 
     @Override
-    public SelfEvaluation getById(int idSelfEvaluation) throws DatabaseException {
+    public SelfEvaluation getById(int idSelfEvaluation) throws DatabaseException, ValidationException {
+        if (idSelfEvaluation <= 0) {
+            throw new ValidationException(
+                    "El ID de la autoevaluación debe ser mayor a cero. ID recibido: "
+                            + idSelfEvaluation);
+        }
         SelfEvaluation selfEvaluation = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -88,14 +102,19 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
             statement.setInt(1, idSelfEvaluation);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    selfEvaluation = mapResultSet(resultSet);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    selfEvaluation = mapResultSet(rs);
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar autoevaluacion con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al recuperar autoevaluación con ID {0}: {1}",
                     new Object[]{idSelfEvaluation, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException(
                     "Error al recuperar la autoevaluación con ID " + idSelfEvaluation, sqlException);
         }
@@ -109,40 +128,45 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = statement.executeQuery()) {
+             ResultSet rs = statement.executeQuery()) {
 
-            while (resultSet.next()) {
-                selfEvaluations.add(mapResultSet(resultSet));
+            while (rs.next()) {
+                selfEvaluations.add(mapResultSet(rs));
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar todas las autoevaluaciones: {0}",
                     sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar las autoevaluaciones.", sqlException);
         }
 
         return selfEvaluations;
     }
 
-    private SelfEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
+    private SelfEvaluation mapResultSet(ResultSet rs) throws SQLException {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
-        selfEvaluation.setIdSelfEvalation(resultSet.getInt   ("id_autoevaluacion"));
-        selfEvaluation.setIdIntern       (resultSet.getInt   ("id_practicante"));
-        selfEvaluation.setIdProyect      (resultSet.getInt   ("id_proyecto"));
-        selfEvaluation.setPeriod         (resultSet.getString("periodo"));
-        selfEvaluation.setStatement01    (resultSet.getInt   ("afirmacion_01"));
-        selfEvaluation.setStatement02    (resultSet.getInt   ("afirmacion_02"));
-        selfEvaluation.setStatement03    (resultSet.getInt   ("afirmacion_03"));
-        selfEvaluation.setStatement04    (resultSet.getInt   ("afirmacion_04"));
-        selfEvaluation.setStatement05    (resultSet.getInt   ("afirmacion_05"));
-        selfEvaluation.setStatement06    (resultSet.getInt   ("afirmacion_06"));
-        selfEvaluation.setStatement07    (resultSet.getInt   ("afirmacion_07"));
-        selfEvaluation.setStatement08    (resultSet.getInt   ("afirmacion_08"));
-        selfEvaluation.setStatement09    (resultSet.getInt   ("afirmacion_09"));
-        selfEvaluation.setStatement10    (resultSet.getInt   ("afirmacion_10"));
-        selfEvaluation.setFinalScore     (resultSet.getInt   ("puntuacion_final"));
-        selfEvaluation.setPlaceAndDate   (resultSet.getString("lugar_fecha"));
-        selfEvaluation.setDocumentPath   (resultSet.getString("ruta_documento"));
-        selfEvaluation.setStatus         (resultSet.getString("estado"));
+        selfEvaluation.setIdSelfEvalation(rs.getInt   ("id_autoevaluacion"));
+        selfEvaluation.setIdIntern       (rs.getInt   ("id_practicante"));
+        selfEvaluation.setIdProyect      (rs.getInt   ("id_proyecto"));
+        selfEvaluation.setPeriod         (rs.getString("periodo"));
+        selfEvaluation.setStatement01    (rs.getInt   ("afirmacion_01"));
+        selfEvaluation.setStatement02    (rs.getInt   ("afirmacion_02"));
+        selfEvaluation.setStatement03    (rs.getInt   ("afirmacion_03"));
+        selfEvaluation.setStatement04    (rs.getInt   ("afirmacion_04"));
+        selfEvaluation.setStatement05    (rs.getInt   ("afirmacion_05"));
+        selfEvaluation.setStatement06    (rs.getInt   ("afirmacion_06"));
+        selfEvaluation.setStatement07    (rs.getInt   ("afirmacion_07"));
+        selfEvaluation.setStatement08    (rs.getInt   ("afirmacion_08"));
+        selfEvaluation.setStatement09    (rs.getInt   ("afirmacion_09"));
+        selfEvaluation.setStatement10    (rs.getInt   ("afirmacion_10"));
+        selfEvaluation.setFinalScore     (rs.getInt   ("puntuacion_final"));
+        selfEvaluation.setPlaceAndDate   (rs.getString("lugar_fecha"));
+        selfEvaluation.setDocumentPath   (rs.getString("ruta_documento"));
+        selfEvaluation.setStatus         (rs.getString("estado"));
         return selfEvaluation;
     }
 }

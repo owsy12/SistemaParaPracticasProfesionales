@@ -3,12 +3,11 @@ package Logic.DAO;
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.ITechnicalResponsibleDAO;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -17,7 +16,6 @@ import java.util.logging.Logger;
 public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     private static final Logger LOGGER = Logger.getLogger(TechnicalResponsibleDAO.class.getName());
-
     private static final String INSERT_TECHNICAL_SUPERVISOR_SQL =
             "INSERT INTO tecnico_responsable " +
                     "(id_organizacion, nombre, apellido_paterno, apellido_materno, " +
@@ -38,26 +36,33 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             "DELETE FROM tecnico_responsable WHERE id_tecnico = ?";
 
     @Override
-    public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible) throws DatabaseException {
+    public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible)
+            throws DatabaseException, ValidationException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_TECHNICAL_SUPERVISOR_SQL)) {
+             PreparedStatement ps = connection.prepareStatement(INSERT_TECHNICAL_SUPERVISOR_SQL)) {
 
-            preparedStatement.setInt(1, technicalResponsible.getIdOrganization());
-            preparedStatement.setString(2, technicalResponsible.getName());
-            preparedStatement.setString(3, technicalResponsible.getLastName());
-            preparedStatement.setString(4, technicalResponsible.getSecondLastName());
-            preparedStatement.setString(5, technicalResponsible.geteMail());
-            preparedStatement.setString(6, technicalResponsible.getPosition());
+            ps.setInt   (1, technicalResponsible.getIdOrganization());
+            ps.setString(2, technicalResponsible.getName());
+            ps.setString(3, technicalResponsible.getLastName());
+            ps.setString(4, technicalResponsible.getSecondLastName());
+            ps.setString(5, technicalResponsible.geteMail());
+            ps.setString(6, technicalResponsible.getPosition());
 
-            if (preparedStatement.executeUpdate() > 0) {
+            if (ps.executeUpdate() > 0) {
                 isSaved = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error saving technical supervisor {0} {1}: {2}",
-                    new Object[]{technicalResponsible.getName(), technicalResponsible.getLastName(), sqlException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error al guardar responsable técnico '{0} {1}': {2}",
+                    new Object[]{technicalResponsible.getName(),
+                            technicalResponsible.getLastName(), sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al guardar el responsable técnico.", sqlException);
         }
 
@@ -65,23 +70,32 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public TechnicalSupervisor findById(int idTecnico) throws DatabaseException {
+    public TechnicalSupervisor findById(int idTecnico) throws DatabaseException, ValidationException {
+        if (idTecnico <= 0) {
+            throw new ValidationException(
+                    "El ID del responsable técnico debe ser mayor a cero. ID recibido: " + idTecnico);
+        }
         TechnicalSupervisor technicalResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
+             PreparedStatement ps = connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
 
-            preparedStatement.setInt(1, idTecnico);
+            ps.setInt(1, idTecnico);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    technicalResult = mapTechnicalSupervisor(resultSet);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    technicalResult = mapTechnicalSupervisor(rs);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding technical supervisor with ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar responsable técnico con ID {0}: {1}",
                     new Object[]{idTecnico, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar el responsable técnico por ID.", sqlException);
         }
 
@@ -89,50 +103,74 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public List<TechnicalSupervisor> findByOrganization(int idOrganizacion) throws DatabaseException {
+    public List<TechnicalSupervisor> findByOrganization(int idOrganizacion)
+            throws DatabaseException, ValidationException {
+        if (idOrganizacion <= 0) {
+            throw new ValidationException(
+                    "El ID de la organización debe ser mayor a cero. ID recibido: " + idOrganizacion);
+        }
         List<TechnicalSupervisor> technicalList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL)) {
+             PreparedStatement ps = connection.prepareStatement(
+                     SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL)) {
 
-            preparedStatement.setInt(1, idOrganizacion);
+            ps.setInt(1, idOrganizacion);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    technicalList.add(mapTechnicalSupervisor(resultSet));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    technicalList.add(mapTechnicalSupervisor(rs));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding technical supervisors for organization {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al buscar responsables técnicos de organización {0}: {1}",
                     new Object[]{idOrganizacion, sqlException.getMessage()});
-            throw new DatabaseException("Error al buscar los responsables técnicos de la organización.", sqlException);
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
+            throw new DatabaseException(
+                    "Error al buscar los responsables técnicos de la organización.", sqlException);
         }
 
         return technicalList;
     }
 
     @Override
-    public boolean update(TechnicalSupervisor technicalResponsible) throws DatabaseException {
+    public boolean update(TechnicalSupervisor technicalResponsible)
+            throws DatabaseException, ValidationException {
+        if (technicalResponsible.getIdTechnicalSupervisor() <= 0) {
+            throw new ValidationException(
+                    "El ID del responsable técnico debe ser mayor a cero. ID recibido: "
+                            + technicalResponsible.getIdTechnicalSupervisor());
+        }
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_TECHNICAL_SUPERVISOR_SQL)) {
+             PreparedStatement ps = connection.prepareStatement(UPDATE_TECHNICAL_SUPERVISOR_SQL)) {
 
-            preparedStatement.setString(1, technicalResponsible.getName());
-            preparedStatement.setString(2, technicalResponsible.getLastName());
-            preparedStatement.setString(3, technicalResponsible.getSecondLastName());
-            preparedStatement.setString(4, technicalResponsible.geteMail());
-            preparedStatement.setString(5, technicalResponsible.getPosition());
-            preparedStatement.setInt(6, technicalResponsible.getIdTechnicalSupervisor());
+            ps.setString(1, technicalResponsible.getName());
+            ps.setString(2, technicalResponsible.getLastName());
+            ps.setString(3, technicalResponsible.getSecondLastName());
+            ps.setString(4, technicalResponsible.geteMail());
+            ps.setString(5, technicalResponsible.getPosition());
+            ps.setInt   (6, technicalResponsible.getIdTechnicalSupervisor());
 
-            if (preparedStatement.executeUpdate() > 0) {
+            if (ps.executeUpdate() > 0) {
                 isUpdated = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error updating technical supervisor with ID {0}: {1}",
-                    new Object[]{technicalResponsible.getIdTechnicalSupervisor(), sqlException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error al actualizar responsable técnico con ID {0}: {1}",
+                    new Object[]{technicalResponsible.getIdTechnicalSupervisor(),
+                            sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al actualizar el responsable técnico.", sqlException);
         }
 
@@ -140,36 +178,45 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public boolean delete(int idTecnico) throws DatabaseException {
+    public boolean delete(int idTecnico) throws DatabaseException, ValidationException {
+        if (idTecnico <= 0) {
+            throw new ValidationException(
+                    "El ID del responsable técnico debe ser mayor a cero. ID recibido: " + idTecnico);
+        }
         boolean isDeleted = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_TECHNICAL_SUPERVISOR_SQL)) {
+             PreparedStatement ps = connection.prepareStatement(DELETE_TECHNICAL_SUPERVISOR_SQL)) {
 
-            preparedStatement.setInt(1, idTecnico);
+            ps.setInt(1, idTecnico);
 
-            if (preparedStatement.executeUpdate() > 0) {
+            if (ps.executeUpdate() > 0) {
                 isDeleted = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error deleting technical supervisor with ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error al eliminar responsable técnico con ID {0}: {1}",
                     new Object[]{idTecnico, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al eliminar el responsable técnico.", sqlException);
         }
 
         return isDeleted;
     }
 
-    private TechnicalSupervisor mapTechnicalSupervisor(ResultSet resultSet) throws SQLException {
+    private TechnicalSupervisor mapTechnicalSupervisor(ResultSet rs) throws SQLException {
         return new TechnicalSupervisor(
-                resultSet.getInt("id_tecnico"),
-                resultSet.getInt("id_organizacion"),
-                resultSet.getString("nombre"),
-                resultSet.getString("apellido_paterno"),
-                resultSet.getString("apellido_materno"),
-                resultSet.getString("correo_responsable"),
-                resultSet.getString("cargo")
+                rs.getInt   ("id_tecnico"),
+                rs.getInt   ("id_organizacion"),
+                rs.getString("nombre"),
+                rs.getString("apellido_paterno"),
+                rs.getString("apellido_materno"),
+                rs.getString("correo_responsable"),
+                rs.getString("cargo")
         );
     }
 }

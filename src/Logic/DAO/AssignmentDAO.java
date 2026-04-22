@@ -3,6 +3,8 @@ package Logic.DAO;
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Assignment;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.IAssignmentDAO;
 
 import java.sql.*;
@@ -14,29 +16,34 @@ import java.util.logging.Logger;
 public class AssignmentDAO implements IAssignmentDAO {
 
     private static final Logger LOGGER = Logger.getLogger(AssignmentDAO.class.getName());
-
     private static final String SQL_INSERT =
             "INSERT INTO asignacion (id_practicante, id_proyecto, id_solicitud, fecha_asignacion) " +
                     "VALUES (?, ?, ?, ?)";
-
     private static final String SQL_SELECT_BY_ID =
             "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion WHERE id_asignacion = ?";
-
     private static final String SQL_SELECT_ALL =
             "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion";
-
     private static final String SQL_SELECT_BY_INTERN =
             "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion WHERE id_practicante = ?";
-
     private static final String SQL_SELECT_BY_PROJECT =
             "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion WHERE id_proyecto = ?";
 
     @Override
-    public int save(Assignment assignment) throws DatabaseException {
+    public int save(Assignment assignment) throws DatabaseException, ValidationException {
+        if (assignment.getIdIntern() <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: "
+                            + assignment.getIdIntern());
+        }
+        if (assignment.getIdProyect() <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: "
+                            + assignment.getIdProyect());
+        }
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -57,7 +64,13 @@ public class AssignmentDAO implements IAssignmentDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar asignación: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al guardar asignación para practicante {0}: {1}",
+                    new Object[]{assignment.getIdIntern(), sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al guardar la asignación.", sqlException);
         }
 
@@ -65,7 +78,11 @@ public class AssignmentDAO implements IAssignmentDAO {
     }
 
     @Override
-    public Assignment getById(int idAssignment) throws DatabaseException {
+    public Assignment getById(int idAssignment) throws DatabaseException, ValidationException {
+        if (idAssignment <= 0) {
+            throw new ValidationException(
+                    "El ID de la asignación debe ser mayor a cero. ID recibido: " + idAssignment);
+        }
         Assignment assignmentResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -73,14 +90,20 @@ public class AssignmentDAO implements IAssignmentDAO {
 
             statement.setInt(1, idAssignment);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    assignmentResult = mapResultSet(resultSet);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    assignmentResult = mapResultSet(rs);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar asignación por ID: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al buscar asignación con ID {0}: {1}",
+                    new Object[]{idAssignment, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar la asignación.", sqlException);
         }
 
@@ -93,14 +116,20 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-             ResultSet resultSet = statement.executeQuery()) {
+             ResultSet rs = statement.executeQuery()) {
 
-            while (resultSet.next()) {
-                assignments.add(mapResultSet(resultSet));
+            while (rs.next()) {
+                assignments.add(mapResultSet(rs));
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar todas las asignaciones: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al recuperar todas las asignaciones: {0}",
+                    sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar las asignaciones.", sqlException);
         }
 
@@ -108,7 +137,11 @@ public class AssignmentDAO implements IAssignmentDAO {
     }
 
     @Override
-    public Assignment getByIdIntern(int idIntern) throws DatabaseException {
+    public Assignment getByIdIntern(int idIntern) throws DatabaseException, ValidationException {
+        if (idIntern <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
+        }
         Assignment assignmentResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -116,22 +149,33 @@ public class AssignmentDAO implements IAssignmentDAO {
 
             statement.setInt(1, idIntern);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    assignmentResult = mapResultSet(resultSet);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    assignmentResult = mapResultSet(rs);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar asignación por practicante: {0}", sqlException.getMessage());
-            throw new DatabaseException("Error al recuperar la asignación del practicante.", sqlException);
+            LOGGER.log(Level.SEVERE, "Error al buscar asignación por practicante {0}: {1}",
+                    new Object[]{idIntern, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
+            throw new DatabaseException(
+                    "Error al recuperar la asignación del practicante.", sqlException);
         }
 
         return assignmentResult;
     }
 
     @Override
-    public List<Assignment> getByIdProject(int idProject) throws DatabaseException {
+    public List<Assignment> getByIdProject(int idProject) throws DatabaseException, ValidationException {
+        if (idProject <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
+        }
         List<Assignment> assignments = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -139,27 +183,34 @@ public class AssignmentDAO implements IAssignmentDAO {
 
             statement.setInt(1, idProject);
 
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    assignments.add(mapResultSet(resultSet));
+            try (ResultSet rs = statement.executeQuery()) {
+                while (rs.next()) {
+                    assignments.add(mapResultSet(rs));
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar asignación por proyecto: {0}", sqlException.getMessage());
-            throw new DatabaseException("Error al recuperar las asignaciones del proyecto.", sqlException);
+            LOGGER.log(Level.SEVERE, "Error al buscar asignaciones por proyecto {0}: {1}",
+                    new Object[]{idProject, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
+            throw new DatabaseException(
+                    "Error al recuperar las asignaciones del proyecto.", sqlException);
         }
 
         return assignments;
     }
 
-    private Assignment mapResultSet(ResultSet resultSet) throws SQLException {
+    private Assignment mapResultSet(ResultSet rs) throws SQLException {
         Assignment assignment = new Assignment();
-        assignment.setIdAssignment (resultSet.getInt ("id_asignacion"));
-        assignment.setIdIntern     (resultSet.getInt ("id_practicante"));
-        assignment.setIdProyect    (resultSet.getInt ("id_proyecto"));
-        assignment.setIdApplication(resultSet.getInt ("id_solicitud"));
-        assignment.setAssignmentDate(resultSet.getDate("fecha_asignacion"));
+        assignment.setIdAssignment (rs.getInt ("id_asignacion"));
+        assignment.setIdIntern     (rs.getInt ("id_practicante"));
+        assignment.setIdProyect    (rs.getInt ("id_proyecto"));
+        assignment.setIdApplication(rs.getInt ("id_solicitud"));
+        assignment.setAssignmentDate(rs.getDate("fecha_asignacion"));
         return assignment;
     }
 }

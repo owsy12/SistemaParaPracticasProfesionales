@@ -111,12 +111,14 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     void save_duplicatePeriodSamePracticante_throwsDatabaseException() throws Exception {
         dao.save(buildValidSelfEvaluation());
 
+        // UNIQUE KEY uq_autoev_prac_periodo
         assertThrows(DatabaseException.class, () -> dao.save(buildValidSelfEvaluation()));
     }
 
     @Test
     void save_withDifferentPeriod_returnsOneRowAffected() throws Exception {
-        dao.save(buildValidSelfEvaluation());
+        dao.save(buildValidSelfEvaluation()); // periodo 2025-01
+
         SelfEvaluation second = buildValidSelfEvaluation();
         second.setPeriod("2025-02");
 

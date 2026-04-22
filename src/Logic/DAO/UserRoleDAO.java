@@ -2,6 +2,8 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.IUserRoleDAO;
 
 import java.sql.Connection;
@@ -29,7 +31,11 @@ public class UserRoleDAO implements IUserRoleDAO {
             "DELETE FROM usuario_rol WHERE id_usuario = ? AND rol = ?";
 
     @Override
-    public boolean saveUserRole(int userId, String role) throws DatabaseException {
+    public boolean saveUserRole(int userId, String role) throws DatabaseException, ValidationException {
+        if (userId <= 0) {
+            throw new ValidationException(
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " + userId);
+        }
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -45,6 +51,11 @@ public class UserRoleDAO implements IUserRoleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving role {0} for user {1}: {2}",
                     new Object[]{role, userId, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al guardar el rol del usuario.", sqlException);
         }
 
@@ -52,7 +63,11 @@ public class UserRoleDAO implements IUserRoleDAO {
     }
 
     @Override
-    public List<String> findRolesByUserId(int userId) throws DatabaseException {
+    public List<String> findRolesByUserId(int userId) throws DatabaseException, ValidationException {
+        if (userId <= 0) {
+            throw new ValidationException(
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " + userId);
+        }
         List<String> roleList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -69,6 +84,11 @@ public class UserRoleDAO implements IUserRoleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding roles for user {0}: {1}",
                     new Object[]{userId, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar los roles del usuario.", sqlException);
         }
 
@@ -76,7 +96,7 @@ public class UserRoleDAO implements IUserRoleDAO {
     }
 
     @Override
-    public List<Map<String, Object>> findUsersByRole(String role) throws DatabaseException {
+    public List<Map<String, Object>> findUsersByRole(String role) throws DatabaseException, ValidationException {
         List<Map<String, Object>> userList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -96,6 +116,11 @@ public class UserRoleDAO implements IUserRoleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding users with role {0}: {1}",
                     new Object[]{role, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar usuarios por rol.", sqlException);
         }
 
@@ -103,7 +128,11 @@ public class UserRoleDAO implements IUserRoleDAO {
     }
 
     @Override
-    public boolean deleteUserRole(int userId, String role) throws DatabaseException {
+    public boolean deleteUserRole(int userId, String role) throws DatabaseException, ValidationException {
+        if (userId <= 0) {
+            throw new ValidationException(
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " + userId);
+        }
         boolean isDeleted = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -119,6 +148,11 @@ public class UserRoleDAO implements IUserRoleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deleting role {0} from user {1}: {2}",
                     new Object[]{role, userId, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al eliminar el rol del usuario.", sqlException);
         }
 
