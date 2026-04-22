@@ -8,9 +8,22 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-
+/**
+ * Clase base para todos los tests de DAOs.
+ *
+ * ESTRATEGIA:
+ *   @BeforeEach  → desactiva FK, limpia tablas, reactiva FK,
+ *                  inserta datos mínimos de soporte (usuario,
+ *                  practicante, proyecto, etc.)
+ *   @AfterEach   → limpia todas las tablas en orden inverso
+ *                  para dejar la BD en estado inicial.
+ *
+ * Así cada test parte de un estado conocido y no depende
+ * del orden de ejecución.
+ */
 public abstract class BaseDAOTest {
 
+    // IDs fijos de los registros de soporte
     protected static final int ID_PRACTICANTE  = 1;
     protected static final int ID_COORDINADOR  = 2;
     protected static final int ID_PROFESOR     = 3;

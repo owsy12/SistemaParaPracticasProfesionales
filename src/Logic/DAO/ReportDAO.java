@@ -2,6 +2,8 @@ package Logic.DAO;
 
 import Logic.DTOs.Report;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
 
@@ -34,7 +36,11 @@ public class ReportDAO implements IReportDAO {
                     "WHERE estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws DatabaseException{
+    public int save(Report report) throws DatabaseException, ValidationException {
+        if (report.getIdIntern() <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + report.getIdIntern());
+        }
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -65,7 +71,11 @@ public class ReportDAO implements IReportDAO {
     }
 
     @Override
-    public Report getById(int idReport) throws DatabaseException {
+    public Report getById(int idReport) throws DatabaseException, ValidationException {
+        if (idReport <= 0) {
+            throw new ValidationException(
+                    "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
+        }
         Report report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();

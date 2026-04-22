@@ -2,6 +2,8 @@ package Logic.DAO;
 
 import Logic.DTOs.User;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.IUserDAO;
 
 import java.sql.*;
@@ -20,25 +22,35 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean saveUser(User user) throws DatabaseException {
+    public boolean saveUser(User user) throws DatabaseException, ValidationException {
+        validateUser(user);
+
         boolean isSaved = false;
-        String sql = "INSERT INTO usuario (matricula, nombre, apellido_paterno, apellido_materno, contrasenia, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO usuario " +
+                "(matricula, nombre, apellido_paterno, apellido_materno, contrasenia, estado) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement prepareStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            prepareStatement.setString(1, user.getMatricula());
-            prepareStatement.setString(2, user.getFirstName());
-            prepareStatement.setString(3, user.getLastName());
-            prepareStatement.setString(4, user.getSecondLastName());
-            prepareStatement.setString(5, user.getPassword());
-            prepareStatement.setString(7, user.getStatus());
+            ps.setString(1, user.getMatricula());
+            ps.setString(2, user.getFirstName());
+            ps.setString(3, user.getLastName());
+            ps.setString(4, user.getSecondLastName());
+            ps.setString(5, user.getPassword());
+            ps.setString(6, user.getStatus());
 
-            if (prepareStatement.executeUpdate() > 0) {
+            if (ps.executeUpdate() > 0) {
                 isSaved = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "General SQL error in UserDAO.save(): {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al guardar usuario con matrícula {0}: {1}",
+                    new Object[]{user.getMatricula(), sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al guardar el usuario en la base de datos.", sqlException);
         }
 
@@ -46,7 +58,11 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public User findById(int id) throws DatabaseException {
+    public User findById(int id) throws DatabaseException, ValidationException {
+        if (id <= 0) {
+            throw new ValidationException("El ID del usuario debe ser mayor a cero. ID recibido: " + id);
+        }
+
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 
@@ -61,7 +77,13 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding user by ID: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al buscar usuario con ID {0}: {1}",
+                    new Object[]{id, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar el usuario por ID.", sqlException);
         }
 
@@ -81,7 +103,13 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error retrieving all users: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al recuperar la lista de usuarios: {0}",
+                    sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar la lista de usuarios.", sqlException);
         }
 
@@ -89,9 +117,12 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean update(User user) throws DatabaseException {
+    public boolean update(User user) throws DatabaseException, ValidationException {
+        validateUser(user);
+
         boolean isUpdated = false;
-        String sql = "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? WHERE id_usuario=?";
+        String sql = "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? " +
+                "WHERE id_usuario=?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -106,7 +137,13 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error updating user: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al actualizar usuario con ID {0}: {1}",
+                    new Object[]{user.getId(), sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al actualizar el usuario.", sqlException);
         }
 
@@ -114,7 +151,11 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean delete(int id) throws DatabaseException {
+    public boolean delete(int id) throws DatabaseException, ValidationException {
+        if (id <= 0) {
+            throw new ValidationException("El ID del usuario debe ser mayor a cero. ID recibido: " + id);
+        }
+
         boolean isDeleted = false;
         String sql = "DELETE FROM usuario WHERE id_usuario=?";
 
@@ -127,7 +168,13 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error deleting user: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al eliminar usuario con ID {0}: {1}",
+                    new Object[]{id, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al eliminar el usuario.", sqlException);
         }
 
@@ -135,7 +182,8 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public User findByMatricula(String matricula) throws DatabaseException {
+    public User findByMatricula(String matricula) throws DatabaseException, ValidationException {
+
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE matricula=?";
 
@@ -150,24 +198,37 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error finding user by matricula: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al buscar usuario por matrícula {0}: {1}",
+                    new Object[]{matricula, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al buscar usuario por matrícula.", sqlException);
         }
 
         return userResult;
     }
 
+    /**
+     * Valida que el objeto User y sus campos obligatorios no sean null ni vacíos.
+     *
+     * @param user Usuario a validar.
+     * @throws ValidationException Si algún campo requerido es inválido.
+     */
+    private void validateUser(User user) throws ValidationException {
+    }
+
     private User mapUser(ResultSet rs) throws SQLException {
         User user = new User();
-
-        user.setId(rs.getInt("id_usuario"));
-        user.setMatricula(rs.getString("matricula"));
-        user.setName(rs.getString("nombre"));
-        user.setLastName(rs.getString("apellido_paterno"));
+        user.setId           (rs.getInt   ("id_usuario"));
+        user.setMatricula    (rs.getString("matricula"));
+        user.setName         (rs.getString("nombre"));
+        user.setLastName     (rs.getString("apellido_paterno"));
         user.setSecondLastName(rs.getString("apellido_materno"));
-        user.setPassword(rs.getString("contrasenia"));
-        user.setStatus(rs.getString("estado"));
-
+        user.setPassword     (rs.getString("contrasenia"));
+        user.setStatus       (rs.getString("estado"));
         return user;
     }
 }

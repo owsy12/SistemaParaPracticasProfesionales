@@ -3,6 +3,8 @@ package Logic.DAO;
 import Logic.DTOs.PartialAndFinalReport;
 import Logic.DTOs.Report;
 import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ValidationException;
 import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
 
@@ -41,7 +43,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                     " WHERE r.tipo_reporte IN ('Parcial', 'Final') AND r.estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws DatabaseException {
+    public int save(Report report) throws DatabaseException, ValidationException {
         PartialAndFinalReport pfReport = (PartialAndFinalReport) report;
         int rowsAffected = 0;
 
@@ -98,6 +100,11 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error de conexión al guardar reporte parcial/final: {0}",
                     sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error de conexión al guardar el reporte.", sqlException);
         }
 
@@ -105,7 +112,11 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     }
 
     @Override
-    public PartialAndFinalReport getById(int idReport) throws DatabaseException {
+    public PartialAndFinalReport getById(int idReport) throws DatabaseException, ValidationException {
+        if (idReport <= 0) {
+            throw new ValidationException(
+                    "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
+        }
         PartialAndFinalReport report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -122,6 +133,11 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar reporte con ID {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar el reporte con ID " + idReport, sqlException);
         }
 
@@ -143,6 +159,11 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar todos los reportes parciales/finales: {0}",
                     sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar los reportes parciales y finales.", sqlException);
         }
 
@@ -164,6 +185,11 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar reportes parciales/finales pendientes: {0}",
                     sqlException.getMessage());
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
             throw new DatabaseException("Error al recuperar los reportes pendientes.", sqlException);
         }
 
