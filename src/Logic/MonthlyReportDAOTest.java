@@ -2,6 +2,7 @@ package Logic;
 
 import Logic.DAO.MonthlyReportDAO;
 import Logic.DTOs.MonthlyReport;
+import Logic.Exceptions.DatabaseException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -30,13 +31,9 @@ class MonthlyReportDAOTest extends BaseDAOTest {
         return report;
     }
 
-    // ---------------------------------------------------------------
-
     @Test
     void save_withValidData_returnsOneRowAffected() throws Exception {
-        MonthlyReport report = buildValidReport();
-
-        int result = dao.save(report);
+        int result = dao.save(buildValidReport());
 
         assertEquals(1, result);
     }
@@ -51,13 +48,22 @@ class MonthlyReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetById_returnsCorrectMonth() throws Exception {
+    void save_thenGetById_returnsNotNull() throws Exception {
         MonthlyReport report = buildValidReport();
         dao.save(report);
 
         MonthlyReport retrieved = dao.getById(report.getIdReport());
 
         assertNotNull(retrieved);
+    }
+
+    @Test
+    void save_thenGetById_returnsCorrectMonth() throws Exception {
+        MonthlyReport report = buildValidReport();
+        dao.save(report);
+
+        MonthlyReport retrieved = dao.getById(report.getIdReport());
+
         assertEquals("Marzo", retrieved.getMonth());
     }
 
@@ -92,23 +98,36 @@ class MonthlyReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetAll_containsSavedReport() throws Exception {
-        MonthlyReport report = buildValidReport();
-        dao.save(report);
+    void save_thenGetAll_returnsOneElement() throws Exception {
+        dao.save(buildValidReport());
 
         List<?> all = dao.getAll();
 
-        assertFalse(all.isEmpty());
         assertEquals(1, all.size());
     }
 
     @Test
-    void save_thenGetByStatusPending_containsSavedReport() throws Exception {
-        MonthlyReport report = buildValidReport();
-        dao.save(report);
+    void save_thenGetByStatusPending_returnsOneElement() throws Exception {
+        dao.save(buildValidReport());
 
         List<?> pending = dao.getByStatusPending();
 
         assertEquals(1, pending.size());
+    }
+
+    @Test
+    void getByStatusPending_whenNoReports_returnsEmptyList() throws Exception {
+        List<?> pending = dao.getByStatusPending();
+
+        assertTrue(pending.isEmpty());
+    }
+
+    @Test
+    void save_duplicatePeriodSameIntern_throwsDatabaseException() throws Exception {
+        dao.save(buildValidReport()); // periodo 2025-03
+
+        MonthlyReport duplicate = buildValidReport(); // mismo practicante, mismo periodo
+
+        assertThrows(DatabaseException.class, () -> dao.save(duplicate));
     }
 }

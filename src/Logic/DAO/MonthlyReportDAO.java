@@ -3,14 +3,19 @@ package Logic.DAO;
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.MonthlyReport;
 import Logic.DTOs.Report;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IReportDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
+
+    private static final Logger LOGGER = Logger.getLogger(MonthlyReportDAO.class.getName());
+
     private static final String SQL_INSERT_SPECIFIC =
             "INSERT INTO reporte_mensual " +
                     "(id_reporte_mensual, mes, anio, horas_reportadas, bloque, seccion) " +
@@ -34,62 +39,68 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     " WHERE r.tipo_reporte = 'Mensual' AND r.estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws DataAccessException{
+    public int save(Report report) throws DatabaseException {
         MonthlyReport monthlyReport = (MonthlyReport) report;
         int rowsAffected = 0;
 
-        try {
-            Connection   connection  = DataBaseConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
             connection.setAutoCommit(false);
 
-            try (PreparedStatement stamentBase = connection.prepareStatement(
-                    "INSERT INTO reporte " +
-                            "(id_practicante, id_proyecto, id_profesor, " +
-                            " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS)) {
+            try {
+                try (PreparedStatement stmtBase = connection.prepareStatement(
+                        "INSERT INTO reporte " +
+                                "(id_practicante, id_proyecto, id_profesor, " +
+                                " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS)) {
 
-                stamentBase.setInt   (1, monthlyReport.getIdIntern());
-                stamentBase.setInt   (2, monthlyReport.getIdProyect());
-                stamentBase.setInt   (3, monthlyReport.getIdProfessor());
-                stamentBase.setString(4, monthlyReport.getReportType());
-                stamentBase.setString(5, monthlyReport.getPeriod());
-                stamentBase.setString(6, monthlyReport.getDocumentPath());
-                stamentBase.setString(7, monthlyReport.getStatus());
-                stamentBase.setDate  (8, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
+                    stmtBase.setInt   (1, monthlyReport.getIdIntern());
+                    stmtBase.setInt   (2, monthlyReport.getIdProyect());
+                    stmtBase.setInt   (3, monthlyReport.getIdProfessor());
+                    stmtBase.setString(4, monthlyReport.getReportType());
+                    stmtBase.setString(5, monthlyReport.getPeriod());
+                    stmtBase.setString(6, monthlyReport.getDocumentPath());
+                    stmtBase.setString(7, monthlyReport.getStatus());
+                    stmtBase.setDate  (8, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
 
-                rowsAffected = stamentBase.executeUpdate();
+                    rowsAffected = stmtBase.executeUpdate();
 
-                try (ResultSet generatedKeys = stamentBase.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        monthlyReport.setIdReport(generatedKeys.getInt(1));
-                        monthlyReport.setIdMonthlyReport(generatedKeys.getInt(1));
+                    try (ResultSet generatedKeys = stmtBase.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            monthlyReport.setIdReport(generatedKeys.getInt(1));
+                            monthlyReport.setIdMonthlyReport(generatedKeys.getInt(1));
+                        }
                     }
                 }
-            }
 
-            try (PreparedStatement stamentSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
-                stamentSpecific.setInt   (1, monthlyReport.getIdReport());
-                stamentSpecific.setString(2, monthlyReport.getMonth());
-                stamentSpecific.setInt   (3, monthlyReport.getYear());
-                stamentSpecific.setFloat (4, 0);
-                stamentSpecific.setString(5, monthlyReport.getBlock());
-                stamentSpecific.setString(6, monthlyReport.getSection());
-                stamentSpecific.executeUpdate();
+                try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
+                    stmtSpecific.setInt   (1, monthlyReport.getIdReport());
+                    stmtSpecific.setString(2, monthlyReport.getMonth());
+                    stmtSpecific.setInt   (3, monthlyReport.getYear());
+                    stmtSpecific.setFloat (4, 0);
+                    stmtSpecific.setString(5, monthlyReport.getBlock());
+                    stmtSpecific.setString(6, monthlyReport.getSection());
+                    stmtSpecific.executeUpdate();
+                }
 
                 connection.commit();
 
+            } catch (SQLException sqlException) {
+                connection.rollback();
+                LOGGER.log(Level.SEVERE, "Error al guardar reporte mensual: {0}", sqlException.getMessage());
+                throw new DatabaseException("Error al guardar el reporte mensual.", sqlException);
             }
 
-        }catch (SQLException ex) {
-            throw new DataAccessException("Error saving report in the database.", ex);
-
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al conectar a la base de datos: {0}", sqlException.getMessage());
+            throw new DatabaseException("Error de conexión al guardar el reporte mensual.", sqlException);
         }
+
         return rowsAffected;
     }
 
     @Override
-    public MonthlyReport getById(int idReport) throws DataAccessException {
+    public MonthlyReport getById(int idReport) throws DatabaseException {
         MonthlyReport report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -102,15 +113,17 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     report = mapResultSet(resultSet);
                 }
             }
-        }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving monthly report with ID " + idReport, sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reporte mensual con ID {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new DatabaseException("Error al recuperar el reporte mensual con ID " + idReport, sqlException);
         }
 
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws DataAccessException {
+    public List<Report> getAll() throws DatabaseException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -120,15 +133,17 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSet(resultSet));
             }
-        }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving all monthly reports", sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar todos los reportes mensuales: {0}",
+                    sqlException.getMessage());
+            throw new DatabaseException("Error al recuperar los reportes mensuales.", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws DataAccessException{
+    public List<Report> getByStatusPending() throws DatabaseException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -138,8 +153,10 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSet(resultSet));
             }
-        }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving pending monthly reports", sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reportes mensuales pendientes: {0}",
+                    sqlException.getMessage());
+            throw new DatabaseException("Error al recuperar los reportes mensuales pendientes.", sqlException);
         }
 
         return reports;
@@ -148,15 +165,15 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
     private MonthlyReport mapResultSet(ResultSet resultSet) throws SQLException {
         MonthlyReport report = new MonthlyReport();
 
-        report.setIdReport    (resultSet.getInt   ("id_reporte"));
-        report.setIdIntern    (resultSet.getInt   ("id_practicante"));
-        report.setIdProyect   (resultSet.getInt   ("id_proyecto"));
-        report.setIdProfessor (resultSet.getInt   ("id_profesor"));
-        report.setReportType  (resultSet.getString("tipo_reporte"));
-        report.setPeriod      (resultSet.getString("periodo"));
-        report.setDocumentPath(resultSet.getString("ruta_documento"));
-        report.setStatus      (resultSet.getString("estado"));
-        report.setSumissionDate(resultSet.getDate ("fecha_entrega"));
+        report.setIdReport       (resultSet.getInt   ("id_reporte"));
+        report.setIdIntern       (resultSet.getInt   ("id_practicante"));
+        report.setIdProyect      (resultSet.getInt   ("id_proyecto"));
+        report.setIdProfessor    (resultSet.getInt   ("id_profesor"));
+        report.setReportType     (resultSet.getString("tipo_reporte"));
+        report.setPeriod         (resultSet.getString("periodo"));
+        report.setDocumentPath   (resultSet.getString("ruta_documento"));
+        report.setStatus         (resultSet.getString("estado"));
+        report.setSumissionDate  (resultSet.getDate  ("fecha_entrega"));
         report.setIdMonthlyReport(resultSet.getInt   ("id_reporte"));
         report.setMonth          (resultSet.getString("mes"));
         report.setYear           (resultSet.getInt   ("anio"));

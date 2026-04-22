@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Assignment;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IAssignmentDAO;
 
 import java.sql.*;
@@ -36,7 +36,7 @@ public class AssignmentDAO implements IAssignmentDAO {
                     "FROM asignacion WHERE id_proyecto = ?";
 
     @Override
-    public int save(Assignment assignment) throws DataAccessException {
+    public int save(Assignment assignment) throws DatabaseException {
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -58,14 +58,14 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al guardar asignación: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al guardar la asignación.", sqlException);
+            throw new DatabaseException("Error al guardar la asignación.", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public Assignment getById(int idAssignment) throws DataAccessException {
+    public Assignment getById(int idAssignment) throws DatabaseException {
         Assignment assignmentResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -81,14 +81,14 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar asignación por ID: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar la asignación.", sqlException);
+            throw new DatabaseException("Error al recuperar la asignación.", sqlException);
         }
 
         return assignmentResult;
     }
 
     @Override
-    public List<Assignment> getAll() throws DataAccessException {
+    public List<Assignment> getAll() throws DatabaseException {
         List<Assignment> assignments = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -101,14 +101,14 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar todas las asignaciones: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar las asignaciones.", sqlException);
+            throw new DatabaseException("Error al recuperar las asignaciones.", sqlException);
         }
 
         return assignments;
     }
 
     @Override
-    public Assignment getByIdIntern(int idIntern) throws DataAccessException {
+    public Assignment getByIdIntern(int idIntern) throws DatabaseException {
         Assignment assignmentResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -124,14 +124,14 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar asignación por practicante: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar la asignación del practicante.", sqlException);
+            throw new DatabaseException("Error al recuperar la asignación del practicante.", sqlException);
         }
 
         return assignmentResult;
     }
 
     @Override
-    public List<Assignment> getByIdProject(int idProject) throws DataAccessException {
+    public List<Assignment> getByIdProject(int idProject) throws DatabaseException {
         List<Assignment> assignments = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -147,7 +147,7 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar asignación por proyecto: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar las asignaciones del proyecto.", sqlException);
+            throw new DatabaseException("Error al recuperar las asignaciones del proyecto.", sqlException);
         }
 
         return assignments;

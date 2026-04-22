@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.User;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IUserDAO;
 
 import java.sql.*;
@@ -20,7 +20,7 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean saveUser(User user) throws DataAccessException {
+    public boolean saveUser(User user) throws DatabaseException {
         boolean isSaved = false;
         String sql = "INSERT INTO usuario (matricula, nombre, apellido_paterno, apellido_materno, contrasenia, rol, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -39,14 +39,14 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "General SQL error in UserDAO.save(): {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al guardar el usuario en la base de datos.", sqlException);
+            throw new DatabaseException("Error al guardar el usuario en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public User findById(int id) throws DataAccessException {
+    public User findById(int id) throws DatabaseException {
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 
@@ -62,14 +62,14 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding user by ID: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al buscar el usuario por ID.", sqlException);
+            throw new DatabaseException("Error al buscar el usuario por ID.", sqlException);
         }
 
         return userResult;
     }
 
     @Override
-    public List<User> findAll() throws DataAccessException {
+    public List<User> findAll() throws DatabaseException {
         List<User> userList = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
 
@@ -82,14 +82,14 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving all users: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar la lista de usuarios.", sqlException);
+            throw new DatabaseException("Error al recuperar la lista de usuarios.", sqlException);
         }
 
         return userList;
     }
 
     @Override
-    public boolean update(User user) throws DataAccessException {
+    public boolean update(User user) throws DatabaseException {
         boolean isUpdated = false;
         String sql = "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? WHERE id_usuario=?";
 
@@ -107,14 +107,14 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating user: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al actualizar el usuario.", sqlException);
+            throw new DatabaseException("Error al actualizar el usuario.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean delete(int id) throws DataAccessException {
+    public boolean delete(int id) throws DatabaseException {
         boolean isDeleted = false;
         String sql = "DELETE FROM usuario WHERE id_usuario=?";
 
@@ -128,14 +128,14 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deleting user: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al eliminar el usuario.", sqlException);
+            throw new DatabaseException("Error al eliminar el usuario.", sqlException);
         }
 
         return isDeleted;
     }
 
     @Override
-    public User findByMatricula(String matricula) throws DataAccessException {
+    public User findByMatricula(String matricula) throws DatabaseException {
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE matricula=?";
 
@@ -151,7 +151,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding user by matricula: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al buscar usuario por matrícula.", sqlException);
+            throw new DatabaseException("Error al buscar usuario por matrícula.", sqlException);
         }
 
         return userResult;

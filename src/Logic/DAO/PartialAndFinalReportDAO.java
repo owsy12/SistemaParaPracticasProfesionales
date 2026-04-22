@@ -2,16 +2,21 @@ package Logic.DAO;
 
 import Logic.DTOs.PartialAndFinalReport;
 import Logic.DTOs.Report;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
-      private static final String SQL_INSERT_SPECIFIC =
+
+    private static final Logger LOGGER = Logger.getLogger(PartialAndFinalReportDAO.class.getName());
+
+    private static final String SQL_INSERT_SPECIFIC =
             "INSERT INTO reporte_parcial_y_final " +
                     "(id_reporte_parcial, numero_informe, horas_cubiertas, " +
                     " objetivo_general, metodologia, resultados_obtenidos, observaciones) " +
@@ -35,76 +40,72 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
             SQL_SELECT_BASE +
                     " WHERE r.tipo_reporte IN ('Parcial', 'Final') AND r.estado = 'Pendiente'";
 
-
     @Override
-    public int save(Report report) throws DataAccessException {
+    public int save(Report report) throws DatabaseException {
         PartialAndFinalReport pfReport = (PartialAndFinalReport) report;
         int rowsAffected = 0;
 
-
-        try {
-            Connection connection = DataBaseConnection.connectDatabase();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
             connection.setAutoCommit(false);
 
-            try (PreparedStatement stmtBase = connection.prepareStatement(
-                    "INSERT INTO reporte " +
-                            "(id_practicante, id_proyecto, id_profesor, " +
-                            " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS)) {
+            try {
+                try (PreparedStatement stmtBase = connection.prepareStatement(
+                        "INSERT INTO reporte " +
+                                "(id_practicante, id_proyecto, id_profesor, " +
+                                " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS)) {
 
-                stmtBase.setInt   (1, pfReport.getIdIntern());
-                stmtBase.setInt   (2, pfReport.getIdProyect());
-                stmtBase.setInt   (3, pfReport.getIdProfessor());
-                stmtBase.setString(4, pfReport.getReportType());
-                stmtBase.setString(5, pfReport.getPeriod());
-                stmtBase.setString(6, pfReport.getDocumentPath());
-                stmtBase.setString(7, pfReport.getStatus());
-                stmtBase.setDate  (8, new java.sql.Date(pfReport.getSumissionDate().getTime()));
+                    stmtBase.setInt   (1, pfReport.getIdIntern());
+                    stmtBase.setInt   (2, pfReport.getIdProyect());
+                    stmtBase.setInt   (3, pfReport.getIdProfessor());
+                    stmtBase.setString(4, pfReport.getReportType());
+                    stmtBase.setString(5, pfReport.getPeriod());
+                    stmtBase.setString(6, pfReport.getDocumentPath());
+                    stmtBase.setString(7, pfReport.getStatus());
+                    stmtBase.setDate  (8, new java.sql.Date(pfReport.getSumissionDate().getTime()));
 
-                rowsAffected = stmtBase.executeUpdate();
+                    rowsAffected = stmtBase.executeUpdate();
 
-                try (ResultSet generatedKeys = stmtBase.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        pfReport.setIdReport(generatedKeys.getInt(1));
-                        pfReport.setIdPartialAndFinalReport(generatedKeys.getInt(1));
+                    try (ResultSet generatedKeys = stmtBase.getGeneratedKeys()) {
+                        if (generatedKeys.next()) {
+                            pfReport.setIdReport(generatedKeys.getInt(1));
+                            pfReport.setIdPartialAndFinalReport(generatedKeys.getInt(1));
+                        }
                     }
                 }
-            }catch (SQLException e){
+
+                try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
+                    stmtSpecific.setInt   (1, pfReport.getIdReport());
+                    stmtSpecific.setInt   (2, pfReport.getReportNumber());
+                    stmtSpecific.setInt   (3, pfReport.getCoveredHours());
+                    stmtSpecific.setString(4, pfReport.getGeneralObjective());
+                    stmtSpecific.setString(5, pfReport.getMethodology());
+                    stmtSpecific.setString(6, pfReport.getObtainedResults());
+                    stmtSpecific.setString(7, pfReport.getObservations());
+                    stmtSpecific.executeUpdate();
+                }
+
+                connection.commit();
+
+            } catch (SQLException sqlException) {
                 connection.rollback();
-                throw new DataAccessException("Error saving base report", e);
+                LOGGER.log(Level.SEVERE, "Error al guardar reporte parcial/final: {0}",
+                        sqlException.getMessage());
+                throw new DatabaseException("Error al guardar el reporte parcial/final.", sqlException);
             }
 
-            try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
-                stmtSpecific.setInt   (1, pfReport.getIdReport());
-                stmtSpecific.setInt   (2, pfReport.getReportNumber());
-                stmtSpecific.setInt   (3, pfReport.getCoveredHours());
-                stmtSpecific.setString(4, pfReport.getGeneralObjective());
-                stmtSpecific.setString(5, pfReport.getMethodology());
-                stmtSpecific.setString(6, pfReport.getObtainedResults());
-                stmtSpecific.setString(7, pfReport.getObservations());
-                stmtSpecific.executeUpdate();
-            }catch (SQLException e){
-                connection.rollback();
-                throw new DataAccessException("Error saving specific report details", e);
-            }
-
-            connection.commit();
-
-        }catch (SQLException e){
-            throw new DataAccessException("Error in the database.", e);
-
-        } catch (DataAccessException e) {
-
-            throw new DataAccessException("Error saving report", e);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error de conexión al guardar reporte parcial/final: {0}",
+                    sqlException.getMessage());
+            throw new DatabaseException("Error de conexión al guardar el reporte.", sqlException);
         }
-
 
         return rowsAffected;
     }
 
     @Override
-    public PartialAndFinalReport getById(int idReport) throws DataAccessException{
+    public PartialAndFinalReport getById(int idReport) throws DatabaseException {
         PartialAndFinalReport report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -118,14 +119,17 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                 }
             }
 
-        }catch (SQLException sqlException) {
-            throw new DataAccessException("Error retrieving report with ID " + idReport, sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reporte con ID {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new DatabaseException("Error al recuperar el reporte con ID " + idReport, sqlException);
         }
+
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws DataAccessException{
+    public List<Report> getAll() throws DatabaseException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -136,15 +140,17 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                 reports.add(mapResultSet(resultSet));
             }
 
-        }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving all partial and final reports", sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar todos los reportes parciales/finales: {0}",
+                    sqlException.getMessage());
+            throw new DatabaseException("Error al recuperar los reportes parciales y finales.", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws DataAccessException {
+    public List<Report> getByStatusPending() throws DatabaseException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -155,26 +161,27 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                 reports.add(mapResultSet(resultSet));
             }
 
-        }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving pending partial and final reports", sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reportes parciales/finales pendientes: {0}",
+                    sqlException.getMessage());
+            throw new DatabaseException("Error al recuperar los reportes pendientes.", sqlException);
         }
 
         return reports;
     }
 
-
     private PartialAndFinalReport mapResultSet(ResultSet resultSet) throws SQLException {
         PartialAndFinalReport report = new PartialAndFinalReport();
 
-        report.setIdReport    (resultSet.getInt   ("id_reporte"));
-        report.setIdIntern    (resultSet.getInt   ("id_practicante"));
-        report.setIdProyect   (resultSet.getInt   ("id_proyecto"));
-        report.setIdProfessor (resultSet.getInt   ("id_profesor"));
-        report.setReportType  (resultSet.getString("tipo_reporte"));
-        report.setPeriod      (resultSet.getString("periodo"));
-        report.setDocumentPath(resultSet.getString("ruta_documento"));
-        report.setStatus      (resultSet.getString("estado"));
-        report.setSumissionDate(resultSet.getDate ("fecha_entrega"));
+        report.setIdReport               (resultSet.getInt   ("id_reporte"));
+        report.setIdIntern               (resultSet.getInt   ("id_practicante"));
+        report.setIdProyect              (resultSet.getInt   ("id_proyecto"));
+        report.setIdProfessor            (resultSet.getInt   ("id_profesor"));
+        report.setReportType             (resultSet.getString("tipo_reporte"));
+        report.setPeriod                 (resultSet.getString("periodo"));
+        report.setDocumentPath           (resultSet.getString("ruta_documento"));
+        report.setStatus                 (resultSet.getString("estado"));
+        report.setSumissionDate          (resultSet.getDate  ("fecha_entrega"));
         report.setIdPartialAndFinalReport(resultSet.getInt   ("id_reporte"));
         report.setReportNumber           (resultSet.getInt   ("numero_informe"));
         report.setCoveredHours           (resultSet.getInt   ("horas_cubiertas"));
@@ -185,5 +192,4 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
         return report;
     }
-
 }

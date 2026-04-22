@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.Coordinator;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.ICoordinatorDAO;
 
 import java.sql.*;
@@ -18,7 +18,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public boolean save(Coordinator c) throws DataAccessException {
+    public boolean save(Coordinator c) throws DatabaseException {
         boolean isSaved = false;
         if (super.saveUser(c)) {
             isSaved = true;
@@ -27,7 +27,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public boolean update(Coordinator c) throws DataAccessException {
+    public boolean update(Coordinator c) throws DatabaseException {
         boolean isUpdated = false;
         if (super.update(c)) {
             isUpdated = true;
@@ -36,7 +36,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public boolean delete(int id) throws DataAccessException {
+    public boolean delete(int id) throws DatabaseException {
         boolean isDeleted = false;
         if (super.delete(id)) {
             isDeleted = true;
@@ -45,7 +45,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public Coordinator findById(int id) throws DataAccessException {
+    public Coordinator findById(int id) throws DatabaseException {
         Coordinator coordinatorResult = null;
         String sql = "SELECT * FROM usuario WHERE id_usuario=? AND rol='Coordinador'";
 
@@ -59,14 +59,14 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             }
 
         } catch (SQLException sqlException) {
-            throw new DataAccessException("Error al buscar el coordinador por ID.", sqlException);
+            throw new DatabaseException("Error al buscar el coordinador por ID.", sqlException);
         }
 
         return coordinatorResult;
     }
 
     @Override
-    public List<Coordinator> findAllCoordinators() throws DataAccessException {
+    public List<Coordinator> findAllCoordinators() throws DatabaseException {
         List<Coordinator> list = new ArrayList<>();
         String sql = "SELECT * FROM usuario WHERE rol='Coordinador'";
 
@@ -78,7 +78,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             }
 
         } catch (SQLException sqlException) {
-            throw new DataAccessException("Error al recuperar la lista de coordinadores.", sqlException);
+            throw new DatabaseException("Error al recuperar la lista de coordinadores.", sqlException);
         }
 
         return list;

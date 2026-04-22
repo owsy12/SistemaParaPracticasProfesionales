@@ -1,13 +1,13 @@
 package Logic.Interface;
 
 import Logic.DTOs.ReportEvaluation;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 
 import java.util.List;
 
 public interface IReportEvaluation {
-    int save(ReportEvaluation reportEvaluation) throws DataAccessException;
-    ReportEvaluation getById(int idReportEvaluation) throws DataAccessException;
-    ReportEvaluation getByIdReport(int idReport) throws DataAccessException;
-    List<ReportEvaluation> getAll() throws DataAccessException;
+    int save(ReportEvaluation reportEvaluation) throws DatabaseException;
+    ReportEvaluation getById(int idReportEvaluation) throws DatabaseException;
+    ReportEvaluation getByIdReport(int idReport) throws DatabaseException;
+    List<ReportEvaluation> getAll() throws DatabaseException;
 }

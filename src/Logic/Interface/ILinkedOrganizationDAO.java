@@ -1,13 +1,13 @@
 package Logic.Interface;
 import Logic.DTOs.LinkedOrganization;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import java.util.List;
 
 public interface ILinkedOrganizationDAO {
-    boolean saveLinkedOrganization(LinkedOrganization linkedOrganization) throws DataAccessException;
-    LinkedOrganization findById(int idOrganizacion) throws DataAccessException;
-    List<LinkedOrganization> findAll() throws DataAccessException;
-    List<LinkedOrganization> findAllActive() throws DataAccessException;
-    boolean update(LinkedOrganization linkedOrganization) throws DataAccessException;
-    boolean deactivateLinkedOrganization(int idOrganizacion) throws DataAccessException;
+    boolean saveLinkedOrganization(LinkedOrganization linkedOrganization) throws DatabaseException;
+    LinkedOrganization findById(int idOrganizacion) throws DatabaseException;
+    List<LinkedOrganization> findAll() throws DatabaseException;
+    List<LinkedOrganization> findAllActive() throws DatabaseException;
+    boolean update(LinkedOrganization linkedOrganization) throws DatabaseException;
+    boolean deactivateLinkedOrganization(int idOrganizacion) throws DatabaseException;
 }

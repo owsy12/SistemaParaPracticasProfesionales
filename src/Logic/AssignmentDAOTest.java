@@ -2,6 +2,7 @@ package Logic;
 
 import Logic.DAO.AssignmentDAO;
 import Logic.DTOs.Assignment;
+import Logic.Exceptions.DatabaseException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -24,9 +25,7 @@ class AssignmentDAOTest extends BaseDAOTest {
 
     @Test
     void save_withValidData_returnsOneRowAffected() throws Exception {
-        Assignment assignment = buildValidAssignment();
-
-        int result = dao.save(assignment);
+        int result = dao.save(buildValidAssignment());
 
         assertEquals(1, result);
     }
@@ -41,18 +40,27 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetById_returnsCorrectIntern() throws Exception {
+    void save_thenGetById_returnsNotNull() throws Exception {
         Assignment assignment = buildValidAssignment();
         dao.save(assignment);
 
         Assignment retrieved = dao.getById(assignment.getIdAssignment());
 
         assertNotNull(retrieved);
+    }
+
+    @Test
+    void save_thenGetById_returnsCorrectInternId() throws Exception {
+        Assignment assignment = buildValidAssignment();
+        dao.save(assignment);
+
+        Assignment retrieved = dao.getById(assignment.getIdAssignment());
+
         assertEquals(ID_PRACTICANTE, retrieved.getIdIntern());
     }
 
     @Test
-    void save_thenGetById_returnsCorrectProject() throws Exception {
+    void save_thenGetById_returnsCorrectProjectId() throws Exception {
         Assignment assignment = buildValidAssignment();
         dao.save(assignment);
 
@@ -62,7 +70,7 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetById_returnsCorrectApplication() throws Exception {
+    void save_thenGetById_returnsCorrectApplicationId() throws Exception {
         Assignment assignment = buildValidAssignment();
         dao.save(assignment);
 
@@ -72,19 +80,25 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetByIdIntern_returnsAssignment() throws Exception {
-        Assignment assignment = buildValidAssignment();
-        dao.save(assignment);
+    void save_thenGetByIdIntern_returnsNotNull() throws Exception {
+        dao.save(buildValidAssignment());
 
         Assignment retrieved = dao.getByIdIntern(ID_PRACTICANTE);
 
         assertNotNull(retrieved);
+    }
+
+    @Test
+    void save_thenGetByIdIntern_returnsCorrectInternId() throws Exception {
+        dao.save(buildValidAssignment());
+
+        Assignment retrieved = dao.getByIdIntern(ID_PRACTICANTE);
+
         assertEquals(ID_PRACTICANTE, retrieved.getIdIntern());
     }
 
     @Test
     void getByIdIntern_whenNoAssignment_returnsNull() throws Exception {
-        // No se ha insertado ninguna asignación
         Assignment retrieved = dao.getByIdIntern(ID_PRACTICANTE);
 
         assertNull(retrieved);
@@ -97,11 +111,19 @@ class AssignmentDAOTest extends BaseDAOTest {
         List<Assignment> byProject = dao.getByIdProject(ID_PROYECTO);
 
         assertEquals(1, byProject.size());
+    }
+
+    @Test
+    void save_thenGetByIdProject_returnsCorrectProjectId() throws Exception {
+        dao.save(buildValidAssignment());
+
+        List<Assignment> byProject = dao.getByIdProject(ID_PROYECTO);
+
         assertEquals(ID_PROYECTO, byProject.get(0).getIdProyect());
     }
 
     @Test
-    void save_thenGetAll_containsSavedAssignment() throws Exception {
+    void save_thenGetAll_returnsOneElement() throws Exception {
         dao.save(buildValidAssignment());
 
         List<Assignment> all = dao.getAll();
@@ -110,11 +132,10 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_samePracticanteTwice_throwsSQLException() throws Exception {
+    void save_samePracticanteTwice_throwsDatabaseException() throws Exception {
         dao.save(buildValidAssignment());
 
-        // UNIQUE KEY uq_asig_practicante no permite dos asignaciones
-        assertThrows(Exception.class, () -> dao.save(buildValidAssignment()),
-                "Debe lanzar excepción: un practicante solo puede tener una asignación");
+        // UNIQUE KEY uq_asig_practicante: un practicante solo puede tener una asignación
+        assertThrows(DatabaseException.class, () -> dao.save(buildValidAssignment()));
     }
 }
