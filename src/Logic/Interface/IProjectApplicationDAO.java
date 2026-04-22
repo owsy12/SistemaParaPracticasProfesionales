@@ -1,12 +1,12 @@
 package Logic.Interface;
 import Logic.DTOs.ProjectApplication;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import java.util.List;
 
 public interface IProjectApplicationDAO {
-    boolean create(ProjectApplication projectApplication) throws DataAccessException;
-    ProjectApplication findById(int projectApplicationId) throws DataAccessException;
-    List<ProjectApplication> findByApplication(int applicationId) throws DataAccessException;
-    List<ProjectApplication> findAll() throws DataAccessException;
-    boolean delete(int projectApplicationId) throws DataAccessException;
+    boolean create(ProjectApplication projectApplication) throws DatabaseException;
+    ProjectApplication findById(int projectApplicationId) throws DatabaseException;
+    List<ProjectApplication> findByApplication(int applicationId) throws DatabaseException;
+    List<ProjectApplication> findAll() throws DatabaseException;
+    boolean delete(int projectApplicationId) throws DatabaseException;
 }

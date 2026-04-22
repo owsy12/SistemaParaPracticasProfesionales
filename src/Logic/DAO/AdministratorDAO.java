@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Administrator;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IAdministratorDAO;
 
 import java.sql.Connection;
@@ -32,7 +32,7 @@ public class AdministratorDAO implements IAdministratorDAO {
                     "JOIN administrador a ON u.id_usuario = a.id_usuario";
 
     @Override
-    public boolean saveAdmin(Administrator administrator) throws DataAccessException {
+    public boolean saveAdmin(Administrator administrator) throws DatabaseException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -46,14 +46,14 @@ public class AdministratorDAO implements IAdministratorDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving administrator with ID {0}: {1}",
                     new Object[]{administrator.getId(), sqlException.getMessage()});
-            throw new DataAccessException("Error al guardar el administrador en la base de datos.", sqlException);
+            throw new DatabaseException("Error al guardar el administrador en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Administrator findById(int id) throws DataAccessException {
+    public Administrator findById(int id) throws DatabaseException {
         Administrator administratorResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -70,14 +70,14 @@ public class AdministratorDAO implements IAdministratorDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding administrator with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
-            throw new DataAccessException("Error al buscar el administrador por ID.", sqlException);
+            throw new DatabaseException("Error al buscar el administrador por ID.", sqlException);
         }
 
         return administratorResult;
     }
 
     @Override
-    public List<Administrator> findAll() throws DataAccessException {
+    public List<Administrator> findAll() throws DatabaseException {
         List<Administrator> administratorList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -90,7 +90,7 @@ public class AdministratorDAO implements IAdministratorDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving all administrators: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar la lista de administradores.", sqlException);
+            throw new DatabaseException("Error al recuperar la lista de administradores.", sqlException);
         }
 
         return administratorList;

@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.Report;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
 
@@ -34,7 +34,7 @@ public class ReportDAO implements IReportDAO {
                     "WHERE estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws DataAccessException{
+    public int save(Report report) throws DatabaseException{
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -58,14 +58,14 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         }catch (SQLException sqlException){
-            throw new DataAccessException("Error saving report " + sqlException.getMessage(), sqlException);
+            throw new DatabaseException("Error saving report " + sqlException.getMessage(), sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public Report getById(int idReport) throws DataAccessException {
+    public Report getById(int idReport) throws DatabaseException {
         Report report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -79,14 +79,14 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving report with ID " + idReport, sqlException);
+            throw new DatabaseException("Error retrieving report with ID " + idReport, sqlException);
         }
 
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws DataAccessException {
+    public List<Report> getAll() throws DatabaseException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -97,14 +97,14 @@ public class ReportDAO implements IReportDAO {
                 reports.add(mapResultSetToReport(resultSet));
             }
         }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving all reports", sqlException);
+            throw new DatabaseException("Error retrieving all reports", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws DataAccessException {
+    public List<Report> getByStatusPending() throws DatabaseException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -115,7 +115,7 @@ public class ReportDAO implements IReportDAO {
                 reports.add(mapResultSetToReport(resultSet));
             }
         }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving pending reports", sqlException);
+            throw new DatabaseException("Error retrieving pending reports", sqlException);
         }
 
         return reports;

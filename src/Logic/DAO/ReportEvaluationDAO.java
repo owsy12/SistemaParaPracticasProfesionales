@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.ReportEvaluation;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IReportEvaluation;
 
 import java.sql.*;
@@ -34,7 +34,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                     "FROM evaluacion_reporte";
 
     @Override
-    public int save(ReportEvaluation reportEvaluation) throws DataAccessException {
+    public int save(ReportEvaluation reportEvaluation) throws DatabaseException {
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -55,14 +55,14 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                 }
             }
         }catch (SQLException e) {
-            throw new DataAccessException("Error saving evaluation report", e);
+            throw new DatabaseException("Error saving evaluation report", e);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public ReportEvaluation getById(int idReportEvaluation) throws DataAccessException{
+    public ReportEvaluation getById(int idReportEvaluation) throws DatabaseException{
         ReportEvaluation reportEvaluation = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -76,14 +76,14 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                 }
             }
         }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving report evaluation by ID", sqlException);
+            throw new DatabaseException("Error retrieving report evaluation by ID", sqlException);
         }
 
         return reportEvaluation;
     }
 
     @Override
-    public ReportEvaluation getByIdReport(int idReport) throws DataAccessException{
+    public ReportEvaluation getByIdReport(int idReport) throws DatabaseException{
         ReportEvaluation reportEvaluation = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -97,14 +97,14 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                 }
             }
         }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving report evaluation by report ID", sqlException);
+            throw new DatabaseException("Error retrieving report evaluation by report ID", sqlException);
         }
 
         return reportEvaluation;
     }
 
     @Override
-    public List<ReportEvaluation> getAll() throws DataAccessException {
+    public List<ReportEvaluation> getAll() throws DatabaseException {
         List<ReportEvaluation> reportEvaluations = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -115,7 +115,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                 reportEvaluations.add(mapResultSet(resultSet));
             }
         }catch (SQLException sqlException){
-            throw new DataAccessException("Error retrieving all report evaluations", sqlException);
+            throw new DatabaseException("Error retrieving all report evaluations", sqlException);
         }
 
         return reportEvaluations;

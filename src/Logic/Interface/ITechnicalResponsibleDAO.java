@@ -1,12 +1,12 @@
 package Logic.Interface;
 import Logic.DTOs.TechnicalSupervisor;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import java.util.List;
 
 public interface ITechnicalResponsibleDAO {
-    boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible) throws DataAccessException;
-    TechnicalSupervisor findById(int idTecnico) throws DataAccessException;
-    List<TechnicalSupervisor> findByOrganization(int idOrganizacion) throws DataAccessException;
-    boolean update(TechnicalSupervisor technicalResponsible) throws DataAccessException;
-    boolean delete(int idTecnico) throws DataAccessException;
+    boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible) throws DatabaseException;
+    TechnicalSupervisor findById(int idTecnico) throws DatabaseException;
+    List<TechnicalSupervisor> findByOrganization(int idOrganizacion) throws DatabaseException;
+    boolean update(TechnicalSupervisor technicalResponsible) throws DatabaseException;
+    boolean delete(int idTecnico) throws DatabaseException;
 }

@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.TechnicalSupervisor;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.ITechnicalResponsibleDAO;
 
 import java.sql.Connection;
@@ -38,7 +38,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             "DELETE FROM tecnico_responsable WHERE id_tecnico = ?";
 
     @Override
-    public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible) throws DataAccessException {
+    public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible) throws DatabaseException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -58,14 +58,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving technical supervisor {0} {1}: {2}",
                     new Object[]{technicalResponsible.getName(), technicalResponsible.getLastName(), sqlException.getMessage()});
-            throw new DataAccessException("Error al guardar el responsable técnico.", sqlException);
+            throw new DatabaseException("Error al guardar el responsable técnico.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public TechnicalSupervisor findById(int idTecnico) throws DataAccessException {
+    public TechnicalSupervisor findById(int idTecnico) throws DatabaseException {
         TechnicalSupervisor technicalResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -82,14 +82,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding technical supervisor with ID {0}: {1}",
                     new Object[]{idTecnico, sqlException.getMessage()});
-            throw new DataAccessException("Error al buscar el responsable técnico por ID.", sqlException);
+            throw new DatabaseException("Error al buscar el responsable técnico por ID.", sqlException);
         }
 
         return technicalResult;
     }
 
     @Override
-    public List<TechnicalSupervisor> findByOrganization(int idOrganizacion) throws DataAccessException {
+    public List<TechnicalSupervisor> findByOrganization(int idOrganizacion) throws DatabaseException {
         List<TechnicalSupervisor> technicalList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -106,14 +106,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding technical supervisors for organization {0}: {1}",
                     new Object[]{idOrganizacion, sqlException.getMessage()});
-            throw new DataAccessException("Error al buscar los responsables técnicos de la organización.", sqlException);
+            throw new DatabaseException("Error al buscar los responsables técnicos de la organización.", sqlException);
         }
 
         return technicalList;
     }
 
     @Override
-    public boolean update(TechnicalSupervisor technicalResponsible) throws DataAccessException {
+    public boolean update(TechnicalSupervisor technicalResponsible) throws DatabaseException {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -133,14 +133,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating technical supervisor with ID {0}: {1}",
                     new Object[]{technicalResponsible.getIdTechnicalSupervisor(), sqlException.getMessage()});
-            throw new DataAccessException("Error al actualizar el responsable técnico.", sqlException);
+            throw new DatabaseException("Error al actualizar el responsable técnico.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean delete(int idTecnico) throws DataAccessException {
+    public boolean delete(int idTecnico) throws DatabaseException {
         boolean isDeleted = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -155,7 +155,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deleting technical supervisor with ID {0}: {1}",
                     new Object[]{idTecnico, sqlException.getMessage()});
-            throw new DataAccessException("Error al eliminar el responsable técnico.", sqlException);
+            throw new DatabaseException("Error al eliminar el responsable técnico.", sqlException);
         }
 
         return isDeleted;

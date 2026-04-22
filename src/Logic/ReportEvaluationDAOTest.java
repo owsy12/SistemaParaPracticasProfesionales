@@ -2,6 +2,7 @@ package Logic;
 
 import Logic.DAO.ReportEvaluationDAO;
 import Logic.DTOs.ReportEvaluation;
+import Logic.Exceptions.DatabaseException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -23,13 +24,9 @@ class ReportEvaluationDAOTest extends BaseDAOTest {
         return evaluation;
     }
 
-    // ---------------------------------------------------------------
-
     @Test
     void save_withValidData_returnsOneRowAffected() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-
-        int result = dao.save(evaluation);
+        int result = dao.save(buildValidEvaluation());
 
         assertEquals(1, result);
     }
@@ -44,13 +41,22 @@ class ReportEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetById_returnsCorrectGrade() throws Exception {
+    void save_thenGetById_returnsNotNull() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
         dao.save(evaluation);
 
         ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
 
         assertNotNull(retrieved);
+    }
+
+    @Test
+    void save_thenGetById_returnsCorrectGrade() throws Exception {
+        ReportEvaluation evaluation = buildValidEvaluation();
+        dao.save(evaluation);
+
+        ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
+
         assertEquals(9, retrieved.getGrade());
     }
 
@@ -65,13 +71,20 @@ class ReportEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetByIdReport_returnsCorrectEvaluation() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-        dao.save(evaluation);
+    void save_thenGetByIdReport_returnsNotNull() throws Exception {
+        dao.save(buildValidEvaluation());
 
         ReportEvaluation retrieved = dao.getByIdReport(ID_REPORTE);
 
         assertNotNull(retrieved);
+    }
+
+    @Test
+    void save_thenGetByIdReport_returnsCorrectReportId() throws Exception {
+        dao.save(buildValidEvaluation());
+
+        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORTE);
+
         assertEquals(ID_REPORTE, retrieved.getIdReport());
     }
 
@@ -80,11 +93,11 @@ class ReportEvaluationDAOTest extends BaseDAOTest {
         // El reporte ID_REPORTE existe pero no tiene evaluación aún
         ReportEvaluation retrieved = dao.getByIdReport(ID_REPORTE);
 
-        assertNull(retrieved, "Sin evaluación debe retornar null");
+        assertNull(retrieved);
     }
 
     @Test
-    void save_thenGetAll_containsSavedEvaluation() throws Exception {
+    void save_thenGetAll_returnsOneElement() throws Exception {
         dao.save(buildValidEvaluation());
 
         List<ReportEvaluation> all = dao.getAll();
@@ -93,7 +106,7 @@ class ReportEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_withGradeZero_isAccepted() throws Exception {
+    void save_withGradeZero_returnsOneRowAffected() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
         evaluation.setGrade(0);
 
@@ -103,7 +116,7 @@ class ReportEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_withGradeTen_isAccepted() throws Exception {
+    void save_withGradeTen_returnsOneRowAffected() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
         evaluation.setGrade(10);
 

@@ -2,6 +2,7 @@ package Logic;
 
 import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
+import Logic.Exceptions.DatabaseException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -23,13 +24,9 @@ class InitialFormatDAOTest extends BaseDAOTest {
         return format;
     }
 
-    // ---------------------------------------------------------------
-
     @Test
     void save_withAssignmentLetter_returnsOneRowAffected() throws Exception {
-        InitialFormat format = buildValidFormat("Carta de Asignación");
-
-        int result = dao.save(format);
+        int result = dao.save(buildValidFormat("Carta de Asignación"));
 
         assertEquals(1, result);
     }
@@ -44,13 +41,22 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetById_returnsCorrectFormatType() throws Exception {
+    void save_thenGetById_returnsNotNull() throws Exception {
         InitialFormat format = buildValidFormat("Certificado de Seguro");
         dao.save(format);
 
         InitialFormat retrieved = dao.getById(format.getIdInitialFormat());
 
         assertNotNull(retrieved);
+    }
+
+    @Test
+    void save_thenGetById_returnsCorrectFormatType() throws Exception {
+        InitialFormat format = buildValidFormat("Certificado de Seguro");
+        dao.save(format);
+
+        InitialFormat retrieved = dao.getById(format.getIdInitialFormat());
+
         assertEquals("Certificado de Seguro", retrieved.getFormatType());
     }
 
@@ -87,7 +93,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_thenGetAll_containsSavedFormats() throws Exception {
+    void save_twoFormats_thenGetAll_returnsTwo() throws Exception {
         dao.save(buildValidFormat("Carta de Asignación"));
         dao.save(buildValidFormat("Horario"));
 
@@ -104,19 +110,17 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void save_duplicateFormatTypeSamePracticante_throwsSQLException() throws Exception {
+    void save_duplicateFormatTypeSamePracticante_throwsDatabaseException() throws Exception {
         dao.save(buildValidFormat("Horario"));
 
-        // UNIQUE KEY uq_fmt_prac_tipo
-        assertThrows(Exception.class,
-                () -> dao.save(buildValidFormat("Horario")),
-                "No debe permitir el mismo tipo de formato dos veces para el mismo practicante");
+        // UNIQUE KEY uq_fmt_prac_tipo: no permite el mismo tipo dos veces para el mismo practicante
+        assertThrows(DatabaseException.class, () -> dao.save(buildValidFormat("Horario")));
     }
 
     @Test
-    void save_withNullSubmissionDate_isAccepted() throws Exception {
+    void save_withNullSubmissionDate_returnsOneRowAffected() throws Exception {
         InitialFormat format = buildValidFormat("Carta de Asignación");
-        format.setSubmissionDate(null);   // fecha_entrega es NULL en BD
+        format.setSubmissionDate(null); // fecha_entrega es nullable en BD
 
         int result = dao.save(format);
 

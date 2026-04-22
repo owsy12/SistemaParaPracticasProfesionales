@@ -1,13 +1,13 @@
 package Logic.Interface;
 import Logic.DTOs.User;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import java.util.List;
 
 public interface IUserDAO {
-    boolean saveUser(User user) throws DataAccessException;
-    User findById(int id) throws DataAccessException;
-    List<User> findAll() throws DataAccessException;
-    boolean update(User user) throws DataAccessException;
-    boolean delete(int id) throws DataAccessException;
-    User findByMatricula(String matricula) throws DataAccessException;
+    boolean saveUser(User user) throws DatabaseException;
+    User findById(int id) throws DatabaseException;
+    List<User> findAll() throws DatabaseException;
+    boolean update(User user) throws DatabaseException;
+    boolean delete(int id) throws DatabaseException;
+    User findByMatricula(String matricula) throws DatabaseException;
 }

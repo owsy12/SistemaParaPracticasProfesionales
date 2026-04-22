@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Intern;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IInternDAO;
 
 import java.sql.Connection;
@@ -34,7 +34,7 @@ public class InternDAO implements IInternDAO {
             "UPDATE practicante SET creditos = ? WHERE id_usuario = ?";
 
     @Override
-    public boolean saveIntern(Intern intern) throws DataAccessException {
+    public boolean saveIntern(Intern intern) throws DatabaseException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -50,14 +50,14 @@ public class InternDAO implements IInternDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving intern with ID {0}: {1}",
                     new Object[]{intern.getId(), sqlException.getMessage()});
-            throw new DataAccessException("Error al guardar el practicante en la base de datos.", sqlException);
+            throw new DatabaseException("Error al guardar el practicante en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Intern findById(int id) throws DataAccessException {
+    public Intern findById(int id) throws DatabaseException {
         Intern internResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -74,14 +74,14 @@ public class InternDAO implements IInternDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
-            throw new DataAccessException("Error al buscar el practicante por ID.", sqlException);
+            throw new DatabaseException("Error al buscar el practicante por ID.", sqlException);
         }
 
         return internResult;
     }
 
     @Override
-    public List<Intern> findAll() throws DataAccessException {
+    public List<Intern> findAll() throws DatabaseException {
         List<Intern> internList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -94,14 +94,14 @@ public class InternDAO implements IInternDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving all interns: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar la lista de practicantes.", sqlException);
+            throw new DatabaseException("Error al recuperar la lista de practicantes.", sqlException);
         }
 
         return internList;
     }
 
     @Override
-    public boolean deactivateIntern(int id) throws DataAccessException {
+    public boolean deactivateIntern(int id) throws DatabaseException {
         boolean isDeactivated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -116,14 +116,14 @@ public class InternDAO implements IInternDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deactivating intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
-            throw new DataAccessException("Error al desactivar el practicante.", sqlException);
+            throw new DatabaseException("Error al desactivar el practicante.", sqlException);
         }
 
         return isDeactivated;
     }
 
     @Override
-    public boolean updateCredits(int id, int credits) throws DataAccessException {
+    public boolean updateCredits(int id, int credits) throws DatabaseException {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -139,7 +139,7 @@ public class InternDAO implements IInternDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating credits for intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
-            throw new DataAccessException("Error al actualizar los créditos del practicante.", sqlException);
+            throw new DatabaseException("Error al actualizar los créditos del practicante.", sqlException);
         }
 
         return isUpdated;

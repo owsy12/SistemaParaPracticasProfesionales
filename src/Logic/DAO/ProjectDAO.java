@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Project;
-import Logic.Exceptions.DataAccessException;
+import Logic.Exceptions.DatabaseException;
 import Logic.Interface.IProjectDAO;
 
 import java.sql.Connection;
@@ -53,7 +53,7 @@ public class ProjectDAO implements IProjectDAO {
                     "WHERE id_proyecto = ? AND cupo_disponible > 0";
 
     @Override
-    public boolean saveProject(Project project) throws DataAccessException {
+    public boolean saveProject(Project project) throws DatabaseException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -79,14 +79,14 @@ public class ProjectDAO implements IProjectDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving project {0}: {1}",
                     new Object[]{project.getName(), sqlException.getMessage()});
-            throw new DataAccessException("Error al guardar el proyecto.", sqlException);
+            throw new DatabaseException("Error al guardar el proyecto.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Project findById(int idProyecto) throws DataAccessException {
+    public Project findById(int idProyecto) throws DatabaseException {
         Project projectResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -103,14 +103,14 @@ public class ProjectDAO implements IProjectDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding project with ID {0}: {1}",
                     new Object[]{idProyecto, sqlException.getMessage()});
-            throw new DataAccessException("Error al buscar el proyecto por ID.", sqlException);
+            throw new DatabaseException("Error al buscar el proyecto por ID.", sqlException);
         }
 
         return projectResult;
     }
 
     @Override
-    public List<Project> findAll() throws DataAccessException {
+    public List<Project> findAll() throws DatabaseException {
         List<Project> projectList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -123,14 +123,14 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving all projects: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar la lista de proyectos.", sqlException);
+            throw new DatabaseException("Error al recuperar la lista de proyectos.", sqlException);
         }
 
         return projectList;
     }
 
     @Override
-    public List<Project> findAllAvailable() throws DataAccessException {
+    public List<Project> findAllAvailable() throws DatabaseException {
         List<Project> projectList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -143,14 +143,14 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving available projects: {0}", sqlException.getMessage());
-            throw new DataAccessException("Error al recuperar los proyectos disponibles.", sqlException);
+            throw new DatabaseException("Error al recuperar los proyectos disponibles.", sqlException);
         }
 
         return projectList;
     }
 
     @Override
-    public List<Project> findByCoordinator(int idCoordinador) throws DataAccessException {
+    public List<Project> findByCoordinator(int idCoordinador) throws DatabaseException {
         List<Project> projectList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -167,14 +167,14 @@ public class ProjectDAO implements IProjectDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding projects for coordinator {0}: {1}",
                     new Object[]{idCoordinador, sqlException.getMessage()});
-            throw new DataAccessException("Error al buscar los proyectos del coordinador.", sqlException);
+            throw new DatabaseException("Error al buscar los proyectos del coordinador.", sqlException);
         }
 
         return projectList;
     }
 
     @Override
-    public boolean update(Project project) throws DataAccessException {
+    public boolean update(Project project) throws DatabaseException {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -200,14 +200,14 @@ public class ProjectDAO implements IProjectDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating project with ID {0}: {1}",
                     new Object[]{project.getIdProyect(), sqlException.getMessage()});
-            throw new DataAccessException("Error al actualizar el proyecto.", sqlException);
+            throw new DatabaseException("Error al actualizar el proyecto.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean cancelProject(int idProyecto) throws DataAccessException {
+    public boolean cancelProject(int idProyecto) throws DatabaseException {
         boolean isCanceled = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -222,14 +222,14 @@ public class ProjectDAO implements IProjectDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error canceling project with ID {0}: {1}",
                     new Object[]{idProyecto, sqlException.getMessage()});
-            throw new DataAccessException("Error al cancelar el proyecto.", sqlException);
+            throw new DatabaseException("Error al cancelar el proyecto.", sqlException);
         }
 
         return isCanceled;
     }
 
     @Override
-    public boolean decrementAvailableSlot(int idProyecto) throws DataAccessException {
+    public boolean decrementAvailableSlot(int idProyecto) throws DatabaseException {
         boolean isDecremented = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -244,7 +244,7 @@ public class ProjectDAO implements IProjectDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error decrementing available slot for project {0}: {1}",
                     new Object[]{idProyecto, sqlException.getMessage()});
-            throw new DataAccessException("Error al reducir el cupo del proyecto.", sqlException);
+            throw new DatabaseException("Error al reducir el cupo del proyecto.", sqlException);
         }
 
         return isDecremented;
