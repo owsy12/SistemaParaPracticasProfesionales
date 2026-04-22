@@ -5,7 +5,7 @@ import Logic.Exceptions.ValidationException;
 import java.util.List;
 
 public interface IUserDAO {
-    boolean saveUser(User user) throws DatabaseException, ValidationException;
+    int saveUser(User user) throws DatabaseException, ValidationException;
     User findById(int id) throws DatabaseException, ValidationException;
     List<User> findAll() throws DatabaseException, ValidationException;
     boolean update(User user) throws DatabaseException, ValidationException;

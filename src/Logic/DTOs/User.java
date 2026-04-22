@@ -30,7 +30,7 @@ public class User{
     public void setMatricula(String matricula) { this.matricula = matricula; }
 
     public String getFirstName() { return firstName; }
-    public void setName(String firstName) { this.firstName = firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
     public String getLastName() { return lastName; }
     public void setLastName(String lastName) { this.lastName = lastName; }

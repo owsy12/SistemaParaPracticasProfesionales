@@ -8,7 +8,7 @@ public class Administrator extends User {
                          String secondLastName, String matricula, String password,
                          String state) {
 
-        super(idUser, name, firstLastName, secondLastName, matricula, password, state);
+        super(idUser, matricula, name, firstLastName, secondLastName, password, state);
         this.idAdmin = idAdmin;
     }
 
@@ -17,6 +17,7 @@ public class Administrator extends User {
     }
 
     public Administrator(int idUsuario, String matricula, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, String estado) {
+        super(idUsuario, matricula, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado);
     }
 
     public int getIdAdmin() {

@@ -1,109 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
-  <component name="FacetManager">
-    <facet type="javaeeApplication" name="javaEEApplication">
-      <configuration>
-        <descriptors>
-          <deploymentDescriptor name="application.xml" url="file://$MODULE_DIR$/META-INF/application.xml" />
-        </descriptors>
-      </configuration>
-    </facet>
-  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$MODULE_DIR$">
-      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+    <content url="file://$MODULE_DIR$/..">
+      <sourceFolder url="file://$MODULE_DIR$/../src" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="25" jdkType="JavaSDK" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/java-dotenv-5.2.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="module-library" exported="">
       <library name="JUnit4">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/junit-4.13.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/hamcrest-core-1.3.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/junit-4.13.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/hamcrest-core-1.3.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="JUnit5">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/junit-jupiter-5.14.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/junit-jupiter-api-5.14.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/opentest4j-1.3.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/junit-platform-commons-1.14.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/apiguardian-api-1.1.2.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/junit-jupiter-params-5.14.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/junit-jupiter-engine-5.14.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/junit-platform-engine-1.14.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="MySQLConnector">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/mysql-connector-j-9.1.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="JavaFX">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/javafx-21/javafx-base-21-mac-aarch64.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/javafx-21/javafx-controls-21-mac-aarch64.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/javafx-21/javafx-fxml-21-mac-aarch64.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/javafx-21/javafx-graphics-21-mac-aarch64.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/javafx-21/javafx-media-21-mac-aarch64.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/javafx-21/javafx-swing-21-mac-aarch64.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="JavaDotEnv">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/java-dotenv-5.2.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library name="KotlinStdlib">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/kotlin-stdlib-1.9.10.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library name="JUnit4">
-        <CLASSES>
-          <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.13.1/junit-4.13.1.jar!/" />
-          <root url="jar://$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="JUnit5">
         <CLASSES>
           <root url="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter/5.14.0/junit-jupiter-5.14.0.jar!/" />
@@ -114,6 +29,47 @@
           <root url="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-params/5.14.0/junit-jupiter-params-5.14.0.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/junit/jupiter/junit-jupiter-engine/5.14.0/junit-jupiter-engine-5.14.0.jar!/" />
           <root url="jar://$MAVEN_REPOSITORY$/org/junit/platform/junit-platform-engine/1.14.0/junit-platform-engine-1.14.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="JavaFX">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib/javafx-21/javafx-base-21-mac-aarch64.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/javafx-21/javafx-controls-21-mac-aarch64.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/javafx-21/javafx-fxml-21-mac-aarch64.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/javafx-21/javafx-graphics-21-mac-aarch64.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/javafx-21/javafx-media-21-mac-aarch64.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/javafx-21/javafx-swing-21-mac-aarch64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="KotlinStdlib">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../lib/kotlin-stdlib-1.9.10.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../PrincipiosConstrucción/SistemaParaPracticasProfesionales/lib/java-dotenv-5.2.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../PrincipiosConstrucción/SistemaParaPracticasProfesionales/lib/mysql-connector-j-9.5.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

@@ -35,32 +35,31 @@ public class ProfessorDAO implements IProfessorDAO {
 
     @Override
     public boolean saveProfessor(Professor professor) throws DatabaseException, ValidationException {
-        if (professor.getId() <= 0) {
-            throw new ValidationException(
-                    "El ID del profesor debe ser mayor a cero. ID recibido: " + professor.getId());
-        }
         boolean isSaved = false;
-
-        try (PreparedStatement ps = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
-
-            ps.setInt   (1, professor.getId());
-            ps.setString(2, professor.getAcademicArea());
-
-            if (ps.executeUpdate() > 0) {
-                isSaved = true;
+        try {
+            databaseConnection.setAutoCommit(false);
+            UserDAO userDAO = new UserDAO(databaseConnection);
+            int userId = userDAO.saveUser(professor);
+            if (userId > 0) {
+                try (PreparedStatement ps = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
+                    ps.setInt(1, userId);
+                    ps.setString(2, professor.getAcademicArea());
+                    if (ps.executeUpdate() > 0) {
+                        databaseConnection.commit();
+                        isSaved = true;
+                    } else {
+                        databaseConnection.rollback();
+                    }
+                }
+            } else {
+                databaseConnection.rollback();
             }
-
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar profesor con ID {0}: {1}",
-                    new Object[]{professor.getId(), sqlException.getMessage()});
-            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
-                throw new DuplicateEntryException(
-                        "Ya existe un registro con esa clave en la base de datos.",
-                        sqlException);
-            }
-            throw new DatabaseException("Error al guardar el profesor en la base de datos.", sqlException);
+            try { databaseConnection.rollback(); } catch (SQLException rollbackEx) { /* Ignore */ }
+            throw new DatabaseException("Error al registrar profesor.", sqlException);
+        } finally {
+            try { databaseConnection.setAutoCommit(true); } catch (SQLException ex) { /* Ignore */ }
         }
-
         return isSaved;
     }
 
@@ -149,6 +148,24 @@ public class ProfessorDAO implements IProfessorDAO {
         }
 
         return isDeactivated;
+    }
+
+    @Override
+    public List<Professor> findProfessorsWithoutCoordinatorRole() throws DatabaseException {
+        List<Professor> professorList = new ArrayList<>();
+        String sql = "SELECT u.*, p.academica FROM usuario u " +
+                     "JOIN profesor p ON u.id_usuario = p.id_usuario " +
+                     "LEFT JOIN coordinador c ON u.id_usuario = c.id_usuario " +
+                     "WHERE c.id_usuario IS NULL AND u.estado = 'Activo'";
+        try (PreparedStatement ps = databaseConnection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                professorList.add(mapProfessor(rs));
+            }
+        } catch (SQLException sqlException) {
+            throw new DatabaseException("Error al recuperar profesores sin rol de coordinador.", sqlException);
+        }
+        return professorList;
     }
 
     private Professor mapProfessor(ResultSet rs) throws SQLException {

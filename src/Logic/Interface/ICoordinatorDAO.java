@@ -10,4 +10,5 @@ public interface ICoordinatorDAO {
     boolean save(Coordinator coordinator) throws DatabaseException, ValidationException;
     boolean update(Coordinator coordinator) throws DatabaseException, ValidationException;
     boolean delete(int id) throws DatabaseException, ValidationException;
+    List<Coordinator> findCoordinatorsWithoutProfessorRole() throws DatabaseException;
 }
