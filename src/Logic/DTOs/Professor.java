@@ -24,4 +24,9 @@ public class Professor extends User{
     public void setAcademicArea(String academicArea) {
         this.academicArea = academicArea; }
 
+    @Override
+    public String toString() {
+        return firstName + " " + lastName + " (" + matricula + ")";
+    }
+
 }

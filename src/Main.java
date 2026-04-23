@@ -7,37 +7,30 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 
-/**
- * Clase principal de la aplicación JavaFX
- * Carga la interfaz gráfica desde el archivo FXML
- */
+
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
         try {
-            // Cargar el archivo FXML
-            URL fxmlLocation = getClass().getResource("/GUI/View/FXMLExample.fxml");
+            URL fxmlLocation = getClass().getResource("/GUI/View/GUIRegistrarCoordinador.fxml");
             
             if (fxmlLocation == null) {
-                throw new RuntimeException("No se encontró el archivo FXML en: /GUI/View/FXMLExample.fxml");
+                throw new RuntimeException("No se encontró el archivo FXML en: /GUI/View/GUIRegistrarCoordinador.fxml");
             }
             
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
             AnchorPane root = loader.load();
             
-            // Crear la escena
             Scene scene = new Scene(root);
             
-            // Configurar el escenario
-            primaryStage.setTitle("Sistema para Prácticas Profesionales");
+            primaryStage.setTitle("Sistema para Prácticas Profesionales - Registrar Coordinador");
             primaryStage.setScene(scene);
             primaryStage.show();
             
-        } catch (IOException e) {
-            System.err.println("Error al cargar la interfaz: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Error al cargar la aplicación", e);
+        } catch (IOException exception) {
+            exception.printStackTrace();
+            throw new RuntimeException("Error al cargar la aplicación", exception);
         }
     }
 

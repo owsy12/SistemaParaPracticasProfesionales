@@ -20,4 +20,9 @@ public class Coordinator extends User {
     public void setIsProfessor(int isProfessor) {
         this.isProfessor = isProfessor;
     }
+
+    @Override
+    public String toString() {
+        return firstName + " " + lastName + " (" + matricula + ")";
+    }
 }

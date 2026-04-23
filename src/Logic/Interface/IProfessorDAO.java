@@ -11,4 +11,5 @@ public interface IProfessorDAO {
     Professor findById(int id) throws DatabaseException, ValidationException;
     List<Professor> findAll() throws DatabaseException;
     boolean deactivateProfessor(int id) throws DatabaseException, ValidationException;
+    List<Professor> findProfessorsWithoutCoordinatorRole() throws DatabaseException;
 }

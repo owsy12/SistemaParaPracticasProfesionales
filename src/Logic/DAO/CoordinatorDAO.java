@@ -24,8 +24,32 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public boolean save(Coordinator c) throws DatabaseException, ValidationException {
-        return super.saveUser(c);
+    public boolean save(Coordinator coordinator) throws DatabaseException, ValidationException {
+        boolean isSaved = false;
+        try {
+            connection.setAutoCommit(false);
+            int userId = super.saveUser(coordinator);
+            if (userId > 0) {
+                String sql = "INSERT INTO coordinador (id_usuario) VALUES (?)";
+                try (PreparedStatement ps = connection.prepareStatement(sql)) {
+                    ps.setInt(1, userId);
+                    if (ps.executeUpdate() > 0) {
+                        connection.commit();
+                        isSaved = true;
+                    } else {
+                        connection.rollback();
+                    }
+                }
+            } else {
+                connection.rollback();
+            }
+        } catch (SQLException sqlException) {
+            try { connection.rollback(); } catch (SQLException rollbackEx) { /* Ignore */ }
+            throw new DatabaseException("Error al registrar coordinador.", sqlException);
+        } finally {
+            try { connection.setAutoCommit(true); } catch (SQLException ex) { /* Ignore */ }
+        }
+        return isSaved;
     }
 
     @Override
@@ -100,6 +124,24 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             throw new DatabaseException("Error al recuperar la lista de coordinadores.", sqlException);
         }
 
+        return list;
+    }
+
+    @Override
+    public List<Coordinator> findCoordinatorsWithoutProfessorRole() throws DatabaseException {
+        List<Coordinator> list = new ArrayList<>();
+        String sql = "SELECT u.* FROM usuario u " +
+                     "JOIN coordinador c ON u.id_usuario = c.id_usuario " +
+                     "LEFT JOIN profesor p ON u.id_usuario = p.id_usuario " +
+                     "WHERE p.id_usuario IS NULL AND u.estado = 'Activo'";
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapCoordinator(rs));
+            }
+        } catch (SQLException sqlException) {
+            throw new DatabaseException("Error al recuperar coordinadores sin rol de profesor.", sqlException);
+        }
         return list;
     }
 

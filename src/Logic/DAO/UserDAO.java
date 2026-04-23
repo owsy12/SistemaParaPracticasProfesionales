@@ -22,15 +22,15 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public boolean saveUser(User user) throws DatabaseException, ValidationException {
+    public int saveUser(User user) throws DatabaseException, ValidationException {
         validateUser(user);
 
-        boolean isSaved = false;
+        int generatedId = -1;
         String sql = "INSERT INTO usuario " +
                 "(matricula, nombre, apellido_paterno, apellido_materno, contrasenia, estado) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, user.getMatricula());
             ps.setString(2, user.getFirstName());
@@ -40,7 +40,12 @@ public class UserDAO implements IUserDAO {
             ps.setString(6, user.getStatus());
 
             if (ps.executeUpdate() > 0) {
-                isSaved = true;
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        generatedId = rs.getInt(1);
+                        user.setId(generatedId);
+                    }
+                }
             }
 
         } catch (SQLException sqlException) {
@@ -54,7 +59,7 @@ public class UserDAO implements IUserDAO {
             throw new DatabaseException("Error al guardar el usuario en la base de datos.", sqlException);
         }
 
-        return isSaved;
+        return generatedId;
     }
 
     @Override
@@ -211,12 +216,6 @@ public class UserDAO implements IUserDAO {
         return userResult;
     }
 
-    /**
-     * Valida que el objeto User y sus campos obligatorios no sean null ni vacíos.
-     *
-     * @param user Usuario a validar.
-     * @throws ValidationException Si algún campo requerido es inválido.
-     */
     private void validateUser(User user) throws ValidationException {
     }
 
@@ -224,7 +223,7 @@ public class UserDAO implements IUserDAO {
         User user = new User();
         user.setId           (rs.getInt   ("id_usuario"));
         user.setMatricula    (rs.getString("matricula"));
-        user.setName         (rs.getString("nombre"));
+        user.setFirstName    (rs.getString("nombre"));
         user.setLastName     (rs.getString("apellido_paterno"));
         user.setSecondLastName(rs.getString("apellido_materno"));
         user.setPassword     (rs.getString("contrasenia"));
