@@ -2,7 +2,7 @@ package Logic;
 
 import Logic.DAO.AssignmentDAO;
 import Logic.DTOs.Assignment;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -136,6 +136,6 @@ class AssignmentDAOTest extends BaseDAOTest {
         dao.save(buildValidAssignment());
 
         // UNIQUE KEY uq_asig_practicante: un practicante solo puede tener una asignación
-        assertThrows(DatabaseException.class, () -> dao.save(buildValidAssignment()));
+        assertThrows(ServiceException.class, () -> dao.save(buildValidAssignment()));
     }
 }

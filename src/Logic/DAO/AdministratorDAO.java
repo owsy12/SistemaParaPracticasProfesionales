@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Administrator;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IAdministratorDAO;
@@ -29,7 +29,7 @@ public class AdministratorDAO implements IAdministratorDAO {
                     "JOIN administrador a ON u.id_usuario = a.id_usuario";
 
     @Override
-    public boolean saveAdmin(Administrator administrator) throws DatabaseException, ValidationException {
+    public boolean saveAdmin(Administrator administrator) throws ServiceException, ValidationException {
         if (administrator.getId() <= 0) {
             throw new ValidationException(
                     "El ID del administrador debe ser mayor a cero. ID recibido: " + administrator.getId());
@@ -52,14 +52,14 @@ public class AdministratorDAO implements IAdministratorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar el administrador en la base de datos.", sqlException);
+            throw new ServiceException("Error al guardar el administrador en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Administrator findById(int id) throws DatabaseException, ValidationException {
+    public Administrator findById(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException(
                     "El ID del administrador debe ser mayor a cero. ID recibido: " + id);
@@ -85,14 +85,14 @@ public class AdministratorDAO implements IAdministratorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar el administrador por ID.", sqlException);
+            throw new ServiceException("Error al buscar el administrador por ID.", sqlException);
         }
 
         return administratorResult;
     }
 
     @Override
-    public List<Administrator> findAll() throws DatabaseException {
+    public List<Administrator> findAll() throws ServiceException {
         List<Administrator> administratorList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -111,7 +111,7 @@ public class AdministratorDAO implements IAdministratorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la lista de administradores.", sqlException);
+            throw new ServiceException("Error al recuperar la lista de administradores.", sqlException);
         }
 
         return administratorList;

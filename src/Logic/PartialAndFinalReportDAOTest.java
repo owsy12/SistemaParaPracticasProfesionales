@@ -2,7 +2,7 @@ package Logic;
 
 import Logic.DAO.PartialAndFinalReportDAO;
 import Logic.DTOs.PartialAndFinalReport;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -110,6 +110,6 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
         dao.save(buildValidReport()); // periodo 2025-02
 
         // Mismo practicante, mismo periodo: viola la constraint única
-        assertThrows(DatabaseException.class, () -> dao.save(buildValidReport()));
+        assertThrows(ServiceException.class, () -> dao.save(buildValidReport()));
     }
 }

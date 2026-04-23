@@ -2,7 +2,7 @@ package Logic;
 
 import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -114,7 +114,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
         dao.save(buildValidFormat("Horario"));
 
         // UNIQUE KEY uq_fmt_prac_tipo: no permite el mismo tipo dos veces para el mismo practicante
-        assertThrows(DatabaseException.class, () -> dao.save(buildValidFormat("Horario")));
+        assertThrows(ServiceException.class, () -> dao.save(buildValidFormat("Horario")));
     }
 
     @Test

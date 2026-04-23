@@ -1,26 +1,22 @@
 package GUI.Controller;
 
-import DataAccess.DataBaseConnection;
 import Logic.DAO.CoordinatorDAO;
 import Logic.DTOs.Coordinator;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
+import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ValidationUtils.setTypeAndLenght;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import javafx.scene.control.ChoiceDialog;
 import Logic.DAO.ProfessorDAO;
 import Logic.DTOs.Professor;
 import java.util.List;
 import java.util.Optional;
 
-public class RegistrarCoordinadorController {
+public class AddCoordinadorController {
 
     @FXML
     private TextField idTextField;
@@ -39,15 +35,13 @@ public class RegistrarCoordinadorController {
 
     @FXML
     private PasswordField confirmPasswordField;
-
     @FXML
-    private Button existingProfessorButton;
-
-    @FXML
-    private Button registerButton;
-
-    @FXML
-    private Button cancelButton;
+    private void initialize(){
+        setTypeAndLenght(firstNameTextField,"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
+        setTypeAndLenght(lastNameTextField,"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
+        setTypeAndLenght(secondLastNameTextField,"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
+         setTypeAndLenght(idTextField,"[a-zA-Z0-9]*", 10);
+    }
 
     @FXML
     public void registerCoordinator() {
@@ -62,8 +56,8 @@ public class RegistrarCoordinadorController {
 
     @FXML
     public void showProfessorList() {
-        try (Connection connection = DataBaseConnection.connectDatabase()) {
-            ProfessorDAO professorDAO = new ProfessorDAO(connection);
+        try  {
+            ProfessorDAO professorDAO = new ProfessorDAO();
             List<Professor> professors = professorDAO.findProfessorsWithoutCoordinatorRole();
             if (professors.isEmpty()) {
                 showAlert("Información", "No hay profesores disponibles para asignar como coordinador.", AlertType.INFORMATION);
@@ -75,8 +69,10 @@ public class RegistrarCoordinadorController {
             dialog.setContentText("Seleccione un profesor:");
             Optional<Professor> result = dialog.showAndWait();
             result.ifPresent(this::fillFieldsWithProfessor);
-        } catch (SQLException | DatabaseException | ValidationException exception) {
+        } catch (ServiceException exception) {
             showAlert("Error", "Error al recuperar profesores: " + exception.getMessage(), AlertType.ERROR);
+        }catch (ValidationException exception) {
+            showAlert("Error de validación", "Error al validar datos: " + exception.getMessage(), AlertType.ERROR);
         }
     }
 
@@ -97,8 +93,8 @@ public class RegistrarCoordinadorController {
     }
 
     private void processRegistration() {
-        try (Connection connection = DataBaseConnection.connectDatabase()) {
-            CoordinatorDAO coordinatorDAO = new CoordinatorDAO(connection);
+        try  {
+            CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
             Coordinator coordinator = new Coordinator();
             coordinator.setMatricula(idTextField.getText());
             coordinator.setFirstName(firstNameTextField.getText());
@@ -113,8 +109,10 @@ public class RegistrarCoordinadorController {
             } else {
                 showAlert("Error", "No se pudo realizar el registro.", AlertType.ERROR);
             }
-        } catch (SQLException | DatabaseException | ValidationException exception) {
+        } catch ( ServiceException exception) {
             showAlert("Error de conexión", "Error al conectar con la base de datos: " + exception.getMessage(), AlertType.ERROR);
+        }catch ( ValidationException exception) {
+            showAlert("Error de validación", "Error al validar datos: " + exception.getMessage(), AlertType.ERROR);
         }
     }
 
@@ -138,13 +136,5 @@ public class RegistrarCoordinadorController {
         secondLastNameTextField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
-    }
-
-    private void showAlert(String title, String message, AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

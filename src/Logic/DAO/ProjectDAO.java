@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Project;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IProjectDAO;
@@ -52,7 +52,7 @@ public class ProjectDAO implements IProjectDAO {
                     "WHERE id_proyecto = ? AND cupo_disponible > 0";
 
     @Override
-    public boolean saveProject(Project project) throws DatabaseException, ValidationException {
+    public boolean saveProject(Project project) throws ServiceException, ValidationException {
         validateProject(project);
 
         boolean isSaved = false;
@@ -83,14 +83,14 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar el proyecto.", sqlException);
+            throw new ServiceException("Error al guardar el proyecto.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Project findById(int idProyecto) throws DatabaseException, ValidationException {
+    public Project findById(int idProyecto) throws ServiceException, ValidationException {
         if (idProyecto <= 0) {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
@@ -117,14 +117,14 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar el proyecto por ID.", sqlException);
+            throw new ServiceException("Error al buscar el proyecto por ID.", sqlException);
         }
 
         return projectResult;
     }
 
     @Override
-    public List<Project> findAll() throws DatabaseException {
+    public List<Project> findAll() throws ServiceException {
         List<Project> projectList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -143,14 +143,14 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la lista de proyectos.", sqlException);
+            throw new ServiceException("Error al recuperar la lista de proyectos.", sqlException);
         }
 
         return projectList;
     }
 
     @Override
-    public List<Project> findAllAvailable() throws DatabaseException {
+    public List<Project> findAllAvailable() throws ServiceException {
         List<Project> projectList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -169,14 +169,14 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar los proyectos disponibles.", sqlException);
+            throw new ServiceException("Error al recuperar los proyectos disponibles.", sqlException);
         }
 
         return projectList;
     }
 
     @Override
-    public List<Project> findByCoordinator(int idCoordinador) throws DatabaseException, ValidationException {
+    public List<Project> findByCoordinator(int idCoordinador) throws ServiceException, ValidationException {
         if (idCoordinador <= 0) {
             throw new ValidationException(
                     "El ID del coordinador debe ser mayor a cero. ID recibido: " + idCoordinador);
@@ -203,14 +203,14 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar los proyectos del coordinador.", sqlException);
+            throw new ServiceException("Error al buscar los proyectos del coordinador.", sqlException);
         }
 
         return projectList;
     }
 
     @Override
-    public boolean update(Project project) throws DatabaseException, ValidationException {
+    public boolean update(Project project) throws ServiceException, ValidationException {
         validateProject(project);
 
         boolean isUpdated = false;
@@ -241,14 +241,14 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al actualizar el proyecto.", sqlException);
+            throw new ServiceException("Error al actualizar el proyecto.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean cancelProject(int idProyecto) throws DatabaseException, ValidationException {
+    public boolean cancelProject(int idProyecto) throws ServiceException, ValidationException {
         if (idProyecto <= 0) {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
@@ -273,14 +273,14 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al cancelar el proyecto.", sqlException);
+            throw new ServiceException("Error al cancelar el proyecto.", sqlException);
         }
 
         return isCanceled;
     }
 
     @Override
-    public boolean decrementAvailableSlot(int idProyecto) throws DatabaseException, ValidationException {
+    public boolean decrementAvailableSlot(int idProyecto) throws ServiceException, ValidationException {
         if (idProyecto <= 0) {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
@@ -305,7 +305,7 @@ public class ProjectDAO implements IProjectDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al reducir el cupo del proyecto.", sqlException);
+            throw new ServiceException("Error al reducir el cupo del proyecto.", sqlException);
         }
 
         return isDecremented;

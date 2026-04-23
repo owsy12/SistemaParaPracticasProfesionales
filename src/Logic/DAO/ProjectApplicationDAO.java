@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.ProjectApplication;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IProjectApplicationDAO;
@@ -34,7 +34,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
     @Override
     public boolean create(ProjectApplication projectApplication)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         if (projectApplication.getIdApplication() <= 0) {
             throw new ValidationException(
                     "El ID de la solicitud debe ser mayor a cero. ID recibido: "
@@ -71,7 +71,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al crear la opción de proyecto.", sqlException);
+            throw new ServiceException("Error al crear la opción de proyecto.", sqlException);
         }
 
         return isCreated;
@@ -79,7 +79,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
     @Override
     public ProjectApplication findById(int projectApplicationId)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         if (projectApplicationId <= 0) {
             throw new ValidationException(
                     "El ID de la opción de proyecto debe ser mayor a cero. ID recibido: "
@@ -106,7 +106,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar la opción de proyecto por ID.", sqlException);
+            throw new ServiceException("Error al buscar la opción de proyecto por ID.", sqlException);
         }
 
         return projectApplicationResult;
@@ -114,7 +114,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
     @Override
     public List<ProjectApplication> findByApplication(int applicationId)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         if (applicationId <= 0) {
             throw new ValidationException(
                     "El ID de la solicitud debe ser mayor a cero. ID recibido: " + applicationId);
@@ -140,7 +140,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al buscar las opciones de proyecto para la solicitud.", sqlException);
         }
 
@@ -148,7 +148,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
     }
 
     @Override
-    public List<ProjectApplication> findAll() throws DatabaseException {
+    public List<ProjectApplication> findAll() throws ServiceException {
         List<ProjectApplication> projectApplicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -167,7 +167,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar la lista de opciones de proyecto.", sqlException);
         }
 
@@ -175,7 +175,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
     }
 
     @Override
-    public boolean delete(int projectApplicationId) throws DatabaseException, ValidationException {
+    public boolean delete(int projectApplicationId) throws ServiceException, ValidationException {
         if (projectApplicationId <= 0) {
             throw new ValidationException(
                     "El ID de la opción de proyecto debe ser mayor a cero. ID recibido: "
@@ -200,7 +200,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al eliminar la opción de proyecto.", sqlException);
+            throw new ServiceException("Error al eliminar la opción de proyecto.", sqlException);
         }
 
         return isDeleted;

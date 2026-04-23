@@ -1,14 +1,14 @@
 package Logic.Interface;
 
 import Logic.DTOs.Report;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 
 import java.util.List;
 
 public interface IReportDAO {
-    int save(Report report) throws DatabaseException, ValidationException;
-    Report getById(int idReport) throws DatabaseException, ValidationException;
-    List<Report> getAll() throws DatabaseException;
-    List<Report> getByStatusPending() throws DatabaseException;
+    int save(Report report) throws ServiceException, ValidationException;
+    Report getById(int idReport) throws ServiceException, ValidationException;
+    List<Report> getAll() throws ServiceException;
+    List<Report> getByStatusPending() throws ServiceException;
 }

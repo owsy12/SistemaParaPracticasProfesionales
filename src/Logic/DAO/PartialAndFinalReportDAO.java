@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import Logic.DTOs.PartialAndFinalReport;
 import Logic.DTOs.Report;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IReportDAO;
@@ -43,7 +43,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                     " WHERE r.tipo_reporte IN ('Parcial', 'Final') AND r.estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws DatabaseException, ValidationException {
+    public int save(Report report) throws ServiceException, ValidationException {
         PartialAndFinalReport pfReport = (PartialAndFinalReport) report;
         int rowsAffected = 0;
 
@@ -94,7 +94,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                 connection.rollback();
                 LOGGER.log(Level.SEVERE, "Error al guardar reporte parcial/final: {0}",
                         sqlException.getMessage());
-                throw new DatabaseException("Error al guardar el reporte parcial/final.", sqlException);
+                throw new ServiceException("Error al guardar el reporte parcial/final.", sqlException);
             }
 
         } catch (SQLException sqlException) {
@@ -105,14 +105,14 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error de conexión al guardar el reporte.", sqlException);
+            throw new ServiceException("Error de conexión al guardar el reporte.", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public PartialAndFinalReport getById(int idReport) throws DatabaseException, ValidationException {
+    public PartialAndFinalReport getById(int idReport) throws ServiceException, ValidationException {
         if (idReport <= 0) {
             throw new ValidationException(
                     "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
@@ -138,14 +138,14 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar el reporte con ID " + idReport, sqlException);
+            throw new ServiceException("Error al recuperar el reporte con ID " + idReport, sqlException);
         }
 
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws DatabaseException {
+    public List<Report> getAll() throws ServiceException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -164,14 +164,14 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar los reportes parciales y finales.", sqlException);
+            throw new ServiceException("Error al recuperar los reportes parciales y finales.", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws DatabaseException {
+    public List<Report> getByStatusPending() throws ServiceException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -190,7 +190,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar los reportes pendientes.", sqlException);
+            throw new ServiceException("Error al recuperar los reportes pendientes.", sqlException);
         }
 
         return reports;

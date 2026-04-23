@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.LinkedOrganization;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.ILinkedOrganizationDAO;
@@ -41,14 +41,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     @Override
     public boolean saveLinkedOrganization(LinkedOrganization linkedOrganization)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement ps = connection.prepareStatement(INSERT_LINKED_ORGANIZATION_SQL)) {
 
             ps.setString(1, linkedOrganization.getName());
-            ps.setString(2, "");
+            ps.setString(2, linkedOrganization.getEmail());
             ps.setString(3, linkedOrganization.getAdress());
             ps.setString(4, linkedOrganization.getSector());
             ps.setString(5, "Activa");
@@ -65,14 +65,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar la organización vinculada.", sqlException);
+            throw new ServiceException("Error al guardar la organización vinculada.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public LinkedOrganization findById(int idOrganizacion) throws DatabaseException, ValidationException {
+    public LinkedOrganization findById(int idOrganizacion) throws ServiceException, ValidationException {
         if (idOrganizacion <= 0) {
             throw new ValidationException(
                     "El ID de la organización debe ser mayor a cero. ID recibido: " + idOrganizacion);
@@ -98,14 +98,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar la organización vinculada por ID.", sqlException);
+            throw new ServiceException("Error al buscar la organización vinculada por ID.", sqlException);
         }
 
         return organizationResult;
     }
 
     @Override
-    public List<LinkedOrganization> findAll() throws DatabaseException {
+    public List<LinkedOrganization> findAll() throws ServiceException {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -124,14 +124,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar todas las organizaciones vinculadas.", sqlException);
+            throw new ServiceException("Error al recuperar todas las organizaciones vinculadas.", sqlException);
         }
 
         return organizationList;
     }
 
     @Override
-    public List<LinkedOrganization> findAllActive() throws DatabaseException {
+    public List<LinkedOrganization> findAllActive() throws ServiceException {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -150,14 +150,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar organizaciones vinculadas activas.", sqlException);
+            throw new ServiceException("Error al recuperar organizaciones vinculadas activas.", sqlException);
         }
 
         return organizationList;
     }
 
     @Override
-    public boolean update(LinkedOrganization linkedOrganization) throws DatabaseException, ValidationException {
+    public boolean update(LinkedOrganization linkedOrganization) throws ServiceException, ValidationException {
         if (linkedOrganization.getIdLinkedOrganization() <= 0) {
             throw new ValidationException(
                     "El ID de la organización debe ser mayor a cero. ID recibido: "
@@ -187,7 +187,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al actualizar la organización vinculada.", sqlException);
+            throw new ServiceException("Error al actualizar la organización vinculada.", sqlException);
         }
 
         return isUpdated;
@@ -195,7 +195,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
 
     @Override
     public boolean deactivateLinkedOrganization(int idOrganizacion)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         if (idOrganizacion <= 0) {
             throw new ValidationException(
                     "El ID de la organización debe ser mayor a cero. ID recibido: " + idOrganizacion);
@@ -219,7 +219,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al desactivar la organización vinculada.", sqlException);
+            throw new ServiceException("Error al desactivar la organización vinculada.", sqlException);
         }
 
         return isDeactivated;

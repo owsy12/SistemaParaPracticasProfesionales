@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.Coordinator;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.ICoordinatorDAO;
@@ -12,19 +12,22 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static Logic.Utils.Connection.createdConnection;
+
 public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(CoordinatorDAO.class.getName());
 
-    private final Connection connection;
+    private  Connection connection;
 
-    public CoordinatorDAO(Connection connection) throws ValidationException {
-        super(connection);
-        this.connection = connection;
+    public CoordinatorDAO() throws ServiceException {
+        super();
+       connection = createdConnection();
     }
 
+
     @Override
-    public boolean save(Coordinator coordinator) throws DatabaseException, ValidationException {
+    public boolean save(Coordinator coordinator) throws ServiceException, ValidationException {
         boolean isSaved = false;
         try {
             connection.setAutoCommit(false);
@@ -45,7 +48,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             }
         } catch (SQLException sqlException) {
             try { connection.rollback(); } catch (SQLException rollbackEx) { /* Ignore */ }
-            throw new DatabaseException("Error al registrar coordinador.", sqlException);
+            throw new ServiceException("Error al registrar coordinador.", sqlException);
         } finally {
             try { connection.setAutoCommit(true); } catch (SQLException ex) { /* Ignore */ }
         }
@@ -53,12 +56,12 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public boolean update(Coordinator c) throws DatabaseException, ValidationException {
+    public boolean update(Coordinator c) throws ServiceException, ValidationException {
         return super.update(c);
     }
 
     @Override
-    public boolean delete(int id) throws DatabaseException, ValidationException {
+    public boolean delete(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException("El ID del coordinador debe ser mayor a cero. ID recibido: " + id);
         }
@@ -66,7 +69,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public Coordinator findById(int id) throws DatabaseException, ValidationException {
+    public Coordinator findById(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException("El ID del coordinador debe ser mayor a cero. ID recibido: " + id);
         }
@@ -94,14 +97,14 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar el coordinador por ID.", sqlException);
+            throw new ServiceException("Error al buscar el coordinador por ID.", sqlException);
         }
 
         return coordinatorResult;
     }
 
     @Override
-    public List<Coordinator> findAllCoordinators() throws DatabaseException {
+    public List<Coordinator> findAllCoordinators() throws ServiceException {
         List<Coordinator> list = new ArrayList<>();
         String sql = "SELECT u.* FROM usuario u " +
                 "JOIN coordinador c ON u.id_usuario = c.id_usuario";
@@ -121,14 +124,14 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la lista de coordinadores.", sqlException);
+            throw new ServiceException("Error al recuperar la lista de coordinadores.", sqlException);
         }
 
         return list;
     }
 
     @Override
-    public List<Coordinator> findCoordinatorsWithoutProfessorRole() throws DatabaseException {
+    public List<Coordinator> findCoordinatorsWithoutProfessorRole() throws ServiceException {
         List<Coordinator> list = new ArrayList<>();
         String sql = "SELECT u.* FROM usuario u " +
                      "JOIN coordinador c ON u.id_usuario = c.id_usuario " +
@@ -140,7 +143,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                 list.add(mapCoordinator(rs));
             }
         } catch (SQLException sqlException) {
-            throw new DatabaseException("Error al recuperar coordinadores sin rol de profesor.", sqlException);
+            throw new ServiceException("Error al recuperar coordinadores sin rol de profesor.", sqlException);
         }
         return list;
     }

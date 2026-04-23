@@ -1,14 +1,14 @@
 package Logic.Interface;
 import Logic.DTOs.User;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import java.util.List;
 
 public interface IUserDAO {
-    int saveUser(User user) throws DatabaseException, ValidationException;
-    User findById(int id) throws DatabaseException, ValidationException;
-    List<User> findAll() throws DatabaseException, ValidationException;
-    boolean update(User user) throws DatabaseException, ValidationException;
-    boolean delete(int id) throws DatabaseException, ValidationException;
-    User findByMatricula(String matricula) throws DatabaseException, ValidationException;
+    int saveUser(User user) throws ServiceException, ValidationException;
+    User findById(int id) throws ServiceException, ValidationException;
+    List<User> findAll() throws ServiceException, ValidationException;
+    boolean update(User user) throws ServiceException, ValidationException;
+    boolean delete(int id) throws ServiceException, ValidationException;
+    User findByMatricula(String matricula) throws ServiceException, ValidationException;
 }

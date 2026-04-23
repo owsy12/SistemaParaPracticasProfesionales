@@ -2,7 +2,6 @@ package Logic;
 
 import Logic.DAO.ReportEvaluationDAO;
 import Logic.DTOs.ReportEvaluation;
-import Logic.Exceptions.DatabaseException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;

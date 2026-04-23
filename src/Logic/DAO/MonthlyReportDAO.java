@@ -3,7 +3,7 @@ package Logic.DAO;
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.MonthlyReport;
 import Logic.DTOs.Report;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IReportDAO;
@@ -41,7 +41,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     " WHERE r.tipo_reporte = 'Mensual' AND r.estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws DatabaseException, ValidationException {
+    public int save(Report report) throws ServiceException, ValidationException {
         MonthlyReport monthlyReport = (MonthlyReport) report;
         int rowsAffected = 0;
 
@@ -90,7 +90,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
             } catch (SQLException sqlException) {
                 connection.rollback();
                 LOGGER.log(Level.SEVERE, "Error al guardar reporte mensual: {0}", sqlException.getMessage());
-                throw new DatabaseException("Error al guardar el reporte mensual.", sqlException);
+                throw new ServiceException("Error al guardar el reporte mensual.", sqlException);
             }
 
         } catch (SQLException sqlException) {
@@ -100,14 +100,14 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error de conexión al guardar el reporte mensual.", sqlException);
+            throw new ServiceException("Error de conexión al guardar el reporte mensual.", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public MonthlyReport getById(int idReport) throws DatabaseException, ValidationException {
+    public MonthlyReport getById(int idReport) throws ServiceException, ValidationException {
         if (idReport <= 0) {
             throw new ValidationException(
                     "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
@@ -132,14 +132,14 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar el reporte mensual con ID " + idReport, sqlException);
+            throw new ServiceException("Error al recuperar el reporte mensual con ID " + idReport, sqlException);
         }
 
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws DatabaseException {
+    public List<Report> getAll() throws ServiceException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -157,14 +157,14 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar los reportes mensuales.", sqlException);
+            throw new ServiceException("Error al recuperar los reportes mensuales.", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws DatabaseException {
+    public List<Report> getByStatusPending() throws ServiceException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -182,7 +182,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar los reportes mensuales pendientes.", sqlException);
+            throw new ServiceException("Error al recuperar los reportes mensuales pendientes.", sqlException);
         }
 
         return reports;

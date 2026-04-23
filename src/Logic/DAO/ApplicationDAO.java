@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Application;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IApplicationDAO;
@@ -40,7 +40,7 @@ public class ApplicationDAO implements IApplicationDAO {
             "UPDATE solicitud SET estado = ? WHERE id_solicitud = ?";
 
     @Override
-    public boolean create(Application application) throws DatabaseException, ValidationException {
+    public boolean create(Application application) throws ServiceException, ValidationException {
         if (application.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + application.getIdIntern());
@@ -65,14 +65,14 @@ public class ApplicationDAO implements IApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al crear la solicitud.", sqlException);
+            throw new ServiceException("Error al crear la solicitud.", sqlException);
         }
 
         return isCreated;
     }
 
     @Override
-    public Application findById(int applicationId) throws DatabaseException {
+    public Application findById(int applicationId) throws ServiceException {
         Application applicationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -94,14 +94,14 @@ public class ApplicationDAO implements IApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar la solicitud por ID.", sqlException);
+            throw new ServiceException("Error al buscar la solicitud por ID.", sqlException);
         }
 
         return applicationResult;
     }
 
     @Override
-    public Application findByIntern(int internId) throws DatabaseException {
+    public Application findByIntern(int internId) throws ServiceException {
         Application applicationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -123,14 +123,14 @@ public class ApplicationDAO implements IApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar la solicitud del practicante.", sqlException);
+            throw new ServiceException("Error al buscar la solicitud del practicante.", sqlException);
         }
 
         return applicationResult;
     }
 
     @Override
-    public List<Application> findAll() throws DatabaseException {
+    public List<Application> findAll() throws ServiceException {
         List<Application> applicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -148,14 +148,14 @@ public class ApplicationDAO implements IApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la lista de solicitudes.", sqlException);
+            throw new ServiceException("Error al recuperar la lista de solicitudes.", sqlException);
         }
 
         return applicationList;
     }
 
     @Override
-    public List<Application> findByStatus(String status) throws DatabaseException, ValidationException {
+    public List<Application> findByStatus(String status) throws ServiceException, ValidationException {
         List<Application> applicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -177,14 +177,14 @@ public class ApplicationDAO implements IApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar las solicitudes por estado.", sqlException);
+            throw new ServiceException("Error al recuperar las solicitudes por estado.", sqlException);
         }
 
         return applicationList;
     }
 
     @Override
-    public boolean updateStatus(int applicationId, String status) throws DatabaseException {
+    public boolean updateStatus(int applicationId, String status) throws ServiceException {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -205,7 +205,7 @@ public class ApplicationDAO implements IApplicationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al actualizar el estado de la solicitud.", sqlException);
+            throw new ServiceException("Error al actualizar el estado de la solicitud.", sqlException);
         }
 
         return isUpdated;

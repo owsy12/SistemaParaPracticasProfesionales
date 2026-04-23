@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IUserRoleDAO;
@@ -31,7 +31,7 @@ public class UserRoleDAO implements IUserRoleDAO {
             "DELETE FROM usuario_rol WHERE id_usuario = ? AND rol = ?";
 
     @Override
-    public boolean saveUserRole(int userId, String role) throws DatabaseException, ValidationException {
+    public boolean saveUserRole(int userId, String role) throws ServiceException, ValidationException {
         if (userId <= 0) {
             throw new ValidationException(
                     "El ID del usuario debe ser mayor a cero. ID recibido: " + userId);
@@ -56,14 +56,14 @@ public class UserRoleDAO implements IUserRoleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar el rol del usuario.", sqlException);
+            throw new ServiceException("Error al guardar el rol del usuario.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public List<String> findRolesByUserId(int userId) throws DatabaseException, ValidationException {
+    public List<String> findRolesByUserId(int userId) throws ServiceException, ValidationException {
         if (userId <= 0) {
             throw new ValidationException(
                     "El ID del usuario debe ser mayor a cero. ID recibido: " + userId);
@@ -89,14 +89,14 @@ public class UserRoleDAO implements IUserRoleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar los roles del usuario.", sqlException);
+            throw new ServiceException("Error al buscar los roles del usuario.", sqlException);
         }
 
         return roleList;
     }
 
     @Override
-    public List<Map<String, Object>> findUsersByRole(String role) throws DatabaseException, ValidationException {
+    public List<Map<String, Object>> findUsersByRole(String role) throws ServiceException, ValidationException {
         List<Map<String, Object>> userList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -121,14 +121,14 @@ public class UserRoleDAO implements IUserRoleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar usuarios por rol.", sqlException);
+            throw new ServiceException("Error al buscar usuarios por rol.", sqlException);
         }
 
         return userList;
     }
 
     @Override
-    public boolean deleteUserRole(int userId, String role) throws DatabaseException, ValidationException {
+    public boolean deleteUserRole(int userId, String role) throws ServiceException, ValidationException {
         if (userId <= 0) {
             throw new ValidationException(
                     "El ID del usuario debe ser mayor a cero. ID recibido: " + userId);
@@ -153,7 +153,7 @@ public class UserRoleDAO implements IUserRoleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al eliminar el rol del usuario.", sqlException);
+            throw new ServiceException("Error al eliminar el rol del usuario.", sqlException);
         }
 
         return isDeleted;

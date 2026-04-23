@@ -2,7 +2,7 @@ package Logic;
 
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.SelfEvaluation;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -112,7 +112,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         dao.save(buildValidSelfEvaluation());
 
         // UNIQUE KEY uq_autoev_prac_periodo
-        assertThrows(DatabaseException.class, () -> dao.save(buildValidSelfEvaluation()));
+        assertThrows(ServiceException.class, () -> dao.save(buildValidSelfEvaluation()));
     }
 
     @Test

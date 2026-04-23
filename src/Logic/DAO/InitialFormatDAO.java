@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.InitialFormat;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IInitialFormatDAO;
@@ -34,7 +34,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                     "FROM formato_inicial WHERE id_practicante = ?";
 
     @Override
-    public int save(InitialFormat initialFormat) throws DatabaseException, ValidationException {
+    public int save(InitialFormat initialFormat) throws ServiceException, ValidationException {
         if (initialFormat.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: "
@@ -72,14 +72,14 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar el formato inicial.", sqlException);
+            throw new ServiceException("Error al guardar el formato inicial.", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public InitialFormat getById(int idInitialFormat) throws DatabaseException, ValidationException {
+    public InitialFormat getById(int idInitialFormat) throws ServiceException, ValidationException {
         if (idInitialFormat <= 0) {
             throw new ValidationException(
                     "El ID del formato inicial debe ser mayor a cero. ID recibido: "
@@ -105,7 +105,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar el formato inicial con ID " + idInitialFormat, sqlException);
         }
 
@@ -113,7 +113,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
     }
 
     @Override
-    public List<InitialFormat> getAll() throws DatabaseException {
+    public List<InitialFormat> getAll() throws ServiceException {
         List<InitialFormat> initialFormats = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -131,14 +131,14 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar todos los formatos iniciales.", sqlException);
+            throw new ServiceException("Error al recuperar todos los formatos iniciales.", sqlException);
         }
 
         return initialFormats;
     }
 
     @Override
-    public List<InitialFormat> getByIdIntern(int idIntern) throws DatabaseException, ValidationException {
+    public List<InitialFormat> getByIdIntern(int idIntern) throws ServiceException, ValidationException {
         if (idIntern <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
@@ -163,7 +163,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar los formatos iniciales del practicante.", sqlException);
         }
 

@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.ReportEvaluation;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IReportEvaluation;
@@ -34,7 +34,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                     "FROM evaluacion_reporte";
 
     @Override
-    public int save(ReportEvaluation reportEvaluation) throws DatabaseException, ValidationException {
+    public int save(ReportEvaluation reportEvaluation) throws ServiceException, ValidationException {
         if (reportEvaluation.getIdReport() <= 0) {
             throw new ValidationException(
                     "El ID del reporte debe ser mayor a cero. ID recibido: "
@@ -71,7 +71,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar la evaluación de reporte.", sqlException);
+            throw new ServiceException("Error al guardar la evaluación de reporte.", sqlException);
         }
 
         return rowsAffected;
@@ -79,7 +79,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
 
     @Override
     public ReportEvaluation getById(int idReportEvaluation)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         if (idReportEvaluation <= 0) {
             throw new ValidationException(
                     "El ID de la evaluación debe ser mayor a cero. ID recibido: "
@@ -105,7 +105,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar la evaluación de reporte por ID.", sqlException);
         }
 
@@ -113,7 +113,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
     }
 
     @Override
-    public ReportEvaluation getByIdReport(int idReport) throws DatabaseException, ValidationException {
+    public ReportEvaluation getByIdReport(int idReport) throws ServiceException, ValidationException {
         if (idReport <= 0) {
             throw new ValidationException(
                     "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
@@ -138,7 +138,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar la evaluación de reporte por ID de reporte.", sqlException);
         }
 
@@ -146,7 +146,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
     }
 
     @Override
-    public List<ReportEvaluation> getAll() throws DatabaseException {
+    public List<ReportEvaluation> getAll() throws ServiceException {
         List<ReportEvaluation> reportEvaluations = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -164,7 +164,7 @@ public class ReportEvaluationDAO implements IReportEvaluation {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar todas las evaluaciones de reporte.", sqlException);
         }
 

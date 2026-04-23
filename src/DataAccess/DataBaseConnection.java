@@ -23,13 +23,6 @@ public class DataBaseConnection {
         return dotenv.get(key);
     }
 
-    /**
-     * Abre y retorna una conexión a la base de datos.
-     *
-     * @return Conexión activa.
-     * @throws SQLException Si el driver no se encuentra, las variables de entorno
-     *                      están ausentes o la conexión falla.
-     */
     public static Connection connectDatabase() throws SQLException {
         validateConnectionParameters();
 
@@ -44,12 +37,6 @@ public class DataBaseConnection {
         return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
     }
 
-    /**
-     * Valida que las variables de entorno críticas estén configuradas.
-     * Falla rápido (fail-fast) antes de intentar conectar.
-     *
-     * @throws SQLException Si alguna variable es null o está vacía.
-     */
     private static void validateConnectionParameters() throws SQLException {
         if (DB_URL == null || DB_URL.isBlank()) {
             LOGGER.log(Level.SEVERE, "Variable de entorno DB_URL no configurada.");

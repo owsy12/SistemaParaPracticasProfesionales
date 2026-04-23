@@ -2,7 +2,7 @@ package Logic;
 
 import Logic.DAO.MonthlyReportDAO;
 import Logic.DTOs.MonthlyReport;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
@@ -128,6 +128,6 @@ class MonthlyReportDAOTest extends BaseDAOTest {
 
         MonthlyReport duplicate = buildValidReport(); // mismo practicante, mismo periodo
 
-        assertThrows(DatabaseException.class, () -> dao.save(duplicate));
+        assertThrows(ServiceException.class, () -> dao.save(duplicate));
     }
 }

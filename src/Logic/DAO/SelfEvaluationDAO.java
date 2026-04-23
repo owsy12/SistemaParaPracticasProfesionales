@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.SelfEvaluation;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.ISelfEvaluationDAO;
@@ -37,7 +37,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                     "FROM autoevaluacion";
 
     @Override
-    public int save(SelfEvaluation selfEvaluation) throws DatabaseException, ValidationException {
+    public int save(SelfEvaluation selfEvaluation) throws ServiceException, ValidationException {
         if (selfEvaluation.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: "
@@ -82,14 +82,14 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar la autoevaluación.", sqlException);
+            throw new ServiceException("Error al guardar la autoevaluación.", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public SelfEvaluation getById(int idSelfEvaluation) throws DatabaseException, ValidationException {
+    public SelfEvaluation getById(int idSelfEvaluation) throws ServiceException, ValidationException {
         if (idSelfEvaluation <= 0) {
             throw new ValidationException(
                     "El ID de la autoevaluación debe ser mayor a cero. ID recibido: "
@@ -115,7 +115,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar la autoevaluación con ID " + idSelfEvaluation, sqlException);
         }
 
@@ -123,7 +123,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
     }
 
     @Override
-    public List<SelfEvaluation> getAll() throws DatabaseException {
+    public List<SelfEvaluation> getAll() throws ServiceException {
         List<SelfEvaluation> selfEvaluations = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -141,7 +141,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar las autoevaluaciones.", sqlException);
+            throw new ServiceException("Error al recuperar las autoevaluaciones.", sqlException);
         }
 
         return selfEvaluations;

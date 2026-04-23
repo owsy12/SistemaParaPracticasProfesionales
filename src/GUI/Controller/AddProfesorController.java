@@ -1,27 +1,22 @@
 package GUI.Controller;
 
-import DataAccess.DataBaseConnection;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.UserDAO;
 import Logic.DTOs.Professor;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Alert;
+import static GUI.Utils.Alert.showAlert;
 import javafx.scene.control.Alert.AlertType;
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import javafx.scene.control.ChoiceDialog;
 import Logic.DAO.CoordinatorDAO;
 import Logic.DTOs.Coordinator;
 import java.util.List;
 import java.util.Optional;
 
-public class RegistrarProfesorController {
+public class AddProfesorController {
 
     @FXML
     private TextField idTextField;
@@ -45,15 +40,6 @@ public class RegistrarProfesorController {
     private PasswordField confirmPasswordField;
 
     @FXML
-    private Button fromCoordinatorButton;
-
-    @FXML
-    private Button registerButton;
-
-    @FXML
-    private Button cancelButton;
-
-    @FXML
     public void registerProfessor() {
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Completa todos los campos obligatorios.", AlertType.WARNING);
@@ -66,8 +52,8 @@ public class RegistrarProfesorController {
 
     @FXML
     public void showCoordinatorList() {
-        try (Connection connection = DataBaseConnection.connectDatabase()) {
-            CoordinatorDAO coordinatorDAO = new CoordinatorDAO(connection);
+        try {
+            CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
             List<Coordinator> coordinators = coordinatorDAO.findCoordinatorsWithoutProfessorRole();
             if (coordinators.isEmpty()) {
                 showAlert("Información", "No hay coordinadores disponibles para asignar como profesor.", AlertType.INFORMATION);
@@ -79,7 +65,7 @@ public class RegistrarProfesorController {
             dialog.setContentText("Seleccione un coordinador:");
             Optional<Coordinator> result = dialog.showAndWait();
             result.ifPresent(this::fillFieldsWithCoordinator);
-        } catch (SQLException | DatabaseException | ValidationException exception) {
+        } catch (ServiceException exception) {
             showAlert("Error", "Error al recuperar coordinadores: " + exception.getMessage(), AlertType.ERROR);
         }
     }
@@ -101,11 +87,10 @@ public class RegistrarProfesorController {
     }
 
     private void processRegistration() {
-        try (Connection connection = DataBaseConnection.connectDatabase()) {
-            connection.setAutoCommit(false);
+
             try {
-                UserDAO userDAO = new UserDAO(connection);
-                ProfessorDAO professorDAO = new ProfessorDAO(connection);
+                UserDAO userDAO = new UserDAO();
+                ProfessorDAO professorDAO = new ProfessorDAO();
                 
                 Professor professor = new Professor();
                 professor.setMatricula(idTextField.getText());
@@ -118,27 +103,22 @@ public class RegistrarProfesorController {
 
                 int userId = userDAO.saveUser(professor);
                 if (userId > 0) {
-                    if (professorDAO.saveProfessor(professor)) {
-                        connection.commit();
+
                         showAlert("Registro Exitoso", "Profesor registrado exitosamente.", AlertType.INFORMATION);
                         clearFields();
-                    } else {
-                        connection.rollback();
-                        showAlert("Error", "No se pudo registrar la información académica.", AlertType.ERROR);
-                    }
+
                 } else {
-                    connection.rollback();
+
                     showAlert("Error", "No se pudo registrar la información de usuario.", AlertType.ERROR);
                 }
-            } catch (DatabaseException | ValidationException exception) {
-                connection.rollback();
+            } catch (ServiceException exception) {
+
                 showAlert("Error", "Error al procesar el registro: " + exception.getMessage(), AlertType.ERROR);
-            } finally {
-                connection.setAutoCommit(true);
+            } catch (ValidationException exception) {
+
+                showAlert("Error de validación", "Error al validar datos: " + exception.getMessage(), AlertType.ERROR);
             }
-        } catch (SQLException exception) {
-            showAlert("Error de conexión", "Error al conectar con la base de datos: " + exception.getMessage(), AlertType.ERROR);
-        }
+
     }
 
     private boolean hasEmptyFields() {
@@ -163,13 +143,5 @@ public class RegistrarProfesorController {
         academicAreaTextField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
-    }
-
-    private void showAlert(String title, String message, AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

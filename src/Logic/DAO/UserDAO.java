@@ -1,11 +1,11 @@
 package Logic.DAO;
 
 import Logic.DTOs.User;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IUserDAO;
-
+import static Logic.Utils.Connection.createdConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +17,12 @@ public class UserDAO implements IUserDAO {
     private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
     private final Connection connection;
 
-    public UserDAO(Connection connection) {
-        this.connection = connection;
+    public UserDAO() throws ServiceException {
+        connection = createdConnection();
     }
 
     @Override
-    public int saveUser(User user) throws DatabaseException, ValidationException {
+    public int saveUser(User user) throws ServiceException, ValidationException {
         validateUser(user);
 
         int generatedId = -1;
@@ -56,14 +56,14 @@ public class UserDAO implements IUserDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar el usuario en la base de datos.", sqlException);
+            throw new ServiceException("Error al guardar el usuario en la base de datos.", sqlException);
         }
 
         return generatedId;
     }
 
     @Override
-    public User findById(int id) throws DatabaseException, ValidationException {
+    public User findById(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException("El ID del usuario debe ser mayor a cero. ID recibido: " + id);
         }
@@ -89,14 +89,14 @@ public class UserDAO implements IUserDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar el usuario por ID.", sqlException);
+            throw new ServiceException("Error al buscar el usuario por ID.", sqlException);
         }
 
         return userResult;
     }
 
     @Override
-    public List<User> findAll() throws DatabaseException {
+    public List<User> findAll() throws ServiceException {
         List<User> userList = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
 
@@ -115,14 +115,14 @@ public class UserDAO implements IUserDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la lista de usuarios.", sqlException);
+            throw new ServiceException("Error al recuperar la lista de usuarios.", sqlException);
         }
 
         return userList;
     }
 
     @Override
-    public boolean update(User user) throws DatabaseException, ValidationException {
+    public boolean update(User user) throws ServiceException, ValidationException {
         validateUser(user);
 
         boolean isUpdated = false;
@@ -149,14 +149,14 @@ public class UserDAO implements IUserDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al actualizar el usuario.", sqlException);
+            throw new ServiceException("Error al actualizar el usuario.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean delete(int id) throws DatabaseException, ValidationException {
+    public boolean delete(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException("El ID del usuario debe ser mayor a cero. ID recibido: " + id);
         }
@@ -180,14 +180,14 @@ public class UserDAO implements IUserDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al eliminar el usuario.", sqlException);
+            throw new ServiceException("Error al eliminar el usuario.", sqlException);
         }
 
         return isDeleted;
     }
 
     @Override
-    public User findByMatricula(String matricula) throws DatabaseException, ValidationException {
+    public User findByMatricula(String matricula) throws ServiceException, ValidationException {
 
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE matricula=?";
@@ -210,7 +210,7 @@ public class UserDAO implements IUserDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar usuario por matrícula.", sqlException);
+            throw new ServiceException("Error al buscar usuario por matrícula.", sqlException);
         }
 
         return userResult;

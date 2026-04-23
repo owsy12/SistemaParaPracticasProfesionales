@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Assignment;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IAssignmentDAO;
@@ -33,7 +33,7 @@ public class AssignmentDAO implements IAssignmentDAO {
                     "FROM asignacion WHERE id_proyecto = ?";
 
     @Override
-    public int save(Assignment assignment) throws DatabaseException, ValidationException {
+    public int save(Assignment assignment) throws ServiceException, ValidationException {
         if (assignment.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: "
@@ -71,14 +71,14 @@ public class AssignmentDAO implements IAssignmentDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar la asignación.", sqlException);
+            throw new ServiceException("Error al guardar la asignación.", sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public Assignment getById(int idAssignment) throws DatabaseException, ValidationException {
+    public Assignment getById(int idAssignment) throws ServiceException, ValidationException {
         if (idAssignment <= 0) {
             throw new ValidationException(
                     "El ID de la asignación debe ser mayor a cero. ID recibido: " + idAssignment);
@@ -104,14 +104,14 @@ public class AssignmentDAO implements IAssignmentDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la asignación.", sqlException);
+            throw new ServiceException("Error al recuperar la asignación.", sqlException);
         }
 
         return assignmentResult;
     }
 
     @Override
-    public List<Assignment> getAll() throws DatabaseException {
+    public List<Assignment> getAll() throws ServiceException {
         List<Assignment> assignments = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -130,14 +130,14 @@ public class AssignmentDAO implements IAssignmentDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar las asignaciones.", sqlException);
+            throw new ServiceException("Error al recuperar las asignaciones.", sqlException);
         }
 
         return assignments;
     }
 
     @Override
-    public Assignment getByIdIntern(int idIntern) throws DatabaseException, ValidationException {
+    public Assignment getByIdIntern(int idIntern) throws ServiceException, ValidationException {
         if (idIntern <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
@@ -163,7 +163,7 @@ public class AssignmentDAO implements IAssignmentDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar la asignación del practicante.", sqlException);
         }
 
@@ -171,7 +171,7 @@ public class AssignmentDAO implements IAssignmentDAO {
     }
 
     @Override
-    public List<Assignment> getByIdProject(int idProject) throws DatabaseException, ValidationException {
+    public List<Assignment> getByIdProject(int idProject) throws ServiceException, ValidationException {
         if (idProject <= 0) {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
@@ -197,7 +197,7 @@ public class AssignmentDAO implements IAssignmentDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al recuperar las asignaciones del proyecto.", sqlException);
         }
 

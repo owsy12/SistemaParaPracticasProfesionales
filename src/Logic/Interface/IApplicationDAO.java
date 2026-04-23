@@ -1,15 +1,15 @@
 package Logic.Interface;
 import Logic.DTOs.Application;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 
 import java.util.List;
 
 public interface IApplicationDAO {
-    boolean create(Application application) throws DatabaseException, ValidationException;
-    Application findById(int applicationId) throws DatabaseException, ValidationException;
-    Application findByIntern(int internId) throws DatabaseException, ValidationException;
-    List<Application> findAll() throws DatabaseException, ValidationException;
-    List<Application> findByStatus(String status) throws DatabaseException, ValidationException;
-    boolean updateStatus(int applicationId, String status) throws DatabaseException, ValidationException;
+    boolean create(Application application) throws ServiceException, ValidationException;
+    Application findById(int applicationId) throws ServiceException, ValidationException;
+    Application findByIntern(int internId) throws ServiceException, ValidationException;
+    List<Application> findAll() throws ServiceException, ValidationException;
+    List<Application> findByStatus(String status) throws ServiceException, ValidationException;
+    boolean updateStatus(int applicationId, String status) throws ServiceException, ValidationException;
 }

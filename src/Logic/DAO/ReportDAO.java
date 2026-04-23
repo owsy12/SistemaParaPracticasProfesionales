@@ -1,8 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.Report;
-import Logic.Exceptions.DatabaseException;
-import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
@@ -36,7 +35,7 @@ public class ReportDAO implements IReportDAO {
                     "WHERE estado = 'Pendiente'";
 
     @Override
-    public int save(Report report) throws DatabaseException, ValidationException {
+    public int save(Report report) throws ServiceException, ValidationException {
         if (report.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + report.getIdIntern());
@@ -64,14 +63,14 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         }catch (SQLException sqlException){
-            throw new DatabaseException("Error saving report " + sqlException.getMessage(), sqlException);
+            throw new ServiceException("Error saving report " + sqlException.getMessage(), sqlException);
         }
 
         return rowsAffected;
     }
 
     @Override
-    public Report getById(int idReport) throws DatabaseException, ValidationException {
+    public Report getById(int idReport) throws ServiceException, ValidationException {
         if (idReport <= 0) {
             throw new ValidationException(
                     "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
@@ -89,14 +88,14 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         }catch (SQLException sqlException){
-            throw new DatabaseException("Error retrieving report with ID " + idReport, sqlException);
+            throw new ServiceException("Error retrieving report with ID " + idReport, sqlException);
         }
 
         return report;
     }
 
     @Override
-    public List<Report> getAll() throws DatabaseException {
+    public List<Report> getAll() throws ServiceException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -107,14 +106,14 @@ public class ReportDAO implements IReportDAO {
                 reports.add(mapResultSetToReport(resultSet));
             }
         }catch (SQLException sqlException){
-            throw new DatabaseException("Error retrieving all reports", sqlException);
+            throw new ServiceException("Error retrieving all reports", sqlException);
         }
 
         return reports;
     }
 
     @Override
-    public List<Report> getByStatusPending() throws DatabaseException {
+    public List<Report> getByStatusPending() throws ServiceException {
         List<Report> reports = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -125,7 +124,7 @@ public class ReportDAO implements IReportDAO {
                 reports.add(mapResultSetToReport(resultSet));
             }
         }catch (SQLException sqlException){
-            throw new DatabaseException("Error retrieving pending reports", sqlException);
+            throw new ServiceException("Error retrieving pending reports", sqlException);
         }
 
         return reports;

@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 
 
-public class DuplicateEntryException extends DatabaseException {
+public class DuplicateEntryException extends ServiceException {
 
     private static final Logger LOGGER = Logger.getLogger(DuplicateEntryException.class.getName());
     public static final int MYSQL_DUPLICATE_ENTRY = 1062;

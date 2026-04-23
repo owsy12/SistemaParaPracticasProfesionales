@@ -1,11 +1,11 @@
 package Logic.DAO;
 
 import Logic.DTOs.Professor;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IProfessorDAO;
-
+import static Logic.Utils.Connection.createdConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,18 +27,20 @@ public class ProfessorDAO implements IProfessorDAO {
     private static final String UPDATE_PROFESSOR_STATUS_SQL =
             "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
 
-    private final Connection databaseConnection;
+    private Connection databaseConnection;
 
-    public ProfessorDAO(Connection databaseConnection) throws ValidationException {
-        this.databaseConnection = databaseConnection;
+    public ProfessorDAO() throws ValidationException, ServiceException {
+     databaseConnection =  createdConnection();
     }
 
+
     @Override
-    public boolean saveProfessor(Professor professor) throws DatabaseException, ValidationException {
+    public boolean saveProfessor(Professor professor) throws ServiceException, ValidationException {
         boolean isSaved = false;
+
         try {
             databaseConnection.setAutoCommit(false);
-            UserDAO userDAO = new UserDAO(databaseConnection);
+            UserDAO userDAO = new UserDAO();
             int userId = userDAO.saveUser(professor);
             if (userId > 0) {
                 try (PreparedStatement ps = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
@@ -56,7 +58,7 @@ public class ProfessorDAO implements IProfessorDAO {
             }
         } catch (SQLException sqlException) {
             try { databaseConnection.rollback(); } catch (SQLException rollbackEx) { /* Ignore */ }
-            throw new DatabaseException("Error al registrar profesor.", sqlException);
+            throw new ServiceException("Error al registrar profesor.", sqlException);
         } finally {
             try { databaseConnection.setAutoCommit(true); } catch (SQLException ex) { /* Ignore */ }
         }
@@ -64,7 +66,7 @@ public class ProfessorDAO implements IProfessorDAO {
     }
 
     @Override
-    public Professor findById(int id) throws DatabaseException, ValidationException {
+    public Professor findById(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException(
                     "El ID del profesor debe ser mayor a cero. ID recibido: " + id);
@@ -89,14 +91,14 @@ public class ProfessorDAO implements IProfessorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar el profesor por ID.", sqlException);
+            throw new ServiceException("Error al buscar el profesor por ID.", sqlException);
         }
 
         return professorResult;
     }
 
     @Override
-    public List<Professor> findAll() throws DatabaseException {
+    public List<Professor> findAll() throws ServiceException {
         List<Professor> professorList = new ArrayList<>();
 
         try (PreparedStatement ps = databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
@@ -114,14 +116,14 @@ public class ProfessorDAO implements IProfessorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la lista de profesores.", sqlException);
+            throw new ServiceException("Error al recuperar la lista de profesores.", sqlException);
         }
 
         return professorList;
     }
 
     @Override
-    public boolean deactivateProfessor(int id) throws DatabaseException, ValidationException {
+    public boolean deactivateProfessor(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException(
                     "El ID del profesor debe ser mayor a cero. ID recibido: " + id);
@@ -144,14 +146,14 @@ public class ProfessorDAO implements IProfessorDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al desactivar al profesor.", sqlException);
+            throw new ServiceException("Error al desactivar al profesor.", sqlException);
         }
 
         return isDeactivated;
     }
 
     @Override
-    public List<Professor> findProfessorsWithoutCoordinatorRole() throws DatabaseException {
+    public List<Professor> findProfessorsWithoutCoordinatorRole() throws ServiceException {
         List<Professor> professorList = new ArrayList<>();
         String sql = "SELECT u.*, p.academica FROM usuario u " +
                      "JOIN profesor p ON u.id_usuario = p.id_usuario " +
@@ -163,7 +165,7 @@ public class ProfessorDAO implements IProfessorDAO {
                 professorList.add(mapProfessor(rs));
             }
         } catch (SQLException sqlException) {
-            throw new DatabaseException("Error al recuperar profesores sin rol de coordinador.", sqlException);
+            throw new ServiceException("Error al recuperar profesores sin rol de coordinador.", sqlException);
         }
         return professorList;
     }

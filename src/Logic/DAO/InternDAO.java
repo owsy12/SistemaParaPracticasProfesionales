@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.Intern;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IInternDAO;
@@ -33,7 +33,7 @@ public class InternDAO implements IInternDAO {
             "UPDATE practicante SET creditos = ? WHERE id_usuario = ?";
 
     @Override
-    public boolean saveIntern(Intern intern) throws DatabaseException, ValidationException {
+    public boolean saveIntern(Intern intern) throws ServiceException, ValidationException {
         if (intern.getId() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + intern.getId());
@@ -62,14 +62,14 @@ public class InternDAO implements IInternDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar el practicante en la base de datos.", sqlException);
+            throw new ServiceException("Error al guardar el practicante en la base de datos.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public Intern findById(int id) throws DatabaseException, ValidationException {
+    public Intern findById(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + id);
@@ -95,14 +95,14 @@ public class InternDAO implements IInternDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar el practicante por ID.", sqlException);
+            throw new ServiceException("Error al buscar el practicante por ID.", sqlException);
         }
 
         return internResult;
     }
 
     @Override
-    public List<Intern> findAll() throws DatabaseException {
+    public List<Intern> findAll() throws ServiceException {
         List<Intern> internList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -121,14 +121,14 @@ public class InternDAO implements IInternDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al recuperar la lista de practicantes.", sqlException);
+            throw new ServiceException("Error al recuperar la lista de practicantes.", sqlException);
         }
 
         return internList;
     }
 
     @Override
-    public boolean deactivateIntern(int id) throws DatabaseException, ValidationException {
+    public boolean deactivateIntern(int id) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + id);
@@ -152,14 +152,14 @@ public class InternDAO implements IInternDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al desactivar el practicante.", sqlException);
+            throw new ServiceException("Error al desactivar el practicante.", sqlException);
         }
 
         return isDeactivated;
     }
 
     @Override
-    public boolean updateCredits(int id, int credits) throws DatabaseException, ValidationException {
+    public boolean updateCredits(int id, int credits) throws ServiceException, ValidationException {
         if (id <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + id);
@@ -188,7 +188,7 @@ public class InternDAO implements IInternDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al actualizar los créditos del practicante.", sqlException);
+            throw new ServiceException("Error al actualizar los créditos del practicante.", sqlException);
         }
 
         return isUpdated;

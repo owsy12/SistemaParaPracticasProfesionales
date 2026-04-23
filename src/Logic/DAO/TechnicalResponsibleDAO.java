@@ -2,7 +2,7 @@ package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
 import Logic.DTOs.TechnicalSupervisor;
-import Logic.Exceptions.DatabaseException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.ITechnicalResponsibleDAO;
@@ -37,7 +37,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     @Override
     public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -63,14 +63,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al guardar el responsable técnico.", sqlException);
+            throw new ServiceException("Error al guardar el responsable técnico.", sqlException);
         }
 
         return isSaved;
     }
 
     @Override
-    public TechnicalSupervisor findById(int idTecnico) throws DatabaseException, ValidationException {
+    public TechnicalSupervisor findById(int idTecnico) throws ServiceException, ValidationException {
         if (idTecnico <= 0) {
             throw new ValidationException(
                     "El ID del responsable técnico debe ser mayor a cero. ID recibido: " + idTecnico);
@@ -96,7 +96,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al buscar el responsable técnico por ID.", sqlException);
+            throw new ServiceException("Error al buscar el responsable técnico por ID.", sqlException);
         }
 
         return technicalResult;
@@ -104,7 +104,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     @Override
     public List<TechnicalSupervisor> findByOrganization(int idOrganizacion)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         if (idOrganizacion <= 0) {
             throw new ValidationException(
                     "El ID de la organización debe ser mayor a cero. ID recibido: " + idOrganizacion);
@@ -131,7 +131,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException(
+            throw new ServiceException(
                     "Error al buscar los responsables técnicos de la organización.", sqlException);
         }
 
@@ -140,7 +140,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
 
     @Override
     public boolean update(TechnicalSupervisor technicalResponsible)
-            throws DatabaseException, ValidationException {
+            throws ServiceException, ValidationException {
         if (technicalResponsible.getIdTechnicalSupervisor() <= 0) {
             throw new ValidationException(
                     "El ID del responsable técnico debe ser mayor a cero. ID recibido: "
@@ -171,14 +171,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al actualizar el responsable técnico.", sqlException);
+            throw new ServiceException("Error al actualizar el responsable técnico.", sqlException);
         }
 
         return isUpdated;
     }
 
     @Override
-    public boolean delete(int idTecnico) throws DatabaseException, ValidationException {
+    public boolean delete(int idTecnico) throws ServiceException, ValidationException {
         if (idTecnico <= 0) {
             throw new ValidationException(
                     "El ID del responsable técnico debe ser mayor a cero. ID recibido: " + idTecnico);
@@ -202,7 +202,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
-            throw new DatabaseException("Error al eliminar el responsable técnico.", sqlException);
+            throw new ServiceException("Error al eliminar el responsable técnico.", sqlException);
         }
 
         return isDeleted;

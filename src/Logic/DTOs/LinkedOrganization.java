@@ -5,14 +5,14 @@ public class LinkedOrganization {
     private String name;
     private String sector;
     private String address;
-    private String department;
+    private String email;
 
     public LinkedOrganization(int idLinkedOrganization, String name, String sector, String address, String department) {
         this.idLinkedOrganization = idLinkedOrganization;
         this.name = name;
         this.sector = sector;
         this.address = address;
-        this.department = department;
+        this.email = department;
     }
 
     public LinkedOrganization() {
@@ -34,8 +34,8 @@ public class LinkedOrganization {
         return address;
     }
 
-    public String getDepartment() {
-        return department;
+    public String getEmail() {
+        return email;
     }
 
     public void setIdLinkedOrganization(int idLinkedOrganization) {
@@ -54,7 +54,7 @@ public class LinkedOrganization {
         this.address = adress;
     }
 
-    public void setDepartment(String department) {
-        this.department = department;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }
