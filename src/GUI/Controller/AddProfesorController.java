@@ -1,7 +1,6 @@
 package GUI.Controller;
 
 import Logic.DAO.ProfessorDAO;
-import Logic.DAO.UserDAO;
 import Logic.DTOs.Professor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -9,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ValidationUtils.setTypeAndLenght;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ChoiceDialog;
 import Logic.DAO.CoordinatorDAO;
@@ -38,6 +38,17 @@ public class AddProfesorController {
 
     @FXML
     private PasswordField confirmPasswordField;
+
+    @FXML
+    private void initialize(){
+        setTypeAndLenght(firstNameTextField,"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
+        setTypeAndLenght(lastNameTextField,"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
+        setTypeAndLenght(secondLastNameTextField,"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
+        setTypeAndLenght(academicAreaTextField,"[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 50);
+        setTypeAndLenght(idTextField,"[a-zA-Z0-9]*", 10);
+        setTypeAndLenght(passwordField,"[a-zA-Z0-9@._%+\\-]*", 50);
+        setTypeAndLenght(confirmPasswordField,"[a-zA-Z0-9@._%+\\-]*", 50);
+    }
 
     @FXML
     public void registerProfessor() {
@@ -89,7 +100,6 @@ public class AddProfesorController {
     private void processRegistration() {
 
             try {
-                UserDAO userDAO = new UserDAO();
                 ProfessorDAO professorDAO = new ProfessorDAO();
                 
                 Professor professor = new Professor();
@@ -101,16 +111,14 @@ public class AddProfesorController {
                 professor.setStatus("Activo");
                 professor.setAcademicArea(academicAreaTextField.getText());
 
-                int userId = userDAO.saveUser(professor);
-                if (userId > 0) {
-
+                boolean userId = professorDAO.saveProfessor(professor);
+                if (userId) {
                         showAlert("Registro Exitoso", "Profesor registrado exitosamente.", AlertType.INFORMATION);
                         clearFields();
-
                 } else {
-
                     showAlert("Error", "No se pudo registrar la información de usuario.", AlertType.ERROR);
                 }
+
             } catch (ServiceException exception) {
 
                 showAlert("Error", "Error al procesar el registro: " + exception.getMessage(), AlertType.ERROR);

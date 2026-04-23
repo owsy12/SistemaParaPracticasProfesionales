@@ -9,7 +9,6 @@ import Logic.Exceptions.ValidationException;
 import static GUI.Utils.ValidationUtils.isValidEmail;
 import static GUI.Utils.ValidationUtils.setTypeAndLenght;
 import static GUI.Utils.Alert.showAlert;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -54,6 +53,7 @@ public class AddTechnicalResponsibleController {
         setTypeAndLenght(lastNameField, "[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
         setTypeAndLenght(lastNameMaterField, "[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
         setTypeAndLenght(cargoField, "[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]*", 45);
+        setTypeAndLenght(emailField, "[a-zA-Z0-9@._%+\\-]*", 50);
     }
 
     @javafx.fxml.FXML

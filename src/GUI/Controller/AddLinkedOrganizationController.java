@@ -6,7 +6,7 @@ import Logic.Exceptions.ValidationException;
 import Logic.DTOs.LinkedOrganization;
 import static GUI.Utils.ValidationUtils.setTypeAndLenght;
 import static GUI.Utils.ValidationUtils.isValidEmail;
-
+import static GUI.Utils.Alert.showAlert;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -28,6 +28,7 @@ public class AddLinkedOrganizationController {
         setTypeAndLenght(organizationNameField, "[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
         setTypeAndLenght(organizationAddressField, "[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ.,#\\- ]*", 100);
         setTypeAndLenght(sectorOrganizacionField, "[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
+        setTypeAndLenght(organizationEmailField, "[a-zA-Z0-9@._%+\\-]*", 50);
     }
 
     public void addOrganization(ActionEvent actionEvent) {
@@ -81,13 +82,5 @@ public class AddLinkedOrganizationController {
         organizationEmailField.clear();
         organizationAddressField.clear();
         sectorOrganizacionField.clear();
-    }
-
-    private void showAlert(String title, String message, AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }
