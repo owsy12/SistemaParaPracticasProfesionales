@@ -13,10 +13,10 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         try {
-            URL fxmlLocation = getClass().getResource("/GUI/View/GUIProviiconal.fxml");
+            URL fxmlLocation = getClass().getResource("/GUI/View/GUILogin.fxml");
             
             if (fxmlLocation == null) {
-                throw new RuntimeException("No se encontró el archivo FXML en: /GUI/View/GUIAddCoordinador.fxml");
+                throw new RuntimeException("No se encontró el archivo FXML en: /GUI/View/GUIMainPage.fxml");
             }
             
             FXMLLoader loader = new FXMLLoader(fxmlLocation);

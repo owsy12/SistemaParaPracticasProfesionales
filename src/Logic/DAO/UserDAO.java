@@ -45,6 +45,9 @@ public class UserDAO implements IUserDAO {
                         generatedId = rs.getInt(1);
                         user.setId(generatedId);
                     }
+
+                    UserRoleDAO userRoleDAO = new UserRoleDAO();
+                    userRoleDAO.saveUserRole(generatedId, user.getRole());
                 }
             }
 
@@ -59,6 +62,9 @@ public class UserDAO implements IUserDAO {
             throw new ServiceException("Error al guardar el usuario en la base de datos.", sqlException);
         }
 
+
+
+
         return generatedId;
     }
 
@@ -71,13 +77,13 @@ public class UserDAO implements IUserDAO {
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    userResult = mapUser(rs);
+            try (ResultSet rresultSet = preparedStatement.executeQuery()) {
+                if (rresultSet.next()) {
+                    userResult = mapUser(rresultSet);
                 }
             }
 
@@ -100,11 +106,11 @@ public class UserDAO implements IUserDAO {
         List<User> userList = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ppreparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = ppreparedStatement.executeQuery()) {
 
-            while (rs.next()) {
-                userList.add(mapUser(rs));
+            while (resultSet.next()) {
+                userList.add(mapUser(resultSet));
             }
 
         } catch (SQLException sqlException) {
@@ -129,15 +135,15 @@ public class UserDAO implements IUserDAO {
         String sql = "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? " +
                 "WHERE id_usuario=?";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setString(1, user.getFirstName());
-            ps.setString(2, user.getLastName());
-            ps.setString(3, user.getSecondLastName());
-            ps.setString(4, user.getStatus());
-            ps.setInt(5, user.getId());
+            preparedStatement.setString(1, user.getFirstName());
+            preparedStatement.setString(2, user.getLastName());
+            preparedStatement.setString(3, user.getSecondLastName());
+            preparedStatement.setString(4, user.getStatus());
+            preparedStatement.setInt(5, user.getId());
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
             }
 
@@ -164,11 +170,11 @@ public class UserDAO implements IUserDAO {
         boolean isDeleted = false;
         String sql = "DELETE FROM usuario WHERE id_usuario=?";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isDeleted = true;
             }
 
@@ -192,13 +198,13 @@ public class UserDAO implements IUserDAO {
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE matricula=?";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setString(1, matricula);
+            preparedStatement.setString(1, matricula);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    userResult = mapUser(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    userResult = mapUser(resultSet);
                 }
             }
 

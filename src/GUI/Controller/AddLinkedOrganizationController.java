@@ -4,7 +4,7 @@ import Logic.DAO.LinkedOrganizationDAO;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import Logic.DTOs.LinkedOrganization;
-import static GUI.Utils.ValidationUtils.setTypeAndLenght;
+import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ValidationUtils.isValidEmail;
 import static GUI.Utils.Alert.showAlert;
 import javafx.event.ActionEvent;
@@ -15,27 +15,29 @@ import javafx.scene.control.Alert.AlertType;
 
 public class AddLinkedOrganizationController {
     @FXML
-    public TextField organizationNameField;
+    public TextField organizationNameTextField;
     @FXML
-    public TextField organizationEmailField;
+    public TextField organizationEmailTextField;
     @FXML
-    public TextField organizationAddressField;
+    public TextField organizationAddressTextField;
     @FXML
-    public TextField sectorOrganizacionField;
+    public TextField sectorOrganizacionTextField;
 
     @FXML
     public void initialize() {
-        setTypeAndLenght(organizationNameField, "[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
-        setTypeAndLenght(organizationAddressField, "[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ.,#\\- ]*", 100);
-        setTypeAndLenght(sectorOrganizacionField, "[a-zA-ZáéíóúÁÉÍÓÚñÑ ]*", 30);
-        setTypeAndLenght(organizationEmailField, "[a-zA-Z0-9@._%+\\-]*", 50);
+        setTypeAndLength(organizationNameTextField, "Name");
+        setTypeAndLength(organizationAddressTextField, "Text");
+        setTypeAndLength(sectorOrganizacionTextField, "Name");
+        setTypeAndLength(organizationEmailTextField, "Email");
     }
 
     public void addOrganization(ActionEvent actionEvent) {
         if (hasEmptyFields()) {
-            showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.", Alert.AlertType.WARNING);
-        }else if (!isValidEmail(organizationEmailField.getText())) {
-            showAlert("Correo electrónico inválido", "Por favor, ingresa un correo electrónico válido.", Alert.AlertType.WARNING);
+            showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
+                    Alert.AlertType.WARNING);
+        }else if (!isValidEmail(organizationEmailTextField.getText())) {
+            showAlert("Correo electrónico inválido", "Por favor, ingresa un correo electrónico válido.",
+                    Alert.AlertType.WARNING);
         } else {
             processRegistration();
         }
@@ -48,39 +50,49 @@ public class AddLinkedOrganizationController {
 
     private void processRegistration() {
         LinkedOrganization organization = new LinkedOrganization();
-        organization.setName(organizationNameField.getText());
-        organization.setEmail(organizationEmailField.getText());
-        organization.setAdress(organizationAddressField.getText());
-        organization.setSector(sectorOrganizacionField.getText());
+        organization.setName(organizationNameTextField.getText());
+        organization.setEmail(organizationEmailTextField.getText());
+        organization.setAdress(organizationAddressTextField.getText());
+        organization.setSector(sectorOrganizacionTextField.getText());
 
         try {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
 
             if (linkedOrganizationDAO.saveLinkedOrganization(organization)){
-                showAlert("Registro exitoso", "La organización ha sido registrada exitosamente.", AlertType.INFORMATION);
+                showAlert("Registro exitoso", "La organización ha sido registrada exitosamente.",
+                        AlertType.INFORMATION);
                 clearFields();
             }else {
-                showAlert("Registro fallido", "No se pudo registrar la organización, intenta nuevamente.", AlertType.ERROR);
+                showAlert("Registro fallido", "No se pudo registrar la organización, intenta nuevamente.",
+                        AlertType.ERROR);
             }
 
         }catch (ServiceException serviceException) {
-            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(), AlertType.ERROR);
+            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
+                    AlertType.ERROR);
         } catch (ValidationException e) {
             showAlert("Error de validación", e.getMessage(), AlertType.ERROR);
         }
     }
 
     private boolean hasEmptyFields() {
-        return  organizationNameField.getText().isEmpty() ||
-                organizationEmailField.getText().isEmpty() ||
-                organizationAddressField.getText().isEmpty() ||
-                sectorOrganizacionField.getText().isEmpty();
+
+        boolean isEmpty = false;
+
+        if (organizationNameTextField.getText().isEmpty() ||
+            organizationEmailTextField.getText().isEmpty() ||
+            organizationAddressTextField.getText().isEmpty() ||
+            sectorOrganizacionTextField.getText().isEmpty()) {
+                isEmpty = true;
+        }
+
+        return  isEmpty;
     }
 
     private void clearFields() {
-        organizationNameField.clear();
-        organizationEmailField.clear();
-        organizationAddressField.clear();
-        sectorOrganizacionField.clear();
+        organizationNameTextField.clear();
+        organizationEmailTextField.clear();
+        organizationAddressTextField.clear();
+        sectorOrganizacionTextField.clear();
     }
 }

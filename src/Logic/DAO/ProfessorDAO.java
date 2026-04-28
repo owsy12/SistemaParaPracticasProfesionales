@@ -171,15 +171,16 @@ public class ProfessorDAO implements IProfessorDAO {
     }
 
     private Professor mapProfessor(ResultSet rs) throws SQLException {
-        return new Professor(
-                rs.getInt   ("id_usuario"),
+
+        Professor professor = new Professor(rs.getInt   ("id_usuario"),
                 rs.getString("matricula"),
                 rs.getString("nombre"),
                 rs.getString("apellido_paterno"),
                 rs.getString("apellido_materno"),
                 rs.getString("contrasenia"),
                 rs.getString("estado"),
-                rs.getString("academica")
-        );
+                rs.getString("academica"));
+
+        return professor;
     }
 }

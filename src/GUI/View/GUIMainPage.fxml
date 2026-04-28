@@ -1,0 +1,18 @@
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.BorderPane?>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="GUI.Controller.MainMenuController">
+
+
+    <left>
+        <VBox fx:id="menuVBox" spacing="10" prefWidth="200">
+
+        </VBox>
+    </left>
+
+
+    <center>
+        <StackPane fx:id="contentPane"/>
+    </center>
+
+</BorderPane>

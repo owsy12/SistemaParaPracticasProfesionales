@@ -6,22 +6,58 @@ import java.util.regex.Pattern;
 
 public class ValidationUtils {
 
-    private static final Pattern EMAIL_PATTERN =
+    private static final Pattern VALID_EMAIL_PATTERN =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
-    public static void  setTypeAndLenght(TextField campo, String regex, int limite) {
+    private static final Pattern ID_PATTERN =
+            Pattern.compile("^[a-zA-Z0-9]*$");
+
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile("^[a-zA-Z0-9@._%+\\-]*$");
+
+    private static final Pattern TEXT_PATTERN =
+            Pattern.compile("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]*$");
+
+
+
+    public static void setTypeAndLength(TextField campo, String type) {
         campo.setTextFormatter(new javafx.scene.control.TextFormatter<>(change -> {
             String nuevoTexto = change.getControlNewText();
+            boolean isValid = false;
 
-            if (nuevoTexto.matches(regex) && nuevoTexto.length() <= limite) {
-                return change;
+            switch (type) {
+                case "ID":
+                    if (nuevoTexto.matches(ID_PATTERN.pattern()) && nuevoTexto.length() <= 10) {
+                        isValid = true;
+                    }
+                    break;
+                case "Name":
+                    if (nuevoTexto.matches(TEXT_PATTERN.pattern()) && nuevoTexto.length() <= 30) {
+                        isValid = true;
+                    }
+                    break;
+                case "Email":
+                    if (nuevoTexto.matches(EMAIL_PATTERN.pattern()) && nuevoTexto.length() <= 50) {
+                        isValid = true;
+                    }
+                    break;
+                case "Text":
+                    if (nuevoTexto.matches(TEXT_PATTERN.pattern()) && nuevoTexto.length() <= 45) {
+                        isValid = true;
+                    }
+                    break;
+                default:
+                    isValid = false;
             }
-            return null;
+            if (!isValid) {
+              change = null;
+            }
+            return change;
         }));
     }
 
     public static boolean isValidEmail(String email) {
-        return email != null && EMAIL_PATTERN.matcher(email).matches();
+        return email != null && VALID_EMAIL_PATTERN.matcher(email).matches();
     }
 
 

@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.List;
+
 public class User{
 
     protected int id;
@@ -9,6 +11,8 @@ public class User{
     protected String secondLastName;
     protected String password;
     protected String status;
+    protected String role;
+    protected List<String> roles;
 
     public User() {}
 
@@ -21,6 +25,22 @@ public class User{
         this.secondLastName = secondLastName;
         this.password = password;
         this.status = status;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     public int getId() { return id; }
