@@ -5,14 +5,10 @@ import Logic.DTOs.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-
 import java.io.IOException;
-
-import static GUI.Utils.Alert.showAlert;
 
 public class MainMenuController {
     @FXML
@@ -23,26 +19,31 @@ public class MainMenuController {
     private User currentUser;
     @FXML
     private void initialize() {
-
+        loadView("/GUI/View/GUIWelcome.fxml");
     }
 
     public void loadMenuByRole() {
         menuVBox.getChildren().clear();
 
         if (currentUser.getRoles().size() > 1){
-
+            loadAdminustratorAcction();
+            loadProfesorAcctions();
         }else {
-            switch (currentUser.getRoles().get(0)) {
+            switch (currentUser.getRoles().getFirst()) {
                 case "Administrador":
-                    addButton("Usuarios", "/views/GUIusers.fxml");
+                    loadAdminustratorAcction();
                     break;
 
                 case "Profesor":
-                    addButton("Validar horas", "/views/validation.fxml");
+                    loadProfesorAcctions();
                     break;
 
-                case "ESTUDIANTE":
-                    addButton("Mis actividades", "/views/activities.fxml");
+                case "Coordinador":
+                    loadCoordinadorAcctions();
+                    break;
+
+                case "Practicante":
+                    loadInternActions();
                     break;
             }
         }
@@ -58,10 +59,32 @@ public class MainMenuController {
         menuVBox.getChildren().add(btn);
     }
 
+    private void loadAdminustratorAcction(){
+        addButton("Registrar coordiandor","/GUI/view/GUIAddCoordinador.fxml");
+        addButton("Registrar profesor","/GUI/view/GUIAddProfesor.fxml");
+        addButton("Inactivar coordiandor","");
+        addButton("Inactivar profesor","");
+    }
+
+    private void loadProfesorAcctions(){
+    }
+
+    private void loadCoordinadorAcctions(){
+        addButton("Registrar Organizacion","/GUI/view/GUIAddLinkedOrganization");
+
+    }
+
+    private void loadInternActions(){
+
+    }
+
     private void loadView(String fxmlPath) {
         try {
-            Parent view = FXMLLoader.load(getClass().getResource(fxmlPath));
-            contentPane.getChildren().setAll(view);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent vista = loader.load();
+
+            contentPane.getChildren().setAll(vista);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -71,4 +94,5 @@ public class MainMenuController {
             this.currentUser = user;
             loadMenuByRole();
     }
+
 }
