@@ -1,6 +1,5 @@
 package GUI.Controller;
 
-import GUI.Utils.ViewsUtils;
 import Logic.DAO.UserDAO;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
@@ -19,17 +18,16 @@ import org.mindrot.jbcrypt.BCrypt;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.Alert.showAlert;
 
-
 public class LoginController {
     @FXML
     private TextField userTextField;
     @FXML
     private PasswordField passwordField;
-
     private User currentUser;
+
     @FXML
     private void initialize() {
-        setTypeAndLength(userTextField,"ID");
+        setTypeAndLength(userTextField,"Email");
         setTypeAndLength(passwordField,"Text");
     }
 
@@ -38,20 +36,31 @@ public class LoginController {
         if (isEmpty()){
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
                    Alert.AlertType.WARNING);
+        }else if (loginProcess()){
+            openWindow("GUIMainPage.fxml", "Menú Principal");
         }else {
-            if (loginProcess()){
-                openWindow("GUIMainPage.fxml", "Menú Principal");
-            }
+            showAlert("Error inesperado","Estamos teniendo problemas inten†e mas tarde", Alert.AlertType.WARNING);
         }
     }
 
     private boolean loginProcess(){
         boolean isValidUser = false;
+
         try{
             UserDAO user = new UserDAO();
             currentUser = user.findByMatricula(userTextField.getText());
+
+            if (currentUser == null){
+                currentUser = user.findByEmail(userTextField.getText());
+            }
+
             getRoles();
-            isValidUser = BCrypt.checkpw(passwordField.getText(), currentUser.getPassword());
+
+            if(BCrypt.checkpw(passwordField.getText(), currentUser.getPassword())){
+                isValidUser = true;
+            }else {
+                throw new ValidationException("Contraseña incorrecta");
+            }
 
         } catch (ServiceException e){
             showAlert("Error de servicio", "Ocurrió un error al procesar la solicitud. Inténtalo de nuevo más tarde.",
@@ -64,6 +73,7 @@ public class LoginController {
                     Alert.AlertType.ERROR);
             clearFields();
         }
+
         return isValidUser;
     }
 
@@ -80,7 +90,7 @@ public class LoginController {
     private void getRoles(){
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
-            currentUser.setRoles(userRoleDAO.findRolesByUserId(currentUser.getId()));
+            currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
         } catch (ValidationException e) {
             throw new RuntimeException(e);
         } catch (ServiceException e) {
@@ -90,7 +100,6 @@ public class LoginController {
 
     public void openWindow(String fxml, String title) {
         try {
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/View/" + fxml));
             Parent root = loader.load();
             MainMenuController controller = loader.getController();
@@ -98,7 +107,6 @@ public class LoginController {
             stage.setScene(new Scene(root));
             stage.setTitle(title);
             controller.setCurrentUser(currentUser);
-
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

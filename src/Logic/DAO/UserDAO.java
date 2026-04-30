@@ -27,27 +27,28 @@ public class UserDAO implements IUserDAO {
 
         int generatedId = -1;
         String sql = "INSERT INTO usuario " +
-                "(matricula, nombre, apellido_paterno, apellido_materno, contrasenia, estado) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+                "(matricula, nombre, apellido_paterno, apellido_materno, contrasenia, correo) " +
+                "VALUES (?, ?, ?, ?,?, ?)";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, user.getMatricula());
-            ps.setString(2, user.getFirstName());
-            ps.setString(3, user.getLastName());
-            ps.setString(4, user.getSecondLastName());
-            ps.setString(5, user.getPassword());
-            ps.setString(6, user.getStatus());
+            preparedStatement.setString(1, user.getMatricula());
+            preparedStatement.setString(2, user.getFirstName());
+            preparedStatement.setString(3, user.getLastName());
+            preparedStatement.setString(4, user.getSecondLastName());
+            preparedStatement.setString(5, user.getPassword());
+            preparedStatement.setString(6, user.getEmail());
 
-            if (ps.executeUpdate() > 0) {
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        generatedId = rs.getInt(1);
+            if (preparedStatement.executeUpdate() > 0) {
+                try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+                    if (resultSet.next()) {
+                        generatedId = resultSet.getInt(1);
                         user.setId(generatedId);
+                        user.setStatus("Activo");
                     }
 
                     UserRoleDAO userRoleDAO = new UserRoleDAO();
-                    userRoleDAO.saveUserRole(generatedId, user.getRole());
+                    userRoleDAO.saveUserRole(user);
                 }
             }
 
@@ -222,18 +223,43 @@ public class UserDAO implements IUserDAO {
         return userResult;
     }
 
+    @Override
+    public User findByEmail(String email) throws ServiceException, ValidationException {
+        User user = new User();
+        String sql = "SELECT * FROM usuario WHERE correo=?";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, email);
+            try (ResultSet resultSet = preparedStatement.executeQuery()){
+                if (resultSet.next()) {
+                    user = mapUser(resultSet);
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al buscar usuario por correo {0}: {1}",
+                    new Object[]{email, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
+            throw new ServiceException("Error al buscar usuario por correo.", sqlException);
+        }
+        return user;
+    }
+
     private void validateUser(User user) throws ValidationException {
     }
 
-    private User mapUser(ResultSet rs) throws SQLException {
+    private User mapUser(ResultSet resultSet) throws SQLException {
         User user = new User();
-        user.setId           (rs.getInt   ("id_usuario"));
-        user.setMatricula    (rs.getString("matricula"));
-        user.setFirstName    (rs.getString("nombre"));
-        user.setLastName     (rs.getString("apellido_paterno"));
-        user.setSecondLastName(rs.getString("apellido_materno"));
-        user.setPassword     (rs.getString("contrasenia"));
-        user.setStatus       (rs.getString("estado"));
+        user.setId           (resultSet.getInt   ("id_usuario"));
+        user.setMatricula    (resultSet.getString("matricula"));
+        user.setFirstName    (resultSet.getString("nombre"));
+        user.setLastName     (resultSet.getString("apellido_paterno"));
+        user.setSecondLastName(resultSet.getString("apellido_materno"));
+        user.setPassword     (resultSet.getString("contrasenia"));
+        user.setEmail        (resultSet.getString("correo"));
         return user;
     }
 }

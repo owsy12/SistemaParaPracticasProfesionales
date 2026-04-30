@@ -45,12 +45,12 @@ public class InternDAO implements IInternDAO {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(INSERT_INTERN_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTERN_SQL)) {
 
-            ps.setInt(1, intern.getId());
-            ps.setInt(2, intern.getCredits());
+            preparedStatement.setInt(1, intern.getId());
+            preparedStatement.setInt(2, intern.getCredits());
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;
             }
 
@@ -77,11 +77,11 @@ public class InternDAO implements IInternDAO {
         Intern internResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_INTERN_BY_ID_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_INTERN_BY_ID_SQL)) {
 
-            ps.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-            try (ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
                     internResult = mapIntern(rs);
                 }
@@ -106,11 +106,11 @@ public class InternDAO implements IInternDAO {
         List<Intern> internList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_ALL_INTERNS_SQL);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_INTERNS_SQL);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (rs.next()) {
-                internList.add(mapIntern(rs));
+            while (resultSet.next()) {
+                internList.add(mapIntern(resultSet));
             }
 
         } catch (SQLException sqlException) {
@@ -136,11 +136,11 @@ public class InternDAO implements IInternDAO {
         boolean isDeactivated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(UPDATE_INTERN_STATUS_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_INTERN_STATUS_SQL)) {
 
-            ps.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isDeactivated = true;
             }
 
@@ -171,12 +171,12 @@ public class InternDAO implements IInternDAO {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(UPDATE_INTERN_CREDITS_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_INTERN_CREDITS_SQL)) {
 
-            ps.setInt(1, credits);
-            ps.setInt(2, id);
+            preparedStatement.setInt(1, credits);
+            preparedStatement.setInt(2, id);
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
             }
 
@@ -194,16 +194,16 @@ public class InternDAO implements IInternDAO {
         return isUpdated;
     }
 
-    private Intern mapIntern(ResultSet rs) throws SQLException {
+    private Intern mapIntern(ResultSet resultSet) throws SQLException {
         return new Intern(
-                rs.getInt   ("id_usuario"),
-                rs.getString("matricula"),
-                rs.getString("nombre"),
-                rs.getString("apellido_paterno"),
-                rs.getString("apellido_materno"),
-                rs.getString("contrasenia"),
-                rs.getString("estado"),
-                rs.getInt   ("creditos")
+                resultSet.getInt   ("id_usuario"),
+                resultSet.getString("matricula"),
+                resultSet.getString("nombre"),
+                resultSet.getString("apellido_paterno"),
+                resultSet.getString("apellido_materno"),
+                resultSet.getString("contrasenia"),
+                resultSet.getString("estado"),
+                resultSet.getInt   ("creditos")
         );
     }
 }

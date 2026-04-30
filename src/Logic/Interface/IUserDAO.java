@@ -11,4 +11,6 @@ public interface IUserDAO {
     boolean update(User user) throws ServiceException, ValidationException;
     boolean delete(int id) throws ServiceException, ValidationException;
     User findByMatricula(String matricula) throws ServiceException, ValidationException;
+    User findByEmail(String email) throws ServiceException, ValidationException;
+
 }

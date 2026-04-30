@@ -16,7 +16,7 @@ public class Main extends Application {
             URL fxmlLocation = getClass().getResource("/GUI/View/GUILogin.fxml");
             
             if (fxmlLocation == null) {
-                throw new RuntimeException("No se encontró el archivo FXML en: /GUI/View/GUIMainPage.fxml");
+                throw new RuntimeException("No se encontró el archivo FXML en: /GUI/View/GUILogin.fxml");
             }
             
             FXMLLoader loader = new FXMLLoader(fxmlLocation);
@@ -38,3 +38,5 @@ public class Main extends Application {
         launch(args);
     }
 }
+
+

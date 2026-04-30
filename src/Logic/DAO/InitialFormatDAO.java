@@ -92,9 +92,9 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
             statement.setInt(1, idInitialFormat);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    initialFormat = mapResultSet(rs);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    initialFormat = mapResultSet(resultSet);
                 }
             }
         } catch (SQLException sqlException) {
@@ -118,10 +118,10 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-             ResultSet rs = statement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
-                initialFormats.add(mapResultSet(rs));
+            while (resultSet.next()) {
+                initialFormats.add(mapResultSet(resultSet));
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar todos los formatos iniciales: {0}",
@@ -150,9 +150,9 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
             statement.setInt(1, idIntern);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    initialFormats.add(mapResultSet(rs));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    initialFormats.add(mapResultSet(resultSet));
                 }
             }
         } catch (SQLException sqlException) {
@@ -170,14 +170,14 @@ public class InitialFormatDAO implements IInitialFormatDAO {
         return initialFormats;
     }
 
-    private InitialFormat mapResultSet(ResultSet rs) throws SQLException {
+    private InitialFormat mapResultSet(ResultSet resultSet) throws SQLException {
         InitialFormat initialFormat = new InitialFormat();
-        initialFormat.setIdInitialFormat(rs.getInt   ("id_formato"));
-        initialFormat.setIdIntern       (rs.getInt   ("id_practicante"));
-        initialFormat.setFormatType     (rs.getString("tipo_formato"));
-        initialFormat.setFilePath       (rs.getString("ruta_archivo"));
-        initialFormat.setStatus         (rs.getString("estado"));
-        initialFormat.setSubmissionDate (rs.getDate  ("fecha_entrega"));
+        initialFormat.setIdInitialFormat(resultSet.getInt   ("id_formato"));
+        initialFormat.setIdIntern       (resultSet.getInt   ("id_practicante"));
+        initialFormat.setFormatType     (resultSet.getString("tipo_formato"));
+        initialFormat.setFilePath       (resultSet.getString("ruta_archivo"));
+        initialFormat.setStatus         (resultSet.getString("estado"));
+        initialFormat.setSubmissionDate (resultSet.getDate  ("fecha_entrega"));
         return initialFormat;
     }
 }

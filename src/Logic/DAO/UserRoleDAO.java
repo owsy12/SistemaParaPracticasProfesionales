@@ -1,6 +1,7 @@
 package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
+import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
@@ -22,27 +23,32 @@ public class UserRoleDAO implements IUserRoleDAO {
     private static final Logger LOGGER = Logger.getLogger(UserRoleDAO.class.getName());
 
     private static final String INSERT_USER_ROLE_SQL =
-            "INSERT INTO usuario_rol (id_usuario, rol) VALUES (?, ?)";
+            "INSERT INTO usuario_rol (id_usuario, rol, estado) VALUES (?, ?, ?)";
     private static final String SELECT_ROLES_BY_USER_ID_SQL =
             "SELECT id_usuario, rol FROM usuario_rol WHERE id_usuario = ?";
     private static final String SELECT_USERS_BY_ROLE_SQL =
             "SELECT id_usuario, rol FROM usuario_rol WHERE rol = ?";
     private static final String DELETE_USER_ROLE_SQL =
             "DELETE FROM usuario_rol WHERE id_usuario = ? AND rol = ?";
+    private static final String USER_ACTIVE_ROLS =
+            "SELECT id_usuario, rol FROM usuario_rol WHERE id_usuario = ? AND estado = 'Activo'";
+    private static final String UPDATE_USER_ROLE_STATUS =
+            "UPDATE usuario_rol SET estado = ? WHERE id_usuario = ? AND rol = ?";
 
     @Override
-    public boolean saveUserRole(int userId, String role) throws ServiceException, ValidationException {
-        if (userId <= 0) {
+    public boolean saveUserRole(User user) throws ServiceException, ValidationException {
+        if (user.getId() <= 0) {
             throw new ValidationException(
-                    "El ID del usuario debe ser mayor a cero. ID recibido: " + userId);
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " );
         }
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_ROLE_SQL)) {
 
-            preparedStatement.setInt(1, userId);
-            preparedStatement.setString(2, role);
+            preparedStatement.setInt(1, user.getId());
+            preparedStatement.setString(2, user.getRole());
+            preparedStatement.setString(3, "Activo");
 
             if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;
@@ -50,7 +56,7 @@ public class UserRoleDAO implements IUserRoleDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving role {0} for user {1}: {2}",
-                    new Object[]{role, userId, sqlException.getMessage()});
+                    new Object[]{user.getRole(), user.getId(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -77,7 +83,8 @@ public class UserRoleDAO implements IUserRoleDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    roleList.add(resultSet.getString("rol"));
+                    roleList.add(resultSet.getString("rol") + ","
+                    + resultSet.getString("estado"));
                 }
             }
 
@@ -148,14 +155,80 @@ public class UserRoleDAO implements IUserRoleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deleting role {0} from user {1}: {2}",
                     new Object[]{role, userId, sqlException.getMessage()});
+
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
+
             throw new ServiceException("Error al eliminar el rol del usuario.", sqlException);
         }
 
         return isDeleted;
+    }
+
+    public boolean updateUserRolStatus(User user) throws ServiceException, ValidationException {
+
+        if (user.getId() <= 0) {
+            throw new ValidationException(
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " + user.getId());
+        }
+
+        boolean isUpdated = false;
+
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_ROLE_STATUS)) {
+
+            preparedStatement.setString(1, user.getStatus());
+            preparedStatement.setInt(2, user.getId());
+            preparedStatement.setString(3, user.getRole());
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error updating status for role {0} of user {1}: {2}",
+                    new Object[]{user.getRole(), user.getId(), sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
+            throw new ServiceException("Error al actualizar el estado del rol del usuario.", sqlException);
+        }
+
+        return isUpdated;
+    }
+
+    @Override
+    public List<String> getActiveRolsByUserId(int userId) throws ServiceException, ValidationException {
+        List<String> activeRoles = new ArrayList<>();
+
+        try(Connection connection = DataBaseConnection.connectDatabase();
+            PreparedStatement preparedStatement = connection.prepareStatement(USER_ACTIVE_ROLS)) {
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    activeRoles.add(resultSet.getString("rol"));
+                }
+
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error getting active roles for user {0}: {1}",
+                    new Object[]{userId, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
+            throw new ServiceException("Error al obtener los roles activos del usuario.", sqlException);
+        }
+
+        return activeRoles;
     }
 }

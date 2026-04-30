@@ -1,11 +1,13 @@
 package GUI.Controller;
 
 import Logic.DAO.CoordinatorDAO;
+import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.Coordinator;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import static GUI.Utils.ValidationUtils.isValidEmail;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -14,12 +16,10 @@ import javafx.scene.control.ChoiceDialog;
 import Logic.DAO.ProfessorDAO;
 import Logic.DTOs.Professor;
 import org.mindrot.jbcrypt.BCrypt;
-
 import java.util.List;
 import java.util.Optional;
 
 public class AddCoordinadorController {
-
     @FXML
     private TextField idTextField;
     @FXML
@@ -32,6 +32,8 @@ public class AddCoordinadorController {
     private PasswordField passwordField;
     @FXML
     private PasswordField confirmPasswordField;
+    @FXML
+    private TextField emailTextField;
 
     @FXML
     private void initialize(){
@@ -39,6 +41,8 @@ public class AddCoordinadorController {
         setTypeAndLength(lastNameTextField,"Name");
         setTypeAndLength(secondLastNameTextField,"Name");
         setTypeAndLength(idTextField,"ID");
+        setTypeAndLength(passwordField,"Email");
+        setTypeAndLength(emailTextField,"Email");
     }
 
     @FXML
@@ -46,17 +50,16 @@ public class AddCoordinadorController {
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
                     AlertType.WARNING);
-        } else if (!isPasswordMatching()) {
-            showAlert("Error de contraseña", "Las contraseñas no coinciden, verifica la información.",
-                    AlertType.ERROR);
-        } else {
+        } else if (isPasswordMatching() && isValidEmail(emailTextField.getText())) {
             processRegistration();
+        }else{
+            showAlert("Error de contraseña", "Error ens sus daros de ungrso.",
+                    AlertType.ERROR);
         }
     }
 
     @FXML
     public void showProfessorList() {
-
         try  {
             ProfessorDAO professorDAO = new ProfessorDAO();
             List<Professor> professors = professorDAO.findProfessorsWithoutCoordinatorRole();
@@ -72,7 +75,9 @@ public class AddCoordinadorController {
             dialog.setHeaderText("Profesores activos sin rol de coordinador");
             dialog.setContentText("Seleccione un profesor:");
             Optional<Professor> result = dialog.showAndWait();
-            result.ifPresent(this::fillFieldsWithProfessor);
+            result.ifPresent(this::addRolToProfessor);
+            showAlert("Rol asignado", "El profesor ha sido asignado como coordinador exitosamente.",
+                    AlertType.INFORMATION);
 
         } catch (ServiceException exception) {
             showAlert("Error", "Error al recuperar profesores: " + exception.getMessage(),
@@ -84,14 +89,16 @@ public class AddCoordinadorController {
 
     }
 
-    private void fillFieldsWithProfessor(Professor professor) {
-        idTextField.setText(professor.getMatricula());
-        firstNameTextField.setText(professor.getFirstName());
-        lastNameTextField.setText(professor.getLastName());
-        secondLastNameTextField.setText(professor.getSecondLastName());
-        passwordField.setText(professor.getPassword());
-        confirmPasswordField.setText(professor.getPassword());
-        idTextField.setEditable(false);
+    private void addRolToProfessor(Professor professor) {
+        try{
+            UserRoleDAO userRoleDAO = new UserRoleDAO();
+            professor.setRole("Coordinador");
+            userRoleDAO.saveUserRole(professor);
+        } catch (ValidationException e) {
+            throw new RuntimeException(e);
+        } catch (ServiceException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @FXML
@@ -109,6 +116,7 @@ public class AddCoordinadorController {
             coordinator.setFirstName(firstNameTextField.getText());
             coordinator.setLastName(lastNameTextField.getText());
             coordinator.setSecondLastName(secondLastNameTextField.getText());
+            coordinator.setEmail(emailTextField.getText());
             coordinator.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
             coordinator.setStatus("Activo");
             coordinator.setRole("Coordinador");
@@ -120,6 +128,7 @@ public class AddCoordinadorController {
             } else {
                 showAlert("Error", "No se pudo realizar el registro.", AlertType.ERROR);
             }
+
         } catch ( ServiceException exception) {
             showAlert("Error de conexión", "Error al conectar con la base de datos: " + exception.getMessage(),
                     AlertType.ERROR);
@@ -136,6 +145,7 @@ public class AddCoordinadorController {
             firstNameTextField.getText().isEmpty() ||
             lastNameTextField.getText().isEmpty() ||
             secondLastNameTextField.getText().isEmpty() ||
+            emailTextField.getText().isEmpty()  ||
             passwordField.getText().isEmpty() ||
             confirmPasswordField.getText().isEmpty()) {
                 isEmptu = true;
@@ -156,5 +166,6 @@ public class AddCoordinadorController {
         secondLastNameTextField.clear();
         passwordField.clear();
         confirmPasswordField.clear();
+        emailTextField.clear();
     }
 }

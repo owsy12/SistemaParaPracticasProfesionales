@@ -12,4 +12,5 @@ public interface IProfessorDAO {
     List<Professor> findAll() throws ServiceException;
     boolean deactivateProfessor(int id) throws ServiceException, ValidationException;
     List<Professor> findProfessorsWithoutCoordinatorRole() throws ServiceException;
+    List<Professor> findActiveProfessors() throws ServiceException;
 }

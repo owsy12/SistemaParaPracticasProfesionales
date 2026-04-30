@@ -85,9 +85,7 @@ public class AddTechnicalResponsibleController {
     }
 
     private void processRegistration() {
-
         try{
-
             TechnicalSupervisor technicalSupervisor = new TechnicalSupervisor();
             technicalSupervisor.setName(nameField.getText());
             technicalSupervisor.seteMail(emailField.getText());
@@ -96,8 +94,8 @@ public class AddTechnicalResponsibleController {
             technicalSupervisor.setPosition(cargoField.getText());
             LinkedOrganization linkedOrganization = organizationComboBox.getValue();
             technicalSupervisor.setIdOrganization(linkedOrganization.getIdLinkedOrganization());
-
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
+
             if (technicalResponsibleDAO.saveTechnicalResponsible(technicalSupervisor)){
                 showAlert("Registro exitoso", "El responsable técnico ha sido registrado exitosamente.",
                         AlertType.INFORMATION);
@@ -106,6 +104,7 @@ public class AddTechnicalResponsibleController {
                 showAlert("Registro fallido", "No se pudo registrar el responsable técnico, intenta nuevamente.",
                         AlertType.ERROR);
             }
+
         } catch (ValidationException e) {
             showAlert("Error de validación", e.getMessage(),
                     AlertType.ERROR);
