@@ -18,7 +18,7 @@ CREATE TABLE usuario (
                          apellido_paterno  VARCHAR(60)  NOT NULL,
                          apellido_materno  VARCHAR(60)  NOT NULL,
                          contrasenia       VARCHAR(255) NOT NULL COMMENT 'Hash bcrypt',
-                         estado            ENUM('Activo','Inactivo') NOT NULL DEFAULT 'Activo',
+                         correo            VARCHAR(120) NOT NULL,
                          PRIMARY KEY (id_usuario),
                          UNIQUE KEY uq_usuario_matricula (matricula)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -30,6 +30,8 @@ CREATE TABLE usuario_rol (
                              id_usuario  INT  NOT NULL,
                              rol         ENUM('Administrador','Coordinador','Profesor','Practicante')
                                               NOT NULL,
+                             estado            ENUM('Activo','Inactivo') NOT NULL DEFAULT 'Activo',
+
                              PRIMARY KEY (id_usuario, rol),
                              CONSTRAINT fk_urol_usuario
                                  FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)

@@ -13,6 +13,7 @@ public class User{
     protected String status;
     protected String role;
     protected List<String> roles;
+    protected String email;
 
     public User() {}
 
@@ -63,4 +64,13 @@ public class User{
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
 }

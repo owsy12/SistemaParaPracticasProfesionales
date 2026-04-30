@@ -1,6 +1,5 @@
 package GUI.Controller;
 
-import GUI.Utils.ViewsUtils;
 import Logic.DAO.UserDAO;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
@@ -29,7 +28,7 @@ public class LoginController {
     private User currentUser;
     @FXML
     private void initialize() {
-        setTypeAndLength(userTextField,"ID");
+        setTypeAndLength(userTextField,"Email");
         setTypeAndLength(passwordField,"Text");
     }
 
@@ -49,10 +48,18 @@ public class LoginController {
         boolean isValidUser = false;
         try{
             UserDAO user = new UserDAO();
-            currentUser = user.findByMatricula(userTextField.getText());
-            getRoles();
-            isValidUser = BCrypt.checkpw(passwordField.getText(), currentUser.getPassword());
 
+            currentUser = user.findByMatricula(userTextField.getText());
+            if (currentUser == null){
+                currentUser = user.findByEmail(userTextField.getText());
+            }
+            getRoles();
+            if(BCrypt.checkpw(passwordField.getText(), currentUser.getPassword())){
+                isValidUser = true;
+            }else {
+                showAlert("Error de autenticación", "Contraseña incorrecta. Verifica tu contraseña e inténtalo de nuevo.",
+                        Alert.AlertType.ERROR);
+            }
         } catch (ServiceException e){
             showAlert("Error de servicio", "Ocurrió un error al procesar la solicitud. Inténtalo de nuevo más tarde.",
                     Alert.AlertType.ERROR);
@@ -80,7 +87,7 @@ public class LoginController {
     private void getRoles(){
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
-            currentUser.setRoles(userRoleDAO.findRolesByUserId(currentUser.getId()));
+            currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
         } catch (ValidationException e) {
             throw new RuntimeException(e);
         } catch (ServiceException e) {
@@ -90,7 +97,6 @@ public class LoginController {
 
     public void openWindow(String fxml, String title) {
         try {
-
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/View/" + fxml));
             Parent root = loader.load();
             MainMenuController controller = loader.getController();
@@ -98,7 +104,6 @@ public class LoginController {
             stage.setScene(new Scene(root));
             stage.setTitle(title);
             controller.setCurrentUser(currentUser);
-
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();

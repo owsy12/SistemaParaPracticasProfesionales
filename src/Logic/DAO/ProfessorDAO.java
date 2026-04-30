@@ -155,10 +155,18 @@ public class ProfessorDAO implements IProfessorDAO {
     @Override
     public List<Professor> findProfessorsWithoutCoordinatorRole() throws ServiceException {
         List<Professor> professorList = new ArrayList<>();
-        String sql = "SELECT u.*, p.academica FROM usuario u " +
-                     "JOIN profesor p ON u.id_usuario = p.id_usuario " +
-                     "LEFT JOIN coordinador c ON u.id_usuario = c.id_usuario " +
-                     "WHERE c.id_usuario IS NULL AND u.estado = 'Activo'";
+        String sql = "SELECT u.*, p.academica " +
+                "FROM usuario u " +
+                "JOIN profesor p ON u.id_usuario = p.id_usuario " +
+                "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
+                "WHERE ur.rol = 'Profesor' " +
+                "AND ur.estado = 'Activo' " +
+                "AND NOT EXISTS ( " +
+                "    SELECT 1" +
+                "    FROM usuario_rol ur2" +
+                "    WHERE ur2.id_usuario = u.id_usuario " +
+                "    AND ur2.rol <> 'Profesor'" +
+                "    AND ur2.estado = 'Activo')";
         try (PreparedStatement ps = databaseConnection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -172,14 +180,15 @@ public class ProfessorDAO implements IProfessorDAO {
 
     private Professor mapProfessor(ResultSet rs) throws SQLException {
 
-        Professor professor = new Professor(rs.getInt   ("id_usuario"),
-                rs.getString("matricula"),
-                rs.getString("nombre"),
-                rs.getString("apellido_paterno"),
-                rs.getString("apellido_materno"),
-                rs.getString("contrasenia"),
-                rs.getString("estado"),
-                rs.getString("academica"));
+        Professor professor = new Professor();
+        professor.setId(rs.getInt("id_usuario"));
+        professor.setMatricula(rs.getString("matricula"));
+        professor.setFirstName(rs.getString("nombre"));
+        professor.setLastName(rs.getString("apellido_paterno"));
+        professor.setSecondLastName(rs.getString("apellido_materno"));
+        professor.setPassword(rs.getString("contrasenia"));
+        professor.setEmail(rs.getString("correo"));
+        professor.setAcademicArea(rs.getString("academica"));
 
         return professor;
     }

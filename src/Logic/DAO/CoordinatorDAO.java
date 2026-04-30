@@ -47,10 +47,15 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                 connection.rollback();
             }
         } catch (SQLException sqlException) {
-            try { connection.rollback(); } catch (SQLException rollbackEx) { /* Ignore */ }
+
+            try {
+                connection.rollback();
+            } catch (SQLException rollbackEx) { LOGGER.log(Level.SEVERE, "erro en registrar en base e datos");}
             throw new ServiceException("Error al registrar coordinador.", sqlException);
         } finally {
-            try { connection.setAutoCommit(true); } catch (SQLException ex) { /* Ignore */ }
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException ex) { }
         }
         return isSaved;
     }
@@ -73,7 +78,6 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         if (id <= 0) {
             throw new ValidationException("El ID del coordinador debe ser mayor a cero. ID recibido: " + id);
         }
-
         Coordinator coordinatorResult = null;
         String sql = "SELECT * FROM usuario u " +
                 "JOIN coordinador c ON u.id_usuario = c.id_usuario " +
@@ -92,11 +96,13 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar coordinador con ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
+
             throw new ServiceException("Error al buscar el coordinador por ID.", sqlException);
         }
 
@@ -119,11 +125,13 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar la lista de coordinadores: {0}",
                     sqlException.getMessage());
+
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
+
             throw new ServiceException("Error al recuperar la lista de coordinadores.", sqlException);
         }
 
@@ -133,30 +141,67 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     @Override
     public List<Coordinator> findCoordinatorsWithoutProfessorRole() throws ServiceException {
         List<Coordinator> list = new ArrayList<>();
-        String sql = "SELECT u.* FROM usuario u " +
-                     "JOIN coordinador c ON u.id_usuario = c.id_usuario " +
-                     "LEFT JOIN profesor p ON u.id_usuario = p.id_usuario " +
-                     "WHERE p.id_usuario IS NULL AND u.estado = 'Activo'";
+        String sql = "SELECT u.*" +
+                "FROM usuario u " +
+                "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
+                "WHERE ur.rol = 'Coordinador' " +
+                "AND ur.estado = 'Activo' " +
+                "AND NOT EXISTS ( " +
+                "    SELECT 1 " +
+                "    FROM usuario_rol ur2 " +
+                "    WHERE ur2.id_usuario = u.id_usuario " +
+                "    AND ur2.rol <> 'Coordinador'" +
+                "    AND ur2.estado = 'Activo')";
+
         try (PreparedStatement ps = connection.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
                 list.add(mapCoordinator(rs));
             }
+
         } catch (SQLException sqlException) {
             throw new ServiceException("Error al recuperar coordinadores sin rol de profesor.", sqlException);
         }
+
         return list;
     }
 
+    @Override
+    public List<Coordinator> findActiveCoordinators() throws ServiceException {
+        List<Coordinator> coordinators = new ArrayList<>();
+
+        try {
+            String sql = "SELECT u.* " +
+                    "FROM usuario u " +
+                    "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
+                    "WHERE ur.estado = 'Activo' " +
+                    "AND ur.rol = 'Coordinador' ";
+
+            try(PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    coordinators.add(mapCoordinator(resultSet));
+                }
+
+            }
+
+        }catch (SQLException e){
+            throw new ServiceException("Error al recuperar coordinadores activos.", e);
+        }
+        return coordinators;
+    }
+
     private Coordinator mapCoordinator(ResultSet rs) throws SQLException {
-        return new Coordinator(
-                rs.getInt("id_usuario"),
-                rs.getString("matricula"),
-                rs.getString("nombre"),
-                rs.getString("apellido_paterno"),
-                rs.getString("apellido_materno"),
-                rs.getString("contrasenia"),
-                rs.getString("estado")
-        );
+        Coordinator coordinator = new Coordinator();
+        coordinator.setId(rs.getInt("id_usuario"));
+        coordinator.setMatricula(rs.getString("matricula"));
+        coordinator.setFirstName(rs.getString("nombre"));
+        coordinator.setLastName(rs.getString("apellido_paterno"));
+        coordinator.setSecondLastName(rs.getString("apellido_materno"));
+        coordinator.setPassword(rs.getString("contrasenia"));
+
+        return coordinator;
     }
 }

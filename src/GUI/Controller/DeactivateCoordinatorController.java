@@ -1,6 +1,8 @@
 package GUI.Controller;
 
+import Logic.DAO.CoordinatorDAO;
 import Logic.DAO.UserDAO;
+import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -40,6 +42,7 @@ public class DeactivateCoordinatorController {
 
         secondLastNameColumn.setCellValueFactory(cellData ->
                 new javafx.beans.property.SimpleStringProperty(cellData.getValue().getSecondLastName()));
+        loadCoordinators();
         addButtonToTable();
     }
 
@@ -52,11 +55,13 @@ public class DeactivateCoordinatorController {
                 btn.setOnAction(event -> {
                     User user = getTableView().getItems().get(getIndex());
                     showAlertAndWait("Desea desactivar ","desae", Alert.AlertType.CONFIRMATION).ifPresent(response -> {;
+
                         if (response == javafx.scene.control.ButtonType.OK) {
-
-                            showAlert("Coordinador desactivado", "El coordinador ha sido desactivado exitosamente.", Alert.AlertType.INFORMATION);
-
+                            user.setStatus("Inactivo");
+                            user.setRole("Coordinador");
+                            deactivateProcess(user);
                         }
+
                     });
                 });
             }
@@ -70,22 +75,32 @@ public class DeactivateCoordinatorController {
                 } else {
                     setGraphic(btn);
                 }
+
             }
         });
     }
 
-    private void deactivateProcess(){
+    private void deactivateProcess(User user ){
         try {
-            User userUpdate = new User();
-            userUpdate.setStatus("Inactivo");
-
-            UserDAO userDAO = new UserDAO();
-            userDAO.update(userUpdate);
+            UserRoleDAO userRoleDAO = new UserRoleDAO();
+            userRoleDAO.updateUserRolStatus(user);
+            showAlert("Coordinador desactivado", "El coordinador ha sido desactivado exitosamente.", Alert.AlertType.INFORMATION);
         }catch (ServiceException e){
-
+            showAlert("Error de servicio", "Ocurrió un error al intentar desactivar el coordinador. Por favor, inténtelo de nuevo más tarde.",
+                    Alert.AlertType.ERROR);
         }catch (ValidationException e){
+            showAlert("Error de validación", "Los datos proporcionados no son válidos. Por favor, revise la información e intente nuevamente.",
+                    Alert.AlertType.WARNING);
+        }
+    }
 
-
+    private void loadCoordinators(){
+        try{
+            CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
+            tableView.getItems().setAll(coordinatorDAO.findActiveCoordinators());
+        } catch (ServiceException e) {
+            showAlert("Error de servicio", "Ocurrió un error al cargar los coordinadores. Por favor, inténtelo de nuevo más tarde.",
+                    Alert.AlertType.ERROR);
         }
     }
 }

@@ -62,7 +62,7 @@ public class MainMenuController {
     private void loadAdminustratorAcction(){
         addButton("Registrar coordiandor","/GUI/view/GUIAddCoordinador.fxml");
         addButton("Registrar profesor","/GUI/view/GUIAddProfesor.fxml");
-        addButton("Inactivar coordiandor","");
+        addButton("Inactivar coordiandor","/GUI/view/GUIDeactivateCoordinator.fxml");
         addButton("Inactivar profesor","");
     }
 
@@ -70,7 +70,7 @@ public class MainMenuController {
     }
 
     private void loadCoordinadorAcctions(){
-        addButton("Registrar Organizacion","/GUI/view/GUIAddLinkedOrganization");
+        addButton("Registrar Organizacion","/GUI/view/GUIAddLinkedOrganization.fxml");
 
     }
 

@@ -96,8 +96,8 @@ public class AddTechnicalResponsibleController {
             technicalSupervisor.setPosition(cargoField.getText());
             LinkedOrganization linkedOrganization = organizationComboBox.getValue();
             technicalSupervisor.setIdOrganization(linkedOrganization.getIdLinkedOrganization());
-
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
+
             if (technicalResponsibleDAO.saveTechnicalResponsible(technicalSupervisor)){
                 showAlert("Registro exitoso", "El responsable técnico ha sido registrado exitosamente.",
                         AlertType.INFORMATION);

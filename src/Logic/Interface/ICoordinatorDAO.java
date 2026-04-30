@@ -11,4 +11,5 @@ public interface ICoordinatorDAO {
     boolean update(Coordinator coordinator) throws ServiceException, ValidationException;
     boolean delete(int id) throws ServiceException, ValidationException;
     List<Coordinator> findCoordinatorsWithoutProfessorRole() throws ServiceException;
+    List<Coordinator> findActiveCoordinators() throws ServiceException, ValidationException;
 }
