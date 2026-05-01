@@ -18,14 +18,13 @@ import org.mindrot.jbcrypt.BCrypt;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.Alert.showAlert;
 
-
 public class LoginController {
     @FXML
     private TextField userTextField;
     @FXML
     private PasswordField passwordField;
-
     private User currentUser;
+
     @FXML
     private void initialize() {
         setTypeAndLength(userTextField,"Email");
@@ -37,29 +36,28 @@ public class LoginController {
         if (isEmpty()){
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
                    Alert.AlertType.WARNING);
+        }else if (loginProcess()){
+            openWindow("GUIMainPage.fxml", "Menú Principal");
         }else {
-            if (loginProcess()){
-                openWindow("GUIMainPage.fxml", "Menú Principal");
-            }
+            showAlert("Error inesperado","Estamos teniendo problemas inten†e mas tarde", Alert.AlertType.WARNING);
         }
     }
 
     private boolean loginProcess(){
         boolean isValidUser = false;
+
         try{
             UserDAO user = new UserDAO();
+            currentUser = user.findByIdentifier(userTextField.getText());
+            UserRoleDAO userRoleDAO = new UserRoleDAO();
+            currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
 
-            currentUser = user.findByMatricula(userTextField.getText());
-            if (currentUser == null){
-                currentUser = user.findByEmail(userTextField.getText());
-            }
-            getRoles();
             if(BCrypt.checkpw(passwordField.getText(), currentUser.getPassword())){
                 isValidUser = true;
             }else {
-                showAlert("Error de autenticación", "Contraseña incorrecta. Verifica tu contraseña e inténtalo de nuevo.",
-                        Alert.AlertType.ERROR);
+                throw new ValidationException("Contraseña incorrecta");
             }
+
         } catch (ServiceException e){
             showAlert("Error de servicio", "Ocurrió un error al procesar la solicitud. Inténtalo de nuevo más tarde.",
                     Alert.AlertType.ERROR);
@@ -71,6 +69,7 @@ public class LoginController {
                     Alert.AlertType.ERROR);
             clearFields();
         }
+
         return isValidUser;
     }
 
@@ -84,17 +83,6 @@ public class LoginController {
         return empty;
     }
 
-    private void getRoles(){
-        try {
-            UserRoleDAO userRoleDAO = new UserRoleDAO();
-            currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
-        } catch (ValidationException e) {
-            throw new RuntimeException(e);
-        } catch (ServiceException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void openWindow(String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/View/" + fxml));
@@ -106,7 +94,7 @@ public class LoginController {
             controller.setCurrentUser(currentUser);
             stage.show();
         } catch (Exception e) {
-            e.printStackTrace();
+            showAlert("Error", "Error al abrir intento mas tarde", Alert.AlertType.ERROR);
         }
     }
 

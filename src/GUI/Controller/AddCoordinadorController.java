@@ -16,12 +16,10 @@ import javafx.scene.control.ChoiceDialog;
 import Logic.DAO.ProfessorDAO;
 import Logic.DTOs.Professor;
 import org.mindrot.jbcrypt.BCrypt;
-
 import java.util.List;
 import java.util.Optional;
 
 public class AddCoordinadorController {
-
     @FXML
     private TextField idTextField;
     @FXML
@@ -44,6 +42,7 @@ public class AddCoordinadorController {
         setTypeAndLength(secondLastNameTextField,"Name");
         setTypeAndLength(idTextField,"ID");
         setTypeAndLength(passwordField,"Email");
+        setTypeAndLength(emailTextField,"Email");
     }
 
     @FXML
@@ -51,11 +50,11 @@ public class AddCoordinadorController {
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
                     AlertType.WARNING);
-        } else if (!isPasswordMatching() && isValidEmail(emailTextField.getText())) {
-            showAlert("Error de contraseña", "Las contraseñas no coinciden, verifica la información.",
-                    AlertType.ERROR);
-        } else {
+        } else if (isPasswordMatching() && isValidEmail(emailTextField.getText())) {
             processRegistration();
+        }else{
+            showAlert("Error de contraseña", "Error ens sus daros de ungrso.",
+                    AlertType.ERROR);
         }
     }
 
@@ -79,6 +78,7 @@ public class AddCoordinadorController {
             result.ifPresent(this::addRolToProfessor);
             showAlert("Rol asignado", "El profesor ha sido asignado como coordinador exitosamente.",
                     AlertType.INFORMATION);
+
         } catch (ServiceException exception) {
             showAlert("Error", "Error al recuperar profesores: " + exception.getMessage(),
                     AlertType.ERROR);

@@ -6,11 +6,6 @@ CREATE DATABASE spp
     COLLATE utf8mb4_unicode_ci;
 USE spp;
 
-
-
---  1. USUARIO BASE
-
-
 CREATE TABLE usuario (
                          id_usuario        INT          NOT NULL AUTO_INCREMENT,
                          matricula         VARCHAR(20)  NOT NULL,
@@ -24,14 +19,11 @@ CREATE TABLE usuario (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='Tabla base de todos los actores del sistema';
 
-
---  2. ROL POR USUARIO
 CREATE TABLE usuario_rol (
                              id_usuario  INT  NOT NULL,
                              rol         ENUM('Administrador','Coordinador','Profesor','Practicante')
                                               NOT NULL,
-                             estado            ENUM('Activo','Inactivo') NOT NULL DEFAULT 'Activo',
-
+                             estado       ENUM('Activo','Inactivo') NOT NULL DEFAULT 'Activo' ,
                              PRIMARY KEY (id_usuario, rol),
                              CONSTRAINT fk_urol_usuario
                                  FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
@@ -39,12 +31,6 @@ CREATE TABLE usuario_rol (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='Un usuario puede tener más de un rol (ej. Coordinador + Profesor)';
 
-
--- ============================================================
---  3. TABLAS HIJA DE USUARIO
--- ============================================================
-
--- Administrador: no tiene atributos propios, existe por simetría
 CREATE TABLE administrador (
                                id_usuario  INT NOT NULL,
                                PRIMARY KEY (id_usuario),
@@ -54,9 +40,7 @@ CREATE TABLE administrador (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-01 registra; sin atributos extra';
 
--- ----------------------------------------------------------
 
--- Coordinador: sin atributos propios adicionales en CU-01/03
 CREATE TABLE coordinador (
                              id_usuario  INT NOT NULL,
                              PRIMARY KEY (id_usuario),
@@ -66,9 +50,7 @@ CREATE TABLE coordinador (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-01 registra; CU-03 inactiva (via usuario.estado)';
 
--- ----------------------------------------------------------
 
--- Profesor: tiene área académica (CU-02 campo "academica")
 CREATE TABLE profesor (
                           id_usuario  INT          NOT NULL,
                           academica   VARCHAR(100) NOT NULL COMMENT 'Área académica / academia',
@@ -79,9 +61,7 @@ CREATE TABLE profesor (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-02 registra; CU-04 inactiva; CU-15 consulta';
 
--- ----------------------------------------------------------
 
--- Practicante: tiene créditos (CU-14)
 CREATE TABLE practicante (
                              id_usuario  INT NOT NULL,
                              creditos    INT NOT NULL COMMENT 'Créditos académicos acumulados',
@@ -93,11 +73,6 @@ CREATE TABLE practicante (
     COMMENT='CU-14 registra; CU-13 inactiva; CU-19/20/21/22/23/24 operan';
 
 
--- ============================================================
---  4. ORGANIZACIÓN VINCULADA
---     CU-05: campos nombreOrganizacion, correoOrganizacion,
---            direccionOrganizacion, sectorOrganizacion
--- ============================================================
 
 CREATE TABLE organizacion_vinculada (
                                         id_organizacion      INT          NOT NULL AUTO_INCREMENT,
@@ -111,6 +86,61 @@ CREATE TABLE organizacion_vinculada (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-05 registra; CU-06 consulta; CU-09 referencia';
 
+
+
+CREATE TABLE tecnico_responsable (
+                                     id_tecnico            INT          NOT NULL AUTO_INCREMENT,
+                                     id_organizacion       INT          NOT NULL,
+                                     nombre                VARCHAR(80)  NOT NULL,
+                                     apellido_paterno      VARCHAR(60)  NOT NULL,
+                                     apellido_materno      VARCHAR(60)  NOT NULL,
+                                     correo_responsable    VARCHAR(120) NOT NULL,
+                                     cargo                 VARCHAR(100) NOT NULL,
+                                     PRIMARY KEY (id_tecnico),
+                                     UNIQUE KEY uq_tec_correo_org (correo_responsable, id_organizacion),
+                                     CONSTRAINT fk_tec_org
+                                         FOREIGN KEY (id_organizacion)
+                                             REFERENCES organizacion_vinculada (id_organizacion)
+                                             ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    COMMENT='CU-07 registra; CU-08 consulta; CU-09 referencia';
+
+
+CREATE TABLE proyecto (
+                          id_proyecto      INT          NOT NULL AUTO_INCREMENT,
+                          id_organizacion  INT          NOT NULL,
+                          id_tecnico       INT          NOT NULL,
+                          id_coordinador   INT          NOT NULL COMMENT 'FK → coordinador.id_usuario',
+                          nombre           VARCHAR(150) NOT NULL,
+                          descripcion      TEXT         NOT NULL,
+                          fecha_inicio     DATE         NOT NULL,
+                          fecha_fin        DATE         NOT NULL,
+                          cupo_maximo      INT          NOT NULL,
+                          cupo_disponible  INT          NOT NULL,
+                          estado           ENUM('Disponible','Lleno','Concluido','Cancelado')
+                                                        NOT NULL DEFAULT 'Disponible',
+                          PRIMARY KEY (id_proyecto),
+                          UNIQUE KEY uq_proy_nombre_org (nombre, id_organizacion),
+                          CONSTRAINT fk_proy_org
+                              FOREIGN KEY (id_organizacion)
+                                  REFERENCES organizacion_vinculada (id_organizacion)
+                                  ON UPDATE CASCADE ON DELETE RESTRICT,
+                          CONSTRAINT fk_proy_tec
+                              FOREIGN KEY (id_tecnico)
+                                  REFERENCES tecnico_responsable (id_tecnico)
+                                  ON UPDATE CASCADE ON DELETE RESTRICT,
+                          CONSTRAINT fk_proy_coord
+                              FOREIGN KEY (id_coordinador)
+                                  REFERENCES coordinador (id_usuario)
+                                  ON UPDATE CASCADE ON DELETE RESTRICT,
+                          CONSTRAINT chk_fechas
+                              CHECK (fecha_fin > fecha_inicio),
+                          CONSTRAINT chk_cupo_maximo
+                              CHECK (cupo_maximo > 0),
+                          CONSTRAINT chk_cupo_disponible
+                              CHECK (cupo_disponible >= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    COMMENT='CU-09 registra; CU-10 asigna; CU-11 elimina; CU-12 actualiza';
 
 CREATE TABLE solicitud (
                            id_solicitud     INT      NOT NULL AUTO_INCREMENT,
@@ -149,8 +179,6 @@ CREATE TABLE solicitud_proyecto (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-19: hasta 3 opciones por solicitud';
 
-
-
 CREATE TABLE asignacion (
                             id_asignacion     INT      NOT NULL AUTO_INCREMENT,
                             id_practicante    INT      NOT NULL,
@@ -173,8 +201,6 @@ CREATE TABLE asignacion (
                                     ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-10 registra; un practicante solo puede tener una asignación';
-
-
 
 CREATE TABLE formato_inicial (
                                  id_formato        INT          NOT NULL AUTO_INCREMENT,
@@ -211,9 +237,6 @@ CREATE TABLE reporte (
                              NOT NULL DEFAULT 'Pendiente',
                          fecha_entrega       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-
-
-
                          PRIMARY KEY (id_reporte),
                          UNIQUE KEY uq_rep_prac_tipo_periodo (id_practicante, tipo_reporte, periodo),
                          CONSTRAINT fk_rep_prac
@@ -233,42 +256,42 @@ CREATE TABLE reporte (
     COMMENT='CU-20 genera; CU-21 sube firmado; CU-17 evalúa';
 
 CREATE TABLE reporte_parcial_y_final(
-    id_reporte_parcial INT NOT NULL,
-    -- Campos compartidos Parcial / Final
-    numero_informe      TINYINT       NULL COMMENT 'Solo Parcial: nº de informe',
-    horas_cubiertas     DECIMAL(6,2)  NULL COMMENT 'Parcial/Final: horas al momento',
-    objetivo_general    TEXT          NULL COMMENT 'Parcial/Final',
-    metodologia         TEXT          NULL COMMENT 'Solo Parcial',
-    resultados_obtenidos TEXT         NULL COMMENT 'Solo Parcial',
-    observaciones       TEXT          NULL COMMENT 'Todos los tipos',
+                                        id_reporte_parcial INT NOT NULL,
+                                        numero_informe      TINYINT       NULL COMMENT 'Solo Parcial: nº de informe',
+                                        horas_cubiertas     DECIMAL(6,2)  NULL COMMENT 'Parcial/Final: horas al momento',
+                                        objetivo_general    TEXT          NULL COMMENT 'Parcial/Final',
+                                        metodologia         TEXT          NULL COMMENT 'Solo Parcial',
+                                        resultados_obtenidos TEXT         NULL COMMENT 'Solo Parcial',
+                                        observaciones       TEXT          NULL COMMENT 'Todos los tipos',
 
-foreign key (id_reporte_parcial) references reporte (id_reporte)
-                            on update cascade on delete cascade
+                                        foreign key (id_reporte_parcial) references reporte (id_reporte)
+                                            on update cascade on delete cascade
 );
 
 Create table reporte_mensual(
-    id_reporte_mensual int not null ,
-    mes                 varchar(500)  NULL COMMENT 'Solo Mensual: 1-12',
-    anio                YEAR          NULL COMMENT 'Solo Mensual',
-    horas_reportadas    DECIMAL(6,2)  NULL COMMENT 'Solo Mensual: horas del mes',
-    bloque              VARCHAR(100)  NULL COMMENT 'Solo Mensual: bloque de la EE',
-    seccion             VARCHAR(50)   NULL COMMENT 'Solo Mensual: sección del grupo',
+                                id_reporte_mensual int not null ,
+                                mes                 TINYINT       NULL COMMENT 'Solo Mensual: 1-12',
+                                anio                YEAR          NULL COMMENT 'Solo Mensual',
+                                horas_reportadas    DECIMAL(6,2)  NULL COMMENT 'Solo Mensual: horas del mes',
+                                bloque              VARCHAR(100)  NULL COMMENT 'Solo Mensual: bloque de la EE',
+                                seccion             VARCHAR(50)   NULL COMMENT 'Solo Mensual: sección del grupo',
 
-    foreign key (id_reporte_mensual) references reporte (id_reporte)
-                            on update cascade on delete cascade
-
+                                foreign key (id_reporte_mensual) references reporte (id_reporte)
+                                    on update cascade on delete cascade,
+                                CONSTRAINT chk_rep_mes
+                                    CHECK (mes IS NULL OR mes BETWEEN 1 AND 12)
 
 );
 
 CREATE TABLE evaluacion_reporte(
-    -- Evaluación (llenados por Profesor en CU-17)
-    id_evaluacion_reporte int not null auto_increment primary key ,
-    id_reporte int not null ,
+
+                                   id_evaluacion_reporte int not null,
+                                   id_reporte int not null ,
                                    calificacion        DECIMAL(4,2)  NULL COMMENT '0.00 – 10.00',
                                    retroalimentacion   TEXT          NULL,
                                    porcentaje_avance   DECIMAL(5,2)  NULL COMMENT '0.00 – 100.00',
                                    fecha_evaluacion    DATETIME      NULL,
-    foreign key (id_reporte) references reporte (id_reporte),
+                                   foreign key (id_reporte) references reporte (id_reporte),
                                    CONSTRAINT chk_rep_calificacion
                                        CHECK (calificacion IS NULL OR calificacion BETWEEN 0 AND 10),
                                    CONSTRAINT chk_rep_avance
@@ -278,14 +301,11 @@ CREATE TABLE evaluacion_reporte(
 
 );
 
-
 CREATE TABLE autoevaluacion (
                                 id_autoevaluacion  INT          NOT NULL AUTO_INCREMENT,
                                 id_practicante     INT          NOT NULL,
                                 id_proyecto        INT          NOT NULL,
                                 periodo            VARCHAR(50)  NOT NULL,
-
-
                                 afirmacion_01  TINYINT  NULL COMMENT '1=Tot. desacuerdo…5=Tot. acuerdo',
                                 afirmacion_02  TINYINT  NULL,
                                 afirmacion_03  TINYINT  NULL,
@@ -322,8 +342,8 @@ CREATE TABLE autoevaluacion (
                                 CONSTRAINT chk_af08 CHECK (afirmacion_08 IS NULL OR afirmacion_08 BETWEEN 1 AND 5),
                                 CONSTRAINT chk_af09 CHECK (afirmacion_09 IS NULL OR afirmacion_09 BETWEEN 1 AND 5),
                                 CONSTRAINT chk_af10 CHECK (afirmacion_10 IS NULL OR afirmacion_10 BETWEEN 1 AND 5)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    COMMENT='CU-22 genera y guarda datos; CU-23 sube PDF firmado';
 
 
 CREATE TABLE evaluacion_ov (
@@ -345,4 +365,3 @@ CREATE TABLE evaluacion_ov (
                                        ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     COMMENT='CU-24: practicante sube evaluación firmada de la organización';
-

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.DeactivateProfessorController">
+    <children>
+        <TableView fx:id="tableView" layoutX="25.0" layoutY="94.0" prefHeight="274.0" prefWidth="550.0">
+            <columns>
+                <TableColumn id="matricula" fx:id="matriculaColumn" prefWidth="79.5" text="No.Personal" />
+                <TableColumn id="name" fx:id="nameColumn" prefWidth="88.5" text="Nombre" />
+                <TableColumn id="lastName" fx:id="lastNameColumn" prefWidth="94.0" text="Ap. Paterno" />
+                <TableColumn id="secondLastName" fx:id="secondLastNameColumn" prefWidth="107.0" text="Ap. Materno" />
+                <TableColumn id="acdemicArea" fx:id="academicDegreeColumn" prefWidth="92.0" text="Area Academica" />
+                <TableColumn id="actions" fx:id="actionsColumn" prefWidth="87.24954223632812" text="Acciones" />
+            </columns>
+        </TableView>
+        <Label layoutX="25.0" layoutY="24.0" text="Inactivar Profesor">
+            <font>
+                <Font size="19.0" />
+            </font>
+        </Label>
+    </children>
+</AnchorPane>

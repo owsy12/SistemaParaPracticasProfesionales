@@ -194,14 +194,15 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public User findByMatricula(String matricula) throws ServiceException, ValidationException {
+    public User findByIdentifier(String matricula) throws ServiceException, ValidationException {
 
         User userResult = null;
-        String sql = "SELECT * FROM usuario WHERE matricula=?";
+        String sql = "SELECT * FROM usuario WHERE matricula=? OR correo = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, matricula);
+            preparedStatement.setString(2,matricula);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -251,15 +252,15 @@ public class UserDAO implements IUserDAO {
     private void validateUser(User user) throws ValidationException {
     }
 
-    private User mapUser(ResultSet rs) throws SQLException {
+    private User mapUser(ResultSet resultSet) throws SQLException {
         User user = new User();
-        user.setId           (rs.getInt   ("id_usuario"));
-        user.setMatricula    (rs.getString("matricula"));
-        user.setFirstName    (rs.getString("nombre"));
-        user.setLastName     (rs.getString("apellido_paterno"));
-        user.setSecondLastName(rs.getString("apellido_materno"));
-        user.setPassword     (rs.getString("contrasenia"));
-        user.setEmail        (rs.getString("correo"));
+        user.setId           (resultSet.getInt   ("id_usuario"));
+        user.setMatricula    (resultSet.getString("matricula"));
+        user.setFirstName    (resultSet.getString("nombre"));
+        user.setLastName     (resultSet.getString("apellido_paterno"));
+        user.setSecondLastName(resultSet.getString("apellido_materno"));
+        user.setPassword     (resultSet.getString("contrasenia"));
+        user.setEmail        (resultSet.getString("correo"));
         return user;
     }
 }

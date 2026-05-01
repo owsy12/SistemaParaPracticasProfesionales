@@ -34,9 +34,9 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             int userId = super.saveUser(coordinator);
             if (userId > 0) {
                 String sql = "INSERT INTO coordinador (id_usuario) VALUES (?)";
-                try (PreparedStatement ps = connection.prepareStatement(sql)) {
-                    ps.setInt(1, userId);
-                    if (ps.executeUpdate() > 0) {
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                    preparedStatement.setInt(1, userId);
+                    if (preparedStatement.executeUpdate() > 0) {
                         connection.commit();
                         isSaved = true;
                     } else {
@@ -61,8 +61,8 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     }
 
     @Override
-    public boolean update(Coordinator c) throws ServiceException, ValidationException {
-        return super.update(c);
+    public boolean update(Coordinator coordinator) throws ServiceException, ValidationException {
+        return super.update(coordinator);
     }
 
     @Override
@@ -83,13 +83,13 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                 "JOIN coordinador c ON u.id_usuario = c.id_usuario " +
                 "WHERE u.id_usuario = ?";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    coordinatorResult = mapCoordinator(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    coordinatorResult = mapCoordinator(resultSet);
                 }
             }
 
@@ -115,11 +115,11 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         String sql = "SELECT u.* FROM usuario u " +
                 "JOIN coordinador c ON u.id_usuario = c.id_usuario";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (rs.next()) {
-                list.add(mapCoordinator(rs));
+            while (resultSet.next()) {
+                list.add(mapCoordinator(resultSet));
             }
 
         } catch (SQLException sqlException) {
@@ -153,11 +153,11 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                 "    AND ur2.rol <> 'Coordinador'" +
                 "    AND ur2.estado = 'Activo')";
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ppreparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = ppreparedStatement.executeQuery()) {
 
-            while (rs.next()) {
-                list.add(mapCoordinator(rs));
+            while (resultSet.next()) {
+                list.add(mapCoordinator(resultSet));
             }
 
         } catch (SQLException sqlException) {
@@ -193,14 +193,14 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         return coordinators;
     }
 
-    private Coordinator mapCoordinator(ResultSet rs) throws SQLException {
+    private Coordinator mapCoordinator(ResultSet resultSet) throws SQLException {
         Coordinator coordinator = new Coordinator();
-        coordinator.setId(rs.getInt("id_usuario"));
-        coordinator.setMatricula(rs.getString("matricula"));
-        coordinator.setFirstName(rs.getString("nombre"));
-        coordinator.setLastName(rs.getString("apellido_paterno"));
-        coordinator.setSecondLastName(rs.getString("apellido_materno"));
-        coordinator.setPassword(rs.getString("contrasenia"));
+        coordinator.setId(resultSet.getInt("id_usuario"));
+        coordinator.setMatricula(resultSet.getString("matricula"));
+        coordinator.setFirstName(resultSet.getString("nombre"));
+        coordinator.setLastName(resultSet.getString("apellido_paterno"));
+        coordinator.setSecondLastName(resultSet.getString("apellido_materno"));
+        coordinator.setPassword(resultSet.getString("contrasenia"));
 
         return coordinator;
     }

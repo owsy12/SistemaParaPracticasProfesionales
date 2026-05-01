@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class AddProfesorController {
-
     @FXML
     private TextField idTextField;
     @FXML
@@ -83,6 +82,7 @@ public class AddProfesorController {
             result.ifPresent(this::addRolToCoordinator);
             showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
                     AlertType.INFORMATION);
+
         } catch (ServiceException exception) {
             showAlert("Error", "Error al recuperar coordinadores: " + exception.getMessage(),
                     AlertType.ERROR);
