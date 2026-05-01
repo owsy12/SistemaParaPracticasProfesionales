@@ -90,9 +90,9 @@ public class AssignmentDAO implements IAssignmentDAO {
 
             statement.setInt(1, idAssignment);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    assignmentResult = mapResultSet(rs);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    assignmentResult = mapResultSet(resultSet);
                 }
             }
 
@@ -116,10 +116,10 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-             ResultSet rs = statement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
-                assignments.add(mapResultSet(rs));
+            while (resultSet.next()) {
+                assignments.add(mapResultSet(resultSet));
             }
 
         } catch (SQLException sqlException) {
@@ -149,9 +149,9 @@ public class AssignmentDAO implements IAssignmentDAO {
 
             statement.setInt(1, idIntern);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    assignmentResult = mapResultSet(rs);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    assignmentResult = mapResultSet(resultSet);
                 }
             }
 
@@ -183,9 +183,9 @@ public class AssignmentDAO implements IAssignmentDAO {
 
             statement.setInt(1, idProject);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    assignments.add(mapResultSet(rs));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    assignments.add(mapResultSet(resultSet));
                 }
             }
 
@@ -204,13 +204,13 @@ public class AssignmentDAO implements IAssignmentDAO {
         return assignments;
     }
 
-    private Assignment mapResultSet(ResultSet rs) throws SQLException {
+    private Assignment mapResultSet(ResultSet resultSet) throws SQLException {
         Assignment assignment = new Assignment();
-        assignment.setIdAssignment (rs.getInt ("id_asignacion"));
-        assignment.setIdIntern     (rs.getInt ("id_practicante"));
-        assignment.setIdProyect    (rs.getInt ("id_proyecto"));
-        assignment.setIdApplication(rs.getInt ("id_solicitud"));
-        assignment.setAssignmentDate(rs.getDate("fecha_asignacion"));
+        assignment.setIdAssignment (resultSet.getInt ("id_asignacion"));
+        assignment.setIdIntern     (resultSet.getInt ("id_practicante"));
+        assignment.setIdProyect    (resultSet.getInt ("id_proyecto"));
+        assignment.setIdApplication(resultSet.getInt ("id_solicitud"));
+        assignment.setAssignmentDate(resultSet.getDate("fecha_asignacion"));
         return assignment;
     }
 }

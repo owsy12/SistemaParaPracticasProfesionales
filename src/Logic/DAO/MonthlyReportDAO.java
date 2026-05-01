@@ -49,25 +49,25 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
             connection.setAutoCommit(false);
 
             try {
-                try (PreparedStatement stmtBase = connection.prepareStatement(
+                try (PreparedStatement preparedStatement = connection.prepareStatement(
                         "INSERT INTO reporte " +
                                 "(id_practicante, id_proyecto, id_profesor, " +
                                 " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS)) {
 
-                    stmtBase.setInt   (1, monthlyReport.getIdIntern());
-                    stmtBase.setInt   (2, monthlyReport.getIdProyect());
-                    stmtBase.setInt   (3, monthlyReport.getIdProfessor());
-                    stmtBase.setString(4, monthlyReport.getReportType());
-                    stmtBase.setString(5, monthlyReport.getPeriod());
-                    stmtBase.setString(6, monthlyReport.getDocumentPath());
-                    stmtBase.setString(7, monthlyReport.getStatus());
-                    stmtBase.setDate  (8, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
+                    preparedStatement.setInt   (1, monthlyReport.getIdIntern());
+                    preparedStatement.setInt   (2, monthlyReport.getIdProyect());
+                    preparedStatement.setInt   (3, monthlyReport.getIdProfessor());
+                    preparedStatement.setString(4, monthlyReport.getReportType());
+                    preparedStatement.setString(5, monthlyReport.getPeriod());
+                    preparedStatement.setString(6, monthlyReport.getDocumentPath());
+                    preparedStatement.setString(7, monthlyReport.getStatus());
+                    preparedStatement.setDate  (8, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
 
-                    rowsAffected = stmtBase.executeUpdate();
+                    rowsAffected = preparedStatement.executeUpdate();
 
-                    try (ResultSet generatedKeys = stmtBase.getGeneratedKeys()) {
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
                             monthlyReport.setIdReport(generatedKeys.getInt(1));
                             monthlyReport.setIdMonthlyReport(generatedKeys.getInt(1));
@@ -75,14 +75,14 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     }
                 }
 
-                try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
-                    stmtSpecific.setInt   (1, monthlyReport.getIdReport());
-                    stmtSpecific.setString(2, monthlyReport.getMonth());
-                    stmtSpecific.setInt   (3, monthlyReport.getYear());
-                    stmtSpecific.setFloat (4, 0);
-                    stmtSpecific.setString(5, monthlyReport.getBlock());
-                    stmtSpecific.setString(6, monthlyReport.getSection());
-                    stmtSpecific.executeUpdate();
+                try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
+                    preparedStatement.setInt   (1, monthlyReport.getIdReport());
+                    preparedStatement.setString(2, monthlyReport.getMonth());
+                    preparedStatement.setInt   (3, monthlyReport.getYear());
+                    preparedStatement.setFloat (4, 0);
+                    preparedStatement.setString(5, monthlyReport.getBlock());
+                    preparedStatement.setString(6, monthlyReport.getSection());
+                    preparedStatement.executeUpdate();
                 }
 
                 connection.commit();

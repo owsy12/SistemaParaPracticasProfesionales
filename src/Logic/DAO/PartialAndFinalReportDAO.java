@@ -44,47 +44,47 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
     @Override
     public int save(Report report) throws ServiceException, ValidationException {
-        PartialAndFinalReport pfReport = (PartialAndFinalReport) report;
+        PartialAndFinalReport partialAndFinalReport = (PartialAndFinalReport) report;
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             connection.setAutoCommit(false);
 
             try {
-                try (PreparedStatement stmtBase = connection.prepareStatement(
+                try (PreparedStatement preparedStatement = connection.prepareStatement(
                         "INSERT INTO reporte " +
                                 "(id_practicante, id_proyecto, id_profesor, " +
                                 " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS)) {
 
-                    stmtBase.setInt   (1, pfReport.getIdIntern());
-                    stmtBase.setInt   (2, pfReport.getIdProyect());
-                    stmtBase.setInt   (3, pfReport.getIdProfessor());
-                    stmtBase.setString(4, pfReport.getReportType());
-                    stmtBase.setString(5, pfReport.getPeriod());
-                    stmtBase.setString(6, pfReport.getDocumentPath());
-                    stmtBase.setString(7, pfReport.getStatus());
-                    stmtBase.setDate  (8, new java.sql.Date(pfReport.getSumissionDate().getTime()));
+                    preparedStatement.setInt   (1, partialAndFinalReport.getIdIntern());
+                    preparedStatement.setInt   (2, partialAndFinalReport.getIdProyect());
+                    preparedStatement.setInt   (3, partialAndFinalReport.getIdProfessor());
+                    preparedStatement.setString(4, partialAndFinalReport.getReportType());
+                    preparedStatement.setString(5, partialAndFinalReport.getPeriod());
+                    preparedStatement.setString(6, partialAndFinalReport.getDocumentPath());
+                    preparedStatement.setString(7, partialAndFinalReport.getStatus());
+                    preparedStatement.setDate  (8, new java.sql.Date(partialAndFinalReport.getSumissionDate().getTime()));
 
-                    rowsAffected = stmtBase.executeUpdate();
+                    rowsAffected = preparedStatement.executeUpdate();
 
-                    try (ResultSet generatedKeys = stmtBase.getGeneratedKeys()) {
+                    try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                         if (generatedKeys.next()) {
-                            pfReport.setIdReport(generatedKeys.getInt(1));
-                            pfReport.setIdPartialAndFinalReport(generatedKeys.getInt(1));
+                            partialAndFinalReport.setIdReport(generatedKeys.getInt(1));
+                            partialAndFinalReport.setIdPartialAndFinalReport(generatedKeys.getInt(1));
                         }
                     }
                 }
 
                 try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
-                    stmtSpecific.setInt   (1, pfReport.getIdReport());
-                    stmtSpecific.setInt   (2, pfReport.getReportNumber());
-                    stmtSpecific.setInt   (3, pfReport.getCoveredHours());
-                    stmtSpecific.setString(4, pfReport.getGeneralObjective());
-                    stmtSpecific.setString(5, pfReport.getMethodology());
-                    stmtSpecific.setString(6, pfReport.getObtainedResults());
-                    stmtSpecific.setString(7, pfReport.getObservations());
+                    stmtSpecific.setInt   (1, partialAndFinalReport.getIdReport());
+                    stmtSpecific.setInt   (2, partialAndFinalReport.getReportNumber());
+                    stmtSpecific.setInt   (3, partialAndFinalReport.getCoveredHours());
+                    stmtSpecific.setString(4, partialAndFinalReport.getGeneralObjective());
+                    stmtSpecific.setString(5, partialAndFinalReport.getMethodology());
+                    stmtSpecific.setString(6, partialAndFinalReport.getObtainedResults());
+                    stmtSpecific.setString(7, partialAndFinalReport.getObservations());
                     stmtSpecific.executeUpdate();
                 }
 

@@ -37,10 +37,10 @@ public class AdministratorDAO implements IAdministratorDAO {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(INSERT_ADMINISTRATOR_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_ADMINISTRATOR_SQL)) {
 
-            ps.setInt(1, administrator.getId());
-            if (ps.executeUpdate() > 0) {
+            preparedStatement.setInt(1, administrator.getId());
+            if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;
             }
 
@@ -67,11 +67,11 @@ public class AdministratorDAO implements IAdministratorDAO {
         Administrator administratorResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_ADMINISTRATOR_BY_ID_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ADMINISTRATOR_BY_ID_SQL)) {
 
-            ps.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-            try (ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
                     administratorResult = mapAdministrator(rs);
                 }
@@ -96,8 +96,8 @@ public class AdministratorDAO implements IAdministratorDAO {
         List<Administrator> administratorList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_ALL_ADMINISTRATORS_SQL);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_ADMINISTRATORS_SQL);
+             ResultSet rs = preparedStatement.executeQuery()) {
 
             while (rs.next()) {
                 administratorList.add(mapAdministrator(rs));
@@ -117,15 +117,15 @@ public class AdministratorDAO implements IAdministratorDAO {
         return administratorList;
     }
 
-    private Administrator mapAdministrator(ResultSet rs) throws SQLException {
+    private Administrator mapAdministrator(ResultSet resultSet) throws SQLException {
         return new Administrator(
-                rs.getInt   ("id_usuario"),
-                rs.getString("matricula"),
-                rs.getString("nombre"),
-                rs.getString("apellido_paterno"),
-                rs.getString("apellido_materno"),
-                rs.getString("contrasenia"),
-                rs.getString("estado")
+                resultSet.getInt   ("id_usuario"),
+                resultSet.getString("matricula"),
+                resultSet.getString("nombre"),
+                resultSet.getString("apellido_paterno"),
+                resultSet.getString("apellido_materno"),
+                resultSet.getString("contrasenia"),
+                resultSet.getString("estado")
         );
     }
 }

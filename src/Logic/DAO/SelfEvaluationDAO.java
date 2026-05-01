@@ -102,9 +102,9 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
             statement.setInt(1, idSelfEvaluation);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    selfEvaluation = mapResultSet(rs);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    selfEvaluation = mapResultSet(resultSet);
                 }
             }
         } catch (SQLException sqlException) {
@@ -128,10 +128,10 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-             ResultSet rs = statement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
-                selfEvaluations.add(mapResultSet(rs));
+            while (resultSet.next()) {
+                selfEvaluations.add(mapResultSet(resultSet));
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar todas las autoevaluaciones: {0}",
@@ -147,26 +147,26 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
         return selfEvaluations;
     }
 
-    private SelfEvaluation mapResultSet(ResultSet rs) throws SQLException {
+    private SelfEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
-        selfEvaluation.setIdSelfEvalation(rs.getInt   ("id_autoevaluacion"));
-        selfEvaluation.setIdIntern       (rs.getInt   ("id_practicante"));
-        selfEvaluation.setIdProyect      (rs.getInt   ("id_proyecto"));
-        selfEvaluation.setPeriod         (rs.getString("periodo"));
-        selfEvaluation.setStatement01    (rs.getInt   ("afirmacion_01"));
-        selfEvaluation.setStatement02    (rs.getInt   ("afirmacion_02"));
-        selfEvaluation.setStatement03    (rs.getInt   ("afirmacion_03"));
-        selfEvaluation.setStatement04    (rs.getInt   ("afirmacion_04"));
-        selfEvaluation.setStatement05    (rs.getInt   ("afirmacion_05"));
-        selfEvaluation.setStatement06    (rs.getInt   ("afirmacion_06"));
-        selfEvaluation.setStatement07    (rs.getInt   ("afirmacion_07"));
-        selfEvaluation.setStatement08    (rs.getInt   ("afirmacion_08"));
-        selfEvaluation.setStatement09    (rs.getInt   ("afirmacion_09"));
-        selfEvaluation.setStatement10    (rs.getInt   ("afirmacion_10"));
-        selfEvaluation.setFinalScore     (rs.getInt   ("puntuacion_final"));
-        selfEvaluation.setPlaceAndDate   (rs.getString("lugar_fecha"));
-        selfEvaluation.setDocumentPath   (rs.getString("ruta_documento"));
-        selfEvaluation.setStatus         (rs.getString("estado"));
+        selfEvaluation.setIdSelfEvalation(resultSet.getInt   ("id_autoevaluacion"));
+        selfEvaluation.setIdIntern       (resultSet.getInt   ("id_practicante"));
+        selfEvaluation.setIdProyect      (resultSet.getInt   ("id_proyecto"));
+        selfEvaluation.setPeriod         (resultSet.getString("periodo"));
+        selfEvaluation.setStatement01    (resultSet.getInt   ("afirmacion_01"));
+        selfEvaluation.setStatement02    (resultSet.getInt   ("afirmacion_02"));
+        selfEvaluation.setStatement03    (resultSet.getInt   ("afirmacion_03"));
+        selfEvaluation.setStatement04    (resultSet.getInt   ("afirmacion_04"));
+        selfEvaluation.setStatement05    (resultSet.getInt   ("afirmacion_05"));
+        selfEvaluation.setStatement06    (resultSet.getInt   ("afirmacion_06"));
+        selfEvaluation.setStatement07    (resultSet.getInt   ("afirmacion_07"));
+        selfEvaluation.setStatement08    (resultSet.getInt   ("afirmacion_08"));
+        selfEvaluation.setStatement09    (resultSet.getInt   ("afirmacion_09"));
+        selfEvaluation.setStatement10    (resultSet.getInt   ("afirmacion_10"));
+        selfEvaluation.setFinalScore     (resultSet.getInt   ("puntuacion_final"));
+        selfEvaluation.setPlaceAndDate   (resultSet.getString("lugar_fecha"));
+        selfEvaluation.setDocumentPath   (resultSet.getString("ruta_documento"));
+        selfEvaluation.setStatus         (resultSet.getString("estado"));
         return selfEvaluation;
     }
 }

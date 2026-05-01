@@ -92,9 +92,9 @@ public class ReportEvaluationDAO implements IReportEvaluation {
 
             statement.setInt(1, idReportEvaluation);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    reportEvaluation = mapResultSet(rs);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    reportEvaluation = mapResultSet(resultSet);
                 }
             }
         } catch (SQLException sqlException) {
@@ -125,9 +125,9 @@ public class ReportEvaluationDAO implements IReportEvaluation {
 
             statement.setInt(1, idReport);
 
-            try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()) {
-                    reportEvaluation = mapResultSet(rs);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    reportEvaluation = mapResultSet(resultSet);
                 }
             }
         } catch (SQLException sqlException) {
@@ -151,10 +151,10 @@ public class ReportEvaluationDAO implements IReportEvaluation {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-             ResultSet rs = statement.executeQuery()) {
+             ResultSet resultSet = statement.executeQuery()) {
 
-            while (rs.next()) {
-                reportEvaluations.add(mapResultSet(rs));
+            while (resultSet.next()) {
+                reportEvaluations.add(mapResultSet(resultSet));
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al recuperar todas las evaluaciones de reporte: {0}",
@@ -171,13 +171,13 @@ public class ReportEvaluationDAO implements IReportEvaluation {
         return reportEvaluations;
     }
 
-    private ReportEvaluation mapResultSet(ResultSet rs) throws SQLException {
+    private ReportEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
         ReportEvaluation reportEvaluation = new ReportEvaluation();
-        reportEvaluation.setIdReportEvaluation(rs.getInt   ("id_evaluacion_reporte"));
-        reportEvaluation.setIdReport          (rs.getInt   ("id_reporte"));
-        reportEvaluation.setGrade             (rs.getInt   ("calificacion"));
-        reportEvaluation.setFeedback          (rs.getString("retroalimentacion"));
-        reportEvaluation.setEvaluationDate    (rs.getDate  ("fecha_evaluacion"));
+        reportEvaluation.setIdReportEvaluation(resultSet.getInt   ("id_evaluacion_reporte"));
+        reportEvaluation.setIdReport          (resultSet.getInt   ("id_reporte"));
+        reportEvaluation.setGrade             (resultSet.getInt   ("calificacion"));
+        reportEvaluation.setFeedback          (resultSet.getString("retroalimentacion"));
+        reportEvaluation.setEvaluationDate    (resultSet.getDate  ("fecha_evaluacion"));
         return reportEvaluation;
     }
 }

@@ -41,16 +41,16 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(INSERT_TECHNICAL_SUPERVISOR_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_TECHNICAL_SUPERVISOR_SQL)) {
 
-            ps.setInt   (1, technicalResponsible.getIdOrganization());
-            ps.setString(2, technicalResponsible.getName());
-            ps.setString(3, technicalResponsible.getLastName());
-            ps.setString(4, technicalResponsible.getSecondLastName());
-            ps.setString(5, technicalResponsible.geteMail());
-            ps.setString(6, technicalResponsible.getPosition());
+            preparedStatement.setInt   (1, technicalResponsible.getIdOrganization());
+            preparedStatement.setString(2, technicalResponsible.getName());
+            preparedStatement.setString(3, technicalResponsible.getLastName());
+            preparedStatement.setString(4, technicalResponsible.getSecondLastName());
+            preparedStatement.setString(5, technicalResponsible.geteMail());
+            preparedStatement.setString(6, technicalResponsible.getPosition());
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;
             }
 
@@ -78,13 +78,13 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         TechnicalSupervisor technicalResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
 
-            ps.setInt(1, idTecnico);
+            preparedStatement.setInt(1, idTecnico);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    technicalResult = mapTechnicalSupervisor(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    technicalResult = mapTechnicalSupervisor(resultSet);
                 }
             }
 
@@ -112,14 +112,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         List<TechnicalSupervisor> technicalList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(
+             PreparedStatement preparedStatement = connection.prepareStatement(
                      SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL)) {
 
-            ps.setInt(1, idOrganizacion);
+            preparedStatement.setInt(1, idOrganizacion);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    technicalList.add(mapTechnicalSupervisor(rs));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    technicalList.add(mapTechnicalSupervisor(resultSet));
                 }
             }
 
@@ -149,16 +149,16 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(UPDATE_TECHNICAL_SUPERVISOR_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_TECHNICAL_SUPERVISOR_SQL)) {
 
-            ps.setString(1, technicalResponsible.getName());
-            ps.setString(2, technicalResponsible.getLastName());
-            ps.setString(3, technicalResponsible.getSecondLastName());
-            ps.setString(4, technicalResponsible.geteMail());
-            ps.setString(5, technicalResponsible.getPosition());
-            ps.setInt   (6, technicalResponsible.getIdTechnicalSupervisor());
+            preparedStatement.setString(1, technicalResponsible.getName());
+            preparedStatement.setString(2, technicalResponsible.getLastName());
+            preparedStatement.setString(3, technicalResponsible.getSecondLastName());
+            preparedStatement.setString(4, technicalResponsible.geteMail());
+            preparedStatement.setString(5, technicalResponsible.getPosition());
+            preparedStatement.setInt   (6, technicalResponsible.getIdTechnicalSupervisor());
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
             }
 
@@ -186,11 +186,11 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         boolean isDeleted = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(DELETE_TECHNICAL_SUPERVISOR_SQL)) {
+             PreparedStatement statement = connection.prepareStatement(DELETE_TECHNICAL_SUPERVISOR_SQL)) {
 
-            ps.setInt(1, idTecnico);
+            statement.setInt(1, idTecnico);
 
-            if (ps.executeUpdate() > 0) {
+            if (statement.executeUpdate() > 0) {
                 isDeleted = true;
             }
 
@@ -208,15 +208,15 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         return isDeleted;
     }
 
-    private TechnicalSupervisor mapTechnicalSupervisor(ResultSet rs) throws SQLException {
+    private TechnicalSupervisor mapTechnicalSupervisor(ResultSet resultSet) throws SQLException {
         return new TechnicalSupervisor(
-                rs.getInt   ("id_tecnico"),
-                rs.getInt   ("id_organizacion"),
-                rs.getString("nombre"),
-                rs.getString("apellido_paterno"),
-                rs.getString("apellido_materno"),
-                rs.getString("correo_responsable"),
-                rs.getString("cargo")
+                resultSet.getInt   ("id_tecnico"),
+                resultSet.getInt   ("id_organizacion"),
+                resultSet.getString("nombre"),
+                resultSet.getString("apellido_paterno"),
+                resultSet.getString("apellido_materno"),
+                resultSet.getString("correo_responsable"),
+                resultSet.getString("cargo")
         );
     }
 }

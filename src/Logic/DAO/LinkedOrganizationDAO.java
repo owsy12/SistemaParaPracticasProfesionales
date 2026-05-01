@@ -45,15 +45,15 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(INSERT_LINKED_ORGANIZATION_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_LINKED_ORGANIZATION_SQL)) {
 
-            ps.setString(1, linkedOrganization.getName());
-            ps.setString(2, linkedOrganization.getEmail());
-            ps.setString(3, linkedOrganization.getAdress());
-            ps.setString(4, linkedOrganization.getSector());
-            ps.setString(5, "Activa");
+            preparedStatement.setString(1, linkedOrganization.getName());
+            preparedStatement.setString(2, linkedOrganization.getEmail());
+            preparedStatement.setString(3, linkedOrganization.getAdress());
+            preparedStatement.setString(4, linkedOrganization.getSector());
+            preparedStatement.setString(5, "Activa");
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;
             }
 
@@ -80,13 +80,13 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         LinkedOrganization organizationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_LINKED_ORGANIZATION_BY_ID_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_LINKED_ORGANIZATION_BY_ID_SQL)) {
 
-            ps.setInt(1, idOrganizacion);
+            preparedStatement.setInt(1, idOrganizacion);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    organizationResult = mapLinkedOrganization(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    organizationResult = mapLinkedOrganization(resultSet);
                 }
             }
 
@@ -109,8 +109,8 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_ALL_LINKED_ORGANIZATIONS_SQL);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_LINKED_ORGANIZATIONS_SQL);
+             ResultSet rs = preparedStatement.executeQuery()) {
 
             while (rs.next()) {
                 organizationList.add(mapLinkedOrganization(rs));
@@ -135,8 +135,8 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         List<LinkedOrganization> organizationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL);
+             ResultSet rs = preparedStatement.executeQuery()) {
 
             while (rs.next()) {
                 organizationList.add(mapLinkedOrganization(rs));
@@ -166,16 +166,16 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         boolean isUpdated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_SQL)) {
 
-            ps.setString(1, linkedOrganization.getName());
-            ps.setString(2, "");
-            ps.setString(3, linkedOrganization.getAdress());
-            ps.setString(4, linkedOrganization.getSector());
-            ps.setString(5, "Activa");
-            ps.setInt   (6, linkedOrganization.getIdLinkedOrganization());
+            preparedStatement.setString(1, linkedOrganization.getName());
+            preparedStatement.setString(2, "");
+            preparedStatement.setString(3, linkedOrganization.getAdress());
+            preparedStatement.setString(4, linkedOrganization.getSector());
+            preparedStatement.setString(5, "Activa");
+            preparedStatement.setInt   (6, linkedOrganization.getIdLinkedOrganization());
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
             }
 
@@ -203,11 +203,11 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         boolean isDeactivated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_STATUS_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_STATUS_SQL)) {
 
-            ps.setInt(1, idOrganizacion);
+            preparedStatement.setInt(1, idOrganizacion);
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isDeactivated = true;
             }
 
@@ -225,12 +225,12 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         return isDeactivated;
     }
 
-    private LinkedOrganization mapLinkedOrganization(ResultSet rs) throws SQLException {
+    private LinkedOrganization mapLinkedOrganization(ResultSet resultSet) throws SQLException {
         return new LinkedOrganization(
-                rs.getInt   ("id_organizacion"),
-                rs.getString("nombre_organizacion"),
-                rs.getString("sector"),
-                rs.getString("direccion"),
+                resultSet.getInt   ("id_organizacion"),
+                resultSet.getString("nombre_organizacion"),
+                resultSet.getString("sector"),
+                resultSet.getString("direccion"),
                 ""
         );
     }

@@ -53,13 +53,13 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
         boolean isCreated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(INSERT_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
 
-            ps.setInt(1, projectApplication.getIdApplication());
-            ps.setInt(2, projectApplication.getIdProyect());
-            ps.setInt(3, projectApplication.getPreferenceOrder());
+            preparedStatement.setInt(1, projectApplication.getIdApplication());
+            preparedStatement.setInt(2, projectApplication.getIdProyect());
+            preparedStatement.setInt(3, projectApplication.getPreferenceOrder());
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isCreated = true;
             }
 
@@ -88,11 +88,11 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
         ProjectApplication projectApplicationResult = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_BY_ID_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_ID_SQL)) {
 
-            ps.setInt(1, projectApplicationId);
+            preparedStatement.setInt(1, projectApplicationId);
 
-            try (ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = preparedStatement.executeQuery()) {
                 if (rs.next()) {
                     projectApplicationResult = mapProjectApplication(rs);
                 }
@@ -122,11 +122,11 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
         List<ProjectApplication> projectApplicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_BY_APPLICATION_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_APPLICATION_SQL)) {
 
-            ps.setInt(1, applicationId);
+            preparedStatement.setInt(1, applicationId);
 
-            try (ResultSet rs = ps.executeQuery()) {
+            try (ResultSet rs = preparedStatement.executeQuery()) {
                 while (rs.next()) {
                     projectApplicationList.add(mapProjectApplication(rs));
                 }
@@ -152,11 +152,11 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
         List<ProjectApplication> projectApplicationList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(SELECT_ALL_SQL);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_SQL);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (rs.next()) {
-                projectApplicationList.add(mapProjectApplication(rs));
+            while (resultSet.next()) {
+                projectApplicationList.add(mapProjectApplication(resultSet));
             }
 
         } catch (SQLException sqlException) {
@@ -184,11 +184,11 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
         boolean isDeleted = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement ps = connection.prepareStatement(DELETE_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_SQL)) {
 
-            ps.setInt(1, projectApplicationId);
+            preparedStatement.setInt(1, projectApplicationId);
 
-            if (ps.executeUpdate() > 0) {
+            if (preparedStatement.executeUpdate() > 0) {
                 isDeleted = true;
             }
 
@@ -206,12 +206,12 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
         return isDeleted;
     }
 
-    private ProjectApplication mapProjectApplication(ResultSet rs) throws SQLException {
+    private ProjectApplication mapProjectApplication(ResultSet resultSet) throws SQLException {
         return new ProjectApplication(
-                rs.getInt("id_solicitud_proyecto"),
-                rs.getInt("id_solicitud"),
-                rs.getInt("id_proyecto"),
-                rs.getInt("orden_preferencia")
+                resultSet.getInt("id_solicitud_proyecto"),
+                resultSet.getInt("id_solicitud"),
+                resultSet.getInt("id_proyecto"),
+                resultSet.getInt("orden_preferencia")
         );
     }
 }
