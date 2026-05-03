@@ -19,7 +19,7 @@ public class ProjectDAO implements IProjectDAO {
 
     private static final String INSERT_PROJECT_SQL =
             "INSERT INTO proyecto " +
-                    "(id_organizacion, id_tecnico, id_coordinador, nombre, descripcion, " +
+                    "(id_organizacion, id_tecnico, id_profesor, nombre, descripcion, " +
                     "fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_PROJECT_BY_ID_SQL =
@@ -62,11 +62,11 @@ public class ProjectDAO implements IProjectDAO {
 
             preparedStatement.setInt   (1, project.getIdOrganization());
             preparedStatement.setInt   (2, project.getIdTechnicalSupervisor());
-            preparedStatement.setInt   (3, 0);
+            preparedStatement.setInt   (3, project.getIdProfessor());
             preparedStatement.setString(4, project.getName());
             preparedStatement.setString(5, project.getDescription());
-            preparedStatement.setDate  (6, Date.valueOf(new java.sql.Date(project.getStartDate().getTime()).toLocalDate()));
-            preparedStatement.setDate  (7, Date.valueOf(new java.sql.Date(project.getEndDate().getTime()).toLocalDate()));
+            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getStartDate()));
+            preparedStatement.setDate  (7, java.sql.Date.valueOf(project.getEndDate()));
             preparedStatement.setInt   (8, project.getMaximumPlaces());
             preparedStatement.setInt   (9, project.getAvaliablePlaces());
             preparedStatement.setString(10, "Disponible");
@@ -222,8 +222,8 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setInt   (2, project.getIdTechnicalSupervisor());
             preparedStatement.setString(3, project.getName());
             preparedStatement.setString(4, project.getDescription());
-            preparedStatement.setDate  (5, Date.valueOf(new java.sql.Date(project.getStartDate().getTime()).toLocalDate()));
-            preparedStatement.setDate  (6, Date.valueOf(new java.sql.Date(project.getEndDate().getTime()).toLocalDate()));
+            preparedStatement.setDate  (5, java.sql.Date.valueOf(project.getStartDate()));
+            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getStartDate()));
             preparedStatement.setInt   (7, project.getMaximumPlaces());
             preparedStatement.setInt   (8, project.getAvaliablePlaces());
             preparedStatement.setString(9, "Disponible");
@@ -312,7 +312,7 @@ public class ProjectDAO implements IProjectDAO {
     }
 
     private void validateProject(Project project) throws ValidationException {
-        if (project.getStartDate().after(project.getEndDate())) {
+        if (project.getStartDate().isAfter(project.getEndDate())) {
             throw new ValidationException(
                     "La fecha de inicio no puede ser posterior a la fecha de fin del proyecto.");
         }
@@ -329,8 +329,8 @@ public class ProjectDAO implements IProjectDAO {
                 resultSet.getInt   ("id_tecnico"),
                 resultSet.getString("nombre"),
                 resultSet.getString("descripcion"),
-                resultSet.getDate  ("fecha_inicio"),
-                resultSet.getDate  ("fecha_fin"),
+                resultSet.getDate  ("fecha_inicio").toLocalDate(),
+                resultSet.getDate  ("fecha_fin").toLocalDate(),
                 resultSet.getInt   ("cupo_disponible"),
                 resultSet.getInt   ("cupo_maximo")
         );

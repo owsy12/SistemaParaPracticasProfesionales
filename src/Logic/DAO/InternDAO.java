@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class InternDAO implements IInternDAO {
+public class InternDAO extends UserDAO implements IInternDAO {
 
     private static final Logger LOGGER = Logger.getLogger(InternDAO.class.getName());
     private static final String INSERT_INTERN_SQL =
@@ -32,22 +32,18 @@ public class InternDAO implements IInternDAO {
     private static final String UPDATE_INTERN_CREDITS_SQL =
             "UPDATE practicante SET creditos = ? WHERE id_usuario = ?";
 
+    public InternDAO() throws ServiceException {
+    }
+
     @Override
     public boolean saveIntern(Intern intern) throws ServiceException, ValidationException {
-        if (intern.getId() <= 0) {
-            throw new ValidationException(
-                    "El ID del practicante debe ser mayor a cero. ID recibido: " + intern.getId());
-        }
-        if (intern.getCredits() < 0) {
-            throw new ValidationException(
-                    "Los créditos no pueden ser negativos. Valor recibido: " + intern.getCredits());
-        }
         boolean isSaved = false;
+        int userId = super.saveUser(intern);
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_INTERN_SQL)) {
 
-            preparedStatement.setInt(1, intern.getId());
+            preparedStatement.setInt(1, userId);
             preparedStatement.setInt(2, intern.getCredits());
 
             if (preparedStatement.executeUpdate() > 0) {
@@ -102,7 +98,7 @@ public class InternDAO implements IInternDAO {
     }
 
     @Override
-    public List<Intern> findAll() throws ServiceException {
+    public List<Intern> findAllCoordinators() throws ServiceException {
         List<Intern> internList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();

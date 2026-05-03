@@ -1,20 +1,21 @@
 package Logic.DTOs;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class Project {
     private int idProyect;
     private int idOrganization;
     private int idTechnicalSupervisor;
+    private int IdProfessor;
     private String name;
     private String description;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int avaliablePlaces;
     private int maximumPlaces;
 
 
-    public Project(int idProyect, int idOrganization, int idTechnicalSupervisor, String name, String description, Date startDate, Date endDate, int avaliablePlaces, int maximumPlaces) {
+    public Project(int idProyect, int idOrganization, int idTechnicalSupervisor, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
         this.idProyect = idProyect;
         this.idOrganization = idOrganization;
         this.idTechnicalSupervisor = idTechnicalSupervisor;
@@ -69,19 +70,19 @@ public class Project {
         this.description = description;
     }
 
-    public Date getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Date startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Date endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
@@ -100,4 +101,12 @@ public class Project {
     public void setMaximumPlaces(int maximumPlaces) {
         this.maximumPlaces = maximumPlaces;
     }
+    public int getIdProfessor() {
+        return IdProfessor;
+    }
+
+    public void setIdProfessor(int idProfessor) {
+        IdProfessor = idProfessor;
+    }
+
 }

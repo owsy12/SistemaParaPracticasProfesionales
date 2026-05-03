@@ -98,6 +98,7 @@ public class MainMenuController {
 
         } catch (IOException e) {
             showAlert("Error", "Error al cargar", Alert.AlertType.ERROR);
+
         }
     }
 

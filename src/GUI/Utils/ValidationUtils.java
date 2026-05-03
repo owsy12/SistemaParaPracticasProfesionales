@@ -18,6 +18,9 @@ public class ValidationUtils {
     private static final Pattern TEXT_PATTERN =
             Pattern.compile("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]*$");
 
+    private static final Pattern NUMBER_PARTTERN =
+            Pattern.compile("^[0-9]*$");
+
 
 
     public static void setTypeAndLength(TextField campo, String type) {
@@ -43,6 +46,11 @@ public class ValidationUtils {
                     break;
                 case "Text":
                     if (nuevoTexto.matches(TEXT_PATTERN.pattern()) && nuevoTexto.length() <= 45) {
+                        isValid = true;
+                    }
+                    break;
+                case "Number":
+                    if (nuevoTexto.matches(NUMBER_PARTTERN.pattern()) && nuevoTexto.length() <= 10){
                         isValid = true;
                     }
                     break;

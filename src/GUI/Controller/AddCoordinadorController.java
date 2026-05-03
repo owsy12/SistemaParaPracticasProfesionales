@@ -126,7 +126,8 @@ public class AddCoordinadorController {
                         AlertType.INFORMATION);
                 clearFields();
             } else {
-                showAlert("Error", "No se pudo realizar el registro.", AlertType.ERROR);
+                showAlert("Error", "No se pudo realizar el registro.",
+                        AlertType.ERROR);
             }
 
         } catch ( ServiceException exception) {

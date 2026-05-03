@@ -9,7 +9,7 @@ import java.util.List;
 public interface IInternDAO {
     boolean saveIntern(Intern intern) throws ServiceException, ValidationException;
     Intern findById(int id) throws ServiceException, ValidationException;
-    List<Intern> findAll() throws ServiceException;
+    List<Intern> findAllCoordinators() throws ServiceException;
     boolean deactivateIntern(int id) throws ServiceException, ValidationException;
     boolean updateCredits(int id, int credits) throws ServiceException, ValidationException;
 }
