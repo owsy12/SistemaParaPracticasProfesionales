@@ -67,7 +67,6 @@ public class GenerateSelfEvaluationController {
     private TextField responsibleTextField;
     @FXML
     private TextField projectTextField;
-
     @FXML
     private ToggleGroup question01ToggleGroup;
     @FXML
@@ -88,7 +87,6 @@ public class GenerateSelfEvaluationController {
     private ToggleGroup question09ToggleGroup;
     @FXML
     private ToggleGroup question10ToggleGroup;
-
     @FXML
     private TextField placeAndDateTextField;
     @FXML
