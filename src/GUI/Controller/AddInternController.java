@@ -85,7 +85,6 @@ public class AddInternController {
         } catch (ValidationException e) {
             showAlert("VAlidation Error", "Valide infroamcin ingresada",
                     Alert.AlertType.ERROR);
-            e.printStackTrace();
         } catch (ServiceException e) {
             showAlert("Error", "Servicio no disponible",
                     Alert.AlertType.ERROR);

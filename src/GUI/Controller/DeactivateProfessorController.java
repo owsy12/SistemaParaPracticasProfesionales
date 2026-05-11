@@ -7,8 +7,12 @@ import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+
+import java.util.Locale;
+
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 
@@ -26,11 +30,11 @@ public class DeactivateProfessorController {
     @FXML
     private TableColumn<User,String> lastNameColumn;
     @FXML
-    private TableColumn<User,String> matriculaColumn;
+    private TableColumn<User,String> tagColumn;
 
     @FXML
     private void initialize() {
-        matriculaColumn.setCellValueFactory(cellData ->
+        tagColumn.setCellValueFactory(cellData ->
                 new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMatricula()));
 
         nameColumn.setCellValueFactory(cellData ->
@@ -50,12 +54,13 @@ public class DeactivateProfessorController {
     private void addButtonToTable() {
         actionsColumn.setCellFactory(param -> new javafx.scene.control.TableCell<User, Void>() {
 
-            private final javafx.scene.control.Button btn = new javafx.scene.control.Button("Inactivar");
+            private final javafx.scene.control.Button button = new javafx.scene.control.Button("Inactivar");
 
             {
-                btn.setOnAction(event -> {
+                button.setOnAction(event -> {
                     User user = getTableView().getItems().get(getIndex());
-                    showAlertAndWait("Desea desactivar ","desae", javafx.scene.control.Alert.AlertType.CONFIRMATION).ifPresent(response -> {
+                    showAlertAndWait("Desea desactivar ","desea desactivar este profesor",
+                            javafx.scene.control.Alert.AlertType.CONFIRMATION).ifPresent(response -> {
 
                         if (response == javafx.scene.control.ButtonType.OK) {
                             user.setStatus("Inactivo");
@@ -75,7 +80,7 @@ public class DeactivateProfessorController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(btn);
+                    setGraphic(button);
                 }
             }
         });
@@ -88,9 +93,11 @@ public class DeactivateProfessorController {
             showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
                     javafx.scene.control.Alert.AlertType.INFORMATION);
         } catch (ValidationException e) {
-            throw new RuntimeException(e);
+            showAlert("Error", "servicio no disponible",
+                    Alert.AlertType.ERROR);
         } catch (ServiceException e) {
-            throw new RuntimeException(e);
+            showAlert("Error" , "no se logro desactivar",
+                    Alert.AlertType.ERROR);
         }
     }
 
@@ -98,10 +105,12 @@ public class DeactivateProfessorController {
         try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             tableView.getItems().setAll(professorDAO.findActiveProfessors());
-        } catch (ValidationException e) {
-            throw new RuntimeException(e);
+        }  catch (ValidationException e) {
+            showAlert("Error", "servicio no disponible",
+                    Alert.AlertType.ERROR);
         } catch (ServiceException e) {
-            throw new RuntimeException(e);
+            showAlert("Error" , "no se logro desactivar",
+                    Alert.AlertType.ERROR);
         }
     }
 }

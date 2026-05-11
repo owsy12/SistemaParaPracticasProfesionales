@@ -6,7 +6,6 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IAdministratorDAO;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,9 +70,9 @@ public class AdministratorDAO implements IAdministratorDAO {
 
             preparedStatement.setInt(1, id);
 
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                if (rs.next()) {
-                    administratorResult = mapAdministrator(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    administratorResult = mapAdministrator(resultSet);
                 }
             }
 
@@ -118,14 +117,15 @@ public class AdministratorDAO implements IAdministratorDAO {
     }
 
     private Administrator mapAdministrator(ResultSet resultSet) throws SQLException {
-        return new Administrator(
-                resultSet.getInt   ("id_usuario"),
-                resultSet.getString("matricula"),
-                resultSet.getString("nombre"),
-                resultSet.getString("apellido_paterno"),
-                resultSet.getString("apellido_materno"),
-                resultSet.getString("contrasenia"),
-                resultSet.getString("estado")
-        );
+        Administrator administrator = new Administrator();
+        administrator.setId(resultSet.getInt("id_usuario"));
+        administrator.setMatricula(resultSet.getString("matricula"));
+        administrator.setFirstName(resultSet.getString("nombre"));
+        administrator.setLastName(resultSet.getString("apellido_paterno"));
+        administrator.setSecondLastName(resultSet.getString("apellido_materno"));
+        administrator.setPassword(resultSet.getString("contrasenia"));
+        administrator.setStatus(resultSet.getString("estado"));
+
+        return administrator;
     }
 }

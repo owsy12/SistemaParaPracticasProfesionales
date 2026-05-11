@@ -71,17 +71,19 @@ public class AddProfesorController {
             if (coordinators.isEmpty()) {
                 showAlert("Información", "No hay coordinadores disponibles para asignar como profesor.",
                         AlertType.INFORMATION);
-                return;
-            }
 
-            ChoiceDialog<Coordinator> dialog = new ChoiceDialog<>(coordinators.get(0), coordinators);
-            dialog.setTitle("Seleccionar Coordinador");
-            dialog.setHeaderText("Coordinadores activos sin rol de profesor");
-            dialog.setContentText("Seleccione un coordinador:");
-            Optional<Coordinator> result = dialog.showAndWait();
-            result.ifPresent(this::addRolToCoordinator);
-            showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
-                    AlertType.INFORMATION);
+            }else {
+
+                ChoiceDialog<Coordinator> dialog = new ChoiceDialog<>(coordinators.get(0), coordinators);
+                dialog.setTitle("Seleccionar Coordinador");
+                dialog.setHeaderText("Coordinadores activos sin rol de profesor");
+                dialog.setContentText("Seleccione un coordinador:");
+                Optional<Coordinator> result = dialog.showAndWait();
+                result.ifPresent(this::addRolToCoordinator);
+                showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
+                        AlertType.INFORMATION);
+
+            }
 
         } catch (ServiceException exception) {
             showAlert("Error", "Error al recuperar coordinadores: " + exception.getMessage(),
@@ -95,9 +97,11 @@ public class AddProfesorController {
             coordinator.setRole("Profesor");
             userRoleDAO.saveUserRole(coordinator);
         } catch (ValidationException e) {
-            throw new RuntimeException(e);
+            showAlert("Error", "No s elogro recuperar",
+                    AlertType.ERROR);
         } catch (ServiceException e) {
-            throw new RuntimeException(e);
+            showAlert("Error", "servicio no disponible por el moemnto",
+                    AlertType.ERROR);
         }
     }
 

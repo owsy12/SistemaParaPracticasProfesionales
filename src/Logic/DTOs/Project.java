@@ -13,6 +13,7 @@ public class Project {
     private LocalDate endDate;
     private int avaliablePlaces;
     private int maximumPlaces;
+    private String organizationName;
 
 
     public Project(int idProyect, int idOrganization, int idTechnicalSupervisor, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
@@ -109,4 +110,11 @@ public class Project {
         IdProfessor = idProfessor;
     }
 
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
 }

@@ -50,7 +50,7 @@ public class ValidationUtils {
                     }
                     break;
                 case "Number":
-                    if (nuevoTexto.matches(NUMBER_PARTTERN.pattern()) && nuevoTexto.length() <= 10){
+                    if (nuevoTexto.matches(NUMBER_PARTTERN.pattern()) && nuevoTexto.length() <= 8){
                         isValid = true;
                     }
                     break;

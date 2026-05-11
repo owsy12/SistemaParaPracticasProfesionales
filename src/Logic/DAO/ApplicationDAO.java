@@ -39,22 +39,31 @@ public class ApplicationDAO implements IApplicationDAO {
     private static final String UPDATE_STATUS_SQL =
             "UPDATE solicitud SET estado = ? WHERE id_solicitud = ?";
 
+    private static final String FIND_USER_PENDING_APPLICATION =
+            "SELECT * FROM solicitud WHERE id_practicante = ? AND estado = 'Activa'";
+
     @Override
-    public boolean create(Application application) throws ServiceException, ValidationException {
+    public int create(Application application) throws ServiceException, ValidationException {
         if (application.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + application.getIdIntern());
         }
-        boolean isCreated = false;
+        int isCreated = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setInt(1, application.getIdIntern());
             preparedStatement.setString(2, application.getStatus());
 
             if (preparedStatement.executeUpdate() > 0) {
-                isCreated = true;
+
+                try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
+
+                    if (resultSet.next()) {
+                        isCreated = resultSet.getInt(1);
+                    }
+                }
             }
 
         } catch (SQLException sqlException) {
@@ -211,12 +220,34 @@ public class ApplicationDAO implements IApplicationDAO {
         return isUpdated;
     }
 
+    @Override
+    public Application findActiveApplicationByIntern(int interID) throws ServiceException {
+        Application application = null;
+        try(Connection connection = DataBaseConnection.connectDatabase();
+            PreparedStatement preparedStatement = connection.prepareStatement(FIND_USER_PENDING_APPLICATION)) {
+            preparedStatement.setInt(1, interID);
+
+            try (ResultSet resulset = preparedStatement.executeQuery()) {
+
+                if (resulset.next()) {
+                    application = mapApplication(resulset);
+                }
+
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return application;
+    }
+
     private Application mapApplication(ResultSet resultSet) throws SQLException {
         return new Application(
                 resultSet.getInt("id_solicitud"),
                 resultSet.getInt("id_practicante"),
                 resultSet.getString("estado"),
-                resultSet.getDate("fecha_solicitud")
+                resultSet.getDate("fecha_solicitud").toLocalDate()
         );
     }
 }

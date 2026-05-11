@@ -106,25 +106,27 @@ public class GenerateSelfEvaluationController {
 
     @FXML
     public void generateDocument(ActionEvent actionEvent) {
+
         if (!hasInternContext()) {
             showAlert("Información incompleta",
                     "No se pudieron recuperar los datos de su práctica. Intente más tarde.",
                     AlertType.WARNING);
-            return;
+
         }
-        if (hasUnansweredQuestions()) {
+        else if (hasUnansweredQuestions()) {
             showAlert("Cuestionario incompleto",
                     "Debe responder todas las preguntas de la escala Likert.",
                     AlertType.WARNING);
-            return;
+
         }
-        if (isPlaceAndDateEmpty()) {
+        else if (isPlaceAndDateEmpty()) {
             showAlert("Campos vacíos",
                     "Debe ingresar el lugar y la fecha.",
                     AlertType.WARNING);
-            return;
+
+        }else{
+            processGeneration();
         }
-        processGeneration();
     }
 
     @FXML

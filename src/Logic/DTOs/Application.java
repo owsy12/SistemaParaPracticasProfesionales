@@ -1,15 +1,17 @@
 package Logic.DTOs;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Application {
     private int idApplication;
     private int idIntern;
     private String status;
-    private Date applicationDate;
+    private LocalDate applicationDate;
 
 
-    public Application(int idApplication, int idIntern, String status, Date applicationDate) {
+
+    public Application(int idApplication, int idIntern, String status, LocalDate applicationDate) {
         this.idApplication = idApplication;
         this.idIntern = idIntern;
         this.status = status;
@@ -43,11 +45,13 @@ public class Application {
         this.status = status;
     }
 
-    public Date getApplicationDate() {
+    public LocalDate getApplicationDate() {
         return applicationDate;
     }
 
-    public void setApplicationDate(Date applicationDate) {
+    public void setApplicationDate(LocalDate applicationDate) {
         this.applicationDate = applicationDate;
     }
+
+
 }

@@ -1,5 +1,6 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.UserDAO;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
@@ -53,6 +54,7 @@ public class LoginController {
             currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
 
             if(BCrypt.checkpw(passwordField.getText(), currentUser.getPassword())){
+                SessionManager.getInstance().login(currentUser);
                 isValidUser = true;
             }else {
                 throw new ValidationException("Contraseña incorrecta");

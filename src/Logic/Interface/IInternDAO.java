@@ -12,4 +12,5 @@ public interface IInternDAO {
     List<Intern> findAllCoordinators() throws ServiceException;
     boolean deactivateIntern(int id) throws ServiceException, ValidationException;
     boolean updateCredits(int id, int credits) throws ServiceException, ValidationException;
+    List<Intern> findAllActiveinterns() throws ServiceException, ValidationException;
 }

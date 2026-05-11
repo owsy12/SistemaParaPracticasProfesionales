@@ -31,6 +31,8 @@ public class AssignmentDAO implements IAssignmentDAO {
     private static final String SQL_SELECT_BY_PROJECT =
             "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
                     "FROM asignacion WHERE id_proyecto = ?";
+    private static final String SQL_GET_ACTIVE_BY_USER =
+            "SELECT * FROM asignacion WHERE id_practicante = ? AND estado = 'Activa'";
 
     @Override
     public int save(Assignment assignment) throws ServiceException, ValidationException {
@@ -53,7 +55,7 @@ public class AssignmentDAO implements IAssignmentDAO {
             statement.setInt (1, assignment.getIdIntern());
             statement.setInt (2, assignment.getIdProyect());
             statement.setInt (3, assignment.getIdApplication());
-            statement.setDate(4, new java.sql.Date(assignment.getAssignmentDate().getTime()));
+            statement.setDate(4, Date.valueOf(assignment.getAssignmentDate()));
 
             rowsAffected = statement.executeUpdate();
 
@@ -137,12 +139,12 @@ public class AssignmentDAO implements IAssignmentDAO {
     }
 
     @Override
-    public Assignment getByIdIntern(int idIntern) throws ServiceException, ValidationException {
+    public List<Assignment> getByIdIntern(int idIntern) throws ServiceException, ValidationException {
         if (idIntern <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
         }
-        Assignment assignmentResult = null;
+        List<Assignment> assignmentResult = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_INTERN)) {
@@ -151,7 +153,9 @@ public class AssignmentDAO implements IAssignmentDAO {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    assignmentResult = mapResultSet(resultSet);
+                    Assignment assignment = mapResultSet(resultSet);
+                    assignment.setStatus(resultSet.getString("estado"));
+                    assignmentResult.add(assignment);
                 }
             }
 
@@ -204,13 +208,34 @@ public class AssignmentDAO implements IAssignmentDAO {
         return assignments;
     }
 
+    @Override
+    public Assignment getActiveByIdIntern(int idIntern) throws ServiceException {
+        Assignment assignment = null;
+        try (Connection connection = DataBaseConnection.connectDatabase();
+            PreparedStatement preparedStatement = connection.prepareStatement(SQL_GET_ACTIVE_BY_USER)){
+            preparedStatement.setInt(1, idIntern);
+
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()){
+               while (resultSet.next()){
+                   assignment = mapResultSet(resultSet);
+                   assignment.setStatus(resultSet.getString("estado"));
+               }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return assignment;
+    }
+
     private Assignment mapResultSet(ResultSet resultSet) throws SQLException {
         Assignment assignment = new Assignment();
         assignment.setIdAssignment (resultSet.getInt ("id_asignacion"));
         assignment.setIdIntern     (resultSet.getInt ("id_practicante"));
         assignment.setIdProyect    (resultSet.getInt ("id_proyecto"));
         assignment.setIdApplication(resultSet.getInt ("id_solicitud"));
-        assignment.setAssignmentDate(resultSet.getDate("fecha_asignacion"));
+        assignment.setAssignmentDate(resultSet.getDate("fecha_asignacion").toLocalDate());
         return assignment;
     }
 }

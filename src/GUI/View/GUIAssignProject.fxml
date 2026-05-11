@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="GUI.Controller.AssignProjectController"
-            prefHeight="400.0" prefWidth="600.0">
 
+<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.AssignProjectController">
+   <children>
+      <Label layoutX="32.0" layoutY="29.0" prefHeight="22.0" prefWidth="300.0" text="Practicanes con solicitudes ene estado pendiente">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
+      <TableView fx:id="internsTableView" layoutX="46.0" layoutY="94.0" prefHeight="250.0" prefWidth="513.0">
+        <columns>
+          <TableColumn fx:id="matriculaColumn" prefWidth="126.0" text="Matricula" />
+          <TableColumn fx:id="fullNameColumn" prefWidth="287.0" text="Nombre Completo" />
+            <TableColumn fx:id="actionColumn" prefWidth="99.0" />
+        </columns>
+      </TableView>
+      <Button layoutX="505.0" layoutY="360.0" mnemonicParsing="false" onAction="#outk" text="salir" />
+   </children>
 </AnchorPane>

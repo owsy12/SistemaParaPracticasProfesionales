@@ -10,7 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import java.io.IOException;
-
 import static GUI.Utils.Alert.showAlert;
 
 public class MainMenuController {
@@ -95,10 +94,9 @@ public class MainMenuController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent vista = loader.load();
             contentPane.getChildren().setAll(vista);
-
         } catch (IOException e) {
             showAlert("Error", "Error al cargar", Alert.AlertType.ERROR);
-
+            e.printStackTrace();
         }
     }
 

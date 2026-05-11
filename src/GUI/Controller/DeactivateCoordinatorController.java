@@ -25,11 +25,11 @@ public class DeactivateCoordinatorController {
     @FXML
     private TableColumn<User, String>  lastNameColumn;
     @FXML
-    private TableColumn<User, String>  matriculaColumn;
+    private TableColumn<User, String> tagColumn;
 
     @FXML
     private void initialize() {
-        matriculaColumn.setCellValueFactory(cellData ->
+        tagColumn.setCellValueFactory(cellData ->
                 new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMatricula()));
 
         nameColumn.setCellValueFactory(cellData ->

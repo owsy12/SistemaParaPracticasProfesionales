@@ -23,7 +23,7 @@ public class ProjectDAO implements IProjectDAO {
                     "fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String SELECT_PROJECT_BY_ID_SQL =
-            "SELECT id_proyecto, id_organizacion, id_tecnico, id_coordinador, " +
+            "SELECT id_proyecto, id_organizacion, id_tecnico, id_profesor, " +
                     "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
                     "cupo_disponible, estado FROM proyecto WHERE id_proyecto = ?";
     private static final String SELECT_ALL_PROJECTS_SQL =
@@ -31,9 +31,10 @@ public class ProjectDAO implements IProjectDAO {
                     "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
                     "cupo_disponible, estado FROM proyecto";
     private static final String SELECT_ALL_AVAILABLE_PROJECTS_SQL =
-            "SELECT id_proyecto, id_organizacion, id_tecnico, id_coordinador, " +
-                    "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
-                    "cupo_disponible, estado FROM proyecto WHERE estado = 'Disponible'";
+            "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor,\n" +
+                    "p.nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, p.cupo_maximo,\n" +
+                    "p.cupo_disponible, ov.id_organizacion, ov.nombre_organizacion " +
+                    "FROM proyecto p JOIN spp.organizacion_vinculada ov on ov.id_organizacion = p.id_organizacion WHERE p.estado = 'Disponible';";
     private static final String SELECT_PROJECTS_BY_COORDINATOR_SQL =
             "SELECT id_proyecto, id_organizacion, id_tecnico, id_coordinador, " +
                     "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
@@ -158,7 +159,9 @@ public class ProjectDAO implements IProjectDAO {
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                projectList.add(mapProject(resultSet));
+                Project project = mapProject(resultSet);
+                project.setOrganizationName(resultSet.getString("nombre_organizacion"));
+                projectList.add(project);
             }
 
         } catch (SQLException sqlException) {

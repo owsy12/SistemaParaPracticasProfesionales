@@ -20,7 +20,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
             "INSERT INTO practicante (id_usuario, creditos) VALUES (?, ?)";
     private static final String SELECT_INTERN_BY_ID_SQL =
             "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
-                    "u.apellido_materno, u.contrasenia, u.estado, p.creditos FROM usuario u " +
+                    "u.apellido_materno, u.contrasenia, p.creditos FROM usuario u " +
                     "JOIN practicante p ON u.id_usuario = p.id_usuario " +
                     "WHERE u.id_usuario = ?";
     private static final String SELECT_ALL_INTERNS_SQL =
@@ -28,9 +28,11 @@ public class InternDAO extends UserDAO implements IInternDAO {
                     "u.apellido_materno, u.contrasenia, u.estado, p.creditos FROM usuario u " +
                     "JOIN practicante p ON u.id_usuario = p.id_usuario";
     private static final String UPDATE_INTERN_STATUS_SQL =
-            "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
+            "UPDATE usuario_rol SET estado = 'Inactivo' WHERE id_usuario = ? AND rol = 'Practicante'";
     private static final String UPDATE_INTERN_CREDITS_SQL =
             "UPDATE practicante SET creditos = ? WHERE id_usuario = ?";
+    private static final String FIND_ALL_ACTIVE_INTERNS =
+            "SELECT u.* FROM usuario u JOIN usuario_rol  ur ON u.id_usuario = ur.id_usuario WHERE ur.rol = 'Practicante' AND ur.estado = 'Activo'";
 
     public InternDAO() throws ServiceException {
     }
@@ -77,15 +79,19 @@ public class InternDAO extends UserDAO implements IInternDAO {
 
             preparedStatement.setInt(1, id);
 
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                if (rs.next()) {
-                    internResult = mapIntern(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                if (resultSet.next()) {
+                    internResult = mapIntern(resultSet);
+                    internResult.setCredits(resultSet.getInt("creditos"));
                 }
+
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar practicante con ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
+
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -190,16 +196,34 @@ public class InternDAO extends UserDAO implements IInternDAO {
         return isUpdated;
     }
 
+    @Override
+    public List<Intern> findAllActiveinterns() throws ServiceException, ValidationException {
+        List<Intern> internList = new ArrayList<>();
+        try (Connection connection = DataBaseConnection.connectDatabase();
+            PreparedStatement preparedStatement = connection.prepareStatement(FIND_ALL_ACTIVE_INTERNS)) {
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()){
+                while (resultSet.next()){
+                    internList.add(mapIntern(resultSet));
+                }
+            }
+
+        }catch (SQLException e) {
+            throw new ServiceException("Error en servicio, no se logro recuperar los practicantes",e);
+        }
+
+        return internList;
+    }
+
     private Intern mapIntern(ResultSet resultSet) throws SQLException {
-        return new Intern(
-                resultSet.getInt   ("id_usuario"),
-                resultSet.getString("matricula"),
-                resultSet.getString("nombre"),
-                resultSet.getString("apellido_paterno"),
-                resultSet.getString("apellido_materno"),
-                resultSet.getString("contrasenia"),
-                resultSet.getString("estado"),
-                resultSet.getInt   ("creditos")
-        );
+        Intern intern = new Intern();
+        intern.setId(resultSet.getInt("id_usuario"));
+        intern.setMatricula(resultSet.getString("matricula"));
+        intern.setFirstName(resultSet.getString("nombre"));
+        intern.setLastName(resultSet.getString("apellido_paterno"));
+        intern.setSecondLastName(resultSet.getString("apellido_materno"));
+        intern.setPassword(resultSet.getString("contrasenia"));
+
+        return intern;
     }
 }

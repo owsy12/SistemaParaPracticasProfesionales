@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="GUI.Controller.DeactivateInterController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.DeactivateInterController">
+   <children>
+      <TableView fx:id="internsTabeView" layoutX="31.0" layoutY="75.0" prefHeight="234.0" prefWidth="539.0">
+        <columns>
+          <TableColumn fx:id="tagColumn" prefWidth="78.0" text="matricula" />
+          <TableColumn fx:id="interFullNameColumn" prefWidth="356.0" text="nombre completo" />
+            <TableColumn fx:id="actionColumn" minWidth="0.0" prefWidth="85.0" />
+        </columns>
+      </TableView>
+   </children>
 </AnchorPane>

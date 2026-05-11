@@ -100,18 +100,7 @@ public class AddProjectController {
 
     private void registrationProcess (){
         try{
-            LocalDate startdate = startDate.getValue();
-            LocalDate enddate = endDate.getValue();
-            Project project = new Project();
-            project.setName(nameTextField.getText());
-            project.setDescription(descriptionTextField.getText());
-            project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
-            project.setIdTechnicalSupervisor(technicalComboBox.getValue().getIdTechnicalSupervisor());
-            project.setIdProfessor(professorComboBox.getValue().getId());
-            project.setStartDate(startdate);
-            project.setEndDate(enddate);
-            project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText()));
-            project.setAvaliablePlaces(Integer.parseInt(capacityTextField.getText()));
+            Project project = getProject();
             ProjectDAO projectDAO = new ProjectDAO();
 
             if (projectDAO.saveProject(project)){
@@ -135,13 +124,30 @@ public class AddProjectController {
         }
     }
 
+    private Project getProject() {
+        LocalDate startdate = startDate.getValue();
+        LocalDate enddate = endDate.getValue();
+        Project project = new Project();
+        project.setName(nameTextField.getText());
+        project.setDescription(descriptionTextField.getText());
+        project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
+        project.setIdTechnicalSupervisor(technicalComboBox.getValue().getIdTechnicalSupervisor());
+        project.setIdProfessor(professorComboBox.getValue().getId());
+        project.setStartDate(startdate);
+        project.setEndDate(enddate);
+        project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText()));
+        project.setAvaliablePlaces(Integer.parseInt(capacityTextField.getText()));
+        return project;
+    }
+
     private void loadOrganizations(){
         try {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
             List<LinkedOrganization> linkedOrganizations = linkedOrganizationDAO.findAllActive();
             organizationComboBox.getItems().setAll(linkedOrganizations);
         } catch (ServiceException e) {
-            showAlert("Error", "Problema con nuestro servicio, intente mas tearde", Alert.AlertType.ERROR);
+            showAlert("Error", "Problema con nuestro servicio, intente mas tearde",
+                    Alert.AlertType.ERROR);
         }
     }
 

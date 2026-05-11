@@ -110,7 +110,7 @@ CREATE TABLE proyecto (
                           id_proyecto      INT          NOT NULL AUTO_INCREMENT,
                           id_organizacion  INT          NOT NULL,
                           id_tecnico       INT          NOT NULL,
-                          id_coordinador   INT          NOT NULL COMMENT 'FK → coordinador.id_usuario',
+                          id_profesor   INT          NOT NULL COMMENT 'FK → coordinador.id_usuario',
                           nombre           VARCHAR(150) NOT NULL,
                           descripcion      TEXT         NOT NULL,
                           fecha_inicio     DATE         NOT NULL,
@@ -130,8 +130,8 @@ CREATE TABLE proyecto (
                                   REFERENCES tecnico_responsable (id_tecnico)
                                   ON UPDATE CASCADE ON DELETE RESTRICT,
                           CONSTRAINT fk_proy_coord
-                              FOREIGN KEY (id_coordinador)
-                                  REFERENCES coordinador (id_usuario)
+                              FOREIGN KEY (id_profesor)
+                                  REFERENCES profesor (id_usuario)
                                   ON UPDATE CASCADE ON DELETE RESTRICT,
                           CONSTRAINT chk_fechas
                               CHECK (fecha_fin > fecha_inicio),
@@ -162,7 +162,7 @@ CREATE TABLE solicitud_proyecto (
                                     id_solicitud_proyecto  INT     NOT NULL AUTO_INCREMENT,
                                     id_solicitud           INT     NOT NULL,
                                     id_proyecto            INT     NOT NULL,
-                                    orden_preferencia      TINYINT NOT NULL COMMENT '1=primera, 2=segunda, 3=tercera',
+                                    orden_preferencia      TINYINT COMMENT '1=primera, 2=segunda, 3=tercera',
                                     PRIMARY KEY (id_solicitud_proyecto),
                                     UNIQUE KEY uq_sol_proy       (id_solicitud, id_proyecto),
                                     UNIQUE KEY uq_sol_orden      (id_solicitud, orden_preferencia),
@@ -185,6 +185,7 @@ CREATE TABLE asignacion (
                             id_proyecto       INT      NOT NULL,
                             id_solicitud      INT      NOT NULL,
                             fecha_asignacion  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            estado            ENUM('Activa','Concluida'),
                             PRIMARY KEY (id_asignacion),
                             UNIQUE KEY uq_asig_practicante (id_practicante),
                             CONSTRAINT fk_asig_prac

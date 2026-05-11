@@ -45,11 +45,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
                     "El ID del proyecto debe ser mayor a cero. ID recibido: "
                             + projectApplication.getIdProyect());
         }
-        if (projectApplication.getPreferenceOrder() <= 0) {
-            throw new ValidationException(
-                    "El orden de preferencia debe ser mayor a cero. Valor recibido: "
-                            + projectApplication.getPreferenceOrder());
-        }
+
         boolean isCreated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();

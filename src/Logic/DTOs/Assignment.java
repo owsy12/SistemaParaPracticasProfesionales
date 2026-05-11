@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Assignment {
@@ -7,10 +8,11 @@ public class Assignment {
     private int idIntern;
     private int idProyect;
     private int idApplication;
-    private Date assignmentDate;
+    private LocalDate assignmentDate;
+    private String status;
 
 
-    public Assignment(int idAssignment, int idIntern, int idProyect, int idApplication, Date assignmentDate) {
+    public Assignment(int idAssignment, int idIntern, int idProyect, int idApplication, LocalDate assignmentDate) {
         this.idAssignment = idAssignment;
         this.idIntern = idIntern;
         this.idProyect = idProyect;
@@ -53,12 +55,20 @@ public class Assignment {
         this.idApplication = idApplication;
     }
 
-    public Date getAssignmentDate() {
+    public LocalDate getAssignmentDate() {
         return assignmentDate;
     }
 
-    public void setAssignmentDate(Date assignmentDate) {
+    public void setAssignmentDate(LocalDate assignmentDate) {
         this.assignmentDate = assignmentDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
 

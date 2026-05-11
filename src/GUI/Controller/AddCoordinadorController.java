@@ -67,17 +67,18 @@ public class AddCoordinadorController {
             if (professors.isEmpty()) {
                 showAlert("Información", "No hay profesores disponibles para asignar como coordinador.",
                         AlertType.INFORMATION);
-                return;
-            }
 
-            ChoiceDialog<Professor> dialog = new ChoiceDialog<>(professors.get(0), professors);
-            dialog.setTitle("Seleccionar Profesor");
-            dialog.setHeaderText("Profesores activos sin rol de coordinador");
-            dialog.setContentText("Seleccione un profesor:");
-            Optional<Professor> result = dialog.showAndWait();
-            result.ifPresent(this::addRolToProfessor);
-            showAlert("Rol asignado", "El profesor ha sido asignado como coordinador exitosamente.",
-                    AlertType.INFORMATION);
+            }else {
+                ChoiceDialog<Professor> dialog = new ChoiceDialog<>(professors.get(0), professors);
+                dialog.setTitle("Seleccionar Profesor");
+                dialog.setHeaderText("Profesores activos sin rol de coordinador");
+                dialog.setContentText("Seleccione un profesor:");
+                Optional<Professor> result = dialog.showAndWait();
+                result.ifPresent(this::addRolToProfessor);
+                showAlert("Rol asignado", "El profesor ha sido asignado como coordinador exitosamente.",
+                        AlertType.INFORMATION);
+
+            }
 
         } catch (ServiceException exception) {
             showAlert("Error", "Error al recuperar profesores: " + exception.getMessage(),
@@ -95,9 +96,11 @@ public class AddCoordinadorController {
             professor.setRole("Coordinador");
             userRoleDAO.saveUserRole(professor);
         } catch (ValidationException e) {
-            throw new RuntimeException(e);
+            showAlert("Error", "No se logro rcuperar",
+                    AlertType.ERROR);
         } catch (ServiceException e) {
-            throw new RuntimeException(e);
+            showAlert("Error", "Servicio no disponible",
+                    AlertType.ERROR);
         }
     }
 

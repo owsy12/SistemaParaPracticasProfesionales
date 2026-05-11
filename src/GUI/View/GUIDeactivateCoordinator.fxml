@@ -10,7 +10,7 @@
    <children>
       <TableView fx:id="tableView" layoutX="30.0" layoutY="99.0" prefHeight="250.0" prefWidth="540.0">
         <columns>
-          <TableColumn id="matricula" fx:id="matriculaColumn" prefWidth="102.13704872131348" text="Matricula" />
+          <TableColumn id="matricula" fx:id="tagColumn" prefWidth="102.13704872131348" text="Matricula" />
           <TableColumn id="name" fx:id="nameColumn" prefWidth="110.36299133300781" text="Nombre" />
             <TableColumn id="lastName" fx:id="lastNameColumn" prefWidth="106.50767517089844" text="Ap. Paterno" />
             <TableColumn id="secondLastName" fx:id="secondLastNameColumn" prefWidth="131.69113159179688" text="Ap. Materno" />
