@@ -11,4 +11,6 @@ public interface IInitialFormatDAO {
     InitialFormat getById(int idInitialFormat) throws ServiceException, ValidationException;
     List<InitialFormat> getAll() throws ServiceException;
     List<InitialFormat> getByIdIntern(int idIntern) throws ServiceException, ValidationException;
+    List<InitialFormat> findPendingByIntern(int idIntern) throws ServiceException, ValidationException;
+    int updateStatus(InitialFormat initialFormat) throws ServiceException, ValidationException;
 }

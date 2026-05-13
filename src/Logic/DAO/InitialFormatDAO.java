@@ -8,6 +8,7 @@ import Logic.Exceptions.ValidationException;
 import Logic.Interface.IInitialFormatDAO;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -18,8 +19,8 @@ public class InitialFormatDAO implements IInitialFormatDAO {
     private static final Logger LOGGER = Logger.getLogger(InitialFormatDAO.class.getName());
     private static final String SQL_INSERT =
             "INSERT INTO formato_inicial " +
-                    "(id_practicante, tipo_formato, ruta_archivo, estado, fecha_entrega) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+                    "(id_practicante, id_proyecto, tipo_formato, ruta_archivo, estado, fecha_entrega) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID =
             "SELECT id_formato, id_practicante, tipo_formato, " +
                     "       ruta_archivo, estado, fecha_entrega " +
@@ -33,6 +34,16 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                     "       ruta_archivo, estado, fecha_entrega " +
                     "FROM formato_inicial WHERE id_practicante = ?";
 
+    private static final String SQL_FIND_PENDING_BY_INTERN =
+            "SELECT id_formato, id_practicante, tipo_formato, " +
+                    "ruta_archivo, estado, fecha_entrega " +
+                    "FROM formato_inicial " +
+                    "WHERE id_practicante = ? AND estado = 'Pendiente'";
+
+    private static final String SQL_UPLOAD_UPDATE_STATUS =
+            "UPDATE formato_inicial " +
+                    "SET estado = ?, ruta_archivo = ?, tipo_formato = ? " +
+                    "WHERE id_formato = ?";
     @Override
     public int save(InitialFormat initialFormat) throws ServiceException, ValidationException {
         if (initialFormat.getIdIntern() <= 0) {
@@ -47,14 +58,15 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt   (1, initialFormat.getIdIntern());
-            statement.setString(2, initialFormat.getFormatType());
-            statement.setString(3, initialFormat.getFilePath());
-            statement.setString(4, initialFormat.getStatus());
+            statement.setInt   (2, initialFormat.getIdProject());
+            statement.setString(3, initialFormat.getFormatType());
+            statement.setString(4, initialFormat.getFilePath());
+            statement.setString(5, initialFormat.getStatus());
 
             if (initialFormat.getSubmissionDate() != null) {
-                statement.setDate(5, new java.sql.Date(initialFormat.getSubmissionDate().getTime()));
+                statement.setDate(6, Date.valueOf(initialFormat.getSubmissionDate()));
             } else {
-                statement.setNull(5, Types.DATE);
+                statement.setDate(6, Date.valueOf(LocalDateTime.now().toLocalDate()));
             }
 
             rowsAffected = statement.executeUpdate();
@@ -169,6 +181,71 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
         return initialFormats;
     }
+    @Override
+    public List<InitialFormat> findPendingByIntern(int idIntern) throws ServiceException, ValidationException {
+
+        if (idIntern <= 0) {
+
+            throw new ValidationException("El ID del practicante debe ser mayor a cero. ID recibido: "
+                            + idIntern);
+        }
+
+        List<InitialFormat> initialFormats = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_FIND_PENDING_BY_INTERN)) {
+            statement.setInt(1, idIntern);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+
+                    initialFormats.add(mapResultSet(resultSet));
+                }
+            }
+
+        } catch (SQLException sqlException) {
+
+            LOGGER.log(Level.SEVERE, "Error al recuperar formatos pendientes del practicante {0}: {1}",
+                    new Object[]{idIntern, sqlException.getMessage()});
+
+            throw new ServiceException("Error al recuperar los formatos pendientes del practicante.",
+                    sqlException);
+        }
+
+        return initialFormats;
+    }
+
+    @Override
+    public int updateStatus(InitialFormat initialFormat) throws ServiceException, ValidationException {
+
+        int rowsAffected;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement =
+                     connection.prepareStatement(SQL_UPLOAD_UPDATE_STATUS)) {
+
+            statement.setString(1, "Entregado");
+            statement.setString(2, initialFormat.getFilePath());
+            statement.setString(3, initialFormat.getFormatType());
+            statement.setInt(4, initialFormat.getIdInitialFormat());
+
+            rowsAffected = statement.executeUpdate();
+
+        } catch (SQLException sqlException) {
+
+            LOGGER.log(Level.SEVERE,
+                    "Error al actualizar estado del formato inicial con ID {0}: {1}",
+                    new Object[]{initialFormat.getIdInitialFormat(), sqlException.getMessage()});
+
+            throw new ServiceException(
+                    "Error al actualizar el estado del formato inicial.",
+                    sqlException);
+
+        }
+
+        return rowsAffected;
+    }
 
     private InitialFormat mapResultSet(ResultSet resultSet) throws SQLException {
         InitialFormat initialFormat = new InitialFormat();
@@ -177,7 +254,12 @@ public class InitialFormatDAO implements IInitialFormatDAO {
         initialFormat.setFormatType     (resultSet.getString("tipo_formato"));
         initialFormat.setFilePath       (resultSet.getString("ruta_archivo"));
         initialFormat.setStatus         (resultSet.getString("estado"));
-        initialFormat.setSubmissionDate (resultSet.getDate  ("fecha_entrega"));
+        Date submissionDate = resultSet.getDate("fecha_entrega");
+
+        if (submissionDate != null) {
+            initialFormat.setSubmissionDate(submissionDate.toLocalDate());
+        }
+
         return initialFormat;
     }
 }

@@ -1,17 +1,19 @@
 package Logic.DTOs;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class InitialFormat {
     private int idInitialFormat;
     private  int idIntern;
+    private int idProject;
     private String formatType; //support types : Assignment letter, Schedule,
     private String filePath;
     private String status;
-    private Date submissionDate;
+    private LocalDate submissionDate;
 
 
-    public InitialFormat(int idInitialFormat, int idIntern, String formatType, String filePath, String status, Date submissionDate) {
+    public InitialFormat(int idInitialFormat, int idIntern, String formatType, String filePath, String status, LocalDate submissionDate) {
         this.idInitialFormat = idInitialFormat;
         this.idIntern = idIntern;
         this.formatType = formatType;
@@ -63,11 +65,19 @@ public class InitialFormat {
         this.status = status;
     }
 
-    public Date getSubmissionDate() {
+    public LocalDate getSubmissionDate() {
         return submissionDate;
     }
 
-    public void setSubmissionDate(Date submissionDate) {
+    public void setSubmissionDate(LocalDate submissionDate) {
         this.submissionDate = submissionDate;
+    }
+
+    public int getIdProject() {
+        return idProject;
+    }
+
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
     }
 }

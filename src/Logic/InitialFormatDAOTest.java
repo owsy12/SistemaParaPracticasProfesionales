@@ -20,7 +20,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
         format.setFormatType    (formatType);
         format.setFilePath      ("/docs/" + formatType.replace(" ", "_") + ".pdf");
         format.setStatus        ("Pendiente");
-        format.setSubmissionDate(new Date());
+        //format.setSubmissionDate(new Date());
         return format;
     }
 

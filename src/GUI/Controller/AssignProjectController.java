@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class AssignProjectController {
     @FXML
@@ -40,6 +41,7 @@ public class AssignProjectController {
 
     @FXML
     public void outk(ActionEvent actionEvent) {
+
     }
 
     private void verifyActiveInternProjectApplications(){
@@ -51,6 +53,7 @@ public class AssignProjectController {
             if (applicationList.isEmpty()){
                 showAlert("Advertenica", "En este momento no exiten solicitudes",
                         Alert.AlertType.INFORMATION);
+                openWelcomePage(anchorPane);
             }else {
                 configureTable(applicationList);
             }

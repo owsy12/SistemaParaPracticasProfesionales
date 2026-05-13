@@ -215,8 +215,12 @@ CREATE TABLE formato_inicial (
                                  ruta_archivo      VARCHAR(500) NOT NULL COMMENT 'Ruta del archivo en disco',
                                  estado            ENUM('Pendiente','Entregado') NOT NULL DEFAULT 'Pendiente',
                                  fecha_entrega     DATETIME     NULL,
+                                 id_proyecto       INT          NULL COMMENT 'FK opcional para validar que el formato corresponde al proyecto asignado',
                                  PRIMARY KEY (id_formato),
                                  UNIQUE KEY uq_fmt_prac_tipo (id_practicante, tipo_formato),
+                                 FOREIGN KEY (id_proyecto)
+                                     REFERENCES proyecto (id_proyecto)
+                                     ON UPDATE CASCADE ON DELETE SET NULL,
                                  CONSTRAINT fk_fmt_prac
                                      FOREIGN KEY (id_practicante)
                                          REFERENCES practicante (id_usuario)

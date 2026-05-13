@@ -22,6 +22,7 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 
 public class ViewProjectSelectionController {
+
     @FXML
     private FlowPane flowProjects;
     private List<Project> projectList;
@@ -118,9 +119,7 @@ public class ViewProjectSelectionController {
 
         for (Project project : projectList) {
             VBox card = createCard(project);
-
             flowProjects.getChildren().add(card);
-            System.out.println(project.getIdProyect());
         }
 
     }

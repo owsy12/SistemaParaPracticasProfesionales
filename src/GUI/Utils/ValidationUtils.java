@@ -2,6 +2,9 @@ package GUI.Utils;
 
 import javafx.scene.control.TextField;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.regex.Pattern;
 
 public class ValidationUtils {
@@ -68,6 +71,24 @@ public class ValidationUtils {
         return email != null && VALID_EMAIL_PATTERN.matcher(email).matches();
     }
 
+    public static boolean isPDF(File file) {
 
+        try {
+
+            String mimeType =
+                    Files.probeContentType(
+                            file.toPath()
+                    );
+
+            return mimeType != null &&
+                    mimeType.equals(
+                            "application/pdf"
+                    );
+
+        } catch (IOException e) {
+
+            return false;
+        }
+    }
 
 }

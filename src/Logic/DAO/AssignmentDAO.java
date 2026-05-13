@@ -177,9 +177,9 @@ public class AssignmentDAO implements IAssignmentDAO {
     @Override
     public List<Assignment> getByIdProject(int idProject) throws ServiceException, ValidationException {
         if (idProject <= 0) {
-            throw new ValidationException(
-                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
+            throw new ValidationException("El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
         }
+        
         List<Assignment> assignments = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -188,19 +188,23 @@ public class AssignmentDAO implements IAssignmentDAO {
             statement.setInt(1, idProject);
 
             try (ResultSet resultSet = statement.executeQuery()) {
+
                 while (resultSet.next()) {
                     assignments.add(mapResultSet(resultSet));
                 }
+
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar asignaciones por proyecto {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
+
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
                         sqlException);
             }
+
             throw new ServiceException(
                     "Error al recuperar las asignaciones del proyecto.", sqlException);
         }
@@ -211,17 +215,20 @@ public class AssignmentDAO implements IAssignmentDAO {
     @Override
     public Assignment getActiveByIdIntern(int idIntern) throws ServiceException {
         Assignment assignment = null;
+
         try (Connection connection = DataBaseConnection.connectDatabase();
             PreparedStatement preparedStatement = connection.prepareStatement(SQL_GET_ACTIVE_BY_USER)){
             preparedStatement.setInt(1, idIntern);
 
-
             try (ResultSet resultSet = preparedStatement.executeQuery()){
+
                while (resultSet.next()){
                    assignment = mapResultSet(resultSet);
                    assignment.setStatus(resultSet.getString("estado"));
                }
+
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

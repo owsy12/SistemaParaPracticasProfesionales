@@ -1,9 +1,6 @@
 package GUI.Controller;
 
-import Logic.DAO.ApplicationDAO;
-import Logic.DAO.AssignmentDAO;
-import Logic.DAO.ProjectApplicationDAO;
-import Logic.DAO.ProjectDAO;
+import Logic.DAO.*;
 import Logic.DTOs.*;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -18,6 +15,7 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 
 public class ViewInterProjectSelection {
+
     public TableView projectsTableView;
     private User user;
     @FXML
@@ -59,7 +57,7 @@ public class ViewInterProjectSelection {
                 projectList.add(projectDAO.findById(projectApplication.getIdProyect()));
             }
 
-            applicationID = application.getIdApplication();
+            applicationID = application.getIdIntern();
             projectsTableView.getItems().setAll(projectList);
         } catch (ServiceException e) {
             showAlert("Error", "servicio no disponible intente mas tarde",
@@ -99,8 +97,10 @@ public class ViewInterProjectSelection {
                                 if (response == ButtonType.OK){
                                     assignProjectProcess(project, userApplicationId);
                                 }
-
+                    showAlert("Exito", "El proyectoa sido asignado correwctamente",
+                            Alert.AlertType.INFORMATION);
                     });
+                    projectsTableView.getItems().removeAll();
                 });
             }
 
@@ -129,7 +129,8 @@ public class ViewInterProjectSelection {
             assignment.setIdIntern(userApplicationId);
             assignment.setAssignmentDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
             assignmentDAO.save(assignment);
-            applicationDAO.updateStatus(userApplicationId, "Aceptada");
+            applicationDAO.updateStatus(assignment.getIdApplication(), "Aceptada");
+            setInternPendingInitialDocument(project.getIdProyect());
 
         } catch (ServiceException e) {
             showAlert("Error", "El servicio no se encitrna disponible en este momento",
@@ -141,6 +142,27 @@ public class ViewInterProjectSelection {
 
     }
 
+    private void setInternPendingInitialDocument(int idProyect){
+        final int INITIAL_DOCUMENTS =  4;
+        try {
+
+            for (int i = 0; i < INITIAL_DOCUMENTS; i++) {
+                InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
+                InitialFormat initialFormat = new InitialFormat();
+                initialFormat.setIdIntern(user.getId());
+                initialFormat.setIdProject(idProyect);
+                initialFormat.setStatus("Pendiente");
+
+                initialFormatDAO.save(initialFormat);
+            }
+
+
+        } catch (ValidationException e) {
+            throw new RuntimeException(e);
+        } catch (ServiceException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public User getUser() {
         return user;
     }

@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class RequestProjectController {
     private static final  int SELECTION_LIMIT = 3;
@@ -56,10 +57,10 @@ public class RequestProjectController {
 
     @FXML
     public void projectSelectionListButton(ActionEvent actionEvent) {
-        if (!projectSelectionList.isEmpty() && projectSelectionList.size() <= SELECTION_LIMIT){
+        if (projectSelectionList.size() == SELECTION_LIMIT){
             viewProjectSelections();
         }else {
-            showAlert("Advertencia", "Verifique su seleccion , no puede seleccinar mas de 3",
+            showAlert("Advertencia", "Verifique su seleccion , debe de seleccinar 3",
             Alert.AlertType.WARNING);
         }
     }
@@ -68,7 +69,7 @@ public class RequestProjectController {
         try {
             List<Project> projectList = new ArrayList<>();
 
-            if (projectSelectionList == null){
+            if (projectSelectionList == null ){
                 showAlert("Advertencia", "Seleccione un poryecto",
                         Alert.AlertType.INFORMATION);
             }else {
@@ -115,7 +116,7 @@ public class RequestProjectController {
             }else {
                 showAlert("Advertecia", "No cumple con los requisito para poder crear una solicitud",
                         Alert.AlertType.WARNING);
-                openWelcomePage();
+                openWelcomePage(anchorPane);
             }
 
         } catch (ServiceException e) {
@@ -140,21 +141,12 @@ public class RequestProjectController {
             showAlert("Advertencia", "Usted ya tiene una solicitud pendiente",
                     Alert.AlertType.WARNING
             );
-            openWelcomePage();
+            openWelcomePage(anchorPane);
         }
 
     }
 
-    private void openWelcomePage(){
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/view/GUIWelcome.fml"));
-            Parent vista = loader.load();
-            anchorPane.getChildren().setAll(vista);
-        } catch (IOException e) {
-            showAlert("Error", "No se logro cargar",
-                    Alert.AlertType.ERROR);
-        }
-    }
+
 
     private void openViewProjectSelection(List<Project> projects){
         try {
