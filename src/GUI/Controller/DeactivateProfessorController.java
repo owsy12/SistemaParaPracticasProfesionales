@@ -6,15 +6,15 @@ import Logic.DTOs.Professor;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-
-import java.util.Locale;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class DeactivateProfessorController {
     @FXML
@@ -31,38 +31,40 @@ public class DeactivateProfessorController {
     private TableColumn<User,String> lastNameColumn;
     @FXML
     private TableColumn<User,String> tagColumn;
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     private void initialize() {
         tagColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getMatricula()));
+                new SimpleStringProperty(cellData.getValue().getMatricula()));
 
         nameColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getLastName()));
+                new SimpleStringProperty(cellData.getValue().getLastName()));
 
         lastNameColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getLastName()));
+                new SimpleStringProperty(cellData.getValue().getLastName()));
 
         secondLastNameColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getSecondLastName()));
+                new SimpleStringProperty(cellData.getValue().getSecondLastName()));
         academicDegreeColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(cellData.getValue().getAcademicArea()));
+                new SimpleStringProperty(cellData.getValue().getAcademicArea()));
         loadProfessors();
         addButtonToTable();
     }
 
     private void addButtonToTable() {
-        actionsColumn.setCellFactory(param -> new javafx.scene.control.TableCell<User, Void>() {
+        actionsColumn.setCellFactory(param -> new TableCell<User, Void>() {
 
-            private final javafx.scene.control.Button button = new javafx.scene.control.Button("Inactivar");
+            private final Button button = new Button("Inactivar");
 
             {
                 button.setOnAction(event -> {
                     User user = getTableView().getItems().get(getIndex());
                     showAlertAndWait("Desea desactivar ","desea desactivar este profesor",
-                            javafx.scene.control.Alert.AlertType.CONFIRMATION).ifPresent(response -> {
+                            Alert.AlertType.CONFIRMATION).ifPresent(response -> {
 
-                        if (response == javafx.scene.control.ButtonType.OK) {
+                        if (response == ButtonType.OK) {
                             user.setStatus("Inactivo");
                             user.setRole("Profesor");
                             deactivateProcess(user);
@@ -91,7 +93,7 @@ public class DeactivateProfessorController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
             showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
-                    javafx.scene.control.Alert.AlertType.INFORMATION);
+                    Alert.AlertType.INFORMATION);
         } catch (ValidationException e) {
             showAlert("Error", "servicio no disponible",
                     Alert.AlertType.ERROR);
@@ -112,5 +114,12 @@ public class DeactivateProfessorController {
             showAlert("Error" , "no se logro desactivar",
                     Alert.AlertType.ERROR);
         }
+    }
+
+    @FXML
+    public void calcelOperation(ActionEvent actionEvent) {
+        showAlert("Informacion", "operacion cancelada",
+                Alert.AlertType.INFORMATION);
+        openWelcomePage(anchorPane);
     }
 }

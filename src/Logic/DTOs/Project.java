@@ -14,6 +14,7 @@ public class Project {
     private int avaliablePlaces;
     private int maximumPlaces;
     private String organizationName;
+    private String status;
 
 
     public Project(int idProyect, int idOrganization, int idTechnicalSupervisor, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
@@ -116,5 +117,13 @@ public class Project {
 
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

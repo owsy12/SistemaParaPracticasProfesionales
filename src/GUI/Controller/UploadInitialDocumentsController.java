@@ -94,7 +94,7 @@ public class UploadInitialDocumentsController {
 
             if (dragboard.hasFiles()) {
 
-                File file = dragboard.getFiles().get(0);
+                File file = dragboard.getFiles().getFirst();
                 processSelectedFile(file);
                 success = true;
             }

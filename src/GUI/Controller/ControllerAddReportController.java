@@ -1,4 +1,4 @@
-package GUI;
+package GUI.Controller;
 
 public class ControllerAddReportController {
 }

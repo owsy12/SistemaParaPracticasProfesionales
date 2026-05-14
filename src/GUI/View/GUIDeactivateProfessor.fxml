@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.DeactivateProfessorController">
+<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.DeactivateProfessorController">
     <children>
-        <TableView fx:id="tableView" layoutX="25.0" layoutY="94.0" prefHeight="274.0" prefWidth="550.0">
+        <TableView fx:id="tableView" layoutX="25.0" layoutY="63.0" prefHeight="274.0" prefWidth="550.0">
             <columns>
                 <TableColumn id="matricula" fx:id="tagColumn" prefWidth="79.5" text="No.Personal" />
                 <TableColumn id="name" fx:id="nameColumn" prefWidth="88.5" text="Nombre" />
@@ -23,5 +24,6 @@
                 <Font size="19.0" />
             </font>
         </Label>
+      <Button layoutX="509.0" layoutY="353.0" mnemonicParsing="false" onAction="#calcelOperation" text="Cancelar" />
     </children>
 </AnchorPane>

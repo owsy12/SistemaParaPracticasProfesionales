@@ -27,9 +27,13 @@ public class ProjectDAO implements IProjectDAO {
                     "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
                     "cupo_disponible, estado FROM proyecto WHERE id_proyecto = ?";
     private static final String SELECT_ALL_PROJECTS_SQL =
-            "SELECT id_proyecto, id_organizacion, id_tecnico, id_coordinador, " +
-                    "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
-                    "cupo_disponible, estado FROM proyecto";
+            "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
+                    "p.nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, " +
+                    "p.cupo_maximo, p.cupo_disponible, p.estado, " +
+                    "ov.id_organizacion, ov.nombre_organizacion " +
+                    "FROM proyecto p " +
+                    "JOIN spp.organizacion_vinculada ov " +
+                    "ON ov.id_organizacion = p.id_organizacion;";
     private static final String SELECT_ALL_AVAILABLE_PROJECTS_SQL =
             "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor,\n" +
                     "p.nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, p.cupo_maximo,\n" +
@@ -51,6 +55,8 @@ public class ProjectDAO implements IProjectDAO {
                     "SET cupo_disponible = cupo_disponible - 1, " +
                     "    estado = CASE WHEN cupo_disponible - 1 = 0 THEN 'Lleno' ELSE estado END " +
                     "WHERE id_proyecto = ? AND cupo_disponible > 0";
+    private static final String DELETE_PROYECT =
+            "DELETE FROM proyecto WHERE id_proyecto = ?";
 
     @Override
     public boolean saveProject(Project project) throws ServiceException, ValidationException {
@@ -91,10 +97,10 @@ public class ProjectDAO implements IProjectDAO {
     }
 
     @Override
-    public Project findById(int idProyecto) throws ServiceException, ValidationException {
-        if (idProyecto <= 0) {
+    public Project findById(int idProjecto) throws ServiceException, ValidationException {
+        if (idProjecto <= 0) {
             throw new ValidationException(
-                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProjecto);
         }
 
         Project projectResult = null;
@@ -102,7 +108,7 @@ public class ProjectDAO implements IProjectDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PROJECT_BY_ID_SQL)) {
 
-            preparedStatement.setInt(1, idProyecto);
+            preparedStatement.setInt(1, idProjecto);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -112,7 +118,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar proyecto con ID {0}: {1}",
-                    new Object[]{idProyecto, sqlException.getMessage()});
+                    new Object[]{idProjecto, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -129,21 +135,39 @@ public class ProjectDAO implements IProjectDAO {
         List<Project> projectList = new ArrayList<>();
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_PROJECTS_SQL);
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_ALL_PROJECTS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                projectList.add(mapProject(resultSet));
+
+                Project project = new Project();
+
+                project.setIdProyect(resultSet.getInt("id_proyecto"));
+                project.setIdOrganization(resultSet.getInt("id_organizacion"));
+                project.setIdTechnicalSupervisor(resultSet.getInt("id_tecnico"));
+                project.setIdProfessor(resultSet.getInt("id_profesor"));
+                project.setName(resultSet.getString("nombre"));
+                project.setDescription(resultSet.getString("descripcion"));
+                project.setStartDate(resultSet.getDate("fecha_inicio").toLocalDate());
+                project.setEndDate(resultSet.getDate("fecha_fin").toLocalDate());
+                project.setMaximumPlaces(resultSet.getInt("cupo_maximo"));
+                project.setAvaliablePlaces(resultSet.getInt("cupo_disponible"));
+                project.setStatus(resultSet.getString("estado"));
+                project.setOrganizationName(resultSet.getString("nombre_organizacion"));
+
+                projectList.add(project);
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todos los proyectos: {0}",
-                    sqlException.getMessage());
+
+            LOGGER.log(Level.SEVERE, "Error al recuperar todos los proyectos: {0}", sqlException.getMessage());
+
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
-                throw new DuplicateEntryException(
-                        "Ya existe un registro con esa clave en la base de datos.",
-                        sqlException);
+
+                throw new DuplicateEntryException("Ya existe un registro con esa clave en la base de datos.", sqlException);
             }
+
             throw new ServiceException("Error al recuperar la lista de proyectos.", sqlException);
         }
 
@@ -226,7 +250,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setString(3, project.getName());
             preparedStatement.setString(4, project.getDescription());
             preparedStatement.setDate  (5, java.sql.Date.valueOf(project.getStartDate()));
-            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getStartDate()));
+            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getEndDate()));
             preparedStatement.setInt   (7, project.getMaximumPlaces());
             preparedStatement.setInt   (8, project.getAvaliablePlaces());
             preparedStatement.setString(9, "Disponible");
@@ -312,6 +336,28 @@ public class ProjectDAO implements IProjectDAO {
         }
 
         return isDecremented;
+    }
+
+    @Override
+    public int deleteProject(int idProject) throws ServiceException, ValidationException {
+        if (idProject <= 0){
+            throw  new ValidationException("ID no valido debe de ser un valor numerico positivo" + idProject);
+        }
+
+        int  succesfull = 0;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+            PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PROYECT)){
+            preparedStatement.setInt(1, idProject);
+
+          succesfull = preparedStatement.executeUpdate();
+
+        }catch (SQLException sqlException){
+            LOGGER.log(Level.SEVERE, "Error al eleimnar el proyecto {0}: {1}", new Object[]{idProject, sqlException.getMessage()});
+            throw new ServiceException("Erro al eliminar proyecto", sqlException);
+        }
+
+        return succesfull;
     }
 
     private void validateProject(Project project) throws ValidationException {

@@ -32,6 +32,7 @@ public class ViewInterProjectSelection {
     private TableColumn<Project, String> projetcNameColumn;
     List<Project> projectList = new ArrayList<>();
     List<ProjectApplication> projectApplicationList;
+
     @FXML
     private void initialize(){
 
@@ -171,6 +172,5 @@ public class ViewInterProjectSelection {
         this.user = user;
         configureTable();
     }
-
 
 }
