@@ -145,11 +145,13 @@ public class ViewInterProjectSelection {
 
     private void setInternPendingInitialDocument(int idProyect){
         final int INITIAL_DOCUMENTS =  4;
+        List<String> initialDocumentsType = List.of("Carta de Asignación", "Horario", "Certificado de Seguro", "Cronograma de Actividades");
         try {
 
             for (int i = 0; i < INITIAL_DOCUMENTS; i++) {
                 InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
                 InitialFormat initialFormat = new InitialFormat();
+                initialFormat.setFormatType(initialDocumentsType.get(i));
                 initialFormat.setIdIntern(user.getId());
                 initialFormat.setIdProject(idProyect);
                 initialFormat.setStatus("Pendiente");

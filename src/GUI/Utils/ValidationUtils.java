@@ -24,6 +24,9 @@ public class ValidationUtils {
     private static final Pattern NUMBER_PARTTERN =
             Pattern.compile("^[0-9]*$");
 
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^[a-zA-Z0-9@#$%^&*!?_\\-]*$");
+
 
 
     public static void setTypeAndLength(TextField campo, String type) {
@@ -54,6 +57,11 @@ public class ValidationUtils {
                     break;
                 case "Number":
                     if (nuevoTexto.matches(NUMBER_PARTTERN.pattern()) && nuevoTexto.length() <= 8){
+                        isValid = true;
+                    }
+                    break;
+                case "Password":
+                    if (nuevoTexto.matches(PASSWORD_PATTERN.pattern()) && nuevoTexto.length() <= 20) {
                         isValid = true;
                     }
                     break;
@@ -89,6 +97,78 @@ public class ValidationUtils {
 
             return false;
         }
+    }
+
+    public static boolean isValidPassword(String password) {
+
+        boolean isValid = true;
+        boolean hasUppercase = false;
+        boolean hasLowercase = false;
+        boolean hasNumber = false;
+        boolean hasSpecialCharacter = false;
+        final int MIN_LENGTH = 8;
+
+        if (password == null || password.length() < MIN_LENGTH) {
+
+            isValid = false;
+
+        } else {
+
+            for (int i = 0; i < password.length(); i++) {
+
+                char character = password.charAt(i);
+
+                if (Character.isUpperCase(character)) {
+                    hasUppercase = true;
+                }
+
+                if (Character.isLowerCase(character)) {
+                    hasLowercase = true;
+                }
+
+                if (Character.isDigit(character)) {
+                    hasNumber = true;
+                }
+
+                if (!Character.isLetterOrDigit(character)) {
+                    hasSpecialCharacter = true;
+                }
+
+                if (i < password.length() - 2) {
+
+                    char current = password.charAt(i);
+                    char next = password.charAt(i + 1);
+                    char nextNext = password.charAt(i + 2);
+
+                    if (Character.isDigit(current) &&
+                            Character.isDigit(next) &&
+                            Character.isDigit(nextNext)) {
+
+                        if ((next == current + 1) &&
+                                (nextNext == next + 1)) {
+
+                            isValid = false;
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            if (!hasUppercase ||
+                    !hasLowercase ||
+                    !hasNumber ||
+                    !hasSpecialCharacter) {
+
+                isValid = false;
+
+            }
+
+        }
+
+        return isValid;
     }
 
 }

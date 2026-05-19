@@ -36,6 +36,8 @@ public class UpdateProjectController {
     private TextField descriptionTextField;
     @FXML
     private DatePicker startDate;
+    @FXML
+    private TextField nrcTextField;
 
     @FXML
     public void cancelButton(ActionEvent actionEvent) {
@@ -81,15 +83,18 @@ public class UpdateProjectController {
 
     private void configureProjectInformation(){
 
-            capacityTextField.setText(String.valueOf(project.getMaximumPlaces()));
-            endDate.setValue(project.getEndDate());
-            startDate.setValue(project.getStartDate());
-            nameTextField.setText(project.getName());
-            descriptionTextField.setText(project.getDescription());
-            organizationComboBox.getItems().add(project.getOrganizationName());
-            organizationComboBox.getSelectionModel().selectFirst();
-            professorComboBox.getItems().setAll(getProfessorList());
-            technicalComboBox.getItems().setAll(getProjectTechnicalList(project.getIdOrganization()));
+        nrcTextField.setText(String.valueOf(project.getIdProyect()));
+        nrcTextField.setDisable(true);
+        capacityTextField.setText(String.valueOf(project.getMaximumPlaces()));
+        endDate.setValue(project.getEndDate());
+        startDate.setValue(project.getStartDate());
+        nameTextField.setText(project.getName());
+        descriptionTextField.setText(project.getDescription());
+        organizationComboBox.getItems().add(project.getOrganizationName());
+        organizationComboBox.getSelectionModel().selectFirst();
+        organizationComboBox.setDisable(true);
+        professorComboBox.getItems().setAll(getProfessorList());
+        technicalComboBox.getItems().setAll(getProjectTechnicalList(project.getIdOrganization()));
 
 
         technicalComboBox.setCellFactory(param -> new ListCell<>() {

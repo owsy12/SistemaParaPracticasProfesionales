@@ -41,6 +41,8 @@ public class ManegeProjectController {
     private TableColumn deleteColumn;
     @FXML
     private TableColumn<Project,String> starDateColumn;
+    @FXML
+    private TableColumn<Project, String> nrcColumn;
 
     @FXML
     private void initialize(){
@@ -88,6 +90,9 @@ public class ManegeProjectController {
 
         organizationColumn.setCellValueFactory(project ->
                 new SimpleStringProperty(project.getValue().getOrganizationName()));
+
+        nrcColumn.setCellValueFactory(project ->
+                new SimpleStringProperty(String.valueOf(project.getValue().getIdProyect())));
 
         addActionButtons();
     }

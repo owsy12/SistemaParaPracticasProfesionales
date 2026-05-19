@@ -38,6 +38,8 @@ public class AddProjectController {
     private DatePicker startDate;
     @FXML
     private ComboBox<Professor> professorComboBox;
+    @FXML
+    private TextField nrcTextField;
 
 
     @FXML
@@ -128,6 +130,7 @@ public class AddProjectController {
         LocalDate startdate = startDate.getValue();
         LocalDate enddate = endDate.getValue();
         Project project = new Project();
+        project.setIdProyect(Integer.parseInt(nrcTextField.getText()));
         project.setName(nameTextField.getText());
         project.setDescription(descriptionTextField.getText());
         project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
@@ -187,6 +190,7 @@ public class AddProjectController {
                 organizationComboBox.getValue() == null ||
                 technicalComboBox.getValue() == null ||
                 startDate.getValue() == null ||
+                professorComboBox.getValue() == null ||
                 endDate.getValue() == null || (!enddate.isAfter(startdate))
             ){
 
@@ -201,6 +205,7 @@ public class AddProjectController {
         descriptionTextField.clear();
         technicalComboBox.getSelectionModel().clearSelection();
         organizationComboBox.getSelectionModel().clearSelection();
+        professorComboBox.getSelectionModel().clearSelection();
         startDate.setValue(null);
         endDate.setValue(null);
     }

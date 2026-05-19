@@ -6,6 +6,7 @@ public class LinkedOrganization {
     private String sector;
     private String address;
     private String email;
+    private String status;
 
     public LinkedOrganization(int idLinkedOrganization, String name, String sector, String address, String department) {
         this.idLinkedOrganization = idLinkedOrganization;
@@ -30,7 +31,7 @@ public class LinkedOrganization {
         return sector;
     }
 
-    public String getAdress() {
+    public String getAddress() {
         return address;
     }
 
@@ -50,11 +51,19 @@ public class LinkedOrganization {
         this.sector = sector;
     }
 
-    public void setAdress(String adress) {
-        this.address = adress;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

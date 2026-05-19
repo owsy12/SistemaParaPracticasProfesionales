@@ -19,9 +19,10 @@ public class ProjectDAO implements IProjectDAO {
 
     private static final String INSERT_PROJECT_SQL =
             "INSERT INTO proyecto " +
-                    "(id_organizacion, id_tecnico, id_profesor, nombre, descripcion, " +
+                    "(id_proyecto, id_organizacion, id_tecnico, id_profesor, nombre, descripcion, " +
                     "fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
     private static final String SELECT_PROJECT_BY_ID_SQL =
             "SELECT id_proyecto, id_organizacion, id_tecnico, id_profesor, " +
                     "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
@@ -66,17 +67,17 @@ public class ProjectDAO implements IProjectDAO {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_PROJECT_SQL)) {
-
-            preparedStatement.setInt   (1, project.getIdOrganization());
-            preparedStatement.setInt   (2, project.getIdTechnicalSupervisor());
-            preparedStatement.setInt   (3, project.getIdProfessor());
-            preparedStatement.setString(4, project.getName());
-            preparedStatement.setString(5, project.getDescription());
-            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getStartDate()));
-            preparedStatement.setDate  (7, java.sql.Date.valueOf(project.getEndDate()));
-            preparedStatement.setInt   (8, project.getMaximumPlaces());
-            preparedStatement.setInt   (9, project.getAvaliablePlaces());
-            preparedStatement.setString(10, "Disponible");
+            preparedStatement.setInt   (1, project.getIdProyect());
+            preparedStatement.setInt   (2, project.getIdOrganization());
+            preparedStatement.setInt   (3, project.getIdTechnicalSupervisor());
+            preparedStatement.setInt   (4, project.getIdProfessor());
+            preparedStatement.setString(5, project.getName());
+            preparedStatement.setString(6, project.getDescription());
+            preparedStatement.setDate  (7, Date.valueOf(project.getStartDate()));
+            preparedStatement.setDate  (8, Date.valueOf(project.getEndDate()));
+            preparedStatement.setInt   (9, project.getMaximumPlaces());
+            preparedStatement.setInt   (10, project.getAvaliablePlaces());
+            preparedStatement.setString(11, "Disponible");
 
             if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;

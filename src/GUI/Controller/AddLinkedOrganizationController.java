@@ -52,7 +52,7 @@ public class AddLinkedOrganizationController {
         LinkedOrganization organization = new LinkedOrganization();
         organization.setName(organizationNameTextField.getText());
         organization.setEmail(organizationEmailTextField.getText());
-        organization.setAdress(organizationAddressTextField.getText());
+        organization.setAddress(organizationAddressTextField.getText());
         organization.setSector(sectorOrganizacionTextField.getText());
 
         try {

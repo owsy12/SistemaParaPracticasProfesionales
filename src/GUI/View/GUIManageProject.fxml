@@ -5,21 +5,21 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.ManegeProjectController">
+<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="654.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.ManegeProjectController">
    <children>
-      <TableView fx:id="tableView" layoutX="18.0" layoutY="50.0" prefHeight="288.0" prefWidth="568.0">
+      <TableView fx:id="tableView" layoutX="14.0" layoutY="56.0" prefHeight="288.0" prefWidth="626.0">
         <columns>
-          <TableColumn fx:id="nameColumn" prefWidth="75.0" text="Nombre" />
-          <TableColumn fx:id="organizationColumn" prefWidth="75.0" text="Organizacion" />
+            <TableColumn fx:id="nrcColumn" prefWidth="67.0" text="NRC" />
+          <TableColumn fx:id="nameColumn" prefWidth="77.0" text="Nombre" />
+          <TableColumn fx:id="organizationColumn" prefWidth="81.0" text="Organizacion" />
             <TableColumn fx:id="statusColmun" prefWidth="75.0" text="Estado" />
-            <TableColumn fx:id="capacityColumn" prefWidth="75.0" text="Cupo" />
-            <TableColumn fx:id="starDateColumn" prefWidth="75.0" text="F.Inicio" />
-            <TableColumn fx:id="endDateColumn" prefWidth="75.0" text="F. Fin" />
-            <TableColumn fx:id="updateColumn" prefWidth="58.8604736328125" />
-            <TableColumn fx:id="deleteColumn" prefWidth="58.1395263671875" />
+            <TableColumn fx:id="capacityColumn" prefWidth="59.0" text="Cupo" />
+            <TableColumn fx:id="starDateColumn" prefWidth="81.0" text="F.Inicio" />
+            <TableColumn fx:id="endDateColumn" prefWidth="85.0" text="F. Fin" />
+            <TableColumn fx:id="updateColumn" prefWidth="52.0" />
+            <TableColumn fx:id="deleteColumn" prefWidth="65.5" />
         </columns>
       </TableView>
-      <Button layoutX="499.0" layoutY="352.0" mnemonicParsing="false" onAction="#cancelAction" text="Cancelar" />
+      <Button layoutX="543.0" layoutY="360.0" mnemonicParsing="false" onAction="#cancelAction" text="Cancelar" />
    </children>
 </AnchorPane>

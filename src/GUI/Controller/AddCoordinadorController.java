@@ -6,8 +6,8 @@ import Logic.DTOs.Coordinator;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import static GUI.Utils.Alert.showAlert;
-import static GUI.Utils.ValidationUtils.setTypeAndLength;
-import static GUI.Utils.ValidationUtils.isValidEmail;
+import static GUI.Utils.ValidationUtils.*;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -41,7 +41,7 @@ public class AddCoordinadorController {
         setTypeAndLength(lastNameTextField,"Name");
         setTypeAndLength(secondLastNameTextField,"Name");
         setTypeAndLength(idTextField,"ID");
-        setTypeAndLength(passwordField,"Email");
+        setTypeAndLength(passwordField,"Password");
         setTypeAndLength(emailTextField,"Email");
     }
 
@@ -50,9 +50,13 @@ public class AddCoordinadorController {
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
                     AlertType.WARNING);
+        } else if (isValidPassword(passwordField.getText())) {
+            showAlert("Contraseña no segura", "La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales.",
+                    AlertType.WARNING);
+
         } else if (isPasswordMatching() && isValidEmail(emailTextField.getText())) {
             processRegistration();
-        }else{
+        } else {
             showAlert("Error de contraseña", "Error ens sus daros de ungrso.",
                     AlertType.ERROR);
         }

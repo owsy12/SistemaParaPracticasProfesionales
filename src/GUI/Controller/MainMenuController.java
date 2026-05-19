@@ -77,6 +77,8 @@ public class MainMenuController {
         addButton("Registrar Proyecto","/GUI/view/GUIAddProject.fxml");
         addButton("Actualizar Proyecto","/GUI/view/GUIManageProject.fxml");
         addButton("Inactivar Practicante", "/GUI/view/GUIDeactivateIntern.fxml");
+        addButton("Consultar Organizaciones Vinculadas", "/GUI/view/GUIManageLinkedOrganization.fxml");
+        addButton("Consualtar tecnicos responsables", "/GUI/view/GUIManageTechnicalResponsible.fxml");
     }
 
     private void loadInternActions(){

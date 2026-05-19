@@ -14,4 +14,6 @@ public interface ILinkedOrganizationDAO {
     List<LinkedOrganization> findAllActive() throws ServiceException;
     boolean update(LinkedOrganization linkedOrganization) throws ServiceException, ValidationException;
     boolean deactivateLinkedOrganization(int idOrganizacion) throws ServiceException, ValidationException;
+    boolean hasAssociatedProjects(int idOrganization) throws ServiceException, ValidationException;
+    boolean deleteLinkedOrganization(int idOrganization) throws ServiceException, ValidationException;
 }

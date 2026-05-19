@@ -31,6 +31,7 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 public class RequestProjectController {
     private static final  int SELECTION_LIMIT = 3;
     private static final int MINIMUM_NUMBER_OF_CREDITS_REQUIRED = 270;
+    @FXML
     public AnchorPane anchorPane;
     @FXML
     private TableColumn<Project, LocalDate> endDateColumn;
@@ -48,6 +49,8 @@ public class RequestProjectController {
     private TableColumn<Project, String> descriptionColumn;
     @FXML
     private TableView projectsTableView;
+    @FXML
+    private TableColumn<Project,String> nrcColumn;
     Map<Project, Boolean> projectSelectionList = new HashMap<>();
 
     @FXML
@@ -186,7 +189,8 @@ public class RequestProjectController {
         endDateColumn.setCellValueFactory(data ->
                 new SimpleObjectProperty<>(data.getValue().getEndDate()));
 
-
+        nrcColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(String.valueOf(cellData.getValue().getIdProyect())));
 
         startDateColumn.setCellFactory(column -> new TableCell<Project, LocalDate>() {
             @Override

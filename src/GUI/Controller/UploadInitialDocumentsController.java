@@ -45,11 +45,12 @@ public class UploadInitialDocumentsController {
 
     private void validatePendingInitialDocuments(){
         try {
+
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
             initialFormatDAO.findPendingByIntern(SessionManager.getInstance().getUsuario().getId());
             List<InitialFormat> obteinPendingDocuments = initialFormatDAO.findPendingByIntern(SessionManager.getInstance().getUsuario().getId());
 
-            if (obteinPendingDocuments == null){
+            if (obteinPendingDocuments.isEmpty()){
 
                 showAlert("Advertenica", "No cuenta con documentos pendientes por subir, será redirigido a la página de bienvenida",
                         Alert.AlertType.INFORMATION);
@@ -60,7 +61,7 @@ public class UploadInitialDocumentsController {
                 pendingDocuments = obteinPendingDocuments;
                 loadDocumentTypes();
                 configureDragAndDrop();
-
+                clearSelectedFile();
             }
 
         }catch (ServiceException e){
@@ -72,8 +73,19 @@ public class UploadInitialDocumentsController {
     }
 
     private void loadDocumentTypes() {
-        comboBoxDocumentType.getItems().addAll("Cronograma de actividades", "Oficio de aceptación",
-                "Horario del alumno", "Carta de presentación");
+
+        comboBoxDocumentType.getItems().clear();
+        for (InitialFormat initialFormat : pendingDocuments) {
+
+            String documentType = initialFormat.getFormatType();
+
+            if (documentType != null && !comboBoxDocumentType.getItems().contains(documentType)) {
+                comboBoxDocumentType.getItems().add(documentType);
+
+            }
+
+        }
+
     }
 
     private void configureDragAndDrop() {
@@ -145,26 +157,36 @@ public class UploadInitialDocumentsController {
             showError(errorMensaje);
         }else {
             saveDocumentProcess();
-            showInfo("Documento preparado correctamente");
+            showInfo("Documento guardado correctamente");
+            if (pendingDocuments.isEmpty()){
+                showAlert("Éxito", "Ya no tiene mas documntos pendientes sera redirigido",
+                        Alert.AlertType.INFORMATION);
+                openWelcomePage(anchorPane);
+            }
+
         }
 
     }
 
     private void saveDocumentProcess() {
-
         try {
 
-            String path = saveFilePdf();
+            String relativeFolder = "storage/intern_" + SessionManager.getInstance().getUsuario().getMatricula() + "/project_" +
+                    pendingDocuments.getFirst().getIdProject() + "/initial_formats";
+            String newFileName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase() +
+                    SessionManager.getInstance().getUsuario().getMatricula();
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
             InitialFormat initialFormat = new InitialFormat();
             initialFormat.setFormatType(comboBoxDocumentType.getValue());
-            initialFormat.setFilePath(path);
+            initialFormat.setFilePath(relativeFolder);
             initialFormat.setIdProject(pendingDocuments.getFirst().getIdProject());
             initialFormat.setIdInitialFormat(pendingDocuments.getFirst().getIdInitialFormat());
             initialFormat.setSubmissionDate(LocalDate.from(LocalDateTime.now(ZoneId.of("America/Mexico_City"))));
+            comboBoxDocumentType.getItems().remove(comboBoxDocumentType.getValue());
 
             if (initialFormatDAO.updateStatus(initialFormat) > 0){
                 pendingDocuments.remove(pendingDocuments.getFirst());
+                saveFile(selectedFile, relativeFolder, newFileName);
             }
 
         } catch (ValidationException e) {
@@ -176,13 +198,15 @@ public class UploadInitialDocumentsController {
     }
 
 
-    private String saveFilePdf() {
-        String relativeFolder = "storage/intern_" + SessionManager.getInstance().getUsuario().getMatricula() + "/project_" +
-                pendingDocuments.getFirst().getIdProject() + "/initial_formats";
-        String newFileName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase() +
-                SessionManager.getInstance().getUsuario().getMatricula();
-        saveFile(selectedFile, relativeFolder, newFileName);
-        return relativeFolder;
+
+    private void clearSelectedFile() {
+
+        selectedFile = null;
+
+        labelFileName.setText("Ningún archivo seleccionado");
+
+        labelStatus.setText("");
+
     }
 
     private void showError(String message) {
