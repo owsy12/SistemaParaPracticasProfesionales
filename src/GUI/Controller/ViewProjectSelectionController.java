@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import java.time.LocalDate;
@@ -20,9 +21,12 @@ import java.time.ZoneId;
 import java.util.List;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class ViewProjectSelectionController {
 
+    @FXML
+    private AnchorPane anchorPane;
     @FXML
     private FlowPane flowProjects;
     private List<Project> projectList;
@@ -71,14 +75,15 @@ public class ViewProjectSelectionController {
 
             showAlert("Exito", "su solicitud a sido creada",
                     Alert.AlertType.INFORMATION);
+            openWelcomePage((AnchorPane) anchorPane.getParent());
 
         }catch (IllegalStateException illegalStateException){
             showAlert("Error", "No se a logrado encontrar un poryecto seleccionado",
                     Alert.AlertType.ERROR);
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error", "servicio no disponible",
                     Alert.AlertType.ERROR);
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showAlert("Error ", "No s elogro concretar su solicitud",
                     Alert.AlertType.ERROR);
         }

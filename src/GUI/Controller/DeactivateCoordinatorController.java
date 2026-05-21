@@ -15,15 +15,15 @@ import static GUI.Utils.Alert.showAlertAndWait;
 
 public class DeactivateCoordinatorController {
     @FXML
-    private TableColumn<User, String>  nameColumn;
+    private TableColumn<User, String> nameColumn;
     @FXML
-    private TableColumn<User, Void>  actionsColumn;
+    private TableColumn<User, Void> actionsColumn;
     @FXML
-    private TableColumn<User, String>  secondLastNameColumn;
+    private TableColumn<User, String> secondLastNameColumn;
     @FXML
     private TableView tableView;
     @FXML
-    private TableColumn<User, String>  lastNameColumn;
+    private TableColumn<User, String> lastNameColumn;
     @FXML
     private TableColumn<User, String> tagColumn;
 
@@ -45,12 +45,12 @@ public class DeactivateCoordinatorController {
     }
 
     private void addButtonToTable() {
-        actionsColumn.setCellFactory(param -> new javafx.scene.control.TableCell<User, Void>() {
+        actionsColumn.setCellFactory(column -> new javafx.scene.control.TableCell<User, Void>() {
 
-            private final Button btn = new Button("Inactivar");
+            private final Button inactivateButton = new Button("Inactivar");
 
             {
-                btn.setOnAction(event -> {
+                inactivateButton.setOnAction(event -> {
                     User user = getTableView().getItems().get(getIndex());
                     showAlertAndWait("Desea desactivar ","desae", Alert.AlertType.CONFIRMATION).ifPresent(response -> {;
 
@@ -72,7 +72,7 @@ public class DeactivateCoordinatorController {
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(btn);
+                    setGraphic(inactivateButton);
                 }
 
             }
@@ -84,10 +84,10 @@ public class DeactivateCoordinatorController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
             showAlert("Coordinador desactivado", "El coordinador ha sido desactivado exitosamente.", Alert.AlertType.INFORMATION);
-        }catch (ServiceException e){
+        }catch (ServiceException serviceException){
             showAlert("Error de servicio", "Ocurrió un error al intentar desactivar el coordinador. Por favor, inténtelo de nuevo más tarde.",
                     Alert.AlertType.ERROR);
-        }catch (ValidationException e){
+        }catch (ValidationException validationException){
             showAlert("Error de validación", "Los datos proporcionados no son válidos. Por favor, revise la información e intente nuevamente.",
                     Alert.AlertType.WARNING);
         }
@@ -97,7 +97,7 @@ public class DeactivateCoordinatorController {
         try{
             CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
             tableView.getItems().setAll(coordinatorDAO.findActiveCoordinators());
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error de servicio", "Ocurrió un error al cargar los coordinadores. Por favor, inténtelo de nuevo más tarde.",
                     Alert.AlertType.ERROR);
         }

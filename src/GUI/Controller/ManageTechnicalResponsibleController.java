@@ -44,6 +44,11 @@ public class ManageTechnicalResponsibleController {
         loadTechnicalResponsibles();
     }
 
+    @FXML
+    public void cancelAction() {
+        openWelcomePage(anchorPane);
+    }
+
     private void loadTechnicalResponsibles() {
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
@@ -76,7 +81,7 @@ public class ManageTechnicalResponsibleController {
                 new SimpleStringProperty(cellData.getValue().geteMail()));
         positionColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getPosition()));
-        actionColumn.setCellFactory(param -> new TableCell<TechnicalSupervisor, Void>() {
+        actionColumn.setCellFactory(column -> new TableCell<TechnicalSupervisor, Void>() {
             private final Button deleteButton = new Button("Eliminar");
             {
                 deleteButton.setOnAction(event -> {

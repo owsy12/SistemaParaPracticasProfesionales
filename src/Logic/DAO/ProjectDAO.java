@@ -19,13 +19,13 @@ public class ProjectDAO implements IProjectDAO {
 
     private static final String INSERT_PROJECT_SQL =
             "INSERT INTO proyecto " +
-                    "(id_proyecto, id_organizacion, id_tecnico, id_profesor, nombre, descripcion, " +
-                    "fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "(id_organizacion, id_tecnico, id_profesor, nombre, descripcion, objetivo, " +
+                    "fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado, nrc) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SELECT_PROJECT_BY_ID_SQL =
             "SELECT id_proyecto, id_organizacion, id_tecnico, id_profesor, " +
-                    "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
+                    "nombre, descripcion, objetivo, fecha_inicio, fecha_fin, cupo_maximo, " +
                     "cupo_disponible, estado FROM proyecto WHERE id_proyecto = ?";
     private static final String SELECT_ALL_PROJECTS_SQL =
             "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
@@ -46,7 +46,7 @@ public class ProjectDAO implements IProjectDAO {
                     "cupo_disponible, estado FROM proyecto WHERE id_coordinador = ?";
     private static final String UPDATE_PROJECT_SQL =
             "UPDATE proyecto " +
-                    "SET id_organizacion = ?, id_tecnico = ?, nombre = ?, descripcion = ?, " +
+                    "SET id_organizacion = ?, id_tecnico = ?, nombre = ?, descripcion = ?, objetivo = ?, " +
                     "fecha_inicio = ?, fecha_fin = ?, cupo_maximo = ?, cupo_disponible = ?, " +
                     "estado = ? WHERE id_proyecto = ?";
     private static final String UPDATE_PROJECT_STATUS_SQL =
@@ -66,20 +66,27 @@ public class ProjectDAO implements IProjectDAO {
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement = connection.prepareStatement(INSERT_PROJECT_SQL)) {
-            preparedStatement.setInt   (1, project.getIdProyect());
-            preparedStatement.setInt   (2, project.getIdOrganization());
-            preparedStatement.setInt   (3, project.getIdTechnicalSupervisor());
-            preparedStatement.setInt   (4, project.getIdProfessor());
-            preparedStatement.setString(5, project.getName());
-            preparedStatement.setString(6, project.getDescription());
-            preparedStatement.setDate  (7, Date.valueOf(project.getStartDate()));
-            preparedStatement.setDate  (8, Date.valueOf(project.getEndDate()));
-            preparedStatement.setInt   (9, project.getMaximumPlaces());
-            preparedStatement.setInt   (10, project.getAvaliablePlaces());
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     INSERT_PROJECT_SQL, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setInt(1, project.getIdOrganization());
+            preparedStatement.setInt(2, project.getIdTechnicalSupervisor());
+            preparedStatement.setInt(3, project.getIdProfessor());
+            preparedStatement.setString(4, project.getName());
+            preparedStatement.setString(5, project.getDescription());
+            preparedStatement.setString(6, project.getObjetivo());
+            preparedStatement.setDate(7, Date.valueOf(project.getStartDate()));
+            preparedStatement.setDate(8, Date.valueOf(project.getEndDate()));
+            preparedStatement.setInt(9, project.getMaximumPlaces());
+            preparedStatement.setInt(10, project.getAvaliablePlaces());
             preparedStatement.setString(11, "Disponible");
+            preparedStatement.setString(12, project.getNrc());
 
             if (preparedStatement.executeUpdate() > 0) {
+                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        project.setIdProyect(generatedKeys.getInt(1));
+                    }
+                }
                 isSaved = true;
             }
 
@@ -114,6 +121,7 @@ public class ProjectDAO implements IProjectDAO {
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     projectResult = mapProject(resultSet);
+                    projectResult.setIdProfessor(resultSet.getInt("id_profesor"));
                 }
             }
 
@@ -250,12 +258,13 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setInt   (2, project.getIdTechnicalSupervisor());
             preparedStatement.setString(3, project.getName());
             preparedStatement.setString(4, project.getDescription());
-            preparedStatement.setDate  (5, java.sql.Date.valueOf(project.getStartDate()));
-            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getEndDate()));
-            preparedStatement.setInt   (7, project.getMaximumPlaces());
-            preparedStatement.setInt   (8, project.getAvaliablePlaces());
-            preparedStatement.setString(9, "Disponible");
-            preparedStatement.setInt   (10, project.getIdProyect());
+            preparedStatement.setString(5, project.getObjetivo());
+            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getStartDate()));
+            preparedStatement.setDate  (7, java.sql.Date.valueOf(project.getEndDate()));
+            preparedStatement.setInt   (8, project.getMaximumPlaces());
+            preparedStatement.setInt   (9, project.getAvaliablePlaces());
+            preparedStatement.setString(10, "Disponible");
+            preparedStatement.setInt   (11, project.getIdProyect());
 
             if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -373,7 +382,7 @@ public class ProjectDAO implements IProjectDAO {
     }
 
     private Project mapProject(ResultSet resultSet) throws SQLException {
-        return new Project(
+        Project project = new Project(
                 resultSet.getInt   ("id_proyecto"),
                 resultSet.getInt   ("id_organizacion"),
                 resultSet.getInt   ("id_tecnico"),
@@ -384,5 +393,11 @@ public class ProjectDAO implements IProjectDAO {
                 resultSet.getInt   ("cupo_disponible"),
                 resultSet.getInt   ("cupo_maximo")
         );
+        try {
+            project.setObjetivo(resultSet.getString("objetivo"));
+        } catch (SQLException ignored) {
+            // Column may not exist in all queries
+        }
+        return project;
     }
 }

@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class InitialFormat {
     private int idInitialFormat;
-    private  int idIntern;
+    private int idIntern;
     private int idProject;
     private String formatType; //support types : Assignment letter, Schedule,
     private String filePath;

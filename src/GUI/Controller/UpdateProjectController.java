@@ -13,7 +13,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import java.util.List;
-import java.util.Objects;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -38,47 +37,67 @@ public class UpdateProjectController {
     private DatePicker startDate;
     @FXML
     private TextField nrcTextField;
+    @FXML
+    private TextArea objetivoTextArea;
 
     @FXML
     public void cancelButton(ActionEvent actionEvent) {
+        configureProjectInformation();
     }
 
     @FXML
     public void updateProject(ActionEvent actionEvent) {
-        if (!noEmptyValues() && (Integer.parseInt(capacityTextField.getText()) >= project.getMaximumPlaces())){
-            updateProjectProcess();
-        } else {
-            showAlert("Advetencia", "Todos los campos deben de estar llenos",
+        if (hasEmptyFields()) {
+            showAlert("Campos vacíos", "Todos los campos deben estar llenos.",
                     Alert.AlertType.WARNING);
+        } else {
+            updateProjectProcess();
         }
     }
 
-    private void updateProjectProcess(){
+    private void updateProjectProcess() {
         try {
-            Project updateProject = project;
-            updateProject.setName(nameTextField.getText());
-            updateProject.setDescription(descriptionTextField.getText());
-            updateProject.setMaximumPlaces(Integer.parseInt(capacityTextField.getText()));
-            updateProject.setIdProfessor(professorComboBox.getValue().getId());
-            updateProject.setIdTechnicalSupervisor(technicalComboBox.getValue().getIdTechnicalSupervisor());
+            Project originalSnapshot = buildSnapshot();
 
-            if (updateProject.equals(project)){
-                ProjectDAO projectDAO = new ProjectDAO();
-                projectDAO.update(updateProject);
-                showAlert("Exito", "Proyecto actualizad correctamente",
+            project.setName(nameTextField.getText().trim());
+            project.setDescription(descriptionTextField.getText().trim());
+            project.setObjetivo(objetivoTextArea.getText().trim());
+            project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText().trim()));
+            project.setIdProfessor(professorComboBox.getValue().getId());
+            project.setIdTechnicalSupervisor(
+                    technicalComboBox.getValue().getIdTechnicalSupervisor());
+
+            if (project.equals(originalSnapshot)) {
+                showAlert("Sin cambios",
+                        "No se detectaron cambios en el proyecto.",
                         Alert.AlertType.INFORMATION);
             } else {
-                showAlert("Informacion", "No se encontraron cambios a realizar",
+                ProjectDAO projectDAO = new ProjectDAO();
+                projectDAO.update(project);
+                showAlert("Éxito", "Proyecto actualizado correctamente.",
                         Alert.AlertType.INFORMATION);
             }
 
-        } catch (ValidationException e) {
-            showAlert("Error","No se logro comprobar el proyecto a modiifcar",
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    "No se pudo validar la información del proyecto.",
                     Alert.AlertType.ERROR);
-        } catch (ServiceException e) {
-            showAlert("Error", "servicio No disponible ",
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible",
+                    "No se pudo actualizar el proyecto. Intente más tarde.",
                     Alert.AlertType.ERROR);
         }
+    }
+
+    private Project buildSnapshot() {
+        Project snapshot = new Project();
+        snapshot.setName(project.getName());
+        snapshot.setDescription(project.getDescription());
+        snapshot.setObjetivo(project.getObjetivo());
+        snapshot.setMaximumPlaces(project.getMaximumPlaces());
+        snapshot.setIdProfessor(project.getIdProfessor());
+        snapshot.setIdTechnicalSupervisor(project.getIdTechnicalSupervisor());
+        return snapshot;
     }
 
     private void configureProjectInformation(){
@@ -90,6 +109,9 @@ public class UpdateProjectController {
         startDate.setValue(project.getStartDate());
         nameTextField.setText(project.getName());
         descriptionTextField.setText(project.getDescription());
+        if (project.getObjetivo() != null) {
+            objetivoTextArea.setText(project.getObjetivo());
+        }
         organizationComboBox.getItems().add(project.getOrganizationName());
         organizationComboBox.getSelectionModel().selectFirst();
         organizationComboBox.setDisable(true);
@@ -97,7 +119,7 @@ public class UpdateProjectController {
         technicalComboBox.getItems().setAll(getProjectTechnicalList(project.getIdOrganization()));
 
 
-        technicalComboBox.setCellFactory(param -> new ListCell<>() {
+        technicalComboBox.setCellFactory(column -> new ListCell<>() {
             @Override
             protected void updateItem(TechnicalSupervisor item, boolean empty) {
                 super.updateItem(item, empty);
@@ -113,7 +135,7 @@ public class UpdateProjectController {
             }
         });
 
-        professorComboBox.setCellFactory(param -> new ListCell<>() {
+        professorComboBox.setCellFactory(column -> new ListCell<>() {
             @Override
             protected void updateItem(Professor item, boolean empty) {
                 super.updateItem(item, empty);
@@ -155,11 +177,13 @@ public class UpdateProjectController {
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
             technicalSupervisorsList = technicalResponsibleDAO.findByOrganization(idOrganization);
-        } catch (ValidationException e) {
-            showAlert("error", "no se logro validar la existecia ",
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    "No se pudieron recuperar los responsables técnicos.",
                     Alert.AlertType.ERROR);
-        } catch (ServiceException e) {
-            showAlert("Error", "servicio no dippnible intente mas tarde",
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los responsables. Intente más tarde.",
                     Alert.AlertType.ERROR);
         }
 
@@ -172,28 +196,26 @@ public class UpdateProjectController {
         try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             professorList = professorDAO.findActiveProfessors();
-        } catch (ServiceException e) {
-            showAlert("Error", "servicio no disponivle",
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los profesores. Intente más tarde.",
                     Alert.AlertType.ERROR);
-        } catch (ValidationException e) {
-            showAlert("Error", "suceso inesperado intente luego",
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    "No se pudieron recuperar los profesores.",
                     Alert.AlertType.ERROR);
         }
 
         return professorList;
     }
 
-    private boolean noEmptyValues(){
-        boolean isEmpty = false;
-
-        if (nameTextField.getText().isEmpty() ||
-                descriptionTextField.getText().isEmpty() ||
-            capacityTextField.getText().isEmpty() ||
-            professorComboBox.getValue() == null ||
-                technicalComboBox.getValue() == null){
-            isEmpty = true;
-        }
-
+    private boolean hasEmptyFields() {
+        boolean isEmpty = nameTextField.getText().isBlank()
+                || descriptionTextField.getText().isBlank()
+                || capacityTextField.getText().isBlank()
+                || objetivoTextArea.getText().isBlank()
+                || professorComboBox.getValue() == null
+                || technicalComboBox.getValue() == null;
         return isEmpty;
     }
 
@@ -206,15 +228,4 @@ public class UpdateProjectController {
         configureProjectInformation();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        UpdateProjectController that = (UpdateProjectController) o;
-        return Objects.equals(project, that.project);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(project);
-    }
 }

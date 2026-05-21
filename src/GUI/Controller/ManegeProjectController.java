@@ -26,7 +26,7 @@ public class ManegeProjectController {
     @FXML
     private TableColumn<Project,String> endDateColumn;
     @FXML
-    private TableColumn<Project,Void>  updateColumn;
+    private TableColumn<Project, Void> updateColumn;
     @FXML
     private AnchorPane anchorPane;
     @FXML
@@ -67,7 +67,7 @@ public class ManegeProjectController {
               openWelcomePage(anchorPane);
             }
 
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error", "servico no disponible intente mas tarde", Alert.AlertType.ERROR);
         }
     }
@@ -98,7 +98,7 @@ public class ManegeProjectController {
     }
 
     private void addActionButtons(){
-        deleteColumn.setCellFactory(param -> new TableCell<Project,Void>(){
+        deleteColumn.setCellFactory(column -> new TableCell<Project, Void>(){
 
             Button button = new Button("Eliminar");
 
@@ -125,7 +125,7 @@ public class ManegeProjectController {
             }
         });
 
-        updateColumn.setCellFactory(param -> new TableCell<Project,Void>(){
+        updateColumn.setCellFactory(column -> new TableCell<Project, Void>(){
 
             Button button = new Button("Actualizar");
 
@@ -155,7 +155,7 @@ public class ManegeProjectController {
             UpdateProjectController controller = loader.getController();
             controller.setProject(project);
             anchorPane.getChildren().setAll(vista);
-        } catch (IOException e) {
+        } catch (IOException ioException) {
             showAlert("Error", "Np se logro cargar la vista",
                     Alert.AlertType.ERROR);
         }
@@ -168,9 +168,9 @@ public class ManegeProjectController {
             loadProjectoOnTableView();
             showAlert("exito", "Proyecto eliminado exitosamente",
                     Alert.AlertType.INFORMATION);
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error", "Servicio no dispoible" , Alert.AlertType.ERROR);
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showAlert("Error ", "no se logro validar el proyecto", Alert.AlertType.ERROR);
         }
     }

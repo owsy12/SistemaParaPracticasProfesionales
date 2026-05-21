@@ -13,6 +13,8 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import static GUI.Utils.ValidationUtils.isValidEmail;
+import static GUI.Utils.ValidationUtils.getPasswordValidationMessage;
 
 public class AddInternController {
 
@@ -34,15 +36,15 @@ public class AddInternController {
     private TextField creditTextField;
 
     @FXML
-    private void initialize(){
-        setTypeAndLength(idTextField,"ID");
-        setTypeAndLength(lastNameTextField,"Name");
-        setTypeAndLength(secondLastNameTextField,"Name");
-        setTypeAndLength(emailTextField,"Email");
-        setTypeAndLength(firstNameTextField,"Name");
-        setTypeAndLength(passwordField,"Text");
-        setTypeAndLength(confirmPasswordField,"Text");
-        setTypeAndLength(creditTextField,"Number");
+    private void initialize() {
+        setTypeAndLength(idTextField, "ID");
+        setTypeAndLength(lastNameTextField, "Name");
+        setTypeAndLength(secondLastNameTextField, "Name");
+        setTypeAndLength(emailTextField, "Email");
+        setTypeAndLength(firstNameTextField, "Name");
+        setTypeAndLength(passwordField, "Password");
+        setTypeAndLength(confirmPasswordField, "Password");
+        setTypeAndLength(creditTextField, "Number");
     }
 
     @FXML
@@ -52,16 +54,27 @@ public class AddInternController {
 
     @FXML
     public void registerIntern(ActionEvent actionEvent) {
-        if (isValid()){
-            showAlert("advertencia", "Debe de llenar todos los datos",
+        if (hasEmptyFields()) {
+            showAlert("Campos vacíos", "Por favor complete todos los campos obligatorios.",
                     Alert.AlertType.WARNING);
-        }else {
+        } else if (!isValidEmail(emailTextField.getText())) {
+            showAlert("Correo inválido", "Ingrese un correo electrónico válido.",
+                    Alert.AlertType.WARNING);
+        } else if (getPasswordValidationMessage(passwordField.getText()) != null) {
+            showAlert("Contraseña no válida",
+                    getPasswordValidationMessage(passwordField.getText()),
+                    Alert.AlertType.WARNING);
+        } else if (!isPasswordMatching()) {
+            showAlert("Contraseñas no coinciden",
+                    "La confirmación de contraseña no coincide con la contraseña ingresada.",
+                    Alert.AlertType.WARNING);
+        } else {
             registrationProcess();
         }
     }
 
-    private void registrationProcess(){
-        try{
+    private void registrationProcess() {
+        try {
             InternDAO internDAO = new InternDAO();
             Intern intern = new Intern();
             intern.setMatricula(idTextField.getText());
@@ -74,40 +87,41 @@ public class AddInternController {
             intern.setStatus("Activo");
             intern.setRole("Practicante");
 
-            if (internDAO.saveIntern(intern)){
-                showAlert("Exito","Practicante guradado con exito",
+            if (internDAO.saveIntern(intern)) {
+                showAlert("Éxito", "Practicante registrado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();
-            }else {
-                showAlert("Advertenica", "No se lgoro guardar practiante",
-                 Alert.AlertType.ERROR);
+            } else {
+                showAlert("Error", "No se pudo registrar el practicante.",
+                        Alert.AlertType.ERROR);
             }
-        } catch (ValidationException e) {
-            showAlert("VAlidation Error", "Valide infroamcin ingresada",
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
-        } catch (ServiceException e) {
-            showAlert("Error", "Servicio no disponible",
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible", "No se pudo conectar al servicio. Intente más tarde.",
                     Alert.AlertType.ERROR);
         }
     }
 
-    private boolean isValid(){
-        boolean valid = false;
-
-        if (idTextField.getText().isEmpty() ||
-            creditTextField.getText().isEmpty() ||
-            lastNameTextField.getText().isEmpty() ||
-            secondLastNameTextField.getText().isEmpty() ||
-            emailTextField.getText().isEmpty() ||
-            passwordField.getText().isEmpty() ||
-            confirmPasswordField.getText().isEmpty()){
-            valid = true;
-        }
-
-        return valid;
+    private boolean hasEmptyFields() {
+        boolean isEmpty = idTextField.getText().isEmpty()
+                || creditTextField.getText().isEmpty()
+                || lastNameTextField.getText().isEmpty()
+                || secondLastNameTextField.getText().isEmpty()
+                || emailTextField.getText().isEmpty()
+                || firstNameTextField.getText().isEmpty()
+                || passwordField.getText().isEmpty()
+                || confirmPasswordField.getText().isEmpty();
+        return isEmpty;
     }
 
-    private void clear(){
+    private boolean isPasswordMatching() {
+        boolean isMatching = passwordField.getText().equals(confirmPasswordField.getText());
+        return isMatching;
+    }
+
+    private void clear() {
         idTextField.clear();
         lastNameTextField.clear();
         secondLastNameTextField.clear();

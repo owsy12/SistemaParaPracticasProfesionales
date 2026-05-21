@@ -1,14 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="GUI.Controller.GenerateReportController"
-            prefHeight="400.0" prefWidth="600.0">
+<ScrollPane fitToWidth="true"
+            prefHeight="820.0" prefWidth="870.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.GenerateReportController">
+   <content>
+      <AnchorPane minHeight="980.0" prefHeight="980.0" prefWidth="850.0">
+         <children>
 
-</AnchorPane>
+            <Label layoutX="20.0" layoutY="14.0" text="Generar Reporte de Prácticas">
+               <font><Font size="18.0"/></font>
+            </Label>
+
+            <Label fx:id="internNameLabel"    layoutX="20.0" layoutY="48.0" text="Practicante: —" />
+            <Label fx:id="projectLabel"       layoutX="20.0" layoutY="66.0" text="Proyecto: —" />
+            <Label fx:id="approvedHoursLabel" layoutX="20.0" layoutY="84.0" text="Horas validadas: 0" />
+
+            <Label layoutX="20.0"  layoutY="112.0" text="Tipo de reporte:" />
+            <ComboBox fx:id="reportTypeComboBox" layoutX="20.0" layoutY="130.0"
+                      prefHeight="26.0" prefWidth="200.0" />
+
+            <Label layoutX="240.0" layoutY="112.0" text="Mes:" />
+            <ComboBox fx:id="monthComboBox" layoutX="240.0" layoutY="130.0"
+                      prefHeight="26.0" prefWidth="160.0" visible="false" />
+
+            <Label layoutX="420.0" layoutY="112.0" text="Horas del período:" />
+            <TextField fx:id="reportedHoursTextField" layoutX="420.0" layoutY="130.0"
+                       prefHeight="26.0" prefWidth="120.0" visible="false" />
+
+            <Label layoutX="560.0" layoutY="112.0" text="No. de informe:" />
+            <TextField fx:id="reportNumberTextField" layoutX="560.0" layoutY="130.0"
+                       prefHeight="26.0" prefWidth="120.0" visible="false" />
+
+            <Label layoutX="20.0" layoutY="170.0" text="Metodología:" />
+            <TextArea fx:id="methodologyTextArea" layoutX="20.0" layoutY="188.0"
+                      prefHeight="70.0" prefWidth="810.0" wrapText="true" visible="false" />
+
+            <Label layoutX="20.0" layoutY="272.0" text="Resultados obtenidos:" />
+            <TextArea fx:id="resultsTextArea" layoutX="20.0" layoutY="290.0"
+                      prefHeight="60.0" prefWidth="810.0" wrapText="true" visible="false" />
+
+            <Label layoutX="20.0" layoutY="364.0" text="Observaciones generales:" />
+            <TextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="382.0"
+                      prefHeight="50.0" prefWidth="810.0" wrapText="true" visible="false" />
+
+            <!-- Project activities section -->
+            <Label layoutX="20.0" layoutY="446.0"
+                   text="Actividades del Proyecto (seleccionar y agregar al reporte):">
+               <font><Font size="13.0"/></font>
+            </Label>
+
+            <TableView fx:id="projectActivitiesTable" layoutX="20.0" layoutY="464.0"
+                       prefHeight="130.0" prefWidth="810.0">
+               <columns>
+                  <TableColumn fx:id="colActName"      prefWidth="280.0" text="Nombre" />
+                  <TableColumn fx:id="colActDesc"      prefWidth="310.0" text="Descripción" />
+                  <TableColumn fx:id="colActPlanStart" prefWidth="110.0" text="Sem. inicio" />
+                  <TableColumn fx:id="colActPlanEnd"   prefWidth="110.0" text="Sem. fin" />
+               </columns>
+            </TableView>
+
+            <Button layoutX="20.0"  layoutY="602.0" mnemonicParsing="false"
+                    onAction="#addActivityToReport"
+                    prefHeight="26.0" prefWidth="210.0" text="+ Agregar al reporte" />
+            <Button layoutX="240.0" layoutY="602.0" mnemonicParsing="false"
+                    onAction="#removeActivityFromReport"
+                    prefHeight="26.0" prefWidth="210.0" text="- Eliminar del reporte" />
+
+            <!-- Included activities table -->
+            <Label layoutX="20.0" layoutY="638.0" text="Actividades incluidas en el reporte:" />
+            <TableView fx:id="reportActivitiesTable" layoutX="20.0" layoutY="656.0"
+                       prefHeight="110.0" prefWidth="810.0">
+               <columns>
+                  <TableColumn fx:id="colRaName"   prefWidth="310.0" text="Actividad" />
+                  <TableColumn fx:id="colRaPeriod" prefWidth="240.0" text="Período / Semanas" />
+                  <TableColumn fx:id="colRaDetail" prefWidth="250.0" text="Avance / Obs." />
+               </columns>
+            </TableView>
+
+            <!-- Deliverables (final report only, hidden by default) -->
+            <Label fx:id="deliverablesLabel" layoutX="20.0" layoutY="780.0"
+                   text="Entregables del reporte final:"
+                   visible="false">
+               <font><Font size="13.0"/></font>
+            </Label>
+            <TableView fx:id="reportDeliverablesTable" layoutX="20.0" layoutY="798.0"
+                       prefHeight="100.0" prefWidth="810.0" visible="false">
+               <columns>
+                  <TableColumn fx:id="colRdResult"  prefWidth="200.0" text="Resultado entregable" />
+                  <TableColumn fx:id="colRdDesc"    prefWidth="220.0" text="Descripción" />
+                  <TableColumn fx:id="colRdAdvance" prefWidth="80.0"  text="Avance" />
+                  <TableColumn fx:id="colRdObs"     prefWidth="310.0" text="Observaciones" />
+               </columns>
+            </TableView>
+            <Button fx:id="addDeliverableButton" layoutX="20.0" layoutY="906.0"
+                    mnemonicParsing="false"
+                    onAction="#addDeliverableToReport"
+                    prefHeight="26.0" prefWidth="180.0" text="+ Agregar entregable"
+                    visible="false" />
+            <Button fx:id="removeDeliverableButton" layoutX="210.0" layoutY="906.0"
+                    mnemonicParsing="false"
+                    onAction="#removeDeliverableFromReport"
+                    prefHeight="26.0" prefWidth="200.0" text="- Eliminar seleccionado"
+                    visible="false" />
+
+            <!-- Main action buttons -->
+            <Button fx:id="generateButton" layoutX="20.0" layoutY="942.0"
+                    mnemonicParsing="false" onAction="#generateReport"
+                    prefHeight="30.0" prefWidth="200.0" text="Generar Reporte PDF" />
+            <Button layoutX="710.0" layoutY="942.0"
+                    mnemonicParsing="false" onAction="#cancelAction"
+                    prefHeight="30.0" prefWidth="120.0" text="Cancelar" />
+
+         </children>
+      </AnchorPane>
+   </content>
+</ScrollPane>

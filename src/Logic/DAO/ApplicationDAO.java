@@ -235,8 +235,8 @@ public class ApplicationDAO implements IApplicationDAO {
 
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
         }
 
         return application;

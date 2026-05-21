@@ -33,7 +33,7 @@ public class AddTechnicalResponsibleController {
     @FXML
     private void initialize() {
         loadLinkedOrganization();
-        organizationComboBox.setCellFactory(param -> new ListCell<>() {
+        organizationComboBox.setCellFactory(column -> new ListCell<>() {
             @Override
             protected void updateItem(LinkedOrganization item, boolean empty) {
                 super.updateItem(item, empty);
@@ -78,8 +78,8 @@ public class AddTechnicalResponsibleController {
         try{
             LinkedOrganizationDAO linkedOrganization = new LinkedOrganizationDAO();
             organizationComboBox.getItems().addAll(linkedOrganization.findAllActive());
-        } catch (ServiceException e) {
-            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + e.getMessage(),
+        } catch (ServiceException serviceException) {
+            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
                     AlertType.ERROR);
         }
     }
@@ -105,11 +105,11 @@ public class AddTechnicalResponsibleController {
                         AlertType.ERROR);
             }
 
-        } catch (ValidationException e) {
-            showAlert("Error de validación", e.getMessage(),
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);
-        } catch (ServiceException e) {
-            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + e.getMessage(),
+        } catch (ServiceException serviceException) {
+            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
                     AlertType.ERROR);
         }
     }

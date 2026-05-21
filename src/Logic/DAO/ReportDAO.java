@@ -7,39 +7,86 @@ import Logic.Interface.IReportDAO;
 import DataAccess.DataBaseConnection;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ReportDAO implements IReportDAO {
+
+    private static final Logger LOGGER = Logger.getLogger(ReportDAO.class.getName());
+
     private static final String SQL_INSERT =
             "INSERT INTO reporte " +
-                    "(id_practicante, id_proyecto, id_profesor, " +
-                    " tipo_reporte, periodo, ruta_documento, estado, fecha_entrega) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "(id_practicante, id_proyecto, id_profesor, tipo_reporte, periodo, " +
+            " ruta_documento, estado, horas_reportadas, fecha_entrega, fecha_limite, entrega_tardia) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    private static final String SQL_SELECT_COLUMNS =
+            "SELECT id_reporte, id_practicante, id_proyecto, id_profesor, tipo_reporte, " +
+            "       periodo, ruta_documento, ruta_documento_firmado, estado, horas_reportadas, " +
+            "       observaciones_profesor, fecha_revision, fecha_entrega, fecha_limite, entrega_tardia ";
 
     private static final String SQL_SELECT_BY_ID =
-            "SELECT id_reporte, id_practicante, id_proyecto, id_profesor, " +
-                    "       tipo_reporte, periodo, ruta_documento, estado, fecha_entrega " +
-                    "FROM reporte " +
-                    "WHERE id_reporte = ?";
+            SQL_SELECT_COLUMNS + "FROM reporte WHERE id_reporte = ?";
 
     private static final String SQL_SELECT_ALL =
-            "SELECT id_reporte, id_practicante, id_proyecto, id_profesor, " +
-                    "       tipo_reporte, periodo, ruta_documento, estado, fecha_entrega " +
-                    "FROM reporte";
+            SQL_SELECT_COLUMNS + "FROM reporte";
 
     private static final String SQL_SELECT_PENDING =
-            "SELECT id_reporte, id_practicante, id_proyecto, id_profesor, " +
-                    "       tipo_reporte, periodo, ruta_documento, estado, fecha_entrega " +
-                    "FROM reporte " +
-                    "WHERE estado = 'Pendiente'";
+            SQL_SELECT_COLUMNS + "FROM reporte WHERE estado = 'Pendiente'";
+
+    private static final String SQL_SELECT_BY_INTERN =
+            SQL_SELECT_COLUMNS + "FROM reporte WHERE id_practicante = ? ORDER BY fecha_entrega DESC";
+
+    private static final String SQL_SELECT_BY_PROFESSOR =
+            SQL_SELECT_COLUMNS +
+            "FROM reporte WHERE id_profesor = ? ORDER BY fecha_entrega DESC";
+
+    private static final String SQL_UPDATE_STATUS =
+            "UPDATE reporte " +
+            "SET estado = ?, observaciones_profesor = ?, fecha_revision = ? " +
+            "WHERE id_reporte = ?";
+
+    private static final String SQL_UPDATE_DOCUMENT_PATH =
+            "UPDATE reporte SET ruta_documento = ? WHERE id_reporte = ?";
+
+    private static final String SQL_UPDATE_SIGNED_PATH =
+            "UPDATE reporte SET ruta_documento_firmado = ?, estado = 'Entregado' " +
+            "WHERE id_reporte = ?";
+
+    private static final String SQL_MARK_LATE_DELIVERY =
+            "UPDATE reporte SET entrega_tardia = 1 WHERE id_reporte = ?";
+
+    private static final String SQL_SUM_APPROVED_HOURS =
+            "SELECT COALESCE(SUM(rm.horas_reportadas), 0) AS total_horas " +
+            "FROM reporte r " +
+            "JOIN reporte_mensual rm ON rm.id_reporte_mensual = r.id_reporte " +
+            "WHERE r.id_practicante = ? AND r.estado = 'Aprobado'";
+
+    private static final String SQL_EXISTS_MONTHLY =
+            "SELECT COUNT(*) AS total " +
+            "FROM reporte r " +
+            "JOIN reporte_mensual rm ON rm.id_reporte_mensual = r.id_reporte " +
+            "WHERE r.id_practicante = ? AND rm.mes = ? AND rm.anio = ?";
+
+    private static final String SQL_EXISTS_PARTIAL =
+            "SELECT COUNT(*) AS total FROM reporte " +
+            "WHERE id_practicante = ? AND id_proyecto = ? AND tipo_reporte = 'Parcial'";
+
+    private static final String SQL_EXISTS_FINAL =
+            "SELECT COUNT(*) AS total FROM reporte " +
+            "WHERE id_practicante = ? AND id_proyecto = ? AND tipo_reporte = 'Final'";
 
     @Override
     public int save(Report report) throws ServiceException, ValidationException {
         if (report.getIdIntern() <= 0) {
             throw new ValidationException(
-                    "El ID del practicante debe ser mayor a cero. ID recibido: " + report.getIdIntern());
+                    "El ID del practicante debe ser mayor a cero. ID recibido: "
+                    + report.getIdIntern());
         }
+
         int rowsAffected = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -53,7 +100,11 @@ public class ReportDAO implements IReportDAO {
             statement.setString(5, report.getPeriod());
             statement.setString(6, report.getDocumentPath());
             statement.setString(7, report.getStatus());
-            statement.setDate  (8, new java.sql.Date(report.getSumissionDate().getTime()));
+            statement.setInt(8, report.getReportedHours());
+            statement.setDate(9, new java.sql.Date(report.getSumissionDate().getTime()));
+            statement.setDate(10, report.getFechaLimite() != null
+                    ? java.sql.Date.valueOf(report.getFechaLimite()) : null);
+            statement.setBoolean(11, report.isEntregaTardia());
 
             rowsAffected = statement.executeUpdate();
 
@@ -62,8 +113,10 @@ public class ReportDAO implements IReportDAO {
                     report.setIdReport(generatedKeys.getInt(1));
                 }
             }
-        }catch (SQLException sqlException){
-            throw new ServiceException("Error saving report " + sqlException.getMessage(), sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al guardar reporte del practicante {0}: {1}",
+                    new Object[]{report.getIdIntern(), sqlException.getMessage()});
+            throw new ServiceException("Error al guardar el reporte.", sqlException);
         }
 
         return rowsAffected;
@@ -75,6 +128,7 @@ public class ReportDAO implements IReportDAO {
             throw new ValidationException(
                     "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
         }
+
         Report report = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -87,8 +141,11 @@ public class ReportDAO implements IReportDAO {
                     report = mapResultSetToReport(resultSet);
                 }
             }
-        }catch (SQLException sqlException){
-            throw new ServiceException("Error retrieving report with ID " + idReport, sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reporte con ID {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new ServiceException("Error al recuperar el reporte con ID " + idReport,
+                    sqlException);
         }
 
         return report;
@@ -105,8 +162,10 @@ public class ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSetToReport(resultSet));
             }
-        }catch (SQLException sqlException){
-            throw new ServiceException("Error retrieving all reports", sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar todos los reportes: {0}",
+                    sqlException.getMessage());
+            throw new ServiceException("Error al recuperar la lista de reportes.", sqlException);
         }
 
         return reports;
@@ -123,24 +182,331 @@ public class ReportDAO implements IReportDAO {
             while (resultSet.next()) {
                 reports.add(mapResultSetToReport(resultSet));
             }
-        }catch (SQLException sqlException){
-            throw new ServiceException("Error retrieving pending reports", sqlException);
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reportes pendientes: {0}",
+                    sqlException.getMessage());
+            throw new ServiceException("Error al recuperar los reportes pendientes.", sqlException);
         }
 
         return reports;
     }
 
-    protected Report mapResultSetToReport(ResultSet rresultSet) throws SQLException {
+    @Override
+    public List<Report> getByIdIntern(int idIntern) throws ServiceException, ValidationException {
+        if (idIntern <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
+        }
+
+        List<Report> reports = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_INTERN)) {
+
+            statement.setInt(1, idIntern);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    reports.add(mapResultSetToReport(resultSet));
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reportes del practicante {0}: {1}",
+                    new Object[]{idIntern, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los reportes del practicante.", sqlException);
+        }
+
+        return reports;
+    }
+
+    @Override
+    public List<Report> getByIdProfessor(int idProfessor)
+            throws ServiceException, ValidationException {
+        if (idProfessor <= 0) {
+            throw new ValidationException(
+                    "El ID del profesor debe ser mayor a cero. ID recibido: " + idProfessor);
+        }
+
+        List<Report> reports = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_PROFESSOR)) {
+
+            statement.setInt(1, idProfessor);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    reports.add(mapResultSetToReport(resultSet));
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reportes del profesor {0}: {1}",
+                    new Object[]{idProfessor, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los reportes del profesor.", sqlException);
+        }
+
+        return reports;
+    }
+
+    @Override
+    public boolean updateStatus(int idReport, String status, String professorObservations,
+                                java.sql.Date reviewDate)
+            throws ServiceException, ValidationException {
+        if (idReport <= 0) {
+            throw new ValidationException(
+                    "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
+        }
+        if (status == null || status.isBlank()) {
+            throw new ValidationException("El estado del reporte no puede estar vacío.");
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_STATUS)) {
+
+            statement.setString(1, status);
+            statement.setString(2, professorObservations);
+            statement.setDate  (3, reviewDate);
+            statement.setInt   (4, idReport);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al actualizar estado del reporte {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new ServiceException("Error al actualizar el estado del reporte.", sqlException);
+        }
+
+        return isUpdated;
+    }
+
+    @Override
+    public boolean updateSignedDocumentPath(int idReport, String signedPath)
+            throws ServiceException, ValidationException {
+        if (idReport <= 0) {
+            throw new ValidationException(
+                    "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
+        }
+        if (signedPath == null || signedPath.isBlank()) {
+            throw new ValidationException("La ruta del documento firmado no puede estar vacía.");
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_SIGNED_PATH)) {
+
+            statement.setString(1, signedPath);
+            statement.setInt   (2, idReport);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al actualizar ruta firmada del reporte {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al actualizar la ruta del documento firmado.", sqlException);
+        }
+
+        return isUpdated;
+    }
+
+    public boolean markLateDelivery(int idReport) throws ServiceException, ValidationException {
+        if (idReport <= 0) {
+            throw new ValidationException(
+                    "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_MARK_LATE_DELIVERY)) {
+
+            statement.setInt(1, idReport);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al marcar entrega tardía del reporte {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new ServiceException("Error al registrar la entrega tardía.", sqlException);
+        }
+
+        return isUpdated;
+    }
+
+    public boolean updateDocumentPath(int idReport, String documentPath)
+            throws ServiceException, ValidationException {
+        if (idReport <= 0) {
+            throw new ValidationException(
+                    "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
+        }
+        if (documentPath == null || documentPath.isBlank()) {
+            throw new ValidationException("La ruta del documento no puede estar vacía.");
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_DOCUMENT_PATH)) {
+
+            statement.setString(1, documentPath);
+            statement.setInt   (2, idReport);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al actualizar ruta de documento del reporte {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al actualizar la ruta del documento del reporte.", sqlException);
+        }
+
+        return isUpdated;
+    }
+
+    @Override
+    public int getTotalApprovedHoursByIntern(int idIntern)
+            throws ServiceException, ValidationException {
+        if (idIntern <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
+        }
+
+        int totalHours = 0;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_SUM_APPROVED_HOURS)) {
+
+            statement.setInt(1, idIntern);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    totalHours = resultSet.getInt("total_horas");
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al calcular horas aprobadas del practicante {0}: {1}",
+                    new Object[]{idIntern, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al calcular las horas aprobadas del practicante.", sqlException);
+        }
+
+        return totalHours;
+    }
+
+    @Override
+    public boolean existsMonthlyByInternAndPeriod(int idIntern, String month, int year)
+            throws ServiceException {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_EXISTS_MONTHLY)) {
+
+            statement.setInt   (1, idIntern);
+            statement.setString(2, month);
+            statement.setInt   (3, year);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total") > 0;
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al verificar existencia de reporte mensual: {0}",
+                    sqlException.getMessage());
+            throw new ServiceException(
+                    "Error al verificar reporte mensual existente.", sqlException);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean existsPartialByInternAndProject(int idIntern, int idProject)
+            throws ServiceException {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_EXISTS_PARTIAL)) {
+
+            statement.setInt(1, idIntern);
+            statement.setInt(2, idProject);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total") > 0;
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al verificar existencia de reporte parcial: {0}",
+                    sqlException.getMessage());
+            throw new ServiceException(
+                    "Error al verificar reporte parcial existente.", sqlException);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean existsFinalByInternAndProject(int idIntern, int idProject)
+            throws ServiceException {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_EXISTS_FINAL)) {
+
+            statement.setInt(1, idIntern);
+            statement.setInt(2, idProject);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("total") > 0;
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al verificar existencia de reporte final: {0}",
+                    sqlException.getMessage());
+            throw new ServiceException(
+                    "Error al verificar reporte final existente.", sqlException);
+        }
+
+        return false;
+    }
+
+    protected Report mapResultSetToReport(ResultSet resultSet) throws SQLException {
         Report report = new Report();
-        report.setIdReport    (rresultSet.getInt   ("id_reporte"));
-        report.setIdIntern    (rresultSet.getInt   ("id_practicante"));
-        report.setIdProyect   (rresultSet.getInt   ("id_proyecto"));
-        report.setIdProfessor (rresultSet.getInt   ("id_profesor"));
-        report.setReportType  (rresultSet.getString("tipo_reporte"));
-        report.setPeriod      (rresultSet.getString("periodo"));
-        report.setDocumentPath(rresultSet.getString("ruta_documento"));
-        report.setStatus      (rresultSet.getString("estado"));
-        report.setSumissionDate(rresultSet.getDate ("fecha_entrega"));
+        report.setIdReport   (resultSet.getInt   ("id_reporte"));
+        report.setIdIntern   (resultSet.getInt   ("id_practicante"));
+        report.setIdProyect  (resultSet.getInt   ("id_proyecto"));
+        report.setIdProfessor(resultSet.getInt   ("id_profesor"));
+        report.setReportType (resultSet.getString("tipo_reporte"));
+        report.setPeriod     (resultSet.getString("periodo"));
+        report.setDocumentPath(resultSet.getString("ruta_documento"));
+        report.setSignedDocumentPath(resultSet.getString("ruta_documento_firmado"));
+        report.setStatus     (resultSet.getString("estado"));
+        report.setReportedHours(resultSet.getInt ("horas_reportadas"));
+        report.setProfessorObservations(resultSet.getString("observaciones_profesor"));
+        report.setSumissionDate(resultSet.getDate("fecha_entrega"));
+
+        java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
+        if (reviewDate != null) {
+            report.setReviewDate(reviewDate.toLocalDate());
+        }
+
+        java.sql.Date fechaLimite = resultSet.getDate("fecha_limite");
+        if (fechaLimite != null) {
+            report.setFechaLimite(fechaLimite.toLocalDate());
+        }
+        report.setEntregaTardia(resultSet.getBoolean("entrega_tardia"));
+
         return report;
     }
 }

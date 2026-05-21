@@ -70,8 +70,8 @@ public class AddLinkedOrganizationController {
         }catch (ServiceException serviceException) {
             showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
                     AlertType.ERROR);
-        } catch (ValidationException e) {
-            showAlert("Error de validación", e.getMessage(), AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(), AlertType.ERROR);
         }
     }
 

@@ -16,7 +16,7 @@ public class ViewsUtils {
             FXMLLoader loader = new FXMLLoader(ViewsUtils.class.getResource("/GUI/view/GUIWelcome.fxml"));
             Parent vista = loader.load();
             anchorPane.getChildren().setAll(vista);
-        } catch (IOException e) {
+        } catch (IOException ioException) {
             showAlert("Error", "No se logro cargar",
                     javafx.scene.control.Alert.AlertType.ERROR);
         }

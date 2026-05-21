@@ -1,6 +1,7 @@
 package Logic.DTOs;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Project {
     private int idProyect;
@@ -15,6 +16,8 @@ public class Project {
     private int maximumPlaces;
     private String organizationName;
     private String status;
+    private String objetivo;
+    private String nrc;
 
 
     public Project(int idProyect, int idOrganization, int idTechnicalSupervisor, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
@@ -125,5 +128,45 @@ public class Project {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getObjetivo() {
+        return objetivo;
+    }
+
+    public void setObjetivo(String objetivo) {
+        this.objetivo = objetivo;
+    }
+
+    public String getNrc() {
+        return nrc;
+    }
+
+    public void setNrc(String nrc) {
+        this.nrc = nrc;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        Project otherProject = (Project) other;
+        boolean isEqual = Objects.equals(name, otherProject.name)
+                && Objects.equals(description, otherProject.description)
+                && Objects.equals(objetivo, otherProject.objetivo)
+                && maximumPlaces == otherProject.maximumPlaces
+                && IdProfessor == otherProject.IdProfessor
+                && idTechnicalSupervisor == otherProject.idTechnicalSupervisor;
+        return isEqual;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, objetivo, maximumPlaces,
+                IdProfessor, idTechnicalSupervisor);
     }
 }

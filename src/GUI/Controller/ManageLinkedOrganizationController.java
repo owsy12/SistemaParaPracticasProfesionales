@@ -41,6 +41,11 @@ public class ManageLinkedOrganizationController {
         loadOrganizations();
     }
 
+    @FXML
+    public void cancelAction() {
+        openWelcomePage(anchorPane);
+    }
+
     private void loadOrganizations() {
 
         try {
@@ -77,7 +82,7 @@ public class ManageLinkedOrganizationController {
                 new SimpleStringProperty(cellData.getValue().getSector()));
         statusColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getStatus()));
-        actionColumn.setCellFactory(param -> new TableCell<LinkedOrganization, Void>() {
+        actionColumn.setCellFactory(column -> new TableCell<LinkedOrganization, Void>() {
 
             private final Button deleteButton = new Button("Eliminar");
             {

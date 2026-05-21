@@ -12,5 +12,5 @@ public interface IProjectApplicationDAO {
     List<ProjectApplication> findByApplication(int applicationId) throws ServiceException, ValidationException;
     List<ProjectApplication> findAll() throws ServiceException;
     boolean delete(int projectApplicationId) throws ServiceException, ValidationException;
-
+    List<Integer> findProjectIdsByIntern(int idIntern) throws ServiceException, ValidationException;
 }

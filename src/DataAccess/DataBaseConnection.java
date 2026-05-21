@@ -11,10 +11,10 @@ public class DataBaseConnection {
 
     private static final Dotenv dotenv = Dotenv.load();
 
-    private static final String DB_URL      = get("DB_URL");
-    private static final String DB_USER     = get("DB_USER");
+    private static final String DB_URL = get("DB_URL");
+    private static final String DB_USER = get("DB_USER");
     private static final String DB_PASSWORD = get("DB_PASSWORD");
-    private static final Logger LOGGER      = Logger.getLogger(DataBaseConnection.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DataBaseConnection.class.getName());
 
     private DataBaseConnection() {
     }

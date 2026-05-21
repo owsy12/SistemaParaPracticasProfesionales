@@ -17,22 +17,31 @@ public class AssignmentDAO implements IAssignmentDAO {
 
     private static final Logger LOGGER = Logger.getLogger(AssignmentDAO.class.getName());
     private static final String SQL_INSERT =
-            "INSERT INTO asignacion (id_practicante, id_proyecto, id_solicitud, fecha_asignacion) " +
-                    "VALUES (?, ?, ?, ?)";
+            "INSERT INTO asignacion (id_practicante, id_proyecto, id_solicitud, fecha_asignacion, razon_asignacion) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+    private static final String SQL_SELECT_COLUMNS =
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, " +
+                    "fecha_asignacion, estado, razon_asignacion ";
     private static final String SQL_SELECT_BY_ID =
-            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, " +
+                    "fecha_asignacion, estado, razon_asignacion " +
                     "FROM asignacion WHERE id_asignacion = ?";
     private static final String SQL_SELECT_ALL =
-            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, " +
+                    "fecha_asignacion, estado, razon_asignacion " +
                     "FROM asignacion";
     private static final String SQL_SELECT_BY_INTERN =
-            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, " +
+                    "fecha_asignacion, estado, razon_asignacion " +
                     "FROM asignacion WHERE id_practicante = ?";
     private static final String SQL_SELECT_BY_PROJECT =
-            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, fecha_asignacion " +
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, " +
+                    "fecha_asignacion, estado, razon_asignacion " +
                     "FROM asignacion WHERE id_proyecto = ?";
     private static final String SQL_GET_ACTIVE_BY_USER =
-            "SELECT * FROM asignacion WHERE id_practicante = ? AND estado = 'Activa'";
+            "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, " +
+                    "fecha_asignacion, estado, razon_asignacion " +
+                    "FROM asignacion WHERE id_practicante = ? AND estado = 'Activa'";
 
     @Override
     public int save(Assignment assignment) throws ServiceException, ValidationException {
@@ -52,10 +61,11 @@ public class AssignmentDAO implements IAssignmentDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt (1, assignment.getIdIntern());
-            statement.setInt (2, assignment.getIdProyect());
-            statement.setInt (3, assignment.getIdApplication());
+            statement.setInt(1, assignment.getIdIntern());
+            statement.setInt(2, assignment.getIdProyect());
+            statement.setInt(3, assignment.getIdApplication());
             statement.setDate(4, Date.valueOf(assignment.getAssignmentDate()));
+            statement.setString(5, assignment.getRazonAsignacion());
 
             rowsAffected = statement.executeUpdate();
 
@@ -152,10 +162,8 @@ public class AssignmentDAO implements IAssignmentDAO {
             statement.setInt(1, idIntern);
 
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    Assignment assignment = mapResultSet(resultSet);
-                    assignment.setStatus(resultSet.getString("estado"));
-                    assignmentResult.add(assignment);
+                while (resultSet.next()) {
+                    assignmentResult.add(mapResultSet(resultSet));
                 }
             }
 
@@ -220,17 +228,14 @@ public class AssignmentDAO implements IAssignmentDAO {
             PreparedStatement preparedStatement = connection.prepareStatement(SQL_GET_ACTIVE_BY_USER)){
             preparedStatement.setInt(1, idIntern);
 
-            try (ResultSet resultSet = preparedStatement.executeQuery()){
-
-               while (resultSet.next()){
-                   assignment = mapResultSet(resultSet);
-                   assignment.setStatus(resultSet.getString("estado"));
-               }
-
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    assignment = mapResultSet(resultSet);
+                }
             }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Error al recuperar la asignación activa.", sqlException);
         }
 
         return assignment;
@@ -238,11 +243,13 @@ public class AssignmentDAO implements IAssignmentDAO {
 
     private Assignment mapResultSet(ResultSet resultSet) throws SQLException {
         Assignment assignment = new Assignment();
-        assignment.setIdAssignment (resultSet.getInt ("id_asignacion"));
-        assignment.setIdIntern     (resultSet.getInt ("id_practicante"));
-        assignment.setIdProyect    (resultSet.getInt ("id_proyecto"));
-        assignment.setIdApplication(resultSet.getInt ("id_solicitud"));
+        assignment.setIdAssignment(resultSet.getInt("id_asignacion"));
+        assignment.setIdIntern(resultSet.getInt("id_practicante"));
+        assignment.setIdProyect(resultSet.getInt("id_proyecto"));
+        assignment.setIdApplication(resultSet.getInt("id_solicitud"));
         assignment.setAssignmentDate(resultSet.getDate("fecha_asignacion").toLocalDate());
+        assignment.setStatus(resultSet.getString("estado"));
+        assignment.setRazonAsignacion(resultSet.getString("razon_asignacion"));
         return assignment;
     }
 }

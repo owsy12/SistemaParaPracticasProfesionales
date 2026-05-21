@@ -26,6 +26,7 @@ public class ValidationUtils {
 
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^[a-zA-Z0-9@#$%^&*!?_\\-]*$");
+    private static final int PASSWORD_MIN_LENGTH = 8;
 
 
 
@@ -76,27 +77,75 @@ public class ValidationUtils {
     }
 
     public static boolean isValidEmail(String email) {
-        return email != null && VALID_EMAIL_PATTERN.matcher(email).matches();
+        boolean valid = email != null && VALID_EMAIL_PATTERN.matcher(email).matches();
+        return valid;
     }
 
     public static boolean isPDF(File file) {
-
+        boolean isPdf = false;
         try {
-
-            String mimeType =
-                    Files.probeContentType(
-                            file.toPath()
-                    );
-
-            return mimeType != null &&
-                    mimeType.equals(
-                            "application/pdf"
-                    );
-
-        } catch (IOException e) {
-
-            return false;
+            String mimeType = Files.probeContentType(file.toPath());
+            isPdf = mimeType != null && mimeType.equals("application/pdf");
+        } catch (IOException ioException) {
+            isPdf = false;
         }
+        return isPdf;
+    }
+
+    public static String getPasswordValidationMessage(String password) {
+        String message = null;
+        if (password == null || password.length() < PASSWORD_MIN_LENGTH) {
+            message = "La contraseña debe tener al menos 8 caracteres.";
+        } else if (!containsUppercase(password)) {
+            message = "La contraseña debe contener al menos una letra mayúscula.";
+        } else if (!containsLowercase(password)) {
+            message = "La contraseña debe contener al menos una letra minúscula.";
+        } else if (!containsDigit(password)) {
+            message = "La contraseña debe contener al menos un número.";
+        } else if (!containsSpecialChar(password)) {
+            message = "La contraseña debe contener al menos un carácter especial.";
+        }
+        return message;
+    }
+
+    private static boolean containsUppercase(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isUpperCase(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private static boolean containsLowercase(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isLowerCase(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private static boolean containsDigit(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isDigit(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private static boolean containsSpecialChar(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (!Character.isLetterOrDigit(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
     }
 
     public static boolean isValidPassword(String password) {

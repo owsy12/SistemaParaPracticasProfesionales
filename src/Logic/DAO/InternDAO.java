@@ -208,8 +208,8 @@ public class InternDAO extends UserDAO implements IInternDAO {
                 }
             }
 
-        }catch (SQLException e) {
-            throw new ServiceException("Error en servicio, no se logro recuperar los practicantes",e);
+        }catch (SQLException sqlException) {
+            throw new ServiceException("Error en servicio, no se logro recuperar los practicantes",sqlException);
         }
 
         return internList;

@@ -7,31 +7,35 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.ViewInterProjectSelection">
+<AnchorPane prefHeight="420.0" prefWidth="620.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.ViewInterProjectSelection">
    <children>
-      <TableView fx:id="projectsTableView" layoutX="38.0" layoutY="66.0" prefHeight="290.0" prefWidth="526.0">
-        <columns>
-            <TableColumn fx:id="projetcNameColumn" prefWidth="169.0" text="Nombre de Proyecto" />
-          <TableColumn fx:id="organizationColumn" prefWidth="100.0" text="Organizacion" />
-          <TableColumn fx:id="placesColumn" prefWidth="54.0" text="lugares" />
-            <TableColumn fx:id="datesColumn" prefWidth="133.0" text="fechas" />
-            <TableColumn fx:id="actionColumn" prefWidth="68.0" />
-        </columns>
-      </TableView>
-      <HBox layoutX="38.0" layoutY="22.0" prefHeight="23.0" prefWidth="300.0">
+      <HBox layoutX="28.0" layoutY="14.0" prefHeight="26.0" prefWidth="560.0">
          <children>
-            <Label text="Proyectos seleccionados por : ">
-               <font>
-                  <Font size="15.0" />
-               </font>
+            <Label text="Proyectos para: ">
+               <font><Font size="14.0" /></font>
             </Label>
             <Label fx:id="internNameLabel" text="...">
-               <font>
-                  <Font size="15.0" />
-               </font>
+               <font><Font size="14.0" /></font>
             </Label>
          </children>
       </HBox>
+
+      <Label layoutX="28.0" layoutY="46.0"
+             text="Las selecciones originales aparecen primero. Asignar un proyecto diferente requiere justificación."
+             style="-fx-text-fill: #555555;" />
+
+      <TableView fx:id="projectsTableView" layoutX="28.0" layoutY="70.0" prefHeight="310.0" prefWidth="564.0">
+        <columns>
+            <TableColumn fx:id="projetcNameColumn" prefWidth="148.0" text="Proyecto" />
+            <TableColumn fx:id="organizationColumn" prefWidth="100.0" text="Organización" />
+            <TableColumn fx:id="placesColumn"       prefWidth="50.0"  text="Lugares" />
+            <TableColumn fx:id="datesColumn"        prefWidth="115.0" text="Fechas" />
+            <TableColumn fx:id="typeColumn"         prefWidth="85.0"  text="Tipo" />
+            <TableColumn fx:id="actionColumn"       prefWidth="66.0"  />
+        </columns>
+      </TableView>
    </children>
 </AnchorPane>

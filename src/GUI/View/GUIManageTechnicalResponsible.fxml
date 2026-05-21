@@ -5,7 +5,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="654.0"
+<AnchorPane fx:id="anchorPane" prefHeight="430.0" prefWidth="654.0"
             xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.ManageTechnicalResponsibleController">
@@ -22,5 +22,6 @@
             <TableColumn fx:id="actionColumn"         prefWidth="66.0" />
          </columns>
       </TableView>
+      <Button layoutX="14.0" layoutY="360.0" mnemonicParsing="false" onAction="#cancelAction" prefHeight="26.0" prefWidth="120.0" text="Cancelar" />
    </children>
 </AnchorPane>

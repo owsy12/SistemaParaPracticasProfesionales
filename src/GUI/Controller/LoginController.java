@@ -36,12 +36,11 @@ public class LoginController {
     public void clickLogin(ActionEvent actionEvent) {
         if (isEmpty()) {
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
-                    Alert.AlertType.WARNING);
-        } else if (loginProcess()) {
+                   Alert.AlertType.WARNING);
+        }else if (loginProcess()){
             openWindow("GUIMainPage.fxml", "Menú Principal");
-        } else {
-            showAlert("Error inesperado", "Estamos teniendo problemas, intente más tarde.",
-                    Alert.AlertType.WARNING);
+        }else {
+            showAlert("Error inesperado","Estamos teniendo problemas inten†e mas tarde", Alert.AlertType.WARNING);
         }
     }
 

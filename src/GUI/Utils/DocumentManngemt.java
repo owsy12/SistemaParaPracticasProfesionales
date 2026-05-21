@@ -20,7 +20,7 @@ public class DocumentManngemt {
             Path destinationPath = folderPath.resolve(newFileName + ".pdf");
             Files.copy(sourceFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-        } catch (IOException e) {
+        } catch (IOException ioException) {
 
         }
     }

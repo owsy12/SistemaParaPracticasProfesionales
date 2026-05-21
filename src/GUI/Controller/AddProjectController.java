@@ -1,9 +1,11 @@
 package GUI.Controller;
 
+import Logic.DAO.EducationalExperienceDAO;
 import Logic.DAO.LinkedOrganizationDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.TechnicalResponsibleDAO;
+import Logic.DTOs.EducationalExperience;
 import Logic.DTOs.LinkedOrganization;
 import Logic.DTOs.Professor;
 import Logic.DTOs.Project;
@@ -39,8 +41,9 @@ public class AddProjectController {
     @FXML
     private ComboBox<Professor> professorComboBox;
     @FXML
-    private TextField nrcTextField;
-
+    private ComboBox<EducationalExperience> educationalExperienceComboBox;
+    @FXML
+    private TextArea objetivoTextArea;
 
     @FXML
     private void initialize(){
@@ -50,8 +53,9 @@ public class AddProjectController {
 
         loadOrganizations();
         loadProfessors();
+        loadEducationalExperiences();
 
-        technicalComboBox.setCellFactory(param -> new ListCell<>() {
+        technicalComboBox.setCellFactory(column -> new ListCell<>() {
             @Override
             protected void updateItem(TechnicalSupervisor item, boolean empty) {
                 super.updateItem(item, empty);
@@ -67,7 +71,7 @@ public class AddProjectController {
             }
         });
 
-        organizationComboBox.setCellFactory(param -> new ListCell<>() {
+        organizationComboBox.setCellFactory(column -> new ListCell<>() {
             @Override
             protected void updateItem(LinkedOrganization item, boolean empty) {
                 super.updateItem(item, empty);
@@ -83,11 +87,26 @@ public class AddProjectController {
             }
         });
 
-        organizationComboBox.setOnAction(event ->{
-                LinkedOrganization linkedOrganization = organizationComboBox.getValue();
-                loadTechnicians(linkedOrganization.getIdLinkedOrganization());
+        educationalExperienceComboBox.setCellFactory(column -> new ListCell<>() {
+            @Override
+            protected void updateItem(EducationalExperience item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getNrc() + " - " + item.getName());
             }
-        );
+        });
+
+        educationalExperienceComboBox.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(EducationalExperience item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty || item == null ? null : item.getNrc() + " - " + item.getName());
+            }
+        });
+
+        organizationComboBox.setOnAction(event -> {
+            LinkedOrganization linkedOrganization = organizationComboBox.getValue();
+            loadTechnicians(linkedOrganization.getIdLinkedOrganization());
+        });
     }
 
     @FXML
@@ -114,13 +133,13 @@ public class AddProjectController {
                         Alert.AlertType.ERROR);
             }
 
-        }catch (ValidationException e) {
-            showAlert("Error de validacion", e.getMessage(),
+        }catch (ValidationException validationException) {
+            showAlert("Error de validacion", validationException.getMessage(),
                     Alert.AlertType.ERROR);
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error inesperado", "El servicio no se encuetra disponible",
                     Alert.AlertType.ERROR);
-        }catch (NullPointerException e){
+        }catch (NullPointerException nullPointerException){
             showAlert("Precaucion", "Seleccione fechas validas",
                     Alert.AlertType.INFORMATION);
         }
@@ -130,7 +149,7 @@ public class AddProjectController {
         LocalDate startdate = startDate.getValue();
         LocalDate enddate = endDate.getValue();
         Project project = new Project();
-        project.setIdProyect(Integer.parseInt(nrcTextField.getText()));
+        project.setNrc(educationalExperienceComboBox.getValue().getNrc());
         project.setName(nameTextField.getText());
         project.setDescription(descriptionTextField.getText());
         project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
@@ -140,6 +159,7 @@ public class AddProjectController {
         project.setEndDate(enddate);
         project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText()));
         project.setAvaliablePlaces(Integer.parseInt(capacityTextField.getText()));
+        project.setObjetivo(objetivoTextArea.getText().trim());
         return project;
     }
 
@@ -148,7 +168,7 @@ public class AddProjectController {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
             List<LinkedOrganization> linkedOrganizations = linkedOrganizationDAO.findAllActive();
             organizationComboBox.getItems().setAll(linkedOrganizations);
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error", "Problema con nuestro servicio, intente mas tearde",
                     Alert.AlertType.ERROR);
         }
@@ -159,9 +179,10 @@ public class AddProjectController {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
             List<TechnicalSupervisor> technicalSupervisorsList = technicalResponsibleDAO.findByOrganization(organizationId);
             technicalComboBox.getItems().setAll(technicalSupervisorsList);
-        } catch (ValidationException | ServiceException e) {
-            showAlert("Error","No se puede obtmer los responsables ene este moento ",
-                    Alert.AlertType.WARNING);
+        } catch (ValidationException | ServiceException loadException) {
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los responsables técnicos. Intente más tarde.",
+                    Alert.AlertType.ERROR);
         }
     }
 
@@ -170,11 +191,22 @@ public class AddProjectController {
             ProfessorDAO professorDAO = new ProfessorDAO();
             List<Professor> professorList = professorDAO.findActiveProfessors();
             professorComboBox.getItems().setAll(professorList);
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Erro", "Sevicio no disponible intentene mas tarde",
                     Alert.AlertType.ERROR);
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showAlert("Error", "Error al validar los profesorres",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private void loadEducationalExperiences() {
+        try {
+            EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
+            List<EducationalExperience> experienceList = educationalExperienceDAO.findAll();
+            educationalExperienceComboBox.getItems().setAll(experienceList);
+        } catch (ServiceException serviceException) {
+            showAlert("Error", "No se pueden cargar las experiencias educativas",
                     Alert.AlertType.ERROR);
         }
     }
@@ -185,15 +217,15 @@ public class AddProjectController {
         LocalDate enddate = endDate.getValue();
 
         if (capacityTextField.getText().isEmpty() ||
-            nameTextField.getText().isEmpty() ||
-            descriptionTextField.getText().isEmpty() ||
+                nameTextField.getText().isEmpty() ||
+                descriptionTextField.getText().isEmpty() ||
                 organizationComboBox.getValue() == null ||
                 technicalComboBox.getValue() == null ||
                 startDate.getValue() == null ||
                 professorComboBox.getValue() == null ||
-                endDate.getValue() == null || (!enddate.isAfter(startdate))
-            ){
-
+                endDate.getValue() == null ||
+                educationalExperienceComboBox.getValue() == null ||
+                !enddate.isAfter(startdate)) {
             isValid = false;
         }
         return isValid;
@@ -203,9 +235,11 @@ public class AddProjectController {
         capacityTextField.clear();
         nameTextField.clear();
         descriptionTextField.clear();
+        objetivoTextArea.clear();
         technicalComboBox.getSelectionModel().clearSelection();
         organizationComboBox.getSelectionModel().clearSelection();
         professorComboBox.getSelectionModel().clearSelection();
+        educationalExperienceComboBox.getSelectionModel().clearSelection();
         startDate.setValue(null);
         endDate.setValue(null);
     }

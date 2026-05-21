@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class SelfEvaluationDAO implements ISelfEvaluationDAO {
-
+    private static final String DEFAULT_STATUS = "Pendiente";
     private static final Logger LOGGER = Logger.getLogger(SelfEvaluationDAO.class.getName());
     private static final String SQL_INSERT =
             "INSERT INTO autoevaluacion " +
@@ -29,6 +29,9 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                     "       afirmacion_06, afirmacion_07, afirmacion_08, afirmacion_09, afirmacion_10, " +
                     "       puntuacion_final, lugar_fecha, ruta_documento, estado, fecha_entrega " +
                     "FROM autoevaluacion WHERE id_autoevaluacion = ?";
+    private static final String SQL_UPDATE_DOCUMENT_PATH =
+            "UPDATE autoevaluacion SET ruta_documento = ? WHERE id_autoevaluacion = ?";
+
     private static final String SQL_SELECT_ALL =
             "SELECT id_autoevaluacion, id_practicante, id_proyecto, periodo, " +
                     "       afirmacion_01, afirmacion_02, afirmacion_03, afirmacion_04, afirmacion_05, " +
@@ -65,7 +68,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
             statement.setInt   (14, selfEvaluation.getFinalScore());
             statement.setString(15, selfEvaluation.getPlaceAndDate());
             statement.setString(16, selfEvaluation.getDocumentPath());
-            statement.setString(17, selfEvaluation.getStatus());
+            statement.setString(17, DEFAULT_STATUS);
 
             rowsAffected = statement.executeUpdate();
 
@@ -145,6 +148,39 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
         }
 
         return selfEvaluations;
+    }
+
+    public boolean updateDocumentPath(int idSelfEvaluation, String documentPath)
+            throws ServiceException, ValidationException {
+        if (idSelfEvaluation <= 0) {
+            throw new ValidationException(
+                    "El ID de la autoevaluación debe ser mayor a cero. ID recibido: "
+                            + idSelfEvaluation);
+        }
+        if (documentPath == null || documentPath.isBlank()) {
+            throw new ValidationException("La ruta del documento no puede estar vacía.");
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_DOCUMENT_PATH)) {
+
+            statement.setString(1, documentPath);
+            statement.setInt   (2, idSelfEvaluation);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al actualizar ruta de documento de autoevaluación {0}: {1}",
+                    new Object[]{idSelfEvaluation, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al actualizar la ruta del documento de la autoevaluación.", sqlException);
+        }
+
+        return isUpdated;
     }
 
     private SelfEvaluation mapResultSet(ResultSet resultSet) throws SQLException {

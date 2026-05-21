@@ -22,9 +22,6 @@
       <VBox styleClass="dashboardContentVBox" spacing="24.0">
          <padding><Insets top="32.0" right="32.0" bottom="40.0" left="32.0"/></padding>
 
-         <!-- ═══════════════════════════════════════════════
-              ENCABEZADO — todos los roles
-              ═══════════════════════════════════════════════ -->
          <VBox styleClass="welcomeHeaderVBox" spacing="8.0">
             <Label fx:id="welcomeUserGreetingLabel"
                    text="¡Bienvenido!"
@@ -34,9 +31,6 @@
                    styleClass="welcomeSubtitleLabel"/>
          </VBox>
 
-         <!-- ═══════════════════════════════════════════════
-              SECCIÓN PRACTICANTE
-              ═══════════════════════════════════════════════ -->
          <VBox fx:id="practicanteContentVBox" spacing="16.0"
                visible="false" managed="false">
 
@@ -81,9 +75,6 @@
             </HBox>
          </VBox>
 
-         <!-- ═══════════════════════════════════════════════
-              SECCIÓN PROFESOR
-              ═══════════════════════════════════════════════ -->
          <VBox fx:id="profesorContentVBox" spacing="16.0"
                visible="false" managed="false">
 
@@ -130,9 +121,7 @@
             </HBox>
          </VBox>
 
-         <!-- ═══════════════════════════════════════════════
-              SECCIÓN COORDINADOR
-              ═══════════════════════════════════════════════ -->
+
          <VBox fx:id="coordinadorContentVBox" spacing="16.0"
                visible="false" managed="false">
 
@@ -179,9 +168,7 @@
             </HBox>
          </VBox>
 
-         <!-- ═══════════════════════════════════════════════
-              SECCIÓN ADMINISTRADOR
-              ═══════════════════════════════════════════════ -->
+
          <VBox fx:id="adminContentVBox" spacing="16.0"
                visible="false" managed="false">
 

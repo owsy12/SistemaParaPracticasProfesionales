@@ -10,6 +10,7 @@ public class Assignment {
     private int idApplication;
     private LocalDate assignmentDate;
     private String status;
+    private String razonAsignacion;
 
 
     public Assignment(int idAssignment, int idIntern, int idProyect, int idApplication, LocalDate assignmentDate) {
@@ -69,6 +70,14 @@ public class Assignment {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getRazonAsignacion() {
+        return razonAsignacion;
+    }
+
+    public void setRazonAsignacion(String razonAsignacion) {
+        this.razonAsignacion = razonAsignacion;
     }
 }
 

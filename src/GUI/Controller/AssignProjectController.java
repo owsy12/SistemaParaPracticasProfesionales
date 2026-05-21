@@ -58,10 +58,10 @@ public class AssignProjectController {
                 configureTable(applicationList);
             }
 
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error", "Servicio no disponible intente mas tarde",
                     Alert.AlertType.ERROR);
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showAlert("Error", "Error al verificar practicantes con solicitudes pendientes",
                     Alert.AlertType.ERROR);
         }
@@ -84,10 +84,10 @@ public class AssignProjectController {
             }
             internsTableView.getItems().setAll(userList);
 
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error", "Servicio no disponible",
                     Alert.AlertType.ERROR);
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showAlert("error", "no se logro cargar ",
                     Alert.AlertType.ERROR);
         }
@@ -104,7 +104,7 @@ public class AssignProjectController {
     }
 
     private void addAssignButtonToRow() {
-        actionColumn.setCellFactory(param -> new javafx.scene.control.TableCell<User, Void>() {
+        actionColumn.setCellFactory(column -> new javafx.scene.control.TableCell<User, Void>() {
             private final Button button = new Button("Asignar");
 
             {
@@ -136,7 +136,7 @@ public class AssignProjectController {
             ViewInterProjectSelection controller = loader.getController();
             controller.setUser(user);
             anchorPane.getChildren().setAll(vista);
-        } catch (IOException e) {
+        } catch (IOException ioException) {
             showAlert("Error", "Np se logro cargar la vista",
                     Alert.AlertType.ERROR);
         }

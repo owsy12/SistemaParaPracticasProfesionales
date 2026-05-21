@@ -32,6 +32,12 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
     private static final String DELETE_SQL =
             "DELETE FROM solicitud_proyecto WHERE id_solicitud_proyecto = ?";
 
+    private static final String SELECT_PROJECT_IDS_BY_INTERN_SQL =
+            "SELECT sp.id_proyecto FROM solicitud_proyecto sp " +
+                    "JOIN solicitud s ON s.id_solicitud = sp.id_solicitud " +
+                    "WHERE s.id_practicante = ? " +
+                    "ORDER BY sp.orden_preferencia ASC";
+
     @Override
     public boolean create(ProjectApplication projectApplication)
             throws ServiceException, ValidationException {
@@ -200,6 +206,35 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
         }
 
         return isDeleted;
+    }
+
+    @Override
+    public List<Integer> findProjectIdsByIntern(int idIntern) throws ServiceException, ValidationException {
+        if (idIntern <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
+        }
+        List<Integer> projectIds = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_PROJECT_IDS_BY_INTERN_SQL)) {
+
+            preparedStatement.setInt(1, idIntern);
+
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                while (rs.next()) {
+                    projectIds.add(rs.getInt("id_proyecto"));
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al buscar proyectos seleccionados por practicante {0}: {1}",
+                    new Object[]{idIntern, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los proyectos seleccionados por el practicante.", sqlException);
+        }
+
+        return projectIds;
     }
 
     private ProjectApplication mapProjectApplication(ResultSet resultSet) throws SQLException {

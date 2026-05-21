@@ -64,10 +64,10 @@ public class UploadInitialDocumentsController {
                 clearSelectedFile();
             }
 
-        }catch (ServiceException e){
+        }catch (ServiceException serviceException){
             showAlert("Error", "No se logro cargar la información, intente más tarde",
                     Alert.AlertType.ERROR);
-        }catch (ValidationException e){
+        }catch (ValidationException validationException){
             showAlert("Error", "Error al verificar documentos pendientes", Alert.AlertType.ERROR);
         }
     }
@@ -189,9 +189,9 @@ public class UploadInitialDocumentsController {
                 saveFile(selectedFile, relativeFolder, newFileName);
             }
 
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showError("Error al guardar el documento, datos no válidos");
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showError("Error al guardar el documento, Servicio no disponible");
         }
 

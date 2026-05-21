@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ValidationUtils.isValidEmail;
+import static GUI.Utils.ValidationUtils.getPasswordValidationMessage;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ChoiceDialog;
 import Logic.DAO.CoordinatorDAO;
@@ -38,15 +39,15 @@ public class AddProfesorController {
     private TextField emailTextField;
 
     @FXML
-    private void initialize(){
-        setTypeAndLength(firstNameTextField,"Name");
-        setTypeAndLength(lastNameTextField,"Name");
-        setTypeAndLength(secondLastNameTextField,"Name");
-        setTypeAndLength(academicAreaTextField,"Name");
-        setTypeAndLength(idTextField,"ID");
-        setTypeAndLength(passwordField,"Text");
-        setTypeAndLength(confirmPasswordField,"Text");
-        setTypeAndLength(emailTextField,"Email");
+    private void initialize() {
+        setTypeAndLength(firstNameTextField, "Name");
+        setTypeAndLength(lastNameTextField, "Name");
+        setTypeAndLength(secondLastNameTextField, "Name");
+        setTypeAndLength(academicAreaTextField, "Name");
+        setTypeAndLength(idTextField, "ID");
+        setTypeAndLength(passwordField, "Password");
+        setTypeAndLength(confirmPasswordField, "Password");
+        setTypeAndLength(emailTextField, "Email");
     }
 
     @FXML
@@ -54,9 +55,17 @@ public class AddProfesorController {
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Completa todos los campos obligatorios.",
                     AlertType.WARNING);
-        } else if (!isPasswordMatching() && isValidEmail(emailTextField.getText())) {
-            showAlert("Error de contraseña", "Las contraseñas no coinciden, verifica la información.",
-                    AlertType.ERROR);
+        } else if (!isValidEmail(emailTextField.getText())) {
+            showAlert("Correo inválido", "Ingrese un correo electrónico válido.",
+                    AlertType.WARNING);
+        } else if (getPasswordValidationMessage(passwordField.getText()) != null) {
+            showAlert("Contraseña no válida",
+                    getPasswordValidationMessage(passwordField.getText()),
+                    AlertType.WARNING);
+        } else if (!isPasswordMatching()) {
+            showAlert("Contraseñas no coinciden",
+                    "La confirmación de contraseña no coincide con la contraseña ingresada.",
+                    AlertType.WARNING);
         } else {
             processRegistration();
         }
@@ -71,10 +80,8 @@ public class AddProfesorController {
             if (coordinators.isEmpty()) {
                 showAlert("Información", "No hay coordinadores disponibles para asignar como profesor.",
                         AlertType.INFORMATION);
-
-            }else {
-
-                ChoiceDialog<Coordinator> dialog = new ChoiceDialog<>(coordinators.get(0), coordinators);
+            } else {
+                ChoiceDialog<Coordinator> dialog = new ChoiceDialog<>(coordinators.getFirst(), coordinators);
                 dialog.setTitle("Seleccionar Coordinador");
                 dialog.setHeaderText("Coordinadores activos sin rol de profesor");
                 dialog.setContentText("Seleccione un coordinador:");
@@ -82,11 +89,10 @@ public class AddProfesorController {
                 result.ifPresent(this::addRolToCoordinator);
                 showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
                         AlertType.INFORMATION);
-
             }
 
-        } catch (ServiceException exception) {
-            showAlert("Error", "Error al recuperar coordinadores: " + exception.getMessage(),
+        } catch (ServiceException serviceException) {
+            showAlert("Error", "Error al recuperar coordinadores: " + serviceException.getMessage(),
                     AlertType.ERROR);
         }
     }
@@ -96,11 +102,11 @@ public class AddProfesorController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             coordinator.setRole("Profesor");
             userRoleDAO.saveUserRole(coordinator);
-        } catch (ValidationException e) {
-            showAlert("Error", "No s elogro recuperar",
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);
-        } catch (ServiceException e) {
-            showAlert("Error", "servicio no disponible por el moemnto",
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible", "No se pudo asignar el rol. Intente más tarde.",
                     AlertType.ERROR);
         }
     }
@@ -113,7 +119,7 @@ public class AddProfesorController {
     }
 
     private void processRegistration() {
-        try{
+        try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             Professor professor = new Professor();
             professor.setMatricula(idTextField.getText());
@@ -125,10 +131,10 @@ public class AddProfesorController {
             professor.setEmail(emailTextField.getText());
             professor.setAcademicArea(academicAreaTextField.getText());
             professor.setRole("Profesor");
-            boolean userId = professorDAO.saveProfessor(professor);
+            boolean saved = professorDAO.saveProfessor(professor);
 
-            if (userId) {
-                showAlert("Registro Exitoso", "Profesor registrado exitosamente.",
+            if (saved) {
+                showAlert("Registro exitoso", "Profesor registrado exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();
             } else {
@@ -136,29 +142,24 @@ public class AddProfesorController {
                         AlertType.ERROR);
             }
 
-        } catch (ServiceException exception) {
-            showAlert("Error", "Error al procesar el registro: " + exception.getMessage(),
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible", "Error al procesar el registro. Intente más tarde.",
                     AlertType.ERROR);
-        } catch (ValidationException exception) {
-            showAlert("Error de validación", "Error al validar datos: " + exception.getMessage(),
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);
         }
     }
 
     private boolean hasEmptyFields() {
-        boolean isEmpty = false;
-
-        if (idTextField.getText().isEmpty() ||
-            emailTextField.getText().isEmpty()  ||
-            firstNameTextField.getText().isEmpty() ||
-            lastNameTextField.getText().isEmpty() ||
-            secondLastNameTextField.getText().isEmpty() ||
-            academicAreaTextField.getText().isEmpty() ||
-            passwordField.getText().isEmpty() ||
-            confirmPasswordField.getText().isEmpty()) {
-                isEmpty = true;
-        }
-
+        boolean isEmpty = idTextField.getText().isEmpty()
+                || emailTextField.getText().isEmpty()
+                || firstNameTextField.getText().isEmpty()
+                || lastNameTextField.getText().isEmpty()
+                || secondLastNameTextField.getText().isEmpty()
+                || academicAreaTextField.getText().isEmpty()
+                || passwordField.getText().isEmpty()
+                || confirmPasswordField.getText().isEmpty();
         return isEmpty;
     }
 

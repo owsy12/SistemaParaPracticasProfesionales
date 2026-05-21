@@ -18,7 +18,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(CoordinatorDAO.class.getName());
 
-    private  Connection connection;
+    private Connection connection;
 
     public CoordinatorDAO() throws ServiceException {
         super();
@@ -28,6 +28,9 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
     @Override
     public boolean save(Coordinator coordinator) throws ServiceException, ValidationException {
+        if (countActiveCoordinators() >= 1) {
+            throw new ValidationException("Ya existe un coordinador activo en el sistema.");
+        }
         boolean isSaved = false;
         try {
             connection.setAutoCommit(false);
@@ -187,10 +190,26 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
             }
 
-        }catch (SQLException e){
-            throw new ServiceException("Error al recuperar coordinadores activos.", e);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Error al recuperar coordinadores activos.", sqlException);
         }
         return coordinators;
+    }
+
+    private int countActiveCoordinators() throws ServiceException {
+        int count = 0;
+        String sql = "SELECT COUNT(*) FROM usuario_rol WHERE rol = 'Coordinador' AND estado = 'Activo'";
+        try (PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                count = resultSet.getInt(1);
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al contar coordinadores activos: {0}",
+                    sqlException.getMessage());
+            throw new ServiceException("Error al verificar coordinadores activos.", sqlException);
+        }
+        return count;
     }
 
     private Coordinator mapCoordinator(ResultSet resultSet) throws SQLException {

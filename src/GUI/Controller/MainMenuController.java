@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.ViewsUtils.*;
 import Logic.DTOs.User;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -172,6 +173,7 @@ public class MainMenuController {
         addButton("Inactivar Practicante", "/GUI/View/GUIDeactivateIntern.fxml");
         addButton("Consultar Organizaciones Vinculadas", "/GUI/view/GUIManageLinkedOrganization.fxml");
         addButton("Consualtar tecnicos responsables", "/GUI/view/GUIManageTechnicalResponsible.fxml");
+        addButton("Manejar Actividades", "/GUI/view/GUISelectProjectForActivity.fxml");
     }
 
     private void loadInternActions() {

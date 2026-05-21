@@ -54,7 +54,7 @@ public class DeactivateProfessorController {
     }
 
     private void addButtonToTable() {
-        actionsColumn.setCellFactory(param -> new TableCell<User, Void>() {
+        actionsColumn.setCellFactory(column -> new TableCell<User, Void>() {
 
             private final Button button = new Button("Inactivar");
 
@@ -94,10 +94,10 @@ public class DeactivateProfessorController {
             userRoleDAO.updateUserRolStatus(user);
             showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showAlert("Error", "servicio no disponible",
                     Alert.AlertType.ERROR);
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error" , "no se logro desactivar",
                     Alert.AlertType.ERROR);
         }
@@ -107,10 +107,10 @@ public class DeactivateProfessorController {
         try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             tableView.getItems().setAll(professorDAO.findActiveProfessors());
-        }  catch (ValidationException e) {
+        }  catch (ValidationException validationException) {
             showAlert("Error", "servicio no disponible",
                     Alert.AlertType.ERROR);
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error" , "no se logro desactivar",
                     Alert.AlertType.ERROR);
         }

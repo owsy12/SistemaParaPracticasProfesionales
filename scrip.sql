@@ -6,367 +6,525 @@ CREATE DATABASE spp
     COLLATE utf8mb4_unicode_ci;
 USE spp;
 
-CREATE TABLE usuario (
-                         id_usuario        INT          NOT NULL AUTO_INCREMENT,
-                         matricula         VARCHAR(20)  NOT NULL,
-                         nombre            VARCHAR(80)  NOT NULL,
-                         apellido_paterno  VARCHAR(60)  NOT NULL,
-                         apellido_materno  VARCHAR(60)  NOT NULL,
-                         contrasenia       VARCHAR(255) NOT NULL COMMENT 'Hash bcrypt',
-                         correo            VARCHAR(120) NOT NULL,
-                         PRIMARY KEY (id_usuario),
-                         UNIQUE KEY uq_usuario_matricula (matricula)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='Tabla base de todos los actores del sistema';
+create table organizacion_vinculada
+(
+    id_organizacion     int auto_increment
+        primary key,
+    nombre_organizacion varchar(150)                                 not null,
+    correo_organizacion varchar(120)                                 not null,
+    direccion           varchar(255)                                 not null,
+    sector              varchar(100)                                 not null comment 'sectorOrganizacion (CU-05)',
+    estado              enum ('Activa', 'Inactiva') default 'Activa' not null,
+    constraint uq_org_nombre
+        unique (nombre_organizacion)
+)
+    comment 'CU-05 registra; CU-06 consulta; CU-09 referencia';
 
-CREATE TABLE usuario_rol (
-                             id_usuario  INT  NOT NULL,
-                             rol         ENUM('Administrador','Coordinador','Profesor','Practicante')
-                                              NOT NULL,
-                             estado       ENUM('Activo','Inactivo') NOT NULL DEFAULT 'Activo' ,
-                             PRIMARY KEY (id_usuario, rol),
-                             CONSTRAINT fk_urol_usuario
-                                 FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
-                                     ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='Un usuario puede tener más de un rol (ej. Coordinador + Profesor)';
+create table tecnico_responsable
+(
+    id_tecnico         int auto_increment
+        primary key,
+    id_organizacion    int          not null,
+    nombre             varchar(80)  not null,
+    apellido_paterno   varchar(60)  not null,
+    apellido_materno   varchar(60)  not null,
+    correo_responsable varchar(120) not null,
+    cargo              varchar(100) not null,
+    constraint uq_tec_correo_org
+        unique (correo_responsable, id_organizacion),
+    constraint fk_tecnico_organizacion
+        foreign key (id_organizacion) references organizacion_vinculada (id_organizacion)
+            on delete cascade
+)
+    comment 'CU-07 registra; CU-08 consulta; CU-09 referencia';
 
-CREATE TABLE administrador (
-                               id_usuario  INT NOT NULL,
-                               PRIMARY KEY (id_usuario),
-                               CONSTRAINT fk_adm_usuario
-                                   FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
-                                       ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-01 registra; sin atributos extra';
+create table usuario
+(
+    id_usuario       int auto_increment
+        primary key,
+    matricula        varchar(20)  not null,
+    nombre           varchar(80)  not null,
+    apellido_paterno varchar(60)  not null,
+    apellido_materno varchar(60)  not null,
+    contrasenia      varchar(255) not null comment 'Hash bcrypt',
+    correo           varchar(120) not null,
+    constraint uq_usuario_matricula
+        unique (matricula)
+)
+    comment 'Tabla base de todos los actores del sistema';
 
+create table administrador
+(
+    id_usuario int not null
+        primary key,
+    constraint fk_adm_usuario
+        foreign key (id_usuario) references usuario (id_usuario)
+            on update cascade on delete cascade
+)
+    comment 'CU-01 registra; sin atributos extra';
 
-CREATE TABLE coordinador (
-                             id_usuario  INT NOT NULL,
-                             PRIMARY KEY (id_usuario),
-                             CONSTRAINT fk_coord_usuario
-                                 FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
-                                     ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-01 registra; CU-03 inactiva (via usuario.estado)';
+create table coordinador
+(
+    id_usuario int not null
+        primary key,
+    constraint fk_coord_usuario
+        foreign key (id_usuario) references usuario (id_usuario)
+            on update cascade on delete cascade
+)
+    comment 'CU-01 registra; CU-03 inactiva (via usuario.estado)';
 
+create table practicante
+(
+    id_usuario int not null
+        primary key,
+    creditos   int not null comment 'Créditos académicos acumulados',
+    constraint fk_prac_usuario
+        foreign key (id_usuario) references usuario (id_usuario)
+            on update cascade on delete cascade
+)
+    comment 'CU-14 registra; CU-13 inactiva; CU-19/20/21/22/23/24 operan';
 
-CREATE TABLE profesor (
-                          id_usuario  INT          NOT NULL,
-                          academica   VARCHAR(100) NOT NULL COMMENT 'Área académica / academia',
-                          PRIMARY KEY (id_usuario),
-                          CONSTRAINT fk_prof_usuario
-                              FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
-                                  ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-02 registra; CU-04 inactiva; CU-15 consulta';
+create table profesor
+(
+    id_usuario int          not null
+        primary key,
+    academica  varchar(100) not null comment 'Área académica / academia',
+    constraint fk_prof_usuario
+        foreign key (id_usuario) references usuario (id_usuario)
+            on update cascade on delete cascade
+)
+    comment 'CU-02 registra; CU-04 inactiva; CU-15 consulta';
 
-
-CREATE TABLE practicante (
-                             id_usuario  INT NOT NULL,
-                             creditos    INT NOT NULL COMMENT 'Créditos académicos acumulados',
-                             PRIMARY KEY (id_usuario),
-                             CONSTRAINT fk_prac_usuario
-                                 FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
-                                     ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-14 registra; CU-13 inactiva; CU-19/20/21/22/23/24 operan';
-
-
-
-CREATE TABLE organizacion_vinculada (
-                                        id_organizacion      INT          NOT NULL AUTO_INCREMENT,
-                                        nombre_organizacion  VARCHAR(150) NOT NULL,
-                                        correo_organizacion  VARCHAR(120) NOT NULL,
-                                        direccion            VARCHAR(255) NOT NULL,
-                                        sector               VARCHAR(100) NOT NULL COMMENT 'sectorOrganizacion (CU-05)',
-                                        estado               ENUM('Activa','Inactiva') NOT NULL DEFAULT 'Activa',
-                                        PRIMARY KEY (id_organizacion),
-                                        UNIQUE KEY uq_org_nombre (nombre_organizacion)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-05 registra; CU-06 consulta; CU-09 referencia';
-
-
-
-CREATE TABLE tecnico_responsable (
-                                     id_tecnico            INT          NOT NULL AUTO_INCREMENT,
-                                     id_organizacion       INT          NOT NULL,
-                                     nombre                VARCHAR(80)  NOT NULL,
-                                     apellido_paterno      VARCHAR(60)  NOT NULL,
-                                     apellido_materno      VARCHAR(60)  NOT NULL,
-                                     correo_responsable    VARCHAR(120) NOT NULL,
-                                     cargo                 VARCHAR(100) NOT NULL,
-                                     PRIMARY KEY (id_tecnico),
-                                     UNIQUE KEY uq_tec_correo_org (correo_responsable, id_organizacion),
-                                     CONSTRAINT fk_tec_org
-                                         FOREIGN KEY (id_organizacion)
-                                             REFERENCES organizacion_vinculada (id_organizacion)
-                                             ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-07 registra; CU-08 consulta; CU-09 referencia';
-
-
-CREATE TABLE proyecto (
-                          id_proyecto      INT          NOT NULL AUTO_INCREMENT,
-                          id_organizacion  INT          NOT NULL,
-                          id_tecnico       INT          NOT NULL,
-                          id_profesor   INT          NOT NULL COMMENT 'FK → coordinador.id_usuario',
-                          nombre           VARCHAR(150) NOT NULL,
-                          descripcion      TEXT         NOT NULL,
-                          fecha_inicio     DATE         NOT NULL,
-                          fecha_fin        DATE         NOT NULL,
-                          cupo_maximo      INT          NOT NULL,
-                          cupo_disponible  INT          NOT NULL,
-                          estado           ENUM('Disponible','Lleno','Concluido','Cancelado')
-                                                        NOT NULL DEFAULT 'Disponible',
-                          PRIMARY KEY (id_proyecto),
-                          UNIQUE KEY uq_proy_nombre_org (nombre, id_organizacion),
-                          CONSTRAINT fk_proy_org
-                              FOREIGN KEY (id_organizacion)
-                                  REFERENCES organizacion_vinculada (id_organizacion)
-                                  ON UPDATE CASCADE ON DELETE RESTRICT,
-                          CONSTRAINT fk_proy_tec
-                              FOREIGN KEY (id_tecnico)
-                                  REFERENCES tecnico_responsable (id_tecnico)
-                                  ON UPDATE CASCADE ON DELETE RESTRICT,
-                          CONSTRAINT fk_proy_coord
-                              FOREIGN KEY (id_profesor)
-                                  REFERENCES profesor (id_usuario)
-                                  ON UPDATE CASCADE ON DELETE RESTRICT,
-                          CONSTRAINT chk_fechas
-                              CHECK (fecha_fin > fecha_inicio),
-                          CONSTRAINT chk_cupo_maximo
-                              CHECK (cupo_maximo > 0),
-                          CONSTRAINT chk_cupo_disponible
-                              CHECK (cupo_disponible >= 0)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-09 registra; CU-10 asigna; CU-11 elimina; CU-12 actualiza';
-
-CREATE TABLE solicitud (
-                           id_solicitud     INT      NOT NULL AUTO_INCREMENT,
-                           id_practicante   INT      NOT NULL,
-                           estado           ENUM('Pendiente','Aceptada','Rechazada')
-                                                     NOT NULL DEFAULT 'Pendiente',
-                           fecha_solicitud  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                           PRIMARY KEY (id_solicitud),
-                           UNIQUE KEY uq_sol_practicante_activa (id_practicante, estado),
-                           CONSTRAINT fk_sol_prac
-                               FOREIGN KEY (id_practicante)
-                                   REFERENCES practicante (id_usuario)
-                                   ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-19 registra; CU-10 acepta';
-
-
-CREATE TABLE solicitud_proyecto (
-                                    id_solicitud_proyecto  INT     NOT NULL AUTO_INCREMENT,
-                                    id_solicitud           INT     NOT NULL,
-                                    id_proyecto            INT     NOT NULL,
-                                    orden_preferencia      TINYINT COMMENT '1=primera, 2=segunda, 3=tercera',
-                                    PRIMARY KEY (id_solicitud_proyecto),
-                                    UNIQUE KEY uq_sol_proy       (id_solicitud, id_proyecto),
-                                    UNIQUE KEY uq_sol_orden      (id_solicitud, orden_preferencia),
-                                    CONSTRAINT fk_solproy_sol
-                                        FOREIGN KEY (id_solicitud)
-                                            REFERENCES solicitud (id_solicitud)
-                                            ON UPDATE CASCADE ON DELETE CASCADE,
-                                    CONSTRAINT fk_solproy_proy
-                                        FOREIGN KEY (id_proyecto)
-                                            REFERENCES proyecto (id_proyecto)
-                                            ON UPDATE CASCADE ON DELETE RESTRICT,
-                                    CONSTRAINT chk_orden_preferencia
-                                        CHECK (orden_preferencia BETWEEN 1 AND 3)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-19: hasta 3 opciones por solicitud';
-
-CREATE TABLE asignacion (
-                            id_asignacion     INT      NOT NULL AUTO_INCREMENT,
-                            id_practicante    INT      NOT NULL,
-                            id_proyecto       INT      NOT NULL,
-                            id_solicitud      INT      NOT NULL,
-                            fecha_asignacion  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                            estado            ENUM('Activa','Concluida'),
-                            PRIMARY KEY (id_asignacion),
-                            UNIQUE KEY uq_asig_practicante (id_practicante),
-                            CONSTRAINT fk_asig_prac
-                                FOREIGN KEY (id_practicante)
-                                    REFERENCES practicante (id_usuario)
-                                    ON UPDATE CASCADE ON DELETE RESTRICT,
-                            CONSTRAINT fk_asig_proy
-                                FOREIGN KEY (id_proyecto)
-                                    REFERENCES proyecto (id_proyecto)
-                                    ON UPDATE CASCADE ON DELETE RESTRICT,
-                            CONSTRAINT fk_asig_sol
-                                FOREIGN KEY (id_solicitud)
-                                    REFERENCES solicitud (id_solicitud)
-                                    ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-10 registra; un practicante solo puede tener una asignación';
-
-CREATE TABLE formato_inicial (
-                                 id_formato        INT          NOT NULL AUTO_INCREMENT,
-                                 id_practicante    INT          NOT NULL,
-                                 tipo_formato      ENUM(
-                                     'Carta de Asignación',
-                                     'Horario',
-                                     'Certificado de Seguro',
-                                     'Cronograma de Actividades'
-                                     ) NOT NULL,
-                                 ruta_archivo      VARCHAR(500) NOT NULL COMMENT 'Ruta del archivo en disco',
-                                 estado            ENUM('Pendiente','Entregado') NOT NULL DEFAULT 'Pendiente',
-                                 fecha_entrega     DATETIME     NULL,
-                                 id_proyecto       INT          NULL COMMENT 'FK opcional para validar que el formato corresponde al proyecto asignado',
-                                 PRIMARY KEY (id_formato),
-                                 UNIQUE KEY uq_fmt_prac_tipo (id_practicante, tipo_formato),
-                                 FOREIGN KEY (id_proyecto)
-                                     REFERENCES proyecto (id_proyecto)
-                                     ON UPDATE CASCADE ON DELETE SET NULL,
-                                 CONSTRAINT fk_fmt_prac
-                                     FOREIGN KEY (id_practicante)
-                                         REFERENCES practicante (id_usuario)
-                                         ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-18: practicante sube los 4 formatos iniciales';
-
-
-
-CREATE TABLE reporte (
-                         id_reporte          INT           NOT NULL AUTO_INCREMENT,
-                         id_practicante      INT           NOT NULL,
-                         id_proyecto         INT           NOT NULL,
-                         id_profesor         INT           NULL  COMMENT 'Se asigna al evaluar (CU-17)',
-                         tipo_reporte        ENUM('Parcial','Final','Mensual') NOT NULL,
-                         periodo             VARCHAR(50)   NOT NULL COMMENT 'Ej: 2024-01 o número de informe',
-                         ruta_documento      VARCHAR(500)  NOT NULL COMMENT 'Ruta del PDF firmado (CU-21)',
-                         estado              ENUM('Pendiente','En revisión','Evaluado')
-                             NOT NULL DEFAULT 'Pendiente',
-                         fecha_entrega       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-                         PRIMARY KEY (id_reporte),
-                         UNIQUE KEY uq_rep_prac_tipo_periodo (id_practicante, tipo_reporte, periodo),
-                         CONSTRAINT fk_rep_prac
-                             FOREIGN KEY (id_practicante)
-                                 REFERENCES practicante (id_usuario)
-                                 ON UPDATE CASCADE ON DELETE RESTRICT,
-                         CONSTRAINT fk_rep_proy
-                             FOREIGN KEY (id_proyecto)
-                                 REFERENCES proyecto (id_proyecto)
-                                 ON UPDATE CASCADE ON DELETE RESTRICT,
-                         CONSTRAINT fk_rep_prof
-                             FOREIGN KEY (id_profesor)
-                                 REFERENCES profesor (id_usuario)
-                                 ON UPDATE CASCADE ON DELETE SET NULL
-
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-20 genera; CU-21 sube firmado; CU-17 evalúa';
-
-CREATE TABLE reporte_parcial_y_final(
-                                        id_reporte_parcial INT NOT NULL,
-                                        numero_informe      TINYINT       NULL COMMENT 'Solo Parcial: nº de informe',
-                                        horas_cubiertas     DECIMAL(6,2)  NULL COMMENT 'Parcial/Final: horas al momento',
-                                        objetivo_general    TEXT          NULL COMMENT 'Parcial/Final',
-                                        metodologia         TEXT          NULL COMMENT 'Solo Parcial',
-                                        resultados_obtenidos TEXT         NULL COMMENT 'Solo Parcial',
-                                        observaciones       TEXT          NULL COMMENT 'Todos los tipos',
-
-                                        foreign key (id_reporte_parcial) references reporte (id_reporte)
-                                            on update cascade on delete cascade
+create table experiencia_educativa
+(
+    nrc         varchar(10)  not null
+        primary key,
+    nombre      varchar(150) not null,
+    id_profesor int          not null,
+    constraint fk_ee_profesor
+        foreign key (id_profesor) references usuario (id_usuario)
+            on update cascade
 );
 
-Create table reporte_mensual(
-                                id_reporte_mensual int not null ,
-                                mes                 TINYINT       NULL COMMENT 'Solo Mensual: 1-12',
-                                anio                YEAR          NULL COMMENT 'Solo Mensual',
-                                horas_reportadas    DECIMAL(6,2)  NULL COMMENT 'Solo Mensual: horas del mes',
-                                bloque              VARCHAR(100)  NULL COMMENT 'Solo Mensual: bloque de la EE',
-                                seccion             VARCHAR(50)   NULL COMMENT 'Solo Mensual: sección del grupo',
+create table proyecto
+(
+    id_proyecto     int auto_increment
+        primary key,
+    id_organizacion int                                                                         not null,
+    id_tecnico      int                                                                         not null,
+    nombre          varchar(150)                                                                not null,
+    descripcion     text                                                                        not null,
+    objetivo        text                                                                        null,
+    fecha_inicio    date                                                                        not null,
+    fecha_fin       date                                                                        not null,
+    cupo_maximo     int                                                                         not null,
+    cupo_disponible int                                                                         not null,
+    estado          enum ('Disponible', 'Lleno', 'Concluido', 'Cancelado') default 'Disponible' not null,
+    id_profesor     int                                                                         null,
+    nrc             varchar(10)                                                                 null,
+    constraint uq_proy_nombre_org
+        unique (nombre, id_organizacion),
+    constraint fk_proy_org
+        foreign key (id_organizacion) references organizacion_vinculada (id_organizacion)
+            on update cascade,
+    constraint fk_proy_tec
+        foreign key (id_tecnico) references tecnico_responsable (id_tecnico)
+            on update cascade,
+    constraint id_profesor
+        foreign key (id_profesor) references usuario (id_usuario),
+    constraint fk_proy_ee
+        foreign key (nrc) references experiencia_educativa (nrc)
+            on update cascade,
+    constraint chk_cupo_disponible
+        check (`cupo_disponible` >= 0),
+    constraint chk_cupo_maximo
+        check (`cupo_maximo` > 0),
+    constraint chk_fechas
+        check (`fecha_fin` > `fecha_inicio`)
+)
+    comment 'CU-09 registra; CU-10 asigna; CU-11 elimina; CU-12 actualiza';
 
-                                foreign key (id_reporte_mensual) references reporte (id_reporte)
-                                    on update cascade on delete cascade,
-                                CONSTRAINT chk_rep_mes
-                                    CHECK (mes IS NULL OR mes BETWEEN 1 AND 12)
-
+create table actividad
+(
+    id_actividad       int auto_increment
+        primary key,
+    id_proyecto        int                                             not null,
+    nombre             varchar(200)                                    not null,
+    descripcion        text                                            null,
+    semana_inicio_plan int                         default 1           not null,
+    semana_fin_plan    int                         default 8           not null,
+    fecha_creacion     date                        default (curdate()) not null,
+    estado             enum ('Activa', 'Inactiva') default 'Activa'    not null,
+    constraint fk_actividad_proyecto
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade on delete cascade
 );
 
-CREATE TABLE evaluacion_reporte(
-
-                                   id_evaluacion_reporte int not null,
-                                   id_reporte int not null ,
-                                   calificacion        DECIMAL(4,2)  NULL COMMENT '0.00 – 10.00',
-                                   retroalimentacion   TEXT          NULL,
-                                   porcentaje_avance   DECIMAL(5,2)  NULL COMMENT '0.00 – 100.00',
-                                   fecha_evaluacion    DATETIME      NULL,
-                                   foreign key (id_reporte) references reporte (id_reporte),
-                                   CONSTRAINT chk_rep_calificacion
-                                       CHECK (calificacion IS NULL OR calificacion BETWEEN 0 AND 10),
-                                   CONSTRAINT chk_rep_avance
-                                       CHECK (porcentaje_avance IS NULL OR porcentaje_avance BETWEEN 0 AND 100)
-
-
-
+create table actividad_practicante
+(
+    id_actividad_practicante int auto_increment
+        primary key,
+    id_actividad             int                                                                 not null,
+    id_practicante           int                                                                 not null,
+    horas_dedicadas          int                                             default 0           not null,
+    estado                   enum ('Pendiente', 'En Progreso', 'Completada') default 'Pendiente' not null,
+    fecha_realizacion        date                                                                null,
+    observaciones            varchar(500)                                                        null,
+    constraint uq_actividad_practicante
+        unique (id_actividad, id_practicante),
+    constraint fk_actprac_actividad
+        foreign key (id_actividad) references actividad (id_actividad)
+            on update cascade on delete cascade,
+    constraint fk_actprac_practicante
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade on delete cascade
 );
 
-CREATE TABLE autoevaluacion (
-                                id_autoevaluacion  INT          NOT NULL AUTO_INCREMENT,
-                                id_practicante     INT          NOT NULL,
-                                id_proyecto        INT          NOT NULL,
-                                periodo            VARCHAR(50)  NOT NULL,
-                                afirmacion_01  TINYINT  NULL COMMENT '1=Tot. desacuerdo…5=Tot. acuerdo',
-                                afirmacion_02  TINYINT  NULL,
-                                afirmacion_03  TINYINT  NULL,
-                                afirmacion_04  TINYINT  NULL,
-                                afirmacion_05  TINYINT  NULL,
-                                afirmacion_06  TINYINT  NULL,
-                                afirmacion_07  TINYINT  NULL,
-                                afirmacion_08  TINYINT  NULL,
-                                afirmacion_09  TINYINT  NULL,
-                                afirmacion_10  TINYINT  NULL,
-                                puntuacion_final TINYINT NULL COMMENT 'Suma afirmaciones (10-50)',
-                                lugar_fecha    VARCHAR(200) NULL COMMENT 'Campo lugarYFecha (CU-22)',
-                                ruta_documento VARCHAR(500) NOT NULL COMMENT 'Ruta del PDF firmado (CU-23)',
-                                estado         ENUM('Pendiente','Revisada') NOT NULL DEFAULT 'Pendiente',
-                                fecha_entrega  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+create table autoevaluacion
+(
+    id_autoevaluacion int auto_increment
+        primary key,
+    id_practicante    int                                                      not null,
+    id_proyecto       int                                                      not null,
+    periodo           varchar(50)                                              not null,
+    afirmacion_01     tinyint                                                  null comment '1=Tot. desacuerdo…5=Tot. acuerdo',
+    afirmacion_02     tinyint                                                  null,
+    afirmacion_03     tinyint                                                  null,
+    afirmacion_04     tinyint                                                  null,
+    afirmacion_05     tinyint                                                  null,
+    afirmacion_06     tinyint                                                  null,
+    afirmacion_07     tinyint                                                  null,
+    afirmacion_08     tinyint                                                  null,
+    afirmacion_09     tinyint                                                  null,
+    afirmacion_10     tinyint                                                  null,
+    puntuacion_final  tinyint                                                  null comment 'Suma afirmaciones (10-50)',
+    lugar_fecha       varchar(200)                                             null comment 'Campo lugarYFecha (CU-22)',
+    ruta_documento    varchar(500)                                             not null comment 'Ruta del PDF firmado (CU-23)',
+    estado            enum ('Pendiente', 'Revisada') default 'Pendiente'       not null,
+    fecha_entrega     datetime                       default CURRENT_TIMESTAMP not null,
+    constraint uq_autoev_prac_periodo
+        unique (id_practicante, periodo),
+    constraint fk_autoev_prac
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade,
+    constraint fk_autoev_proy
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade,
+    constraint chk_af01
+        check ((`afirmacion_01` is null) or (`afirmacion_01` between 1 and 5)),
+    constraint chk_af02
+        check ((`afirmacion_02` is null) or (`afirmacion_02` between 1 and 5)),
+    constraint chk_af03
+        check ((`afirmacion_03` is null) or (`afirmacion_03` between 1 and 5)),
+    constraint chk_af04
+        check ((`afirmacion_04` is null) or (`afirmacion_04` between 1 and 5)),
+    constraint chk_af05
+        check ((`afirmacion_05` is null) or (`afirmacion_05` between 1 and 5)),
+    constraint chk_af06
+        check ((`afirmacion_06` is null) or (`afirmacion_06` between 1 and 5)),
+    constraint chk_af07
+        check ((`afirmacion_07` is null) or (`afirmacion_07` between 1 and 5)),
+    constraint chk_af08
+        check ((`afirmacion_08` is null) or (`afirmacion_08` between 1 and 5)),
+    constraint chk_af09
+        check ((`afirmacion_09` is null) or (`afirmacion_09` between 1 and 5)),
+    constraint chk_af10
+        check ((`afirmacion_10` is null) or (`afirmacion_10` between 1 and 5))
+)
+    comment 'CU-22 genera y guarda datos; CU-23 sube PDF firmado';
 
-                                PRIMARY KEY (id_autoevaluacion),
-                                UNIQUE KEY uq_autoev_prac_periodo (id_practicante, periodo),
-                                CONSTRAINT fk_autoev_prac
-                                    FOREIGN KEY (id_practicante)
-                                        REFERENCES practicante (id_usuario)
-                                        ON UPDATE CASCADE ON DELETE RESTRICT,
-                                CONSTRAINT fk_autoev_proy
-                                    FOREIGN KEY (id_proyecto)
-                                        REFERENCES proyecto (id_proyecto)
-                                        ON UPDATE CASCADE ON DELETE RESTRICT,
-                                CONSTRAINT chk_af01 CHECK (afirmacion_01 IS NULL OR afirmacion_01 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af02 CHECK (afirmacion_02 IS NULL OR afirmacion_02 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af03 CHECK (afirmacion_03 IS NULL OR afirmacion_03 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af04 CHECK (afirmacion_04 IS NULL OR afirmacion_04 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af05 CHECK (afirmacion_05 IS NULL OR afirmacion_05 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af06 CHECK (afirmacion_06 IS NULL OR afirmacion_06 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af07 CHECK (afirmacion_07 IS NULL OR afirmacion_07 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af08 CHECK (afirmacion_08 IS NULL OR afirmacion_08 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af09 CHECK (afirmacion_09 IS NULL OR afirmacion_09 BETWEEN 1 AND 5),
-                                CONSTRAINT chk_af10 CHECK (afirmacion_10 IS NULL OR afirmacion_10 BETWEEN 1 AND 5)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-22 genera y guarda datos; CU-23 sube PDF firmado';
+create table evaluacion_ov
+(
+    id_evaluacion_ov int auto_increment
+        primary key,
+    id_practicante   int                                                 not null,
+    id_proyecto      int                                                 not null,
+    ruta_documento   varchar(500)                                        not null comment 'Ruta del archivo en disco',
+    estado           enum ('Pendiente', 'Entregado') default 'Pendiente' not null,
+    fecha_entrega    datetime                                            null,
+    constraint uq_eov_prac_proy
+        unique (id_practicante, id_proyecto),
+    constraint fk_eov_prac
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade,
+    constraint fk_eov_proy
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade
+)
+    comment 'CU-24: practicante sube evaluación firmada de la organización';
 
+create table formato_inicial
+(
+    id_formato     int auto_increment
+        primary key,
+    id_practicante int                                                                                           not null,
+    tipo_formato   enum ('Carta de Asignación', 'Horario', 'Certificado de Seguro', 'Cronograma de Actividades') null,
+    ruta_archivo   varchar(500)                                                                                  null comment 'Ruta del archivo en disco',
+    estado         enum ('Pendiente', 'Entregado') default 'Pendiente'                                           not null,
+    fecha_entrega  datetime                                                                                      null,
+    id_proyecto    int                                                                                           null,
+    constraint uq_fmt_prac_tipo
+        unique (id_practicante, tipo_formato),
+    constraint fk_fmt_prac
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade,
+    constraint foreign_key_Id_proyecto
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade on delete set null
+)
+    comment 'CU-18: practicante sube los 4 formatos iniciales';
 
-CREATE TABLE evaluacion_ov (
-                               id_evaluacion_ov  INT          NOT NULL AUTO_INCREMENT,
-                               id_practicante    INT          NOT NULL,
-                               id_proyecto       INT          NOT NULL,
-                               ruta_documento    VARCHAR(500) NOT NULL COMMENT 'Ruta del archivo en disco',
-                               estado            ENUM('Pendiente','Entregado') NOT NULL DEFAULT 'Pendiente',
-                               fecha_entrega     DATETIME     NULL,
-                               PRIMARY KEY (id_evaluacion_ov),
-                               UNIQUE KEY uq_eov_prac_proy (id_practicante, id_proyecto),
-                               CONSTRAINT fk_eov_prac
-                                   FOREIGN KEY (id_practicante)
-                                       REFERENCES practicante (id_usuario)
-                                       ON UPDATE CASCADE ON DELETE RESTRICT,
-                               CONSTRAINT fk_eov_proy
-                                   FOREIGN KEY (id_proyecto)
-                                       REFERENCES proyecto (id_proyecto)
-                                       ON UPDATE CASCADE ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-    COMMENT='CU-24: practicante sube evaluación firmada de la organización';
+create table reporte
+(
+    id_reporte             int auto_increment
+        primary key,
+    id_practicante         int                                                                     not null,
+    id_proyecto            int                                                                     not null,
+    id_profesor            int                                                                     null comment 'Se asigna al evaluar (CU-17)',
+    tipo_reporte           enum ('Parcial', 'Final', 'Mensual')                                    not null,
+    periodo                varchar(50)                                                             not null comment 'Ej: 2024-01 o número de informe',
+    ruta_documento         varchar(500)                                                            not null comment 'Ruta del PDF firmado (CU-21)',
+    estado                 enum ('Pendiente', 'En revisión', 'Revisado', 'Corrección solicitada', 'Aprobado', 'Rechazado') default 'Pendiente' not null,
+    horas_reportadas       int                                           default 0                 null,
+    observaciones_profesor text                                                                    null,
+    fecha_revision         date                                                                    null,
+    fecha_entrega          datetime                                      default CURRENT_TIMESTAMP not null,
+    fecha_limite           date                                                                    null,
+    entrega_tardia         tinyint(1)                                    default 0                 not null,
+    ruta_documento_firmado varchar(150)                                                            null,
+    constraint uq_rep_prac_tipo_periodo
+        unique (id_practicante, tipo_reporte, periodo),
+    constraint fk_rep_prac
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade,
+    constraint fk_rep_prof
+        foreign key (id_profesor) references profesor (id_usuario)
+            on update cascade on delete set null,
+    constraint fk_rep_proy
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade
+)
+    comment 'CU-20 genera; CU-21 sube firmado; CU-17 evalúa';
+
+create table evaluacion_reporte
+(
+    id_evaluacion_reporte int           not null,
+    id_reporte            int           not null,
+    calificacion          decimal(4, 2) null comment '0.00 – 10.00',
+    retroalimentacion     text          null,
+    porcentaje_avance     decimal(5, 2) null comment '0.00 – 100.00',
+    fecha_evaluacion      datetime      null,
+    constraint evaluacion_reporte_ibfk_1
+        foreign key (id_reporte) references reporte (id_reporte),
+    constraint chk_rep_avance
+        check ((`porcentaje_avance` is null) or (`porcentaje_avance` between 0 and 100)),
+    constraint chk_rep_calificacion
+        check ((`calificacion` is null) or (`calificacion` between 0 and 10))
+);
+
+create index id_reporte
+    on evaluacion_reporte (id_reporte);
+
+create table reporte_actividad
+(
+    id_reporte_actividad int auto_increment
+        primary key,
+    id_reporte           int           not null,
+    id_actividad         int           not null,
+    periodo              varchar(100)  null,
+    plan_semanas         varchar(20)   null,
+    real_semanas         varchar(20)   null,
+    porcentaje_avance    int default 0 not null,
+    observaciones        varchar(500)  null,
+    constraint fk_ra_actividad
+        foreign key (id_actividad) references actividad (id_actividad)
+            on update cascade on delete cascade,
+    constraint fk_ra_reporte
+        foreign key (id_reporte) references reporte (id_reporte)
+            on update cascade on delete cascade
+);
+
+create index idx_reporte_actividad_reporte
+    on reporte_actividad (id_reporte);
+
+create table reporte_entregable
+(
+    id_reporte_entregable int auto_increment
+        primary key,
+    id_reporte            int           not null,
+    resultado             varchar(300)  not null,
+    descripcion           varchar(500)  null,
+    porcentaje_avance     int default 0 not null,
+    observaciones         varchar(500)  null,
+    constraint fk_re_reporte
+        foreign key (id_reporte) references reporte (id_reporte)
+            on update cascade on delete cascade
+);
+
+create index idx_reporte_entregable_reporte
+    on reporte_entregable (id_reporte);
+
+create table reporte_mensual
+(
+    id_reporte_mensual int           not null,
+    mes                varchar(30)   null comment 'Solo Mensual: 1-12',
+    anio               year          null comment 'Solo Mensual',
+    horas_reportadas   decimal(6, 2) null comment 'Solo Mensual: horas del mes',
+    bloque             varchar(100)  null comment 'Solo Mensual: bloque de la EE',
+    seccion            varchar(50)   null comment 'Solo Mensual: sección del grupo',
+    constraint reporte_mensual_ibfk_1
+        foreign key (id_reporte_mensual) references reporte (id_reporte)
+            on update cascade on delete cascade
+);
+
+create index id_reporte_mensual
+    on reporte_mensual (id_reporte_mensual);
+
+create table reporte_parcial_y_final
+(
+    id_reporte_parcial   int           not null,
+    numero_informe       tinyint       null comment 'Solo Parcial: nº de informe',
+    horas_cubiertas      decimal(6, 2) null comment 'Parcial/Final: horas al momento',
+    objetivo_general     text          null comment 'Parcial/Final',
+    metodologia          text          null comment 'Solo Parcial',
+    resultados_obtenidos text          null comment 'Solo Parcial',
+    observaciones        text          null comment 'Todos los tipos',
+    constraint reporte_parcial_y_final_ibfk_1
+        foreign key (id_reporte_parcial) references reporte (id_reporte)
+            on update cascade on delete cascade
+);
+
+create index id_reporte_parcial
+    on reporte_parcial_y_final (id_reporte_parcial);
+
+create table solicitud
+(
+    id_solicitud    int auto_increment
+        primary key,
+    id_practicante  int                                                                   not null,
+    estado          enum ('Pendiente', 'Aceptada', 'Rechazada') default 'Pendiente'       not null,
+    fecha_solicitud datetime                                    default CURRENT_TIMESTAMP not null,
+    constraint uq_sol_practicante_activa
+        unique (id_practicante, estado),
+    constraint fk_sol_prac
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade
+)
+    comment 'CU-19 registra; CU-10 acepta';
+
+create table asignacion
+(
+    id_asignacion    int auto_increment
+        primary key,
+    id_practicante   int                                                    not null,
+    id_proyecto      int                                                    not null,
+    id_solicitud     int                                                    not null,
+    fecha_asignacion datetime                     default CURRENT_TIMESTAMP not null,
+    estado           enum ('Activa', 'Concluida') default 'Activa'          not null,
+    razon_asignacion text                                                    null,
+    constraint uq_asig_practicante
+        unique (id_practicante),
+    constraint fk_asig_prac
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade,
+    constraint fk_asig_proy
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade,
+    constraint fk_asig_sol
+        foreign key (id_solicitud) references solicitud (id_solicitud)
+            on update cascade
+)
+    comment 'CU-10 registra; un practicante solo puede tener una asignación';
+
+create table solicitud_proyecto
+(
+    id_solicitud_proyecto int auto_increment
+        primary key,
+    id_solicitud          int     not null,
+    id_proyecto           int     not null,
+    orden_preferencia     tinyint null comment '1=primera, 2=segunda, 3=tercera',
+    constraint uq_sol_proy
+        unique (id_solicitud, id_proyecto),
+    constraint fk_solproy_proy
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade,
+    constraint fk_solproy_sol
+        foreign key (id_solicitud) references solicitud (id_solicitud)
+            on update cascade on delete cascade
+)
+    comment 'CU-19: hasta 3 opciones por solicitud';
+
+create table usuario_rol
+(
+    id_usuario int                                                              not null,
+    rol        enum ('Administrador', 'Coordinador', 'Profesor', 'Practicante') not null,
+    estado     enum ('Activo', 'Inactivo') default 'Activo'                     not null,
+    primary key (id_usuario, rol),
+    constraint fk_urol_usuario
+        foreign key (id_usuario) references usuario (id_usuario)
+            on update cascade on delete cascade
+)
+    comment 'Un usuario puede tener más de un rol (ej. Coordinador + Profesor)';
+
+create table practica
+(
+    id_practica    int auto_increment
+        primary key,
+    nrc            varchar(10)                                             not null,
+    id_practicante int                                                     not null,
+    fecha_inicio   date                                                    not null,
+    fecha_fin      date                                                    null,
+    estado         enum ('Activa', 'Concluida', 'Cancelada') default 'Activa' not null,
+    calificacion   decimal(4, 2)                                          null,
+    id_proyecto    int                                                     null,
+    constraint uq_practica_nrc_practicante
+        unique (nrc, id_practicante),
+    constraint fk_practica_ee
+        foreign key (nrc) references experiencia_educativa (nrc)
+            on update cascade,
+    constraint fk_practica_practicante
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade,
+    constraint chk_practica_calificacion
+        check (calificacion is null or calificacion between 0 and 10),
+    constraint chk_practica_fechas
+        check (fecha_fin is null or fecha_fin >= fecha_inicio),
+    constraint fk_practica_proyecto
+        foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade on delete set null
+);
+
+delimiter //
+create trigger trg_single_active_coordinator
+before insert on usuario_rol
+for each row
+begin
+    declare active_count int;
+    if new.rol = 'Coordinador' and new.estado = 'Activo' then
+        select count(*) into active_count
+        from usuario_rol
+        where rol = 'Coordinador' and estado = 'Activo';
+        if active_count >= 1 then
+            signal sqlstate '45000'
+                set message_text = 'Solo puede existir un coordinador activo en el sistema.';
+        end if;
+    end if;
+end;//
+delimiter ;
+
+create table observacion_reporte
+(
+    id_observacion    int auto_increment
+        primary key,
+    id_reporte        int      not null,
+    id_profesor       int      not null,
+    comentario        text     not null,
+    fecha_observacion datetime default CURRENT_TIMESTAMP not null,
+    constraint fk_obs_reporte
+        foreign key (id_reporte) references reporte (id_reporte)
+            on update cascade on delete cascade,
+    constraint fk_obs_profesor
+        foreign key (id_profesor) references profesor (id_usuario)
+            on update cascade
+);
+

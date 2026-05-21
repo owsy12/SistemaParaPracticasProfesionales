@@ -6,7 +6,9 @@ import Logic.DTOs.Coordinator;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import static GUI.Utils.Alert.showAlert;
-import static GUI.Utils.ValidationUtils.*;
+import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import static GUI.Utils.ValidationUtils.isValidEmail;
+import static GUI.Utils.ValidationUtils.getPasswordValidationMessage;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
@@ -36,43 +38,47 @@ public class AddCoordinadorController {
     private TextField emailTextField;
 
     @FXML
-    private void initialize(){
-        setTypeAndLength(firstNameTextField,"Name");
-        setTypeAndLength(lastNameTextField,"Name");
-        setTypeAndLength(secondLastNameTextField,"Name");
-        setTypeAndLength(idTextField,"ID");
-        setTypeAndLength(passwordField,"Password");
-        setTypeAndLength(emailTextField,"Email");
+    private void initialize() {
+        setTypeAndLength(firstNameTextField, "Name");
+        setTypeAndLength(lastNameTextField, "Name");
+        setTypeAndLength(secondLastNameTextField, "Name");
+        setTypeAndLength(idTextField, "ID");
+        setTypeAndLength(passwordField, "Password");
+        setTypeAndLength(confirmPasswordField, "Password");
+        setTypeAndLength(emailTextField, "Email");
     }
 
     @FXML
     public void registerCoordinator() {
         if (hasEmptyFields()) {
-            showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
+            showAlert("Campos vacíos", "Por favor complete todos los campos obligatorios.",
                     AlertType.WARNING);
-        } else if (isValidPassword(passwordField.getText())) {
-            showAlert("Contraseña no segura", "La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y caracteres especiales.",
+        } else if (!isValidEmail(emailTextField.getText())) {
+            showAlert("Correo inválido", "Ingrese un correo electrónico válido.",
                     AlertType.WARNING);
-
-        } else if (isPasswordMatching() && isValidEmail(emailTextField.getText())) {
-            processRegistration();
+        } else if (getPasswordValidationMessage(passwordField.getText()) != null) {
+            showAlert("Contraseña no válida",
+                    getPasswordValidationMessage(passwordField.getText()),
+                    AlertType.WARNING);
+        } else if (!isPasswordMatching()) {
+            showAlert("Contraseñas no coinciden",
+                    "La confirmación de contraseña no coincide con la contraseña ingresada.",
+                    AlertType.WARNING);
         } else {
-            showAlert("Error de contraseña", "Error ens sus daros de ungrso.",
-                    AlertType.ERROR);
+            processRegistration();
         }
     }
 
     @FXML
     public void showProfessorList() {
-        try  {
+        try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             List<Professor> professors = professorDAO.findProfessorsWithoutCoordinatorRole();
 
             if (professors.isEmpty()) {
                 showAlert("Información", "No hay profesores disponibles para asignar como coordinador.",
                         AlertType.INFORMATION);
-
-            }else {
+            } else {
                 ChoiceDialog<Professor> dialog = new ChoiceDialog<>(professors.get(0), professors);
                 dialog.setTitle("Seleccionar Profesor");
                 dialog.setHeaderText("Profesores activos sin rol de coordinador");
@@ -81,29 +87,27 @@ public class AddCoordinadorController {
                 result.ifPresent(this::addRolToProfessor);
                 showAlert("Rol asignado", "El profesor ha sido asignado como coordinador exitosamente.",
                         AlertType.INFORMATION);
-
             }
 
-        } catch (ServiceException exception) {
-            showAlert("Error", "Error al recuperar profesores: " + exception.getMessage(),
+        } catch (ServiceException serviceException) {
+            showAlert("Error", "Error al recuperar profesores: " + serviceException.getMessage(),
                     AlertType.ERROR);
-        }catch (ValidationException exception) {
-            showAlert("Error de validación", "Error al validar datos: " + exception.getMessage(),
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", "Error al validar datos: " + validationException.getMessage(),
                     AlertType.ERROR);
         }
-
     }
 
     private void addRolToProfessor(Professor professor) {
-        try{
+        try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             professor.setRole("Coordinador");
             userRoleDAO.saveUserRole(professor);
-        } catch (ValidationException e) {
-            showAlert("Error", "No se logro rcuperar",
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);
-        } catch (ServiceException e) {
-            showAlert("Error", "Servicio no disponible",
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible", "No se pudo asignar el rol. Intente más tarde.",
                     AlertType.ERROR);
         }
     }
@@ -116,7 +120,7 @@ public class AddCoordinadorController {
     }
 
     private void processRegistration() {
-        try  {
+        try {
             CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
             Coordinator coordinator = new Coordinator();
             coordinator.setMatricula(idTextField.getText());
@@ -129,7 +133,7 @@ public class AddCoordinadorController {
             coordinator.setRole("Coordinador");
 
             if (coordinatorDAO.save(coordinator)) {
-                showAlert("Registro Exitoso", "Coordinador registrado exitosamente.",
+                showAlert("Registro exitoso", "Coordinador registrado exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();
             } else {
@@ -137,29 +141,24 @@ public class AddCoordinadorController {
                         AlertType.ERROR);
             }
 
-        } catch ( ServiceException exception) {
-            showAlert("Error de conexión", "Error al conectar con la base de datos: " + exception.getMessage(),
+        } catch (ServiceException serviceException) {
+            showAlert("Servicio no disponible", "Error al conectar con la base de datos. Intente más tarde.",
                     AlertType.ERROR);
-        }catch ( ValidationException exception) {
-            showAlert("Error de validación", "Error al validar datos: " + exception.getMessage(),
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);
         }
     }
 
     private boolean hasEmptyFields() {
-        boolean isEmptu = false;
-
-        if (idTextField.getText().isEmpty() ||
-            firstNameTextField.getText().isEmpty() ||
-            lastNameTextField.getText().isEmpty() ||
-            secondLastNameTextField.getText().isEmpty() ||
-            emailTextField.getText().isEmpty()  ||
-            passwordField.getText().isEmpty() ||
-            confirmPasswordField.getText().isEmpty()) {
-                isEmptu = true;
-        }
-
-        return isEmptu;
+        boolean isEmpty = idTextField.getText().isEmpty()
+                || firstNameTextField.getText().isEmpty()
+                || lastNameTextField.getText().isEmpty()
+                || secondLastNameTextField.getText().isEmpty()
+                || emailTextField.getText().isEmpty()
+                || passwordField.getText().isEmpty()
+                || confirmPasswordField.getText().isEmpty();
+        return isEmpty;
     }
 
     private boolean isPasswordMatching() {

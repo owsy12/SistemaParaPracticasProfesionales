@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 public class Report {
@@ -10,8 +11,14 @@ public class Report {
     private String reportType;
     private String period;
     private String documentPath;
+    private String signedDocumentPath;
     private String status;
+    private int reportedHours;
+    private String professorObservations;
+    private LocalDate reviewDate;
     private Date sumissionDate;
+    private LocalDate fechaLimite;
+    private boolean entregaTardia;
 
     public Report(int idReport, int idIntern, int idProyect, int idProfessor, String reportType, String period, String documentPath, String status, int grade, String feedback, Date sumissionDate, Date evaluationDate, int reportNumber, int coveredHours, String methodology, String obtainedResults, String observations, String month, int year, String block, String section) {
         this.idReport = idReport;
@@ -101,4 +108,51 @@ public class Report {
         this.sumissionDate = sumissionDate;
     }
 
+    public String getSignedDocumentPath() {
+        return signedDocumentPath;
+    }
+
+    public void setSignedDocumentPath(String signedDocumentPath) {
+        this.signedDocumentPath = signedDocumentPath;
+    }
+
+    public int getReportedHours() {
+        return reportedHours;
+    }
+
+    public void setReportedHours(int reportedHours) {
+        this.reportedHours = reportedHours;
+    }
+
+    public String getProfessorObservations() {
+        return professorObservations;
+    }
+
+    public void setProfessorObservations(String professorObservations) {
+        this.professorObservations = professorObservations;
+    }
+
+    public LocalDate getReviewDate() {
+        return reviewDate;
+    }
+
+    public void setReviewDate(LocalDate reviewDate) {
+        this.reviewDate = reviewDate;
+    }
+
+    public LocalDate getFechaLimite() {
+        return fechaLimite;
+    }
+
+    public void setFechaLimite(LocalDate fechaLimite) {
+        this.fechaLimite = fechaLimite;
+    }
+
+    public boolean isEntregaTardia() {
+        return entregaTardia;
+    }
+
+    public void setEntregaTardia(boolean entregaTardia) {
+        this.entregaTardia = entregaTardia;
+    }
 }
