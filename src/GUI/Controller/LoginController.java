@@ -28,46 +28,50 @@ public class LoginController {
 
     @FXML
     private void initialize() {
-        setTypeAndLength(userTextField,"Email");
-        setTypeAndLength(passwordField,"Text");
+        setTypeAndLength(userTextField, "Email");
+        setTypeAndLength(passwordField, "Text");
     }
 
     @FXML
     public void clickLogin(ActionEvent actionEvent) {
-        if (isEmpty()){
+        if (isEmpty()) {
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
-                   Alert.AlertType.WARNING);
-        }else if (loginProcess()){
+                    Alert.AlertType.WARNING);
+        } else if (loginProcess()) {
             openWindow("GUIMainPage.fxml", "Menú Principal");
-        }else {
-            showAlert("Error inesperado","Estamos teniendo problemas inten†e mas tarde", Alert.AlertType.WARNING);
+        } else {
+            showAlert("Error inesperado", "Estamos teniendo problemas, intente más tarde.",
+                    Alert.AlertType.WARNING);
         }
     }
 
-    private boolean loginProcess(){
+    private boolean loginProcess() {
         boolean isValidUser = false;
 
-        try{
-            UserDAO user = new UserDAO();
-            currentUser = user.findByIdentifier(userTextField.getText());
+        try {
+            UserDAO userDAO = new UserDAO();
+            currentUser = userDAO.findByIdentifier(userTextField.getText());
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
 
-            if(BCrypt.checkpw(passwordField.getText(), currentUser.getPassword())){
+            if (BCrypt.checkpw(passwordField.getText(), currentUser.getPassword())) {
                 SessionManager.getInstance().login(currentUser);
                 isValidUser = true;
-            }else {
+            } else {
                 throw new ValidationException("Contraseña incorrecta");
             }
 
-        } catch (ServiceException e){
-            showAlert("Error de servicio", "Ocurrió un error al procesar la solicitud. Inténtalo de nuevo más tarde.",
+        } catch (ServiceException e) {
+            showAlert("Error de servicio",
+                    "Ocurrió un error al procesar la solicitud. Inténtalo de nuevo más tarde.",
                     Alert.AlertType.ERROR);
-        }catch (ValidationException e){
-            showAlert("Error de validación", "Usuario o contraseña incorrectos. Verifica tu información e inténtalo de nuevo.",
+        } catch (ValidationException e) {
+            showAlert("Error de validación",
+                    "Usuario o contraseña incorrectos. Verifica tu información e inténtalo de nuevo.",
                     Alert.AlertType.ERROR);
-        }catch (NullPointerException e){
-            showAlert("Error de autenticación", "Usuario no encontrado. Verifica tu matrícula e inténtalo de nuevo.",
+        } catch (NullPointerException e) {
+            showAlert("Error de autenticación",
+                    "Usuario no encontrado. Verifica tu matrícula e inténtalo de nuevo.",
                     Alert.AlertType.ERROR);
             clearFields();
         }
@@ -75,7 +79,7 @@ public class LoginController {
         return isValidUser;
     }
 
-    private boolean isEmpty(){
+    private boolean isEmpty() {
         boolean empty = false;
 
         if (userTextField.getText().isEmpty() || passwordField.getText().isEmpty()) {
@@ -90,13 +94,15 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/View/" + fxml));
             Parent root = loader.load();
             MainMenuController controller = loader.getController();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.setTitle(title);
+            Stage mainStage = new Stage();
+            mainStage.setScene(new Scene(root));
+            mainStage.setTitle(title);
             controller.setCurrentUser(currentUser);
-            stage.show();
+            mainStage.show();
+            Stage loginStage = (Stage) userTextField.getScene().getWindow();
+            loginStage.close();
         } catch (Exception e) {
-            showAlert("Error", "Error al abrir intento mas tarde", Alert.AlertType.ERROR);
+            showAlert("Error", "Error al abrir, intente más tarde.", Alert.AlertType.ERROR);
         }
     }
 

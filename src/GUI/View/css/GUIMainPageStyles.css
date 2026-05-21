@@ -1,0 +1,345 @@
+.mainBorderPane {
+    -fx-background-color: #F1F4F9;
+}
+
+.mainAreaBorderPane {
+    -fx-background-color: #F1F4F9;
+}
+
+
+/* ── SIDEBAR — contenedor principal ────────────────────────────────── */
+
+.sidebarVBox {
+    -fx-background-color: #0E2145;
+    -fx-pref-width: 280px;
+    -fx-min-height: 800px;
+}
+
+
+/* ── SIDEBAR — área del logotipo ────────────────────────────────────── */
+
+.sidebarLogoHBox {
+    -fx-background-color: #091A38;
+    -fx-padding: 20 20 20 20;
+}
+
+.sidebarSystemNameLabel {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.sidebarInstitutionLabel {
+    -fx-text-fill: rgba(255, 255, 255, 0.55);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+}
+
+.sidebarDividerSeparator .line {
+    -fx-border-color: rgba(255, 255, 255, 0.10) transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+
+/* ── SIDEBAR — perfil de usuario ────────────────────────────────────── */
+
+.sidebarUserProfileVBox {
+    -fx-alignment: CENTER;
+}
+
+.userAvatarStackPane {
+    -fx-background-color: #F97316;
+    -fx-background-radius: 50;
+}
+
+.userInitialsLabel {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.userFullNameLabel {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+}
+
+.userMatriculaLabel {
+    -fx-text-fill: rgba(255, 255, 255, 0.55);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 12px;
+}
+
+.userRoleBadgeHBox {
+    -fx-background-color: rgba(255, 255, 255, 0.12);
+    -fx-background-radius: 12;
+}
+
+.userRoleLabel {
+    -fx-text-fill: rgba(255, 255, 255, 0.85);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+
+/* ── SIDEBAR — sección del menú ─────────────────────────────────────── */
+
+.menuSectionTitleLabel {
+    -fx-text-fill: rgba(255, 255, 255, 0.40);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+}
+
+.menuVBox {
+    -fx-background-color: transparent;
+}
+
+.menuVBox > .button {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(255, 255, 255, 0.72);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 16 12 16;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+}
+
+.menuVBox > .button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-text-fill: #FFFFFF;
+}
+
+.menuVBox > .button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.14);
+}
+
+
+/* ── SIDEBAR — pie (contraer + cerrar sesión) ───────────────────────── */
+
+.sidebarFooterVBox {
+    -fx-background-color: transparent;
+}
+
+.collapseBarHBox {
+    -fx-cursor: hand;
+    -fx-padding: 12 16 12 20;
+}
+
+.collapseBarHBox:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.06);
+}
+
+.collapseMenuLabel {
+    -fx-text-fill: rgba(255, 255, 255, 0.48);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+}
+
+.collapseArrowLabel {
+    -fx-text-fill: rgba(255, 255, 255, 0.48);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 15px;
+}
+
+.logoutButton {
+    -fx-background-color: rgba(255, 255, 255, 0.07);
+    -fx-text-fill: rgba(255, 255, 255, 0.78);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-padding: 12 20 12 20;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-cursor: hand;
+}
+
+.logoutButton:hover {
+    -fx-background-color: rgba(239, 68, 68, 0.18);
+    -fx-text-fill: #FCA5A5;
+}
+
+.logoutButton:pressed {
+    -fx-background-color: rgba(239, 68, 68, 0.28);
+}
+
+
+/* ── HEADER — barra superior ────────────────────────────────────────── */
+
+.headerContainerHBox {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #E8EDF3 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-pref-height: 64px;
+    -fx-min-height: 64px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 6, 0, 0, 2);
+}
+
+
+/* ── HEADER — breadcrumb ────────────────────────────────────────────── */
+
+.breadcrumbHBox {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.breadcrumbLabel {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+}
+
+.breadcrumbSeparatorLabel {
+    -fx-text-fill: #D1D5DB;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+}
+
+.breadcrumbCurrentLabel {
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+
+/* ── HEADER — campo de búsqueda ─────────────────────────────────────── */
+
+.searchBarHBox {
+    -fx-background-color: #F9FAFB;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-pref-height: 40px;
+}
+
+.searchBarHBox:hover {
+    -fx-border-color: #B0C4DE;
+}
+
+.searchIconLabel {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-size: 16px;
+}
+
+.searchTextField {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: #374151;
+    -fx-prompt-text-fill: #9CA3AF;
+    -fx-padding: 0 0 0 2;
+}
+
+.searchTextField:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.searchShortcutLabel {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 10px;
+    -fx-background-color: #EAECF0;
+    -fx-background-radius: 4;
+    -fx-padding: 2 5 2 5;
+}
+
+
+/* ── HEADER — notificaciones ────────────────────────────────────────── */
+
+.notificationButton {
+    -fx-background-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-color: #E5E7EB;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-padding: 8 10 8 10;
+    -fx-font-size: 15px;
+    -fx-cursor: hand;
+    -fx-pref-height: 40px;
+}
+
+.notificationButton:hover {
+    -fx-background-color: #F3F4F6;
+    -fx-border-color: #D1D5DB;
+}
+
+.headerVerticalSeparator .line {
+    -fx-border-color: #E5E7EB;
+    -fx-border-width: 0 1 0 0;
+}
+
+
+/* ── HEADER — fecha y periodo ───────────────────────────────────────── */
+
+.headerDateVBox {
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.headerCurrentDateLabel {
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.headerPeriodLabel {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+}
+
+
+/* ── ÁREA DE CONTENIDO ──────────────────────────────────────────────── */
+
+.contentStackPane {
+    -fx-background-color: transparent;
+}
+
+
+/* ── SIDEBAR — ScrollPane del menú ──────────────────────────────────── */
+
+.sidebarMenuScrollPane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.sidebarMenuScrollPane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.sidebarMenuScrollPane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-pref-width: 5px;
+}
+
+.sidebarMenuScrollPane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.22);
+    -fx-background-radius: 3;
+}
+
+.sidebarMenuScrollPane .scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+}
+
+.sidebarMenuScrollPane .scroll-bar:vertical .increment-button,
+.sidebarMenuScrollPane .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+}

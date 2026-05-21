@@ -1,36 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.LoginController">
+<AnchorPane
+        prefHeight="720.0"
+        prefWidth="1280.0"
+        styleClass="fondoPrincipalPane"
+        stylesheets="@css/GUILoginStyles.css"
+        xmlns="http://javafx.com/javafx/25"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="GUI.Controller.LoginController">
+
    <children>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="237.0" layoutY="26.0" text="Bienvenido" textAlignment="CENTER">
-         <font>
-            <Font size="27.0" />
-         </font>
-      </Label>
-      <VBox layoutX="129.0" layoutY="89.0" prefHeight="222.0" prefWidth="343.0" spacing="10.0">
-         <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="10.0" text="Usuario" textAlignment="CENTER">
-               <font>
-                  <Font size="27.0" />
-               </font>
-            </Label>
-            <TextField fx:id="userTextField" />
-            <Label alignment="CENTER" contentDisplay="CENTER" layoutX="10.0" layoutY="46.0" text="Contraseña" textAlignment="CENTER">
-               <font>
-                  <Font size="27.0" />
-               </font>
-            </Label>
-            <PasswordField fx:id="passwordField" prefHeight="39.0" prefWidth="523.0" />
-         </children>
-      </VBox>
-      <Button layoutX="256.0" layoutY="311.0" mnemonicParsing="false" onAction="#clickLogin" text="Iniciar Sesion" />
+      <ImageView
+              fitHeight="450.0"
+              fitWidth="350.0"
+              preserveRatio="true"
+              pickOnBounds="false"
+              smooth="true"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="85.0">
+         <image>
+            <Image url="@images/lis.png" backgroundLoading="true"/>
+         </image>
+      </ImageView>
+      <ImageView
+              fitHeight="450.0"
+              fitWidth="350.0"
+              preserveRatio="true"
+              pickOnBounds="false"
+              smooth="true"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.rightAnchor="85.0">
+         <image>
+            <Image url="@images/luzio.png" backgroundLoading="true"/>
+         </image>
+      </ImageView>
+      <StackPane
+              AnchorPane.topAnchor="0.0"
+              AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0">
+         <VBox
+                 maxWidth="500.0"
+                 styleClass="tarjetaLoginVBox">
+            <VBox alignment="CENTER" styleClass="encabezadoInstitucionalVBox" spacing="16.0">
+               <padding>
+                  <Insets top="36.0" right="40.0" bottom="20.0" left="40.0"/>
+               </padding>
+
+               <HBox alignment="CENTER" spacing="14.0">
+                  <!-- Logo oficial de la Universidad Veracruzana -->
+                  <ImageView
+                          fitHeight="64.0"
+                          fitWidth="64.0"
+                          preserveRatio="true"
+                          smooth="true"
+                          pickOnBounds="false">
+                     <image>
+                        <Image url="@images/logouv.png" backgroundLoading="true"/>
+                     </image>
+                  </ImageView>
+                  <VBox alignment="CENTER_LEFT" spacing="2.0">
+                     <Label text="UNIVERSIDAD" styleClass="nombreUniversidadLabel"/>
+                     <Label text="Veracruzana" styleClass="nombreVeracruzanaLabel"/>
+                  </VBox>
+               </HBox>
+               <HBox styleClass="bannerSgppHBox" maxWidth="420.0">
+                  <VBox spacing="3.0" HBox.hgrow="ALWAYS">
+                     <padding>
+                        <Insets top="10.0" right="18.0" bottom="10.0" left="16.0"/>
+                     </padding>
+                     <Label text="SGPP" styleClass="etiquetaSgppLabel"/>
+                     <Label
+                             text="Sistema de Gestión de Prácticas Profesionales"
+                             styleClass="nombreSistemaLabel"
+                             wrapText="true"/>
+                  </VBox>
+               </HBox>
+            </VBox>
+
+            <VBox styleClass="formularioLoginVBox" spacing="14.0">
+               <padding>
+                  <Insets top="4.0" right="40.0" bottom="28.0" left="40.0"/>
+               </padding>
+               <Label text="Bienvenido de nuevo" styleClass="tituloBienvenidaLabel"/>
+               <Label
+                       text="Inicia sesión con tu cuenta institucional."
+                       styleClass="subtituloBienvenidaLabel"/>
+               <VBox spacing="6.0">
+                  <Label text="MATRÍCULA / USUARIO" styleClass="etiquetaCampoLabel"/>
+                  <HBox
+                          styleClass="contenedorCampoHBox"
+                          alignment="CENTER_LEFT"
+                          spacing="8.0">
+                     <padding>
+                        <Insets top="0.0" right="12.0" bottom="0.0" left="12.0"/>
+                     </padding>
+                     <Label text="&#128100;" styleClass="iconoCampoLabel"/>
+                     <TextField
+                             fx:id="userTextField"
+                             styleClass="campoTextoTextField"
+                             HBox.hgrow="ALWAYS"
+                             promptText="S00000000"/>
+                  </HBox>
+               </VBox>
+               <VBox spacing="6.0">
+                  <Label text="CONTRASEÑA" styleClass="etiquetaCampoLabel"/>
+
+                  <HBox
+                          styleClass="contenedorCampoHBox"
+                          alignment="CENTER_LEFT"
+                          spacing="8.0">
+                     <padding>
+                        <Insets top="0.0" right="12.0" bottom="0.0" left="12.0"/>
+                     </padding>
+
+                     <Label text="&#128274;" styleClass="iconoCampoLabel"/>
+
+                     <PasswordField
+                             fx:id="passwordField"
+                             styleClass="campoTextoTextField"
+                             HBox.hgrow="ALWAYS"
+                             promptText="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"/>
+                  </HBox>
+               </VBox>
+               <Button
+                       text="Iniciar Sesión"
+                       styleClass="botonIniciarSesionButton"
+                       maxWidth="Infinity"
+                       mnemonicParsing="false"
+                       onAction="#clickLogin"/>
+            </VBox>
+            <VBox alignment="CENTER" styleClass="piePaginaLoginVBox" spacing="4.0">
+               <padding>
+                  <Insets top="16.0" right="40.0" bottom="22.0" left="40.0"/>
+               </padding>
+               <Label
+                       text="Luzio y Lis te dan la bienvenida"
+                       styleClass="pieMascotasLabel"/>
+               <Label
+                       text="Universidad Veracruzana © 2024 · Todos los derechos reservados"
+                       styleClass="pieDerechosLabel"/>
+            </VBox>
+
+         </VBox>
+
+      </StackPane>
+
    </children>
 </AnchorPane>

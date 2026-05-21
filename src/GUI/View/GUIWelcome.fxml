@@ -1,16 +1,232 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
 
+<ScrollPane
+        styleClass="dashboardScrollPane"
+        stylesheets="@css/GUIWelcomeStyles.css"
+        fitToWidth="true"
+        fitToHeight="false"
+        hbarPolicy="NEVER"
+        vbarPolicy="AS_NEEDED"
+        xmlns="http://javafx.com/javafx/25"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="GUI.Controller.WelcomeController">
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.WelcomeController">
-   <children>
-      <Label layoutX="243.0" layoutY="147.0" text="Bienvenido">
-         <font>
-            <Font size="46.0" />
-         </font>
-      </Label>
-   </children>
-</AnchorPane>
+   <content>
+      <VBox styleClass="dashboardContentVBox" spacing="24.0">
+         <padding><Insets top="32.0" right="32.0" bottom="40.0" left="32.0"/></padding>
+
+         <!-- ═══════════════════════════════════════════════
+              ENCABEZADO — todos los roles
+              ═══════════════════════════════════════════════ -->
+         <VBox styleClass="welcomeHeaderVBox" spacing="8.0">
+            <Label fx:id="welcomeUserGreetingLabel"
+                   text="¡Bienvenido!"
+                   styleClass="welcomeTitleLabel"/>
+            <Label fx:id="welcomeSubtitleLabel"
+                   text="Cargando información del sistema..."
+                   styleClass="welcomeSubtitleLabel"/>
+         </VBox>
+
+         <!-- ═══════════════════════════════════════════════
+              SECCIÓN PRACTICANTE
+              ═══════════════════════════════════════════════ -->
+         <VBox fx:id="practicanteContentVBox" spacing="16.0"
+               visible="false" managed="false">
+
+            <HBox styleClass="summaryCardsHBox" spacing="16.0">
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <HBox alignment="CENTER_RIGHT">
+                     <Label fx:id="internPracticeStatusBadgeLabel" text="ACTIVO"
+                            styleClass="statusActiveLabel"/>
+                  </HBox>
+                  <Label text="ESTADO DE PRÁCTICAS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="internPracticeStatusValueLabel"
+                         text="Cargando..." styleClass="cardMainValueLabel" wrapText="true"/>
+                  <Label fx:id="internPracticeStatusSubLabel"
+                         text="" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <HBox alignment="CENTER_RIGHT">
+                     <Label fx:id="internReportsBadgeLabel" text="PENDIENTE"
+                            styleClass="statusPendingLabel"/>
+                  </HBox>
+                  <Label text="REPORTES PENDIENTES" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="internPendingReportsCountLabel"
+                         text="0 reportes" styleClass="cardMainValueLabel"/>
+                  <Label fx:id="internReportDetailLabel"
+                         text="" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="EVALUACIÓN DEL TUTOR" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="internTutorEvalLabel" text="—"
+                         styleClass="cardMainValueLabel"/>
+                  <Label fx:id="internTutorEvalDetailLabel"
+                         text="Disponible al asignar vacante"
+                         styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+            </HBox>
+         </VBox>
+
+         <!-- ═══════════════════════════════════════════════
+              SECCIÓN PROFESOR
+              ═══════════════════════════════════════════════ -->
+         <VBox fx:id="profesorContentVBox" spacing="16.0"
+               visible="false" managed="false">
+
+            <Label text="RESUMEN DE ACTIVIDAD" styleClass="roleSectionTagLabel"/>
+            <Label text="Reportes y evaluaciones a tu cargo"
+                   styleClass="roleSectionTitleLabel"/>
+
+            <HBox styleClass="summaryCardsHBox" spacing="16.0">
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="REPORTES POR REVISAR" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="profPendingCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label fx:id="profPendingDetailLabel" text="Sin reportes pendientes"
+                         styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="TOTAL REPORTES RECIBIDOS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="profTotalReportsLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Reportes asignados al período"
+                         styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="PRACTICANTES A CARGO" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="profInternsCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Con reportes enviados" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="EVALUACIONES REALIZADAS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="profEvalDoneLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Reportes ya calificados" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+            </HBox>
+         </VBox>
+
+         <!-- ═══════════════════════════════════════════════
+              SECCIÓN COORDINADOR
+              ═══════════════════════════════════════════════ -->
+         <VBox fx:id="coordinadorContentVBox" spacing="16.0"
+               visible="false" managed="false">
+
+            <Label text="RESUMEN DEL SISTEMA" styleClass="roleSectionTagLabel"/>
+            <Label text="Estado general de las prácticas profesionales"
+                   styleClass="roleSectionTitleLabel"/>
+
+            <HBox styleClass="summaryCardsHBox" spacing="16.0">
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="PROYECTOS REGISTRADOS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="coordProjectsCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Proyectos en el sistema" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="PRACTICANTES ACTIVOS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="coordInternsCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Con práctica en curso" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="REPORTES PENDIENTES" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="coordPendingReportsLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Sin revisar por los profesores"
+                         styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="LUGARES DISPONIBLES" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="coordSlotsCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="En proyectos con vacantes abiertas"
+                         styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+            </HBox>
+         </VBox>
+
+         <!-- ═══════════════════════════════════════════════
+              SECCIÓN ADMINISTRADOR
+              ═══════════════════════════════════════════════ -->
+         <VBox fx:id="adminContentVBox" spacing="16.0"
+               visible="false" managed="false">
+
+            <Label text="PANEL DE ADMINISTRACIÓN" styleClass="roleSectionTagLabel"/>
+            <Label text="Resumen global de usuarios y recursos del sistema"
+                   styleClass="roleSectionTitleLabel"/>
+
+            <HBox styleClass="summaryCardsHBox" spacing="16.0">
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="COORDINADORES ACTIVOS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="adminCoordCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Coordinadores en el sistema" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="PROFESORES ACTIVOS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="adminProfCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Profesores registrados y activos"
+                         styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="PRACTICANTES ACTIVOS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="adminInternsCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Practicantes en curso" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+               <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
+                  <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                  <Label text="PROYECTOS REGISTRADOS" styleClass="cardCategoryLabel"/>
+                  <Label fx:id="adminProjectsCountLabel" text="0"
+                         styleClass="cardMainValueLabel"/>
+                  <Label text="Total en el sistema" styleClass="cardSubtitleLabel"/>
+               </VBox>
+
+            </HBox>
+         </VBox>
+
+      </VBox>
+   </content>
+</ScrollPane>
