@@ -1,0 +1,162 @@
+.fondoPrincipalPane {
+    -fx-background-color: linear-gradient(to bottom, #D8E8F2 0%, #C2D4E6 100%);
+}
+
+.tarjetaLoginVBox {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.20), 36, 0.08, 0, 6);
+}
+
+.encabezadoInstitucionalVBox {
+    -fx-background-color: transparent;
+}
+
+.nombreUniversidadLabel {
+    -fx-text-fill: #1B3464;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 10px;
+    -fx-font-weight: normal;
+}
+
+.nombreVeracruzanaLabel {
+    -fx-text-fill: #1B3464;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.bannerSgppHBox {
+    -fx-background-color: #1B3464, #EEF3F8;
+    -fx-background-insets: 0, 0 0 0 5;
+    -fx-background-radius: 0 8 8 0, 0 8 8 0;
+}
+
+.etiquetaSgppLabel {
+    -fx-text-fill: #1B3464;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.nombreSistemaLabel {
+    -fx-text-fill: #1B3464;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+
+.formularioLoginVBox {
+    -fx-background-color: transparent;
+}
+
+.tituloBienvenidaLabel {
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.subtituloBienvenidaLabel {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+.etiquetaCampoLabel {
+    -fx-text-fill: #4A6FA5;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.contenedorCampoHBox {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8;
+    -fx-border-color: #C8D8EA;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-min-height: 50px;
+    -fx-pref-height: 50px;
+    -fx-max-height: 50px;
+}
+
+.campoTextoTextField {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-text-fill: #1F2937;
+    -fx-prompt-text-fill: #A8BACE;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-padding: 0 0 0 2;
+    -fx-highlight-fill: derive(#1B3464, 70%);
+    -fx-highlight-text-fill: #FFFFFF;
+}
+
+.campoTextoTextField:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.contenedorCampoHBox:hover {
+    -fx-border-color: #4A6FA5;
+}
+
+.iconoCampoLabel {
+    -fx-font-size: 15px;
+    -fx-opacity: 0.55;
+    -fx-text-fill: #374151;
+}
+
+.botonIniciarSesionButton {
+    -fx-background-color: #1B3464;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-pref-height: 50px;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.botonIniciarSesionButton:hover {
+    -fx-background-color: #2A4F96;
+    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.30), 12, 0.05, 0, 3);
+}
+
+.botonIniciarSesionButton:pressed {
+    -fx-background-color: #152A52;
+    -fx-effect: none;
+    -fx-scale-x: 0.99;
+    -fx-scale-y: 0.99;
+}
+
+.botonIniciarSesionButton:focused {
+    -fx-background-color: #2A4F96;
+}
+
+.piePaginaLoginVBox {
+    -fx-background-color: transparent;
+    -fx-border-color: #E5E7EB transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.pieMascotasLabel {
+    -fx-text-fill: #4A6FA5;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+}
+
+.pieDerechosLabel {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+}

@@ -1,0 +1,105 @@
+.dashboardScrollPane {
+    -fx-background-color: transparent;
+    -fx-background: #F1F4F9;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.dashboardScrollPane > .viewport {
+    -fx-background-color: #F1F4F9;
+}
+
+.dashboardContentVBox {
+    -fx-background-color: transparent;
+}
+
+.welcomeHeaderVBox {
+    -fx-background-color: transparent;
+}
+
+.welcomeTitleLabel {
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+.welcomeSubtitleLabel {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 14px;
+    -fx-wrap-text: true;
+}
+
+.summaryCardsHBox {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.dashboardCardVBox {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: #E8EDF3;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0, 0, 3);
+}
+
+.dashboardCardVBox:hover {
+    -fx-border-color: #C4D0E8;
+    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.14), 14, 0, 0, 4);
+}
+
+.statusActiveLabel {
+    -fx-background-color: #DCFCE7;
+    -fx-text-fill: #14532D;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 9 4 9;
+    -fx-background-radius: 10;
+}
+
+.statusPendingLabel {
+    -fx-background-color: #FEF9C3;
+    -fx-text-fill: #78350F;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 9 4 9;
+    -fx-background-radius: 10;
+}
+
+.cardCategoryLabel {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.cardMainValueLabel {
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.cardSubtitleLabel {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 12px;
+    -fx-wrap-text: true;
+}
+
+.roleSectionTagLabel {
+    -fx-text-fill: #1B3464;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.roleSectionTitleLabel {
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}

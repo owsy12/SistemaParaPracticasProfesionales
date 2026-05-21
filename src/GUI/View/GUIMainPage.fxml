@@ -1,18 +1,135 @@
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.BorderPane?>
-<BorderPane minWidth="800" minHeight="400" xmlns:fx="http://javafx.com/fxml" fx:controller="GUI.Controller.MainMenuController">
+<?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane
+        prefWidth="1280.0"
+        prefHeight="820.0"
+        styleClass="mainBorderPane"
+        stylesheets="@css/GUIMainPageStyles.css"
+        xmlns="http://javafx.com/javafx/25"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="GUI.Controller.MainMenuController">
 
     <left>
-        <VBox fx:id="menuVBox" spacing="10" prefWidth="200">
+        <VBox fx:id="sidebarContainerVBox" prefWidth="280.0" styleClass="sidebarVBox">
+
+            <HBox styleClass="sidebarLogoHBox" alignment="CENTER_LEFT" spacing="12.0">
+                <padding><Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/></padding>
+                <ImageView fitWidth="40.0" fitHeight="40.0" preserveRatio="true" smooth="true">
+                    <image><Image url="@images/logouv.png" backgroundLoading="true"/></image>
+                </ImageView>
+                <VBox fx:id="sidebarLogoTextVBox" spacing="2.0">
+                    <Label text="SGPP" styleClass="sidebarSystemNameLabel"/>
+                    <Label text="Universidad Veracruzana" styleClass="sidebarInstitutionLabel"/>
+                </VBox>
+            </HBox>
+
+            <Separator styleClass="sidebarDividerSeparator"/>
+
+            <VBox fx:id="sidebarUserProfileVBox" styleClass="sidebarUserProfileVBox"
+                  alignment="CENTER" spacing="8.0">
+                <padding><Insets top="24.0" right="16.0" bottom="20.0" left="16.0"/></padding>
+                <StackPane styleClass="userAvatarStackPane"
+                           minWidth="72.0" minHeight="72.0"
+                           maxWidth="72.0" maxHeight="72.0">
+                    <Label fx:id="userInitialsLabel" text="US" styleClass="userInitialsLabel"/>
+                </StackPane>
+                <Label fx:id="userFullNameLabel" text="NOMBRE DE USUARIO"
+                       styleClass="userFullNameLabel" wrapText="true"/>
+                <Label fx:id="userMatriculaLabel" text="S00000000"
+                       styleClass="userMatriculaLabel"/>
+                <HBox alignment="CENTER">
+                    <HBox styleClass="userRoleBadgeHBox" alignment="CENTER">
+                        <padding><Insets top="4.0" right="10.0" bottom="4.0" left="10.0"/></padding>
+                        <Label fx:id="userRoleLabel" text="ROL" styleClass="userRoleLabel"/>
+                    </HBox>
+                </HBox>
+            </VBox>
+
+            <Label fx:id="menuSectionTitleLabel" text="MENÚ PRINCIPAL"
+                   styleClass="menuSectionTitleLabel">
+                <padding><Insets top="8.0" right="16.0" bottom="8.0" left="20.0"/></padding>
+            </Label>
+
+            <ScrollPane VBox.vgrow="ALWAYS"
+                        styleClass="sidebarMenuScrollPane"
+                        fitToWidth="true"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED">
+                <content>
+                    <VBox fx:id="menuVBox" styleClass="menuVBox" spacing="4.0">
+                        <padding><Insets top="0.0" right="8.0" bottom="8.0" left="8.0"/></padding>
+                    </VBox>
+                </content>
+            </ScrollPane>
+
+            <VBox styleClass="sidebarFooterVBox">
+                <Separator styleClass="sidebarDividerSeparator"/>
+                <HBox styleClass="collapseBarHBox" alignment="CENTER_LEFT" spacing="8.0"
+                      onMouseClicked="#handleCollapseMenu">
+                    <padding><Insets top="12.0" right="16.0" bottom="12.0" left="20.0"/></padding>
+                    <Label fx:id="collapseMenuTextLabel" text="Contraer"
+                           styleClass="collapseMenuLabel"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="collapseArrowIconLabel" text="‹"
+                           styleClass="collapseArrowLabel"/>
+                </HBox>
+                <Button text="→  Cerrar Sesión"
+                        styleClass="logoutButton"
+                        maxWidth="Infinity"
+                        mnemonicParsing="false"
+                        onAction="#handleLogout">
+                    <VBox.margin><Insets top="0.0" right="8.0" bottom="16.0" left="8.0"/></VBox.margin>
+                </Button>
+            </VBox>
 
         </VBox>
     </left>
 
-
     <center>
-        <StackPane fx:id="contentPane"/>
+        <BorderPane styleClass="mainAreaBorderPane">
+
+            <top>
+                <HBox styleClass="headerContainerHBox" alignment="CENTER_LEFT" spacing="14.0">
+                    <padding><Insets top="0.0" right="24.0" bottom="0.0" left="24.0"/></padding>
+
+                    <HBox styleClass="breadcrumbHBox" alignment="CENTER_LEFT" spacing="6.0">
+                        <Label text="SGPP" styleClass="breadcrumbLabel"/>
+                        <Label text="›" styleClass="breadcrumbSeparatorLabel"/>
+                        <Label text="Sistema" styleClass="breadcrumbLabel"/>
+                        <Label text="›" styleClass="breadcrumbSeparatorLabel"/>
+                        <Label text="Dashboard" styleClass="breadcrumbCurrentLabel"/>
+                    </HBox>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <VBox styleClass="headerDateVBox" alignment="CENTER_RIGHT" spacing="2.0">
+                        <Label fx:id="headerCurrentDateLabel" text=""
+                               styleClass="headerCurrentDateLabel"/>
+                        <Label fx:id="headerPeriodLabel" text=""
+                               styleClass="headerPeriodLabel"/>
+                    </VBox>
+
+                </HBox>
+            </top>
+
+            <center>
+                <StackPane fx:id="contentPane" styleClass="contentStackPane"/>
+            </center>
+
+        </BorderPane>
     </center>
 
 </BorderPane>
