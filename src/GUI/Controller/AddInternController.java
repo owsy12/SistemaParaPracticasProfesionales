@@ -54,15 +54,17 @@ public class AddInternController {
 
     @FXML
     public void registerIntern(ActionEvent actionEvent) {
+        String passwordValidationMessage = getPasswordValidationMessage(passwordField.getText());
+        boolean isPasswordInvalid = passwordValidationMessage != null;
+
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Por favor complete todos los campos obligatorios.",
                     Alert.AlertType.WARNING);
         } else if (!isValidEmail(emailTextField.getText())) {
             showAlert("Correo inválido", "Ingrese un correo electrónico válido.",
                     Alert.AlertType.WARNING);
-        } else if (getPasswordValidationMessage(passwordField.getText()) != null) {
-            showAlert("Contraseña no válida",
-                    getPasswordValidationMessage(passwordField.getText()),
+        } else if (isPasswordInvalid) {
+            showAlert("Contraseña no válida", passwordValidationMessage,
                     Alert.AlertType.WARNING);
         } else if (!isPasswordMatching()) {
             showAlert("Contraseñas no coinciden",

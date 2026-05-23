@@ -23,15 +23,14 @@ import java.sql.Statement;
  */
 public abstract class BaseDAOTest {
 
-    // IDs fijos de los registros de soporte
-    protected static final int ID_PRACTICANTE  = 1;
-    protected static final int ID_COORDINADOR  = 2;
-    protected static final int ID_PROFESOR     = 3;
+    protected static final int ID_PRACTICANTE = 1;
+    protected static final int ID_COORDINADOR = 2;
+    protected static final int ID_PROFESOR = 3;
     protected static final int ID_ORGANIZACION = 1;
-    protected static final int ID_TECNICO      = 1;
-    protected static final int ID_PROYECTO     = 1;
-    protected static final int ID_SOLICITUD    = 1;
-    protected static final int ID_REPORTE      = 1;
+    protected static final int ID_TECNICO = 1;
+    protected static final int ID_PROYECTO = 1;
+    protected static final int ID_SOLICITUD = 1;
+    protected static final int ID_REPORTE = 1;
 
     @BeforeEach
     void setUpDatabase() throws SQLException {

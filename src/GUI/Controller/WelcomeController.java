@@ -70,7 +70,8 @@ public class WelcomeController {
 
     private void populateGreeting(User user) {
         String firstName = (user != null && user.getFirstName() != null) ? user.getFirstName() : "Usuario";
-        welcomeUserGreetingLabel.setText("¡Bienvenido, " + firstName + "!");
+        String greetingText = "¡Bienvenido, " + firstName + "!";
+        welcomeUserGreetingLabel.setText(greetingText);
     }
 
     private void loadDashboardByRoles(User user) {
@@ -160,7 +161,8 @@ public class WelcomeController {
             internPracticeStatusBadgeLabel.getStyleClass().removeAll("statusPendingLabel");
             internPracticeStatusBadgeLabel.getStyleClass().add("statusActiveLabel");
             internPracticeStatusValueLabel.setText("Práctica Activa");
-            internPracticeStatusSubLabel.setText("Proyecto asignado · ID: " + assignment.getIdProyect());
+            String assignedProjectText = "Proyecto asignado · ID: " + assignment.getIdProyect();
+            internPracticeStatusSubLabel.setText(assignedProjectText);
         }
     }
 
@@ -176,7 +178,8 @@ public class WelcomeController {
             internReportDetailLabel.setText("Sin reportes pendientes por el momento");
         } else {
             internReportsBadgeLabel.setText("PENDIENTE");
-            internReportDetailLabel.setText(count + " reporte(s) en espera de revisión");
+            String pendingReportsText = count + " reporte(s) en espera de revisión";
+            internReportDetailLabel.setText(pendingReportsText);
         }
     }
 
@@ -185,7 +188,8 @@ public class WelcomeController {
             internTutorEvalLabel.setText("—");
             internTutorEvalDetailLabel.setText("Disponible al tener reportes enviados");
         } else {
-            internTutorEvalLabel.setText(myReports.size() + " enviados");
+            String sentReportsText = myReports.size() + " enviados";
+            internTutorEvalLabel.setText(sentReportsText);
             internTutorEvalDetailLabel.setText("En espera de evaluación del tutor");
         }
     }
@@ -266,8 +270,12 @@ public class WelcomeController {
 
     private void populateProfesorCards(List<Report> pending, List<Report> total, int internsCount, int evalsDone) {
         int pendingCount = pending.size();
-        profPendingCountLabel.setText(pendingCount == 1 ? "1 reporte" : pendingCount + " reportes");
-        profPendingDetailLabel.setText(pendingCount == 0 ? "Sin reportes pendientes" : pendingCount + " esperando revisión");
+        boolean hasOnePending = pendingCount == 1;
+        String pendingCountText = hasOnePending ? "1 reporte" : pendingCount + " reportes";
+        profPendingCountLabel.setText(pendingCountText);
+        boolean hasNoPending = pendingCount == 0;
+        String pendingDetailText = hasNoPending ? "Sin reportes pendientes" : pendingCount + " esperando revisión";
+        profPendingDetailLabel.setText(pendingDetailText);
         profTotalReportsLabel.setText(String.valueOf(total.size()));
         profInternsCountLabel.setText(String.valueOf(internsCount));
         profEvalDoneLabel.setText(String.valueOf(evalsDone));

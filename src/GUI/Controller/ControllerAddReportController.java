@@ -1,4 +1,309 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
+import Logic.DAO.ReportDAO;
+import Logic.DTOs.Report;
+import Logic.Exceptions.ServiceException;
+import Logic.Exceptions.ValidationException;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
+import javafx.util.Callback;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ValidationUtils.isPDF;
+
 public class ControllerAddReportController {
+
+    private static final Logger LOGGER =
+            Logger.getLogger(ControllerAddReportController.class.getName());
+
+    @FXML
+    private TableView<Report> reportsTableView;
+
+    @FXML
+    private TableColumn<Report, String> reportTypeColumn;
+
+    @FXML
+    private TableColumn<Report, String> periodColumn;
+
+    @FXML
+    private TableColumn<Report, String> statusColumn;
+
+    @FXML
+    private TableColumn<Report, String> dateColumn;
+
+    @FXML
+    private Pane dropZone;
+
+    @FXML
+    private Label labelFileName;
+
+    @FXML
+    private Label labelStatus;
+
+    @FXML
+    private Button uploadButton;
+
+    private File selectedFile;
+    private Report selectedReport;
+
+    @FXML
+    private void initialize() {
+        configureTable();
+        configureListeners();
+        loadPendingReports();
+    }
+
+    @FXML
+    public void openFileChooser(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Seleccionar PDF firmado");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        File file = fileChooser.showOpenDialog(dropZone.getScene().getWindow());
+
+        if (file != null) {
+            processSelectedFile(file);
+        }
+    }
+
+    @FXML
+    public void uploadSignedReport(ActionEvent actionEvent) {
+        boolean isReportMissing = selectedReport == null;
+        boolean isFileMissing = selectedFile == null;
+        boolean isStatusInvalid = selectedReport != null
+                && !"Pendiente".equals(selectedReport.getStatus())
+                && !"Entregado".equals(selectedReport.getStatus());
+
+        if (isReportMissing) {
+            showStatus("Seleccione un reporte de la tabla.", true);
+        } else if (isFileMissing) {
+            showStatus("Seleccione el PDF firmado.", true);
+        } else if (isStatusInvalid) {
+            showStatus("Solo puede subir firmados de reportes en estado Pendiente.", true);
+        } else {
+            if (isLateDelivery()) {
+                showAlert("Entrega tardía",
+                        "El tiempo límite de entrega ha terminado, su documento será aceptado "
+                        + "con retardo y a consideración del coordinador/profesor.",
+                        Alert.AlertType.WARNING);
+            }
+            uploadProcess();
+        }
+    }
+
+    @FXML
+    public void cancelAction(ActionEvent actionEvent) {
+        clearSelection();
+    }
+
+    private boolean isLateDelivery() {
+        boolean isLate = selectedReport.getFechaLimite() != null
+                && LocalDate.now().isAfter(selectedReport.getFechaLimite());
+        return isLate;
+    }
+
+    private void configureTable() {
+        reportTypeColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+                return new SimpleStringProperty(data.getValue().getReportType());
+            }
+        });
+
+        periodColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+                return new SimpleStringProperty(data.getValue().getPeriod());
+            }
+        });
+
+        statusColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+                return new SimpleStringProperty(data.getValue().getStatus());
+            }
+        });
+
+        dateColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+                java.util.Date submissionDate = data.getValue().getSumissionDate();
+                String dateText = "";
+                if (submissionDate != null) {
+                    dateText = submissionDate.toString();
+                }
+                return new SimpleStringProperty(dateText);
+            }
+        });
+    }
+
+    private void configureListeners() {
+        reportsTableView.getSelectionModel().selectedItemProperty()
+                .addListener(new ChangeListener<Report>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Report> observable,
+                                        Report oldValue, Report newValue) {
+                        if (newValue != null) {
+                            selectedReport = newValue;
+                            String selectionStatusText = "Reporte seleccionado: "
+                                    + newValue.getReportType() + " - " + newValue.getPeriod();
+                            showStatus(selectionStatusText, false);
+                        }
+                    }
+                });
+
+        dropZone.setOnDragOver(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                if (event.getDragboard().hasFiles()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
+                event.consume();
+            }
+        });
+
+        dropZone.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                Dragboard dragboard = event.getDragboard();
+                boolean hasFiles = dragboard.hasFiles();
+                if (hasFiles) {
+                    processSelectedFile(dragboard.getFiles().get(0));
+                    event.setDropCompleted(true);
+                } else {
+                    event.setDropCompleted(false);
+                }
+                event.consume();
+            }
+        });
+    }
+
+    private void loadPendingReports() {
+        try {
+            int internId = SessionManager.getInstance().getUsuario().getId();
+            ReportDAO reportDAO = new ReportDAO();
+            List<Report> reports = reportDAO.getByIdIntern(internId);
+            reportsTableView.setItems(FXCollections.observableArrayList(reports));
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    validationException.getMessage(), Alert.AlertType.ERROR);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar reportes del practicante: {0}",
+                    serviceException.getMessage());
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los reportes. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private void processSelectedFile(File file) {
+        if (!isPDF(file)) {
+            showStatus("El archivo seleccionado no es un PDF válido.", true);
+            selectedFile = null;
+        } else {
+            selectedFile = file;
+            labelFileName.setText(file.getName());
+            showStatus("Archivo PDF válido seleccionado.", false);
+        }
+    }
+
+    private void uploadProcess() {
+        try {
+            String signedPath = copySignedFile();
+            ReportDAO reportDAO = new ReportDAO();
+
+            if (reportDAO.updateSignedDocumentPath(selectedReport.getIdReport(), signedPath)) {
+                if (isLateDelivery()) {
+                    reportDAO.markLateDelivery(selectedReport.getIdReport());
+                }
+                showAlert("Documento firmado subido",
+                        "El PDF firmado fue registrado correctamente.",
+                        Alert.AlertType.INFORMATION);
+                loadPendingReports();
+                clearSelection();
+            } else {
+                showAlert("Error",
+                        "No se pudo registrar el documento firmado.",
+                        Alert.AlertType.ERROR);
+            }
+
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    validationException.getMessage(), Alert.AlertType.ERROR);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al guardar documento firmado del reporte {0}: {1}",
+                    new Object[]{selectedReport.getIdReport(), serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo guardar el documento. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        } catch (IOException ioException) {
+            LOGGER.log(Level.SEVERE, "Error al copiar archivo firmado: {0}",
+                    ioException.getMessage());
+            showAlert("Error de archivo",
+                    "No se pudo copiar el archivo firmado al almacenamiento.",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private String copySignedFile() throws IOException {
+        String internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
+        String folder = "storage/intern_" + internMatricula
+                + "/proyecto_" + selectedReport.getIdProyect()
+                + "/reportes_generados";
+        String fileName = "reporte_" + selectedReport.getReportType().toLowerCase()
+                + "_" + selectedReport.getIdReport() + "_firmado";
+
+        Path folderPath = Paths.get(folder);
+        Files.createDirectories(folderPath);
+
+        Path destination = folderPath.resolve(fileName + ".pdf");
+        Files.copy(selectedFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
+        return destination.toString();
+    }
+
+    private void showStatus(String message, boolean isError) {
+        String textFillStyle = isError ? "-fx-text-fill: red;" : "-fx-text-fill: green;";
+        labelStatus.setStyle(textFillStyle);
+        labelStatus.setText(message);
+    }
+
+    private void clearSelection() {
+        selectedFile = null;
+        selectedReport = null;
+        labelFileName.setText("Ningún archivo seleccionado");
+        labelStatus.setText("");
+        reportsTableView.getSelectionModel().clearSelection();
+    }
+
 }

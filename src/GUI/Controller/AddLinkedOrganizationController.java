@@ -14,12 +14,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
 
 public class AddLinkedOrganizationController {
+
     @FXML
     public TextField organizationNameTextField;
+
     @FXML
     public TextField organizationEmailTextField;
+
     @FXML
     public TextField organizationAddressTextField;
+
     @FXML
     public TextField sectorOrganizacionTextField;
 
@@ -35,7 +39,7 @@ public class AddLinkedOrganizationController {
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
                     Alert.AlertType.WARNING);
-        }else if (!isValidEmail(organizationEmailTextField.getText())) {
+        } else if (!isValidEmail(organizationEmailTextField.getText())) {
             showAlert("Correo electrónico inválido", "Por favor, ingresa un correo electrónico válido.",
                     Alert.AlertType.WARNING);
         } else {
@@ -58,17 +62,18 @@ public class AddLinkedOrganizationController {
         try {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
 
-            if (linkedOrganizationDAO.saveLinkedOrganization(organization)){
+            if (linkedOrganizationDAO.saveLinkedOrganization(organization)) {
                 showAlert("Registro exitoso", "La organización ha sido registrada exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();
-            }else {
+            } else {
                 showAlert("Registro fallido", "No se pudo registrar la organización, intenta nuevamente.",
                         AlertType.ERROR);
             }
 
-        }catch (ServiceException serviceException) {
-            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
+        } catch (ServiceException serviceException) {
+            showAlert("Suceso inesperado",
+                    "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
                     AlertType.ERROR);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(), AlertType.ERROR);
@@ -76,17 +81,14 @@ public class AddLinkedOrganizationController {
     }
 
     private boolean hasEmptyFields() {
+        boolean isNameEmpty = organizationNameTextField.getText().isEmpty();
+        boolean isEmailEmpty = organizationEmailTextField.getText().isEmpty();
+        boolean isAddressEmpty = organizationAddressTextField.getText().isEmpty();
+        boolean isSectorEmpty = sectorOrganizacionTextField.getText().isEmpty();
 
-        boolean isEmpty = false;
+        boolean hasEmpty = isNameEmpty || isEmailEmpty || isAddressEmpty || isSectorEmpty;
 
-        if (organizationNameTextField.getText().isEmpty() ||
-            organizationEmailTextField.getText().isEmpty() ||
-            organizationAddressTextField.getText().isEmpty() ||
-            sectorOrganizacionTextField.getText().isEmpty()) {
-                isEmpty = true;
-        }
-
-        return  isEmpty;
+        return hasEmpty;
     }
 
     private void clearFields() {
@@ -95,4 +97,5 @@ public class AddLinkedOrganizationController {
         organizationAddressTextField.clear();
         sectorOrganizacionTextField.clear();
     }
+
 }

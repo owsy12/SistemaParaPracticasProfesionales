@@ -5,15 +5,18 @@ import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
+
 import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,16 +29,23 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 import static GUI.Utils.DocumentManngemt.saveFile;
 
 public class UploadInitialDocumentsController {
+
     public AnchorPane anchorPane;
+
     private List<InitialFormat> pendingDocuments;
+
     @FXML
     private ComboBox<String> comboBoxDocumentType;
+
     @FXML
     private Pane dropZone;
+
     @FXML
     private Label labelFileName;
+
     @FXML
     private Label labelStatus;
+
     private File selectedFile;
 
     @FXML
@@ -43,82 +53,80 @@ public class UploadInitialDocumentsController {
         validatePendingInitialDocuments();
     }
 
-    private void validatePendingInitialDocuments(){
+    private void validatePendingInitialDocuments() {
         try {
-
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
-            initialFormatDAO.findPendingByIntern(SessionManager.getInstance().getUsuario().getId());
-            List<InitialFormat> obteinPendingDocuments = initialFormatDAO.findPendingByIntern(SessionManager.getInstance().getUsuario().getId());
+            int currentUserId = SessionManager.getInstance().getUsuario().getId();
+            List<InitialFormat> obtainedPendingDocuments = initialFormatDAO.findPendingByIntern(currentUserId);
 
-            if (obteinPendingDocuments.isEmpty()){
-
-                showAlert("Advertenica", "No cuenta con documentos pendientes por subir, será redirigido a la página de bienvenida",
+            if (obtainedPendingDocuments.isEmpty()) {
+                showAlert("Advertencia",
+                        "No cuenta con documentos pendientes por subir, será redirigido a la página de bienvenida",
                         Alert.AlertType.INFORMATION);
                 openWelcomePage(anchorPane);
-
-            }else {
-
-                pendingDocuments = obteinPendingDocuments;
+            } else {
+                pendingDocuments = obtainedPendingDocuments;
                 loadDocumentTypes();
                 configureDragAndDrop();
                 clearSelectedFile();
             }
 
-        }catch (ServiceException serviceException){
-            showAlert("Error", "No se logro cargar la información, intente más tarde",
+        } catch (ServiceException serviceException) {
+            showAlert("Error", "No se logró cargar la información, intente más tarde",
                     Alert.AlertType.ERROR);
-        }catch (ValidationException validationException){
+        } catch (ValidationException validationException) {
             showAlert("Error", "Error al verificar documentos pendientes", Alert.AlertType.ERROR);
         }
     }
 
     private void loadDocumentTypes() {
-
         comboBoxDocumentType.getItems().clear();
+
         for (InitialFormat initialFormat : pendingDocuments) {
-
             String documentType = initialFormat.getFormatType();
+            boolean isNotNull = documentType != null;
+            boolean isNotDuplicate = !comboBoxDocumentType.getItems().contains(documentType);
 
-            if (documentType != null && !comboBoxDocumentType.getItems().contains(documentType)) {
+            if (isNotNull && isNotDuplicate) {
                 comboBoxDocumentType.getItems().add(documentType);
-
             }
-
         }
-
     }
 
     private void configureDragAndDrop() {
-        dropZone.setOnDragOver(event -> {
-            Dragboard dragboard = event.getDragboard();
+        dropZone.setOnDragOver(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                Dragboard dragboard = event.getDragboard();
 
-            if (dragboard.hasFiles()) {
-                event.acceptTransferModes(TransferMode.COPY);
+                if (dragboard.hasFiles()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                }
+
+                event.consume();
             }
-
-            event.consume();
         });
 
-        dropZone.setOnDragDropped(event -> {
+        dropZone.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                Dragboard dragboard = event.getDragboard();
+                boolean success = false;
 
-            Dragboard dragboard = event.getDragboard();
-            boolean success = false;
+                if (dragboard.hasFiles()) {
+                    File file = dragboard.getFiles().get(0);
+                    processSelectedFile(file);
+                    success = true;
+                }
 
-            if (dragboard.hasFiles()) {
-
-                File file = dragboard.getFiles().getFirst();
-                processSelectedFile(file);
-                success = true;
+                event.setDropCompleted(success);
+                event.consume();
             }
-
-            event.setDropCompleted(success);
-            event.consume();
         });
     }
 
     @FXML
     private void openFileChooser() {
-
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar PDF");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
@@ -127,65 +135,67 @@ public class UploadInitialDocumentsController {
         if (file != null) {
             processSelectedFile(file);
         }
-
     }
 
     private void processSelectedFile(File file) {
-
         if (!isPDF(file)) {
             showError("El archivo seleccionado no es un PDF válido");
-
-        }else {
+        } else {
             selectedFile = file;
             labelFileName.setText(file.getName());
             labelStatus.setText("Archivo válido");
         }
-
     }
 
     @FXML
     private void uploadDocument() {
-        String errorMensaje = null;
+        String errorMessage = null;
 
-        if (comboBoxDocumentType.getValue() == null) {
-            errorMensaje= "Seleccione un tipo de documento";
-        } else if (selectedFile == null) {
-            errorMensaje = "Seleccione un archivo PDF";
+        boolean isDocumentTypeMissing = comboBoxDocumentType.getValue() == null;
+        boolean isFileMissing = selectedFile == null;
+
+        if (isDocumentTypeMissing) {
+            errorMessage = "Seleccione un tipo de documento";
+        } else if (isFileMissing) {
+            errorMessage = "Seleccione un archivo PDF";
         }
 
-        if (errorMensaje != null){
-            showError(errorMensaje);
-        }else {
+        if (errorMessage != null) {
+            showError(errorMessage);
+        } else {
             saveDocumentProcess();
             showInfo("Documento guardado correctamente");
-            if (pendingDocuments.isEmpty()){
-                showAlert("Éxito", "Ya no tiene mas documntos pendientes sera redirigido",
+
+            if (pendingDocuments.isEmpty()) {
+                showAlert("Éxito", "Ya no tiene más documentos pendientes, será redirigido",
                         Alert.AlertType.INFORMATION);
                 openWelcomePage(anchorPane);
             }
-
         }
-
     }
 
     private void saveDocumentProcess() {
         try {
+            String matricula = SessionManager.getInstance().getUsuario().getMatricula();
+            int idProject = pendingDocuments.get(0).getIdProject();
+            String relativeFolder = "storage/intern_" + matricula + "/project_" + idProject + "/initial_formats";
+            String documentTypeName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase();
+            String newFileName = documentTypeName + matricula;
 
-            String relativeFolder = "storage/intern_" + SessionManager.getInstance().getUsuario().getMatricula() + "/project_" +
-                    pendingDocuments.getFirst().getIdProject() + "/initial_formats";
-            String newFileName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase() +
-                    SessionManager.getInstance().getUsuario().getMatricula();
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
             InitialFormat initialFormat = new InitialFormat();
             initialFormat.setFormatType(comboBoxDocumentType.getValue());
             initialFormat.setFilePath(relativeFolder);
-            initialFormat.setIdProject(pendingDocuments.getFirst().getIdProject());
-            initialFormat.setIdInitialFormat(pendingDocuments.getFirst().getIdInitialFormat());
-            initialFormat.setSubmissionDate(LocalDate.from(LocalDateTime.now(ZoneId.of("America/Mexico_City"))));
+            initialFormat.setIdProject(pendingDocuments.get(0).getIdProject());
+            initialFormat.setIdInitialFormat(pendingDocuments.get(0).getIdInitialFormat());
+            initialFormat.setSubmissionDate(
+                    LocalDate.from(LocalDateTime.now(ZoneId.of("America/Mexico_City"))));
+
             comboBoxDocumentType.getItems().remove(comboBoxDocumentType.getValue());
 
-            if (initialFormatDAO.updateStatus(initialFormat) > 0){
-                pendingDocuments.remove(pendingDocuments.getFirst());
+            boolean updateSucceeded = initialFormatDAO.updateStatus(initialFormat) > 0;
+            if (updateSucceeded) {
+                pendingDocuments.remove(pendingDocuments.get(0));
                 saveFile(selectedFile, relativeFolder, newFileName);
             }
 
@@ -194,30 +204,22 @@ public class UploadInitialDocumentsController {
         } catch (ServiceException serviceException) {
             showError("Error al guardar el documento, Servicio no disponible");
         }
-
     }
 
-
-
     private void clearSelectedFile() {
-
         selectedFile = null;
-
         labelFileName.setText("Ningún archivo seleccionado");
-
         labelStatus.setText("");
-
     }
 
     private void showError(String message) {
-
         labelStatus.setStyle("-fx-text-fill: red;");
         labelStatus.setText(message);
     }
 
     private void showInfo(String message) {
-
         labelStatus.setStyle("-fx-text-fill: green;");
         labelStatus.setText(message);
     }
+
 }
