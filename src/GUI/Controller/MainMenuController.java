@@ -1,8 +1,9 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.ViewsUtils.*;
 import Logic.DTOs.User;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -10,14 +11,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDate;
 
 import static GUI.Utils.Alert.showAlert;
@@ -37,20 +35,47 @@ public class MainMenuController {
             "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
     };
 
-    @FXML private VBox menuVBox;
-    @FXML private StackPane contentPane;
-    @FXML private VBox sidebarContainerVBox;
-    @FXML private VBox sidebarLogoTextVBox;
-    @FXML private VBox sidebarUserProfileVBox;
-    @FXML private Label menuSectionTitleLabel;
-    @FXML private Label userInitialsLabel;
-    @FXML private Label userFullNameLabel;
-    @FXML private Label userMatriculaLabel;
-    @FXML private Label userRoleLabel;
-    @FXML private Label collapseMenuTextLabel;
-    @FXML private Label collapseArrowIconLabel;
-    @FXML private Label headerCurrentDateLabel;
-    @FXML private Label headerPeriodLabel;
+    @FXML
+    private VBox menuVBox;
+
+    @FXML
+    private StackPane contentPane;
+
+    @FXML
+    private VBox sidebarContainerVBox;
+
+    @FXML
+    private VBox sidebarLogoTextVBox;
+
+    @FXML
+    private VBox sidebarUserProfileVBox;
+
+    @FXML
+    private Label menuSectionTitleLabel;
+
+    @FXML
+    private Label userInitialsLabel;
+
+    @FXML
+    private Label userFullNameLabel;
+
+    @FXML
+    private Label userMatriculaLabel;
+
+    @FXML
+    private Label userRoleLabel;
+
+    @FXML
+    private Label collapseMenuTextLabel;
+
+    @FXML
+    private Label collapseArrowIconLabel;
+
+    @FXML
+    private Label headerCurrentDateLabel;
+
+    @FXML
+    private Label headerPeriodLabel;
 
     private User currentUser;
     private boolean sidebarCollapsed = false;
@@ -104,19 +129,25 @@ public class MainMenuController {
     }
 
     private String extractInitials(String firstName, String lastName) {
-        String first = (firstName == null || firstName.isEmpty()) ? "" : String.valueOf(firstName.charAt(0));
-        String last = (lastName == null || lastName.isEmpty()) ? "" : String.valueOf(lastName.charAt(0));
+        boolean isFirstNameEmpty = firstName == null || firstName.isEmpty();
+        boolean isLastNameEmpty = lastName == null || lastName.isEmpty();
+        String first = isFirstNameEmpty ? "" : String.valueOf(firstName.charAt(0));
+        String last = isLastNameEmpty ? "" : String.valueOf(lastName.charAt(0));
         return first + last;
     }
 
     private String buildFullName(User user) {
-        String second = (user.getSecondLastName() == null) ? "" : " " + user.getSecondLastName();
+        String second = "";
+        if (user.getSecondLastName() != null) {
+            second = " " + user.getSecondLastName();
+        }
         return user.getFirstName() + " " + user.getLastName() + second;
     }
 
     private String resolveActiveRole(User user) {
         String result = "SIN ROL";
-        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+        boolean hasRoles = user.getRoles() != null && !user.getRoles().isEmpty();
+        if (hasRoles) {
             result = user.getRoles().get(0).toUpperCase();
         }
         return result;
@@ -139,16 +170,21 @@ public class MainMenuController {
                 case "Practicante":
                     loadInternActions();
                     break;
+                default:
+                    break;
             }
-
         }
-
     }
 
-    private void addButton(String text, String fxmlPath) {
+    private void addButton(String text, final String fxmlPath) {
         Button button = new Button(text);
         button.setMaxWidth(Double.MAX_VALUE);
-        button.setOnAction(e -> loadView(fxmlPath));
+        button.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                loadView(fxmlPath);
+            }
+        });
         menuVBox.getChildren().add(button);
     }
 
@@ -172,7 +208,7 @@ public class MainMenuController {
         addButton("Actualizar Proyecto", "/GUI/View/GUIManageProject.fxml");
         addButton("Inactivar Practicante", "/GUI/View/GUIDeactivateIntern.fxml");
         addButton("Consultar Organizaciones Vinculadas", "/GUI/view/GUIManageLinkedOrganization.fxml");
-        addButton("Consualtar tecnicos responsables", "/GUI/view/GUIManageTechnicalResponsible.fxml");
+        addButton("Consultar técnicos responsables", "/GUI/view/GUIManageTechnicalResponsible.fxml");
         addButton("Manejar Actividades", "/GUI/view/GUISelectProjectForActivity.fxml");
     }
 
@@ -224,7 +260,7 @@ public class MainMenuController {
             loginStage.show();
             Stage currentStage = (Stage) contentPane.getScene().getWindow();
             currentStage.close();
-        } catch (IOException e) {
+        } catch (IOException ioException) {
             showAlert("Error", "No se pudo cerrar sesión correctamente.", Alert.AlertType.ERROR);
         }
     }
@@ -234,10 +270,9 @@ public class MainMenuController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent vista = loader.load();
             contentPane.getChildren().setAll(vista);
-        } catch (IOException e) {
+        } catch (IOException ioException) {
             showAlert("Error", "Error al cargar la vista.", Alert.AlertType.ERROR);
         }
     }
-
 
 }

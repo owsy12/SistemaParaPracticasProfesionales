@@ -12,43 +12,36 @@ import static GUI.Utils.Alert.showAlert;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ListCell;
+import javafx.util.Callback;
 
 public class AddTechnicalResponsibleController {
+
     @FXML
     public TextField nameField;
+
     @FXML
     private TextField emailField;
+
     @FXML
     private ComboBox<LinkedOrganization> organizationComboBox;
+
     @FXML
     private TextField lastNameField;
+
     @FXML
     private TextField lastNameMaterField;
+
     @FXML
     private TextField cargoField;
 
     @FXML
     private void initialize() {
         loadLinkedOrganization();
-        organizationComboBox.setCellFactory(column -> new ListCell<>() {
-            @Override
-            protected void updateItem(LinkedOrganization item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
-        organizationComboBox.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(LinkedOrganization item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
+        configureOrganizationComboBox();
         setTypeAndLength(nameField, "Name");
         setTypeAndLength(lastNameField, "Name");
         setTypeAndLength(lastNameMaterField, "Name");
@@ -61,31 +54,66 @@ public class AddTechnicalResponsibleController {
         showAlert("Registro cancelado", "La operación ha sido cancelada.",
                 AlertType.INFORMATION);
         clearFields();
-
     }
 
     @FXML
     public void addTechnical(ActionEvent actionEvent) {
-        if (hasEmptyFields() || !isValidEmail(emailField.getText())) {
-            showAlert("Campos vacíos o email inválido", "Por favor, completa todos los campos obligatorios y verifica el email.",
+        if (hasEmptyFields()) {
+            showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
+                    AlertType.WARNING);
+        } else if (!isValidEmail(emailField.getText())) {
+            showAlert("Email inválido", "Por favor, verifica el email ingresado.",
                     AlertType.WARNING);
         } else {
             processRegistration();
         }
     }
 
-    private void loadLinkedOrganization (){
-        try{
-            LinkedOrganizationDAO linkedOrganization = new LinkedOrganizationDAO();
-            organizationComboBox.getItems().addAll(linkedOrganization.findAllActive());
+    private void configureOrganizationComboBox() {
+        organizationComboBox.setCellFactory(
+                new Callback<ListView<LinkedOrganization>, ListCell<LinkedOrganization>>() {
+            @Override
+            public ListCell<LinkedOrganization> call(ListView<LinkedOrganization> listView) {
+                return new ListCell<LinkedOrganization>() {
+                    @Override
+                    protected void updateItem(LinkedOrganization item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String displayText = null;
+                        if (!empty && item != null) {
+                            displayText = item.getName();
+                        }
+                        setText(displayText);
+                    }
+                };
+            }
+        });
+
+        organizationComboBox.setButtonCell(new ListCell<LinkedOrganization>() {
+            @Override
+            protected void updateItem(LinkedOrganization item, boolean empty) {
+                super.updateItem(item, empty);
+                String displayText = null;
+                if (!empty && item != null) {
+                    displayText = item.getName();
+                }
+                setText(displayText);
+            }
+        });
+    }
+
+    private void loadLinkedOrganization() {
+        try {
+            LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
+            organizationComboBox.getItems().addAll(linkedOrganizationDAO.findAllActive());
         } catch (ServiceException serviceException) {
-            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
+            showAlert("Suceso inesperado",
+                    "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
                     AlertType.ERROR);
         }
     }
 
     private void processRegistration() {
-        try{
+        try {
             TechnicalSupervisor technicalSupervisor = new TechnicalSupervisor();
             technicalSupervisor.setName(nameField.getText());
             technicalSupervisor.seteMail(emailField.getText());
@@ -96,7 +124,7 @@ public class AddTechnicalResponsibleController {
             technicalSupervisor.setIdOrganization(linkedOrganization.getIdLinkedOrganization());
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
 
-            if (technicalResponsibleDAO.saveTechnicalResponsible(technicalSupervisor)){
+            if (technicalResponsibleDAO.saveTechnicalResponsible(technicalSupervisor)) {
                 showAlert("Registro exitoso", "El responsable técnico ha sido registrado exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();
@@ -109,7 +137,8 @@ public class AddTechnicalResponsibleController {
             showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            showAlert("Suceso inesperado", "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
+            showAlert("Suceso inesperado",
+                    "El servicio no se encuentra disponible por el momento" + serviceException.getMessage(),
                     AlertType.ERROR);
         }
     }
@@ -124,17 +153,17 @@ public class AddTechnicalResponsibleController {
     }
 
     private boolean hasEmptyFields() {
-        boolean isEmpty = false;
+        boolean isNameEmpty = nameField.getText().isEmpty();
+        boolean isEmailEmpty = emailField.getText().isEmpty();
+        boolean isLastNameEmpty = lastNameField.getText().isEmpty();
+        boolean isSecondLastNameEmpty = lastNameMaterField.getText().isEmpty();
+        boolean isCargoEmpty = cargoField.getText().isEmpty();
+        boolean isOrganizationMissing = organizationComboBox.getValue() == null;
 
-        if (nameField.getText().isEmpty() ||
-                emailField.getText().isEmpty() ||
-                lastNameField.getText().isEmpty() ||
-                lastNameMaterField.getText().isEmpty() ||
-                cargoField.getText().isEmpty() ||
-                organizationComboBox.getValue() == null
-        ){
-            isEmpty = true;
-        }
-        return  isEmpty;
+        boolean hasEmpty = isNameEmpty || isEmailEmpty || isLastNameEmpty
+                || isSecondLastNameEmpty || isCargoEmpty || isOrganizationMissing;
+
+        return hasEmpty;
     }
+
 }

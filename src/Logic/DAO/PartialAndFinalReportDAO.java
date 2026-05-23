@@ -26,7 +26,9 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
     private static final String SQL_SELECT_BASE =
             "SELECT r.id_reporte, r.id_practicante, r.id_proyecto, r.id_profesor, " +
-                    "       r.tipo_reporte, r.periodo, r.ruta_documento, r.estado, r.fecha_entrega, " +
+                    "       r.tipo_reporte, r.periodo, r.ruta_documento, r.ruta_documento_firmado, " +
+                    "       r.estado, r.horas_reportadas, r.observaciones_profesor, " +
+                    "       r.fecha_revision, r.fecha_entrega, " +
                     "       pf.numero_informe, pf.horas_cubiertas, pf.objetivo_general, " +
                     "       pf.metodologia, pf.resultados_obtenidos, pf.observaciones " +
                     "FROM reporte r " +
@@ -199,15 +201,24 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     private PartialAndFinalReport mapResultSet(ResultSet resultSet) throws SQLException {
         PartialAndFinalReport report = new PartialAndFinalReport();
 
-        report.setIdReport               (resultSet.getInt   ("id_reporte"));
-        report.setIdIntern               (resultSet.getInt   ("id_practicante"));
-        report.setIdProyect              (resultSet.getInt   ("id_proyecto"));
-        report.setIdProfessor            (resultSet.getInt   ("id_profesor"));
-        report.setReportType             (resultSet.getString("tipo_reporte"));
-        report.setPeriod                 (resultSet.getString("periodo"));
-        report.setDocumentPath           (resultSet.getString("ruta_documento"));
-        report.setStatus                 (resultSet.getString("estado"));
-        report.setSumissionDate          (resultSet.getDate  ("fecha_entrega"));
+        report.setIdReport              (resultSet.getInt   ("id_reporte"));
+        report.setIdIntern              (resultSet.getInt   ("id_practicante"));
+        report.setIdProyect             (resultSet.getInt   ("id_proyecto"));
+        report.setIdProfessor           (resultSet.getInt   ("id_profesor"));
+        report.setReportType            (resultSet.getString("tipo_reporte"));
+        report.setPeriod                (resultSet.getString("periodo"));
+        report.setDocumentPath          (resultSet.getString("ruta_documento"));
+        report.setSignedDocumentPath    (resultSet.getString("ruta_documento_firmado"));
+        report.setStatus                (resultSet.getString("estado"));
+        report.setReportedHours         (resultSet.getInt   ("horas_reportadas"));
+        report.setProfessorObservations (resultSet.getString("observaciones_profesor"));
+        report.setSumissionDate         (resultSet.getDate  ("fecha_entrega"));
+
+        java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
+        if (reviewDate != null) {
+            report.setReviewDate(reviewDate.toLocalDate());
+        }
+
         report.setIdPartialAndFinalReport(resultSet.getInt   ("id_reporte"));
         report.setReportNumber           (resultSet.getInt   ("numero_informe"));
         report.setCoveredHours           (resultSet.getInt   ("horas_cubiertas"));

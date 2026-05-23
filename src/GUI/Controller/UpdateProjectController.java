@@ -10,7 +10,14 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.util.Callback;
 
 import java.util.List;
 
@@ -18,25 +25,36 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 
 public class UpdateProjectController {
+
     private Project project;
+
     @FXML
     private TextField capacityTextField;
+
     @FXML
     private ComboBox<Professor> professorComboBox;
+
     @FXML
     private DatePicker endDate;
+
     @FXML
     private ComboBox organizationComboBox;
+
     @FXML
     private TextField nameTextField;
+
     @FXML
     private ComboBox<TechnicalSupervisor> technicalComboBox;
+
     @FXML
     private TextField descriptionTextField;
+
     @FXML
     private DatePicker startDate;
+
     @FXML
     private TextField nrcTextField;
+
     @FXML
     private TextArea objetivoTextArea;
 
@@ -100,8 +118,7 @@ public class UpdateProjectController {
         return snapshot;
     }
 
-    private void configureProjectInformation(){
-
+    private void configureProjectInformation() {
         nrcTextField.setText(String.valueOf(project.getIdProyect()));
         nrcTextField.setDisable(true);
         capacityTextField.setText(String.valueOf(project.getMaximumPlaces()));
@@ -109,61 +126,22 @@ public class UpdateProjectController {
         startDate.setValue(project.getStartDate());
         nameTextField.setText(project.getName());
         descriptionTextField.setText(project.getDescription());
+
         if (project.getObjetivo() != null) {
             objetivoTextArea.setText(project.getObjetivo());
         }
+
         organizationComboBox.getItems().add(project.getOrganizationName());
         organizationComboBox.getSelectionModel().selectFirst();
         organizationComboBox.setDisable(true);
+
         professorComboBox.getItems().setAll(getProfessorList());
         technicalComboBox.getItems().setAll(getProjectTechnicalList(project.getIdOrganization()));
 
-
-        technicalComboBox.setCellFactory(column -> new ListCell<>() {
-            @Override
-            protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
-        technicalComboBox.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
-        professorComboBox.setCellFactory(column -> new ListCell<>() {
-            @Override
-            protected void updateItem(Professor item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getFirstName());
-            }
-        });
-
-        professorComboBox.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(Professor item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getFirstName());
-            }
-        });
-
-        technicalComboBox.getItems().stream()
-                .filter(technicalSupervisor -> technicalSupervisor.getIdTechnicalSupervisor()
-                        == project.getIdTechnicalSupervisor())
-                .findFirst()
-                .ifPresent(technicalSupervisor ->
-                        technicalComboBox.getSelectionModel().select(technicalSupervisor));
-
-        professorComboBox.getItems().stream()
-                .filter(professor -> professor.getId()
-                        == project.getIdProfessor())
-                .findFirst()
-                .ifPresent(professor ->
-                        professorComboBox.getSelectionModel().select(professor));
+        configureTechnicalComboBox();
+        configureProfessorComboBox();
+        preselectTechnicalSupervisor();
+        preselectProfessor();
 
         endDate.setDisable(true);
         startDate.setDisable(true);
@@ -172,8 +150,96 @@ public class UpdateProjectController {
         setTypeAndLength(capacityTextField, "Number");
     }
 
-    private List<TechnicalSupervisor> getProjectTechnicalList(int idOrganization){
+    private void configureTechnicalComboBox() {
+        technicalComboBox.setCellFactory(
+                new Callback<ListView<TechnicalSupervisor>, ListCell<TechnicalSupervisor>>() {
+            @Override
+            public ListCell<TechnicalSupervisor> call(ListView<TechnicalSupervisor> listView) {
+                return new ListCell<TechnicalSupervisor>() {
+                    @Override
+                    protected void updateItem(TechnicalSupervisor item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String displayText = null;
+                        if (!empty && item != null) {
+                            displayText = item.getName();
+                        }
+                        setText(displayText);
+                    }
+                };
+            }
+        });
+
+        technicalComboBox.setButtonCell(new ListCell<TechnicalSupervisor>() {
+            @Override
+            protected void updateItem(TechnicalSupervisor item, boolean empty) {
+                super.updateItem(item, empty);
+                String displayText = null;
+                if (!empty && item != null) {
+                    displayText = item.getName();
+                }
+                setText(displayText);
+            }
+        });
+    }
+
+    private void configureProfessorComboBox() {
+        professorComboBox.setCellFactory(
+                new Callback<ListView<Professor>, ListCell<Professor>>() {
+            @Override
+            public ListCell<Professor> call(ListView<Professor> listView) {
+                return new ListCell<Professor>() {
+                    @Override
+                    protected void updateItem(Professor item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String displayText = null;
+                        if (!empty && item != null) {
+                            displayText = item.getFirstName();
+                        }
+                        setText(displayText);
+                    }
+                };
+            }
+        });
+
+        professorComboBox.setButtonCell(new ListCell<Professor>() {
+            @Override
+            protected void updateItem(Professor item, boolean empty) {
+                super.updateItem(item, empty);
+                String displayText = null;
+                if (!empty && item != null) {
+                    displayText = item.getFirstName();
+                }
+                setText(displayText);
+            }
+        });
+    }
+
+    private void preselectTechnicalSupervisor() {
+        List<TechnicalSupervisor> technicalList = technicalComboBox.getItems();
+        for (TechnicalSupervisor technicalSupervisor : technicalList) {
+            boolean matchesProject =
+                    technicalSupervisor.getIdTechnicalSupervisor() == project.getIdTechnicalSupervisor();
+            if (matchesProject) {
+                technicalComboBox.getSelectionModel().select(technicalSupervisor);
+                break;
+            }
+        }
+    }
+
+    private void preselectProfessor() {
+        List<Professor> professorList = professorComboBox.getItems();
+        for (Professor professor : professorList) {
+            boolean matchesProject = professor.getId() == project.getIdProfessor();
+            if (matchesProject) {
+                professorComboBox.getSelectionModel().select(professor);
+                break;
+            }
+        }
+    }
+
+    private List<TechnicalSupervisor> getProjectTechnicalList(int idOrganization) {
         List<TechnicalSupervisor> technicalSupervisorsList = null;
+
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
             technicalSupervisorsList = technicalResponsibleDAO.findByOrganization(idOrganization);
@@ -190,7 +256,7 @@ public class UpdateProjectController {
         return technicalSupervisorsList;
     }
 
-    private List<Professor> getProfessorList(){
+    private List<Professor> getProfessorList() {
         List<Professor> professorList = null;
 
         try {
@@ -210,13 +276,15 @@ public class UpdateProjectController {
     }
 
     private boolean hasEmptyFields() {
-        boolean isEmpty = nameTextField.getText().isBlank()
-                || descriptionTextField.getText().isBlank()
-                || capacityTextField.getText().isBlank()
-                || objetivoTextArea.getText().isBlank()
-                || professorComboBox.getValue() == null
-                || technicalComboBox.getValue() == null;
-        return isEmpty;
+        boolean isNameEmpty = nameTextField.getText().isBlank();
+        boolean isDescriptionEmpty = descriptionTextField.getText().isBlank();
+        boolean isCapacityEmpty = capacityTextField.getText().isBlank();
+        boolean isObjectiveEmpty = objetivoTextArea.getText().isBlank();
+        boolean isProfessorMissing = professorComboBox.getValue() == null;
+        boolean isTechnicalMissing = technicalComboBox.getValue() == null;
+
+        return isNameEmpty || isDescriptionEmpty || isCapacityEmpty
+                || isObjectiveEmpty || isProfessorMissing || isTechnicalMissing;
     }
 
     public Project getProject() {

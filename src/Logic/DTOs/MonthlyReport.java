@@ -4,6 +4,7 @@ public class MonthlyReport extends Report{
     private int idMonthlyReport;
     private String month;
     private int year;
+    private int monthlyHours;
     private String block;
     private String section;
 
@@ -56,5 +57,13 @@ public class MonthlyReport extends Report{
 
     public void setSection(String section) {
         this.section = section;
+    }
+
+    public int getMonthlyHours() {
+        return monthlyHours;
+    }
+
+    public void setMonthlyHours(int monthlyHours) {
+        this.monthlyHours = monthlyHours;
     }
 }

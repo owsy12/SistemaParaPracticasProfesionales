@@ -16,9 +16,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
+
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
@@ -27,8 +30,10 @@ public class ViewProjectSelectionController {
 
     @FXML
     private AnchorPane anchorPane;
+
     @FXML
     private FlowPane flowProjects;
+
     private List<Project> projectList;
 
     @FXML
@@ -41,53 +46,53 @@ public class ViewProjectSelectionController {
 
     @FXML
     public void confirmButtom(ActionEvent actionEvent) {
-        showAlertAndWait("Confirmacin","Sguro qeu desea seleccinar sos proeyectos",
-                Alert.AlertType.CONFIRMATION).ifPresent(response ->{
-                    if (response == ButtonType.OK){
-                        requestProjectProcess();
-                    }
-                }
-        );
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmación",
+                "¿Seguro que desea seleccionar estos proyectos?",
+                Alert.AlertType.CONFIRMATION);
+
+        if (response.isPresent() && response.get() == ButtonType.OK) {
+            requestProjectProcess();
+        }
     }
 
-    private void requestProjectProcess(){
+    private void requestProjectProcess() {
         try {
             ApplicationDAO applicationDAO = new ApplicationDAO();
             ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
 
-            Application application = applicationDAO.findByIntern(SessionManager.getInstance().getUsuario().getId());
+            int currentUserId = SessionManager.getInstance().getUsuario().getId();
+            Application application = applicationDAO.findByIntern(currentUserId);
 
-            if (application == null){
+            if (application == null) {
                 application = new Application();
-                application.setIdIntern(SessionManager.getInstance().getUsuario().getId());
+                application.setIdIntern(currentUserId);
                 application.setApplicationDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
                 application.setStatus("Pendiente");
                 application.setIdApplication(applicationDAO.create(application));
-
             }
 
-            for (Project project: projectList){
+            for (Project project : projectList) {
                 ProjectApplication projectApplication = new ProjectApplication();
                 projectApplication.setIdApplication(application.getIdApplication());
                 projectApplication.setIdProyect(project.getIdProyect());
                 projectApplicationDAO.create(projectApplication);
             }
 
-            showAlert("Exito", "su solicitud a sido creada",
+            showAlert("Éxito", "Su solicitud ha sido creada.",
                     Alert.AlertType.INFORMATION);
             openWelcomePage((AnchorPane) anchorPane.getParent());
 
-        }catch (IllegalStateException illegalStateException){
-            showAlert("Error", "No se a logrado encontrar un poryecto seleccionado",
+        } catch (IllegalStateException illegalStateException) {
+            showAlert("Error", "No se logró encontrar un proyecto seleccionado.",
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            showAlert("Error", "servicio no disponible",
+            showAlert("Error", "Servicio no disponible.",
                     Alert.AlertType.ERROR);
         } catch (ValidationException validationException) {
-            showAlert("Error ", "No s elogro concretar su solicitud",
+            showAlert("Error", "No se logró concretar su solicitud.",
                     Alert.AlertType.ERROR);
         }
-
     }
 
     private VBox createCard(Project project) {
@@ -101,15 +106,21 @@ public class ViewProjectSelectionController {
         -fx-border-color: #ddd;
         -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5,0,0,2);""");
 
-        Label nombre = new Label(project.getName());
-        nombre.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
-        Label descripcion = new Label(project.getDescription());
-        descripcion.setWrapText(true);
-        Label fechas = new Label("Inicio: " + project.getStartDate() +
-                "\nFin: " + project.getEndDate());
-        Label cupo = new Label("Cupo: " + project.getAvaliablePlaces());
-        Label org = new Label("Org: " + project.getOrganizationName());
-        card.getChildren().addAll(nombre, descripcion, fechas, cupo, org);
+        Label projectNameLabel = new Label(project.getName());
+        projectNameLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+
+        Label descriptionLabel = new Label(project.getDescription());
+        descriptionLabel.setWrapText(true);
+
+        Label datesLabel = new Label("Inicio: " + project.getStartDate()
+                + "\nFin: " + project.getEndDate());
+
+        Label capacityLabel = new Label("Cupo: " + project.getAvaliablePlaces());
+
+        Label organizationLabel = new Label("Org: " + project.getOrganizationName());
+
+        card.getChildren().addAll(projectNameLabel, descriptionLabel, datesLabel,
+                capacityLabel, organizationLabel);
 
         return card;
     }
@@ -126,7 +137,6 @@ public class ViewProjectSelectionController {
             VBox card = createCard(project);
             flowProjects.getChildren().add(card);
         }
-
     }
 
 }

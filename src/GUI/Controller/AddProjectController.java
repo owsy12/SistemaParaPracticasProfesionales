@@ -13,8 +13,16 @@ import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -26,126 +34,198 @@ public class AddProjectController {
 
     @FXML
     private TextField capacityTextField;
+
     @FXML
     private DatePicker endDate;
+
     @FXML
     private ComboBox<LinkedOrganization> organizationComboBox;
+
     @FXML
     private TextField nameTextField;
+
     @FXML
-    private ComboBox <TechnicalSupervisor> technicalComboBox;
+    private ComboBox<TechnicalSupervisor> technicalComboBox;
+
     @FXML
     private TextField descriptionTextField;
+
     @FXML
     private DatePicker startDate;
+
     @FXML
     private ComboBox<Professor> professorComboBox;
+
     @FXML
     private ComboBox<EducationalExperience> educationalExperienceComboBox;
+
     @FXML
     private TextArea objetivoTextArea;
 
     @FXML
-    private void initialize(){
-        setTypeAndLength(capacityTextField,"Number");
-        setTypeAndLength(nameTextField,"Name");
-        setTypeAndLength(descriptionTextField,"Text");
+    private void initialize() {
+        setTypeAndLength(capacityTextField, "Number");
+        setTypeAndLength(nameTextField, "Name");
+        setTypeAndLength(descriptionTextField, "Text");
 
         loadOrganizations();
         loadProfessors();
         loadEducationalExperiences();
 
-        technicalComboBox.setCellFactory(column -> new ListCell<>() {
-            @Override
-            protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
-        technicalComboBox.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
-        organizationComboBox.setCellFactory(column -> new ListCell<>() {
-            @Override
-            protected void updateItem(LinkedOrganization item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
-        organizationComboBox.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(LinkedOrganization item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getName());
-            }
-        });
-
-        educationalExperienceComboBox.setCellFactory(column -> new ListCell<>() {
-            @Override
-            protected void updateItem(EducationalExperience item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNrc() + " - " + item.getName());
-            }
-        });
-
-        educationalExperienceComboBox.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(EducationalExperience item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? null : item.getNrc() + " - " + item.getName());
-            }
-        });
-
-        organizationComboBox.setOnAction(event -> {
-            LinkedOrganization linkedOrganization = organizationComboBox.getValue();
-            loadTechnicians(linkedOrganization.getIdLinkedOrganization());
-        });
+        configureTechnicalComboBox();
+        configureOrganizationComboBox();
+        configureEducationalExperienceComboBox();
+        configureListeners();
     }
 
     @FXML
     public void addProject(ActionEvent actionEvent) {
-        if (isValid() ){
-            showAlert("Alerta", "Por favor verifique la infomcion ingresada ",
+        if (!isInputValid()) {
+            showAlert("Alerta", "Por favor verifique la información ingresada.",
                     Alert.AlertType.WARNING);
-        }else {
+        } else {
             registrationProcess();
         }
     }
 
-    private void registrationProcess (){
-        try{
-            Project project = getProject();
+    @FXML
+    public void cancelButton(ActionEvent actionEvent) {
+        clear();
+    }
+
+    private void configureTechnicalComboBox() {
+        technicalComboBox.setCellFactory(new Callback<ListView<TechnicalSupervisor>, ListCell<TechnicalSupervisor>>() {
+            @Override
+            public ListCell<TechnicalSupervisor> call(ListView<TechnicalSupervisor> listView) {
+                return new ListCell<TechnicalSupervisor>() {
+                    @Override
+                    protected void updateItem(TechnicalSupervisor item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String displayText = null;
+                        if (!empty && item != null) {
+                            displayText = item.getName();
+                        }
+                        setText(displayText);
+                    }
+                };
+            }
+        });
+
+        technicalComboBox.setButtonCell(new ListCell<TechnicalSupervisor>() {
+            @Override
+            protected void updateItem(TechnicalSupervisor item, boolean empty) {
+                super.updateItem(item, empty);
+                String displayText = null;
+                if (!empty && item != null) {
+                    displayText = item.getName();
+                }
+                setText(displayText);
+            }
+        });
+    }
+
+    private void configureOrganizationComboBox() {
+        organizationComboBox.setCellFactory(new Callback<ListView<LinkedOrganization>, ListCell<LinkedOrganization>>() {
+            @Override
+            public ListCell<LinkedOrganization> call(ListView<LinkedOrganization> listView) {
+                return new ListCell<LinkedOrganization>() {
+                    @Override
+                    protected void updateItem(LinkedOrganization item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String displayText = null;
+                        if (!empty && item != null) {
+                            displayText = item.getName();
+                        }
+                        setText(displayText);
+                    }
+                };
+            }
+        });
+
+        organizationComboBox.setButtonCell(new ListCell<LinkedOrganization>() {
+            @Override
+            protected void updateItem(LinkedOrganization item, boolean empty) {
+                super.updateItem(item, empty);
+                String displayText = null;
+                if (!empty && item != null) {
+                    displayText = item.getName();
+                }
+                setText(displayText);
+            }
+        });
+    }
+
+    private void configureEducationalExperienceComboBox() {
+        educationalExperienceComboBox.setCellFactory(
+                new Callback<ListView<EducationalExperience>, ListCell<EducationalExperience>>() {
+            @Override
+            public ListCell<EducationalExperience> call(ListView<EducationalExperience> listView) {
+                return new ListCell<EducationalExperience>() {
+                    @Override
+                    protected void updateItem(EducationalExperience item, boolean empty) {
+                        super.updateItem(item, empty);
+                        String displayText = null;
+                        if (!empty && item != null) {
+                            displayText = item.getNrc() + " - " + item.getName();
+                        }
+                        setText(displayText);
+                    }
+                };
+            }
+        });
+
+        educationalExperienceComboBox.setButtonCell(new ListCell<EducationalExperience>() {
+            @Override
+            protected void updateItem(EducationalExperience item, boolean empty) {
+                super.updateItem(item, empty);
+                String displayText = null;
+                if (!empty && item != null) {
+                    displayText = item.getNrc() + " - " + item.getName();
+                }
+                setText(displayText);
+            }
+        });
+    }
+
+    private void configureListeners() {
+        organizationComboBox.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                LinkedOrganization linkedOrganization = organizationComboBox.getValue();
+                if (linkedOrganization != null) {
+                    loadTechnicians(linkedOrganization.getIdLinkedOrganization());
+                }
+            }
+        });
+    }
+
+    private void registrationProcess() {
+        try {
+            Project project = buildProject();
             ProjectDAO projectDAO = new ProjectDAO();
 
-            if (projectDAO.saveProject(project)){
-                showAlert("Exito", "El proyecto a sido guardado exitosamente",
+            if (projectDAO.saveProject(project)) {
+                showAlert("Éxito", "El proyecto ha sido guardado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();
-            }else {
-                showAlert("Error", "No se a podido guaradr el proyecto intente nemnante mas tarde",
+            } else {
+                showAlert("Error", "No se pudo guardar el proyecto. Intente nuevamente más tarde.",
                         Alert.AlertType.ERROR);
             }
 
-        }catch (ValidationException validationException) {
-            showAlert("Error de validacion", validationException.getMessage(),
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            showAlert("Error inesperado", "El servicio no se encuetra disponible",
+            showAlert("Error inesperado", "El servicio no se encuentra disponible.",
                     Alert.AlertType.ERROR);
-        }catch (NullPointerException nullPointerException){
-            showAlert("Precaucion", "Seleccione fechas validas",
+        } catch (NullPointerException nullPointerException) {
+            showAlert("Precaución", "Seleccione fechas válidas.",
                     Alert.AlertType.INFORMATION);
         }
     }
 
-    private Project getProject() {
+    private Project buildProject() {
         LocalDate startdate = startDate.getValue();
         LocalDate enddate = endDate.getValue();
         Project project = new Project();
@@ -163,21 +243,22 @@ public class AddProjectController {
         return project;
     }
 
-    private void loadOrganizations(){
+    private void loadOrganizations() {
         try {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
             List<LinkedOrganization> linkedOrganizations = linkedOrganizationDAO.findAllActive();
             organizationComboBox.getItems().setAll(linkedOrganizations);
         } catch (ServiceException serviceException) {
-            showAlert("Error", "Problema con nuestro servicio, intente mas tearde",
+            showAlert("Error", "Problema con nuestro servicio, intente más tarde.",
                     Alert.AlertType.ERROR);
         }
     }
 
-    private void loadTechnicians(int organizationId){
+    private void loadTechnicians(int organizationId) {
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
-            List<TechnicalSupervisor> technicalSupervisorsList = technicalResponsibleDAO.findByOrganization(organizationId);
+            List<TechnicalSupervisor> technicalSupervisorsList =
+                    technicalResponsibleDAO.findByOrganization(organizationId);
             technicalComboBox.getItems().setAll(technicalSupervisorsList);
         } catch (ValidationException | ServiceException loadException) {
             showAlert("Servicio no disponible",
@@ -186,16 +267,16 @@ public class AddProjectController {
         }
     }
 
-    private void loadProfessors(){
+    private void loadProfessors() {
         try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             List<Professor> professorList = professorDAO.findActiveProfessors();
             professorComboBox.getItems().setAll(professorList);
         } catch (ServiceException serviceException) {
-            showAlert("Erro", "Sevicio no disponible intentene mas tarde",
+            showAlert("Error", "Servicio no disponible, intente más tarde.",
                     Alert.AlertType.ERROR);
         } catch (ValidationException validationException) {
-            showAlert("Error", "Error al validar los profesorres",
+            showAlert("Error", "Error al validar los profesores.",
                     Alert.AlertType.ERROR);
         }
     }
@@ -206,32 +287,36 @@ public class AddProjectController {
             List<EducationalExperience> experienceList = educationalExperienceDAO.findAll();
             educationalExperienceComboBox.getItems().setAll(experienceList);
         } catch (ServiceException serviceException) {
-            showAlert("Error", "No se pueden cargar las experiencias educativas",
+            showAlert("Error", "No se pueden cargar las experiencias educativas.",
                     Alert.AlertType.ERROR);
         }
     }
 
-    private boolean isValid(){
-        boolean isValid = false;
-        LocalDate startdate = startDate.getValue();
-        LocalDate enddate = endDate.getValue();
+    private boolean isInputValid() {
+        boolean isCapacityEmpty = capacityTextField.getText().isEmpty();
+        boolean isNameEmpty = nameTextField.getText().isEmpty();
+        boolean isDescriptionEmpty = descriptionTextField.getText().isEmpty();
+        boolean isOrganizationMissing = organizationComboBox.getValue() == null;
+        boolean isTechnicalMissing = technicalComboBox.getValue() == null;
+        boolean isStartDateMissing = startDate.getValue() == null;
+        boolean isProfessorMissing = professorComboBox.getValue() == null;
+        boolean isEndDateMissing = endDate.getValue() == null;
+        boolean isEducationalExperienceMissing = educationalExperienceComboBox.getValue() == null;
 
-        if (capacityTextField.getText().isEmpty() ||
-                nameTextField.getText().isEmpty() ||
-                descriptionTextField.getText().isEmpty() ||
-                organizationComboBox.getValue() == null ||
-                technicalComboBox.getValue() == null ||
-                startDate.getValue() == null ||
-                professorComboBox.getValue() == null ||
-                endDate.getValue() == null ||
-                educationalExperienceComboBox.getValue() == null ||
-                !enddate.isAfter(startdate)) {
-            isValid = false;
+        boolean hasEmptyFields = isCapacityEmpty || isNameEmpty || isDescriptionEmpty
+                || isOrganizationMissing || isTechnicalMissing || isStartDateMissing
+                || isProfessorMissing || isEndDateMissing || isEducationalExperienceMissing;
+
+        if (hasEmptyFields) {
+            return false;
         }
-        return isValid;
+
+        boolean isEndAfterStart = endDate.getValue().isAfter(startDate.getValue());
+
+        return isEndAfterStart;
     }
 
-    private void clear(){
+    private void clear() {
         capacityTextField.clear();
         nameTextField.clear();
         descriptionTextField.clear();
@@ -242,11 +327,6 @@ public class AddProjectController {
         educationalExperienceComboBox.getSelectionModel().clearSelection();
         startDate.setValue(null);
         endDate.setValue(null);
-    }
-
-    @FXML
-    public void cancelButton(ActionEvent actionEvent) {
-        clear();
     }
 
 }

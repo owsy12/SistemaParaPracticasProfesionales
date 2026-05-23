@@ -21,20 +21,28 @@ import java.util.List;
 import java.util.Optional;
 
 public class AddProfesorController {
+
     @FXML
     private TextField idTextField;
+
     @FXML
     private TextField firstNameTextField;
+
     @FXML
     private TextField lastNameTextField;
+
     @FXML
     private TextField secondLastNameTextField;
+
     @FXML
     private TextField academicAreaTextField;
+
     @FXML
     private PasswordField passwordField;
+
     @FXML
     private PasswordField confirmPasswordField;
+
     @FXML
     private TextField emailTextField;
 
@@ -52,15 +60,17 @@ public class AddProfesorController {
 
     @FXML
     public void registerProfessor() {
+        String passwordValidationMessage = getPasswordValidationMessage(passwordField.getText());
+        boolean isPasswordInvalid = passwordValidationMessage != null;
+
         if (hasEmptyFields()) {
             showAlert("Campos vacíos", "Completa todos los campos obligatorios.",
                     AlertType.WARNING);
         } else if (!isValidEmail(emailTextField.getText())) {
             showAlert("Correo inválido", "Ingrese un correo electrónico válido.",
                     AlertType.WARNING);
-        } else if (getPasswordValidationMessage(passwordField.getText()) != null) {
-            showAlert("Contraseña no válida",
-                    getPasswordValidationMessage(passwordField.getText()),
+        } else if (isPasswordInvalid) {
+            showAlert("Contraseña no válida", passwordValidationMessage,
                     AlertType.WARNING);
         } else if (!isPasswordMatching()) {
             showAlert("Contraseñas no coinciden",
@@ -81,19 +91,22 @@ public class AddProfesorController {
                 showAlert("Información", "No hay coordinadores disponibles para asignar como profesor.",
                         AlertType.INFORMATION);
             } else {
-                ChoiceDialog<Coordinator> dialog = new ChoiceDialog<>(coordinators.getFirst(), coordinators);
+                ChoiceDialog<Coordinator> dialog = new ChoiceDialog<>(coordinators.get(0), coordinators);
                 dialog.setTitle("Seleccionar Coordinador");
                 dialog.setHeaderText("Coordinadores activos sin rol de profesor");
                 dialog.setContentText("Seleccione un coordinador:");
                 Optional<Coordinator> result = dialog.showAndWait();
-                result.ifPresent(this::addRolToCoordinator);
-                showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
-                        AlertType.INFORMATION);
+
+                if (result.isPresent()) {
+                    addRolToCoordinator(result.get());
+                    showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
+                            AlertType.INFORMATION);
+                }
             }
 
         } catch (ServiceException serviceException) {
-            showAlert("Error", "Error al recuperar coordinadores: " + serviceException.getMessage(),
-                    AlertType.ERROR);
+            String serviceErrorMessage = "Error al recuperar coordinadores: " + serviceException.getMessage();
+            showAlert("Error", serviceErrorMessage, AlertType.ERROR);
         }
     }
 
@@ -152,15 +165,19 @@ public class AddProfesorController {
     }
 
     private boolean hasEmptyFields() {
-        boolean isEmpty = idTextField.getText().isEmpty()
-                || emailTextField.getText().isEmpty()
-                || firstNameTextField.getText().isEmpty()
-                || lastNameTextField.getText().isEmpty()
-                || secondLastNameTextField.getText().isEmpty()
-                || academicAreaTextField.getText().isEmpty()
-                || passwordField.getText().isEmpty()
-                || confirmPasswordField.getText().isEmpty();
-        return isEmpty;
+        boolean isIdEmpty = idTextField.getText().isEmpty();
+        boolean isEmailEmpty = emailTextField.getText().isEmpty();
+        boolean isFirstNameEmpty = firstNameTextField.getText().isEmpty();
+        boolean isLastNameEmpty = lastNameTextField.getText().isEmpty();
+        boolean isSecondLastNameEmpty = secondLastNameTextField.getText().isEmpty();
+        boolean isAcademicAreaEmpty = academicAreaTextField.getText().isEmpty();
+        boolean isPasswordEmpty = passwordField.getText().isEmpty();
+        boolean isConfirmPasswordEmpty = confirmPasswordField.getText().isEmpty();
+
+        boolean hasEmpty = isIdEmpty || isEmailEmpty || isFirstNameEmpty || isLastNameEmpty
+                || isSecondLastNameEmpty || isAcademicAreaEmpty || isPasswordEmpty || isConfirmPasswordEmpty;
+
+        return hasEmpty;
     }
 
     private boolean isPasswordMatching() {
@@ -178,4 +195,5 @@ public class AddProfesorController {
         confirmPasswordField.clear();
         emailTextField.clear();
     }
+
 }
