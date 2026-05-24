@@ -14,14 +14,16 @@
                  layoutX="14.0" layoutY="40.0"
                  prefHeight="304.0" prefWidth="626.0">
          <columns>
-            <TableColumn fx:id="nameColumn"           prefWidth="100.0" text="Nombre" />
-            <TableColumn fx:id="lastNameColumn"       prefWidth="110.0" text="Apellido Paterno" />
-            <TableColumn fx:id="secondLastNameColumn" prefWidth="110.0" text="Apellido Materno" />
-            <TableColumn fx:id="emailColumn"          prefWidth="140.0" text="Correo" />
-            <TableColumn fx:id="positionColumn"       prefWidth="100.0" text="Cargo" />
-            <TableColumn fx:id="actionColumn"         prefWidth="66.0" />
+            <TableColumn fx:id="nameColumn"           prefWidth="110.0" text="Nombre" />
+            <TableColumn fx:id="lastNameColumn"       prefWidth="120.0" text="Apellido Paterno" />
+            <TableColumn fx:id="secondLastNameColumn" prefWidth="120.0" text="Apellido Materno" />
+            <TableColumn fx:id="emailColumn"          prefWidth="156.0" text="Correo" />
+            <TableColumn fx:id="positionColumn"       prefWidth="120.0" text="Cargo" />
          </columns>
       </TableView>
-      <Button layoutX="14.0" layoutY="360.0" mnemonicParsing="false" onAction="#cancelAction" prefHeight="26.0" prefWidth="120.0" text="Cancelar" />
+      <Button layoutX="14.0"  layoutY="360.0" mnemonicParsing="false"
+              onAction="#cancelAction" prefHeight="26.0" prefWidth="120.0" text="Cancelar" />
+      <Button layoutX="520.0" layoutY="360.0" mnemonicParsing="false"
+              onAction="#deleteTechnicalResponsible" prefHeight="26.0" prefWidth="120.0" text="Eliminar" />
    </children>
 </AnchorPane>

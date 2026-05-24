@@ -5,14 +5,12 @@ import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
@@ -48,11 +46,12 @@ public class ManageTechnicalResponsibleController {
     @FXML
     private TableColumn<TechnicalSupervisor, String> positionColumn;
 
-    @FXML
-    private TableColumn<TechnicalSupervisor, Void> actionColumn;
+    private TechnicalSupervisor selectedTechnical;
 
     @FXML
     private void initialize() {
+        configureDataColumns();
+        configureListeners();
         loadTechnicalResponsibles();
     }
 
@@ -61,28 +60,28 @@ public class ManageTechnicalResponsibleController {
         openWelcomePage(anchorPane);
     }
 
-    private void loadTechnicalResponsibles() {
-        try {
-            TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
-            List<TechnicalSupervisor> technicalList = technicalResponsibleDAO.findAll();
+    @FXML
+    public void deleteTechnicalResponsible(ActionEvent actionEvent) {
+        boolean isSelectionMissing = selectedTechnical == null;
+        if (isSelectionMissing) {
+            showAlert("Sin selección",
+                    "Seleccione un técnico responsable de la tabla para eliminar.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
 
-            if (technicalList.isEmpty()) {
-                showAlert("Sin registros",
-                        "No hay técnicos responsables registrados.",
-                        Alert.AlertType.INFORMATION);
-                openWelcomePage(anchorPane);
-            } else {
-                configureDataColumn();
-                technicalResponsibleTableView.getItems().setAll(technicalList);
-            }
-        } catch (ServiceException serviceException) {
-            showAlert("Error de servicio",
-                    "No se pudieron cargar los técnicos responsables.",
-                    Alert.AlertType.ERROR);
+        String fullName = selectedTechnical.getName() + " " + selectedTechnical.getLastName();
+        String confirmationMessage = "¿Desea eliminar al técnico responsable «"
+                + fullName + "»? Esta acción es irreversible.";
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
+
+        if (response.isPresent() && response.get() == ButtonType.OK) {
+            deleteTechnicalResponsibleProcess(selectedTechnical.getIdTechnicalSupervisor());
         }
     }
 
-    private void configureDataColumn() {
+    private void configureDataColumns() {
         nameColumn.setCellValueFactory(
                 new Callback<TableColumn.CellDataFeatures<TechnicalSupervisor, String>,
                         ObservableValue<String>>() {
@@ -132,61 +131,50 @@ public class ManageTechnicalResponsibleController {
                 return new SimpleStringProperty(cellData.getValue().getPosition());
             }
         });
+    }
 
-        actionColumn.setCellFactory(
-                new Callback<TableColumn<TechnicalSupervisor, Void>,
-                        TableCell<TechnicalSupervisor, Void>>() {
-            @Override
-            public TableCell<TechnicalSupervisor, Void> call(
-                    TableColumn<TechnicalSupervisor, Void> column) {
-                return new TableCell<TechnicalSupervisor, Void>() {
-                    private final Button deleteButton = new Button("Eliminar");
-
-                    {
-                        deleteButton.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent event) {
-                                TechnicalSupervisor technicalSupervisor =
-                                        getTableView().getItems().get(getIndex());
-
-                                Optional<ButtonType> response = showAlertAndWait(
-                                        "Confirmar eliminación",
-                                        "¿Desea eliminar al técnico responsable «"
-                                                + technicalSupervisor.getName() + " "
-                                                + technicalSupervisor.getLastName()
-                                                + "»? Esta acción es irreversible.",
-                                        Alert.AlertType.CONFIRMATION);
-
-                                if (response.isPresent() && response.get() == ButtonType.OK) {
-                                    deleteTechnicalResponsibleProcess(
-                                            technicalSupervisor.getIdTechnicalSupervisor());
-                                }
-                            }
-                        });
-                    }
-
+    private void configureListeners() {
+        technicalResponsibleTableView.getSelectionModel().selectedItemProperty()
+                .addListener(new ChangeListener<TechnicalSupervisor>() {
                     @Override
-                    protected void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            setGraphic(deleteButton);
-                        }
+                    public void changed(ObservableValue<? extends TechnicalSupervisor> observable,
+                                        TechnicalSupervisor oldValue, TechnicalSupervisor newValue) {
+                        selectedTechnical = newValue;
                     }
-                };
+                });
+    }
+
+    private void loadTechnicalResponsibles() {
+        try {
+            TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
+            List<TechnicalSupervisor> technicalList = technicalResponsibleDAO.findAll();
+
+            if (technicalList.isEmpty()) {
+                showAlert("Sin registros",
+                        "No hay técnicos responsables registrados.",
+                        Alert.AlertType.INFORMATION);
+                openWelcomePage(anchorPane);
+            } else {
+                technicalResponsibleTableView.getItems().setAll(technicalList);
             }
-        });
+
+        } catch (ServiceException serviceException) {
+            showAlert("Error de servicio",
+                    "No se pudieron cargar los técnicos responsables.",
+                    Alert.AlertType.ERROR);
+        }
     }
 
     private void deleteTechnicalResponsibleProcess(int idTechnicalSupervisor) {
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
             technicalResponsibleDAO.deleteWithOrganizationValidation(idTechnicalSupervisor);
+            selectedTechnical = null;
             showAlert("Eliminación exitosa",
                     "El técnico responsable fue eliminado exitosamente.",
                     Alert.AlertType.INFORMATION);
             loadTechnicalResponsibles();
+
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
                     validationException.getMessage(),
