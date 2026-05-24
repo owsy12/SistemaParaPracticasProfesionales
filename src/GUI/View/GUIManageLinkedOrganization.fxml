@@ -5,19 +5,24 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane fx:id="anchorPane" prefHeight="430.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.ManageLinkedOrganizationController">
+<AnchorPane fx:id="anchorPane" prefHeight="430.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.ManageLinkedOrganizationController">
    <children>
-      <TableView fx:id="organizationTableView" layoutX="45.0" layoutY="40.0" prefHeight="264.0" prefWidth="511.0">
+      <TableView fx:id="organizationTableView" layoutX="45.0" layoutY="40.0"
+                 prefHeight="264.0" prefWidth="511.0">
         <columns>
-          <TableColumn fx:id="nameColumn" prefWidth="75.0" text="Nombre" />
-          <TableColumn fx:id="emailColumn" prefWidth="108.0" text="Correo" />
-            <TableColumn fx:id="addressColumn" prefWidth="85.0" text="Dirección" />
-            <TableColumn fx:id="sectorColumn" prefWidth="83.0" text="Sector" />
-            <TableColumn fx:id="statusColumn" prefWidth="85.0" text="Estado" />
-            <TableColumn fx:id="actionColumn" prefWidth="74.0" />
+          <TableColumn fx:id="nameColumn"    prefWidth="95.0"  text="Nombre" />
+          <TableColumn fx:id="emailColumn"   prefWidth="120.0" text="Correo" />
+          <TableColumn fx:id="addressColumn" prefWidth="95.0"  text="Dirección" />
+          <TableColumn fx:id="sectorColumn"  prefWidth="90.0"  text="Sector" />
+          <TableColumn fx:id="statusColumn"  prefWidth="111.0" text="Estado" />
         </columns>
       </TableView>
-      <Button layoutX="45.0" layoutY="320.0" mnemonicParsing="false" onAction="#cancelAction" prefHeight="26.0" prefWidth="120.0" text="Cancelar" />
+      <Button layoutX="45.0"  layoutY="320.0" mnemonicParsing="false"
+              onAction="#cancelAction" prefHeight="26.0" prefWidth="120.0" text="Cancelar" />
+      <Button layoutX="436.0" layoutY="320.0" mnemonicParsing="false"
+              onAction="#deleteOrganization" prefHeight="26.0" prefWidth="120.0" text="Eliminar" />
    </children>
 </AnchorPane>

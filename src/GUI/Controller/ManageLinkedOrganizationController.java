@@ -5,14 +5,12 @@ import Logic.DTOs.LinkedOrganization;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
@@ -34,9 +32,6 @@ public class ManageLinkedOrganizationController {
     private TableColumn<LinkedOrganization, String> sectorColumn;
 
     @FXML
-    private TableColumn<LinkedOrganization, Void> actionColumn;
-
-    @FXML
     private AnchorPane anchorPane;
 
     @FXML
@@ -51,8 +46,12 @@ public class ManageLinkedOrganizationController {
     @FXML
     private TableView<LinkedOrganization> organizationTableView;
 
+    private LinkedOrganization selectedOrganization;
+
     @FXML
     private void initialize() {
+        configureDataColumns();
+        configureListeners();
         loadOrganizations();
     }
 
@@ -61,29 +60,29 @@ public class ManageLinkedOrganizationController {
         openWelcomePage(anchorPane);
     }
 
-    private void loadOrganizations() {
-        try {
-            LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
-            List<LinkedOrganization> organizationList = linkedOrganizationDAO.findAll();
+    @FXML
+    public void deleteOrganization(ActionEvent actionEvent) {
+        boolean isSelectionMissing = selectedOrganization == null;
+        if (isSelectionMissing) {
+            showAlert("Sin selección",
+                    "Seleccione una organización de la tabla para eliminar.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
 
-            if (organizationList.isEmpty()) {
-                showAlert("Sin registros",
-                        "No hay organizaciones vinculadas registradas.",
-                        Alert.AlertType.INFORMATION);
-                openWelcomePage(anchorPane);
-            } else {
-                configureDataColumn();
-                organizationTableView.getItems().setAll(organizationList);
-            }
+        String confirmationMessage = "¿Desea eliminar la organización «"
+                + selectedOrganization.getName()
+                + "»? Se eliminarán también sus técnicos responsables."
+                + " Esta acción es irreversible.";
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-        } catch (ServiceException serviceException) {
-            showAlert("Error de servicio",
-                    "No se pudieron cargar las organizaciones vinculadas.",
-                    Alert.AlertType.ERROR);
+        if (response.isPresent() && response.get() == ButtonType.OK) {
+            deleteLinkedOrganizationProcess(selectedOrganization.getIdLinkedOrganization());
         }
     }
 
-    private void configureDataColumn() {
+    private void configureDataColumns() {
         nameColumn.setCellValueFactory(
                 new Callback<TableColumn.CellDataFeatures<LinkedOrganization, String>,
                         ObservableValue<String>>() {
@@ -133,56 +132,45 @@ public class ManageLinkedOrganizationController {
                 return new SimpleStringProperty(cellData.getValue().getStatus());
             }
         });
+    }
 
-        actionColumn.setCellFactory(
-                new Callback<TableColumn<LinkedOrganization, Void>,
-                        TableCell<LinkedOrganization, Void>>() {
-            @Override
-            public TableCell<LinkedOrganization, Void> call(
-                    TableColumn<LinkedOrganization, Void> column) {
-                return new TableCell<LinkedOrganization, Void>() {
-                    private final Button deleteButton = new Button("Eliminar");
-
-                    {
-                        deleteButton.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent event) {
-                                LinkedOrganization organization =
-                                        getTableView().getItems().get(getIndex());
-
-                                Optional<ButtonType> response = showAlertAndWait(
-                                        "Confirmar eliminación",
-                                        "¿Desea eliminar la organización «" + organization.getName()
-                                                + "»? Se eliminarán también sus técnicos responsables."
-                                                + " Esta acción es irreversible.",
-                                        Alert.AlertType.CONFIRMATION);
-
-                                if (response.isPresent() && response.get() == ButtonType.OK) {
-                                    deleteLinkedOrganizationProcess(
-                                            organization.getIdLinkedOrganization());
-                                }
-                            }
-                        });
-                    }
-
+    private void configureListeners() {
+        organizationTableView.getSelectionModel().selectedItemProperty()
+                .addListener(new ChangeListener<LinkedOrganization>() {
                     @Override
-                    protected void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            setGraphic(deleteButton);
-                        }
+                    public void changed(ObservableValue<? extends LinkedOrganization> observable,
+                                        LinkedOrganization oldValue, LinkedOrganization newValue) {
+                        selectedOrganization = newValue;
                     }
-                };
+                });
+    }
+
+    private void loadOrganizations() {
+        try {
+            LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
+            List<LinkedOrganization> organizationList = linkedOrganizationDAO.findAll();
+
+            if (organizationList.isEmpty()) {
+                showAlert("Sin registros",
+                        "No hay organizaciones vinculadas registradas.",
+                        Alert.AlertType.INFORMATION);
+                openWelcomePage(anchorPane);
+            } else {
+                organizationTableView.getItems().setAll(organizationList);
             }
-        });
+
+        } catch (ServiceException serviceException) {
+            showAlert("Error de servicio",
+                    "No se pudieron cargar las organizaciones vinculadas.",
+                    Alert.AlertType.ERROR);
+        }
     }
 
     private void deleteLinkedOrganizationProcess(int idLinkedOrganization) {
         try {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
             linkedOrganizationDAO.deleteLinkedOrganization(idLinkedOrganization);
+            selectedOrganization = null;
             showAlert("Eliminación exitosa",
                     "La organización y sus técnicos responsables fueron eliminados.",
                     Alert.AlertType.INFORMATION);

@@ -13,15 +13,13 @@ import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
@@ -68,14 +66,12 @@ public class ViewInterProjectSelection {
     private TableColumn<Project, String> typeColumn;
 
     @FXML
-    private TableColumn<Project, Void> actionColumn;
-
-    @FXML
     private Label internNameLabel;
 
     private User user;
     private int internId;
     private int applicationId;
+    private Project selectedProject;
     private final Set<Integer> originalProjectIds = new HashSet<>();
     private final Map<Integer, Integer> preferenceOrderMap = new HashMap<>();
 
@@ -94,7 +90,97 @@ public class ViewInterProjectSelection {
         internNameLabel.setText(fullName);
         loadProjectList();
         configureDataColumns();
-        addAssignButtonToRow();
+        configureListeners();
+    }
+
+    @FXML
+    public void assignProject(ActionEvent actionEvent) {
+        boolean isSelectionMissing = selectedProject == null;
+        if (isSelectionMissing) {
+            showAlert("Sin selección",
+                    "Seleccione un proyecto de la tabla para asignar.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+        handleAssignAction(selectedProject);
+    }
+
+    private void configureDataColumns() {
+        projetcNameColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Project, String>,
+                        ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    TableColumn.CellDataFeatures<Project, String> cellData) {
+                return new SimpleStringProperty(cellData.getValue().getName());
+            }
+        });
+
+        organizationColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Project, String>,
+                        ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    TableColumn.CellDataFeatures<Project, String> cellData) {
+                return new SimpleStringProperty(cellData.getValue().getOrganizationName());
+            }
+        });
+
+        placesColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Project, String>,
+                        ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    TableColumn.CellDataFeatures<Project, String> cellData) {
+                return new SimpleStringProperty(
+                        String.valueOf(cellData.getValue().getAvaliablePlaces()));
+            }
+        });
+
+        datesColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Project, String>,
+                        ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    TableColumn.CellDataFeatures<Project, String> cellData) {
+                String startDate = cellData.getValue().getStartDate();
+                String endDate = cellData.getValue().getEndDate();
+                return new SimpleStringProperty(startDate + " - " + endDate);
+            }
+        });
+
+        typeColumn.setCellValueFactory(
+                new Callback<TableColumn.CellDataFeatures<Project, String>,
+                        ObservableValue<String>>() {
+            @Override
+            public ObservableValue<String> call(
+                    TableColumn.CellDataFeatures<Project, String> cellData) {
+                Integer preferenceOrder =
+                        preferenceOrderMap.get(cellData.getValue().getIdProyect());
+                String label;
+                if (preferenceOrder == null) {
+                    label = "Disponible";
+                } else if (preferenceOrder == 1) {
+                    label = "Primera opción";
+                } else if (preferenceOrder == 2) {
+                    label = "Segunda opción";
+                } else {
+                    label = "Tercera opción";
+                }
+                return new SimpleStringProperty(label);
+            }
+        });
+    }
+
+    private void configureListeners() {
+        projectsTableView.getSelectionModel().selectedItemProperty()
+                .addListener(new ChangeListener<Project>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Project> observable,
+                                        Project oldValue, Project newValue) {
+                        selectedProject = newValue;
+                    }
+                });
     }
 
     private void loadProjectList() {
@@ -124,7 +210,8 @@ public class ViewInterProjectSelection {
 
             List<Project> allAvailable = projectDAO.findAllAvailable();
             for (Project project : allAvailable) {
-                if (!originalProjectIds.contains(project.getIdProyect())) {
+                boolean isAlreadyIncluded = originalProjectIds.contains(project.getIdProyect());
+                if (!isAlreadyIncluded) {
                     result.add(project);
                 }
             }
@@ -139,98 +226,6 @@ public class ViewInterProjectSelection {
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
         }
-    }
-
-    private void configureDataColumns() {
-        projetcNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getName());
-            }
-        });
-
-        organizationColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getOrganizationName());
-            }
-        });
-
-        placesColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(
-                        String.valueOf(cellData.getValue().getAvaliablePlaces()));
-            }
-        });
-
-        datesColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(
-                        cellData.getValue().getStartDate() + " - " + cellData.getValue().getEndDate());
-            }
-        });
-
-        typeColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                Integer preferenceOrder = preferenceOrderMap.get(cellData.getValue().getIdProyect());
-                String label;
-                if (preferenceOrder == null) {
-                    label = "Disponible";
-                } else if (preferenceOrder == 1) {
-                    label = "Primera opción";
-                } else if (preferenceOrder == 2) {
-                    label = "Segunda opción";
-                } else {
-                    label = "Tercera opción";
-                }
-                return new SimpleStringProperty(label);
-            }
-        });
-    }
-
-    private void addAssignButtonToRow() {
-        actionColumn.setCellFactory(
-                new Callback<TableColumn<Project, Void>, TableCell<Project, Void>>() {
-            @Override
-            public TableCell<Project, Void> call(TableColumn<Project, Void> column) {
-                return new TableCell<Project, Void>() {
-                    private final Button button = new Button("Asignar");
-
-                    {
-                        button.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent event) {
-                                Project project = getTableView().getItems().get(getIndex());
-                                handleAssignAction(project);
-                            }
-                        });
-                    }
-
-                    @Override
-                    protected void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            setGraphic(button);
-                        }
-                    }
-                };
-            }
-        });
     }
 
     private void handleAssignAction(Project project) {
@@ -264,11 +259,10 @@ public class ViewInterProjectSelection {
     }
 
     private void confirmAndAssign(Project project, String justification) {
+        String confirmationMessage = "¿Seguro que desea asignar el proyecto \""
+                + project.getName() + "\" a este practicante?";
         Optional<ButtonType> response = showAlertAndWait(
-                "Confirmación",
-                "¿Seguro que desea asignar el proyecto \"" + project.getName()
-                        + "\" a este practicante?",
-                Alert.AlertType.CONFIRMATION);
+                "Confirmación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
         if (response.isPresent() && response.get() == ButtonType.OK) {
             assignProjectProcess(project, justification);
@@ -295,6 +289,7 @@ public class ViewInterProjectSelection {
             showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
                     Alert.AlertType.INFORMATION);
             projectsTableView.getItems().clear();
+            selectedProject = null;
 
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al asignar proyecto: {0}", serviceException.getMessage());

@@ -7,23 +7,27 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.DeactivateProfessorController">
+<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.DeactivateProfessorController">
     <children>
-        <TableView fx:id="tableView" layoutX="25.0" layoutY="63.0" prefHeight="274.0" prefWidth="550.0">
+        <Label layoutX="25.0" layoutY="24.0" text="Inactivar Profesor">
+            <font><Font size="19.0" /></font>
+        </Label>
+        <TableView fx:id="tableView" layoutX="25.0" layoutY="63.0"
+                   prefHeight="274.0" prefWidth="550.0">
             <columns>
-                <TableColumn id="matricula" fx:id="tagColumn" prefWidth="79.5" text="No.Personal" />
-                <TableColumn id="name" fx:id="nameColumn" prefWidth="88.5" text="Nombre" />
-                <TableColumn id="lastName" fx:id="lastNameColumn" prefWidth="94.0" text="Ap. Paterno" />
-                <TableColumn id="secondLastName" fx:id="secondLastNameColumn" prefWidth="107.0" text="Ap. Materno" />
-                <TableColumn id="acdemicArea" fx:id="academicDegreeColumn" prefWidth="92.0" text="Area Academica" />
-                <TableColumn id="actions" fx:id="actionsColumn" prefWidth="87.24954223632812" text="Acciones" />
+                <TableColumn fx:id="tagColumn"            prefWidth="90.0"  text="No. Personal" />
+                <TableColumn fx:id="nameColumn"           prefWidth="90.0"  text="Nombre" />
+                <TableColumn fx:id="lastNameColumn"       prefWidth="94.0"  text="Ap. Paterno" />
+                <TableColumn fx:id="secondLastNameColumn" prefWidth="107.0" text="Ap. Materno" />
+                <TableColumn fx:id="academicDegreeColumn" prefWidth="169.0" text="Área Académica" />
             </columns>
         </TableView>
-        <Label layoutX="25.0" layoutY="24.0" text="Inactivar Profesor">
-            <font>
-                <Font size="19.0" />
-            </font>
-        </Label>
-      <Button layoutX="509.0" layoutY="353.0" mnemonicParsing="false" onAction="#calcelOperation" text="Cancelar" />
+        <Button layoutX="25.0"  layoutY="353.0" mnemonicParsing="false"
+                onAction="#cancelOperation" text="Cancelar" />
+        <Button layoutX="450.0" layoutY="353.0" mnemonicParsing="false"
+                onAction="#inactivateProfessor" text="Inactivar" />
     </children>
 </AnchorPane>

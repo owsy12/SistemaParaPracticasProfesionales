@@ -7,14 +7,12 @@ import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
@@ -32,13 +30,10 @@ public class DeactivateProfessorController {
     private TableColumn<User, String> nameColumn;
 
     @FXML
-    private TableColumn<User, Void> actionsColumn;
-
-    @FXML
     private TableColumn<User, String> secondLastNameColumn;
 
     @FXML
-    private TableView tableView;
+    private TableView<User> tableView;
 
     @FXML
     private TableColumn<Professor, String> academicDegreeColumn;
@@ -52,11 +47,42 @@ public class DeactivateProfessorController {
     @FXML
     private AnchorPane anchorPane;
 
+    private User selectedUser;
+
     @FXML
     private void initialize() {
         configureDataColumns();
+        configureListeners();
         loadProfessors();
-        addButtonToTable();
+    }
+
+    @FXML
+    public void inactivateProfessor(ActionEvent actionEvent) {
+        boolean isSelectionMissing = selectedUser == null;
+        if (isSelectionMissing) {
+            showAlert("Sin selección",
+                    "Seleccione un profesor de la tabla para inactivar.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+
+        Optional<ButtonType> response = showAlertAndWait(
+                "Desea desactivar",
+                "¿Desea desactivar este profesor?",
+                Alert.AlertType.CONFIRMATION);
+
+        if (response.isPresent() && response.get() == ButtonType.OK) {
+            selectedUser.setStatus("Inactivo");
+            selectedUser.setRole("Profesor");
+            deactivateProcess(selectedUser);
+            loadProfessors();
+        }
+    }
+
+    @FXML
+    public void cancelOperation(ActionEvent actionEvent) {
+        showAlert("Información", "Operación cancelada.", Alert.AlertType.INFORMATION);
+        openWelcomePage(anchorPane);
     }
 
     private void configureDataColumns() {
@@ -72,7 +98,7 @@ public class DeactivateProfessorController {
                 new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
             @Override
             public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getLastName());
+                return new SimpleStringProperty(cellData.getValue().getFirstName());
             }
         });
 
@@ -93,67 +119,39 @@ public class DeactivateProfessorController {
         });
 
         academicDegreeColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Professor, String>, ObservableValue<String>>() {
+                new Callback<TableColumn.CellDataFeatures<Professor, String>,
+                        ObservableValue<String>>() {
             @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Professor, String> cellData) {
+            public ObservableValue<String> call(
+                    TableColumn.CellDataFeatures<Professor, String> cellData) {
                 return new SimpleStringProperty(cellData.getValue().getAcademicArea());
             }
         });
     }
 
-    private void addButtonToTable() {
-        actionsColumn.setCellFactory(new Callback<TableColumn<User, Void>, TableCell<User, Void>>() {
-            @Override
-            public TableCell<User, Void> call(TableColumn<User, Void> column) {
-                return new TableCell<User, Void>() {
-                    private final Button button = new Button("Inactivar");
-
-                    {
-                        button.setOnAction(new EventHandler<ActionEvent>() {
-                            @Override
-                            public void handle(ActionEvent event) {
-                                User user = getTableView().getItems().get(getIndex());
-                                Optional<ButtonType> response = showAlertAndWait(
-                                        "Desea desactivar",
-                                        "¿Desea desactivar este profesor?",
-                                        Alert.AlertType.CONFIRMATION);
-
-                                if (response.isPresent() && response.get() == ButtonType.OK) {
-                                    user.setStatus("Inactivo");
-                                    user.setRole("Profesor");
-                                    deactivateProcess(user);
-                                    loadProfessors();
-                                }
-                            }
-                        });
-                    }
-
+    private void configureListeners() {
+        tableView.getSelectionModel().selectedItemProperty()
+                .addListener(new ChangeListener<User>() {
                     @Override
-                    protected void updateItem(Void item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            setGraphic(button);
-                        }
+                    public void changed(ObservableValue<? extends User> observable,
+                                        User oldValue, User newValue) {
+                        selectedUser = newValue;
                     }
-                };
-            }
-        });
+                });
     }
 
     private void deactivateProcess(User user) {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
-            showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
+            selectedUser = null;
+            showAlert("Profesor desactivado",
+                    "El profesor ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);
         } catch (ValidationException validationException) {
-            showAlert("Error", "Servicio no disponible.",
-                    Alert.AlertType.ERROR);
+            showAlert("Error", "Servicio no disponible.", Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            showAlert("Error", "No se logró desactivar.",
-                    Alert.AlertType.ERROR);
+            showAlert("Error", "No se logró desactivar.", Alert.AlertType.ERROR);
         }
     }
 
@@ -162,19 +160,10 @@ public class DeactivateProfessorController {
             ProfessorDAO professorDAO = new ProfessorDAO();
             tableView.getItems().setAll(professorDAO.findActiveProfessors());
         } catch (ValidationException validationException) {
-            showAlert("Error", "Servicio no disponible.",
-                    Alert.AlertType.ERROR);
+            showAlert("Error", "Servicio no disponible.", Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            showAlert("Error", "No se logró desactivar.",
-                    Alert.AlertType.ERROR);
+            showAlert("Error", "No se logró cargar los profesores.", Alert.AlertType.ERROR);
         }
-    }
-
-    @FXML
-    public void calcelOperation(ActionEvent actionEvent) {
-        showAlert("Información", "Operación cancelada.",
-                Alert.AlertType.INFORMATION);
-        openWelcomePage(anchorPane);
     }
 
 }
