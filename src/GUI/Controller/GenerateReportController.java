@@ -1,23 +1,22 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.FinalReportGenerator;
+import GUI.Utils.MonthlyReportGenerator;
+import GUI.Utils.PartialReportGenerator;
 import GUI.Utils.ReportContent;
-import GUI.Utils.ReportDocxGenerator;
 import GUI.Utils.ReportGenerationContext;
 import Logic.DAO.*;
 import Logic.DTOs.*;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
+import javafx.util.Callback;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -29,10 +28,10 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
-
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -106,10 +105,10 @@ public class GenerateReportController {
     private TableColumn<Activity, String> colActDesc;
 
     @FXML
-    private TableColumn<Activity, Integer> colActPlanStart;
+    private TableColumn<Activity, String> colActPlanStart;
 
     @FXML
-    private TableColumn<Activity, Integer> colActPlanEnd;
+    private TableColumn<Activity, String> colActPlanEnd;
 
     @FXML
     private TableView<ReportActivity> reportActivitiesTable;
@@ -157,6 +156,7 @@ public class GenerateReportController {
     private final ObservableList<Activity> projectActivities = FXCollections.observableArrayList();
     private final ObservableList<ReportActivity> reportActivities = FXCollections.observableArrayList();
     private final ObservableList<ReportDeliverable> reportDeliverables = FXCollections.observableArrayList();
+    private List<Activity> allProjectActivities = new ArrayList<>();
 
     @FXML
     private void initialize() {
@@ -166,10 +166,9 @@ public class GenerateReportController {
         reportTypeComboBox.getItems().setAll(REPORT_TYPE_MONTHLY, REPORT_TYPE_PARTIAL, REPORT_TYPE_FINAL);
         monthComboBox.getItems().setAll(MONTHS);
 
-        configureProjectActivitiesTable();
-        configureReportActivitiesTable();
-        configureDeliverablesTable();
-        configureListeners();
+        projectActivitiesTable.setItems(projectActivities);
+        reportActivitiesTable.setItems(reportActivities);
+        reportDeliverablesTable.setItems(reportDeliverables);
 
         loadInternContext();
     }
@@ -231,13 +230,15 @@ public class GenerateReportController {
         clearForm();
     }
 
-    private void configureListeners() {
-        reportTypeComboBox.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                applyReportTypeVisibility();
-            }
-        });
+    @FXML
+    private void handleReportTypeChange(ActionEvent actionEvent) {
+        applyReportTypeVisibility();
+        applyActivityFilter();
+    }
+
+    @FXML
+    private void handleMonthChange(ActionEvent actionEvent) {
+        applyActivityFilter();
     }
 
     private void tryAddActivity(Activity selected) {
@@ -282,159 +283,6 @@ public class GenerateReportController {
                     "No se pudo verificar las condiciones para generar el reporte.",
                     Alert.AlertType.ERROR);
         }
-    }
-
-    private void configureProjectActivitiesTable() {
-        colActName.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Activity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Activity, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getName());
-            }
-        });
-
-        colActDesc.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Activity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Activity, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getDescription());
-            }
-        });
-
-        colActPlanStart.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Activity, Integer>, ObservableValue<Integer>>() {
-            @Override
-            public ObservableValue<Integer> call(
-                    TableColumn.CellDataFeatures<Activity, Integer> cellData) {
-                return new SimpleIntegerProperty(
-                        cellData.getValue().getSemanaInicioPlan()).asObject();
-            }
-        });
-
-        colActPlanEnd.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Activity, Integer>, ObservableValue<Integer>>() {
-            @Override
-            public ObservableValue<Integer> call(
-                    TableColumn.CellDataFeatures<Activity, Integer> cellData) {
-                return new SimpleIntegerProperty(
-                        cellData.getValue().getSemanaFinPlan()).asObject();
-            }
-        });
-
-        projectActivitiesTable.setItems(projectActivities);
-    }
-
-    private void configureReportActivitiesTable() {
-        colRaName.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<ReportActivity, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<ReportActivity, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getActivityName());
-            }
-        });
-
-        colRaPeriod.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<ReportActivity, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<ReportActivity, String> cellData) {
-                return new SimpleStringProperty(resolvePeriodDisplay(cellData.getValue()));
-            }
-        });
-
-        colRaDetail.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<ReportActivity, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<ReportActivity, String> cellData) {
-                return new SimpleStringProperty(resolveDetailDisplay(cellData.getValue()));
-            }
-        });
-
-        reportActivitiesTable.setItems(reportActivities);
-    }
-
-    private String resolvePeriodDisplay(ReportActivity reportActivity) {
-        String periodDisplay;
-        if (reportActivity.getPeriodo() != null) {
-            periodDisplay = reportActivity.getPeriodo();
-        } else if (reportActivity.getPlanSemanas() != null) {
-            periodDisplay = "Plan:" + reportActivity.getPlanSemanas();
-        } else {
-            periodDisplay = "";
-        }
-        return periodDisplay;
-    }
-
-    private String resolveDetailDisplay(ReportActivity reportActivity) {
-        String detailDisplay;
-        if (reportActivity.getPorcentajeAvance() > 0) {
-            detailDisplay = reportActivity.getPorcentajeAvance() + "%";
-        } else if (reportActivity.getObservaciones() != null) {
-            detailDisplay = reportActivity.getObservaciones();
-        } else {
-            detailDisplay = "";
-        }
-        return detailDisplay;
-    }
-
-    private void configureDeliverablesTable() {
-        colRdResult.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<ReportDeliverable, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<ReportDeliverable, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getResultado());
-            }
-        });
-
-        colRdDesc.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<ReportDeliverable, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<ReportDeliverable, String> cellData) {
-                String descripcion = "";
-                if (cellData.getValue().getDescripcion() != null) {
-                    descripcion = cellData.getValue().getDescripcion();
-                }
-                return new SimpleStringProperty(descripcion);
-            }
-        });
-
-        colRdAdvance.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<ReportDeliverable, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<ReportDeliverable, String> cellData) {
-                return new SimpleStringProperty(
-                        cellData.getValue().getPorcentajeAvance() + "%");
-            }
-        });
-
-        colRdObs.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<ReportDeliverable, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<ReportDeliverable, String> cellData) {
-                String observaciones = "";
-                if (cellData.getValue().getObservaciones() != null) {
-                    observaciones = cellData.getValue().getObservaciones();
-                }
-                return new SimpleStringProperty(observaciones);
-            }
-        });
-
-        reportDeliverablesTable.setItems(reportDeliverables);
     }
 
     private void applyReportTypeVisibility() {
@@ -525,10 +373,86 @@ public class GenerateReportController {
         try {
             ActivityDAO activityDAO = new ActivityDAO();
             List<Activity> activities = activityDAO.findByProject(currentProject.getIdProyect());
-            projectActivities.setAll(activities);
+            allProjectActivities = activities;
+            applyActivityFilter();
         } catch (ValidationException | ServiceException persistenceException) {
             LOGGER.log(Level.WARNING, "No se pudieron cargar las actividades del proyecto: {0}",
                     persistenceException.getMessage());
+        }
+    }
+
+    private void applyActivityFilter() {
+        String reportType = reportTypeComboBox.getValue();
+        boolean isMonthly = REPORT_TYPE_MONTHLY.equals(reportType);
+        boolean isPartial = REPORT_TYPE_PARTIAL.equals(reportType);
+
+        if (isMonthly) {
+            applyMonthlyFilter();
+        } else if (isPartial) {
+            applyPartialFilter();
+        } else {
+            projectActivities.setAll(allProjectActivities);
+        }
+    }
+
+    private void applyMonthlyFilter() {
+        String selectedMonth = monthComboBox.getValue();
+        boolean isMonthSelected = selectedMonth != null;
+
+        if (!isMonthSelected) {
+            projectActivities.setAll(allProjectActivities);
+        } else {
+            int monthNumber = MONTHS.indexOf(selectedMonth) + 1;
+            int currentYear = LocalDate.now().getYear();
+            YearMonth yearMonth = YearMonth.of(currentYear, monthNumber);
+            LocalDate firstDayOfMonth = yearMonth.atDay(1);
+            LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+            List<Activity> filteredActivities = new ArrayList<>();
+            for (Activity activity : allProjectActivities) {
+                boolean isStartBeforeMonthEnd = activity.getFechaInicio() == null
+                        || !activity.getFechaInicio().isAfter(lastDayOfMonth);
+                boolean isEndAfterMonthStart = activity.getFechaFin() == null
+                        || !activity.getFechaFin().isBefore(firstDayOfMonth);
+                boolean isInRange = isStartBeforeMonthEnd && isEndAfterMonthStart;
+                if (isInRange) {
+                    filteredActivities.add(activity);
+                }
+            }
+            projectActivities.setAll(filteredActivities);
+        }
+    }
+
+    private void applyPartialFilter() {
+        if (currentIntern == null) {
+            projectActivities.setAll(allProjectActivities);
+            return;
+        }
+
+        try {
+            ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
+            List<Integer> usedActivityIds =
+                    reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(
+                            currentIntern.getId());
+
+            boolean hasMonthlyReports = !usedActivityIds.isEmpty();
+            if (!hasMonthlyReports) {
+                projectActivities.clear();
+            } else {
+                List<Activity> filteredActivities = new ArrayList<>();
+                for (Activity activity : allProjectActivities) {
+                    boolean isUsedInMonthly = usedActivityIds.contains(activity.getIdActivity());
+                    if (isUsedInMonthly) {
+                        filteredActivities.add(activity);
+                    }
+                }
+                projectActivities.setAll(filteredActivities);
+            }
+        } catch (ValidationException | ServiceException persistenceException) {
+            LOGGER.log(Level.WARNING,
+                    "No se pudieron cargar las actividades de reportes mensuales: {0}",
+                    persistenceException.getMessage());
+            projectActivities.setAll(allProjectActivities);
         }
     }
 
@@ -551,7 +475,8 @@ public class GenerateReportController {
         } else {
             dialog = buildFinalActivityDialog(activity);
         }
-        return dialog.showAndWait();
+        Optional<ReportActivity> dialogResult = dialog.showAndWait();
+        return dialogResult;
     }
 
     private Dialog<ReportActivity> buildMonthlyActivityDialog(Activity activity) {
@@ -574,18 +499,8 @@ public class GenerateReportController {
 
         final ReportActivity reportActivity = createReportActivity(activity);
 
-        dialog.setResultConverter(new Callback<ButtonType, ReportActivity>() {
-            @Override
-            public ReportActivity call(ButtonType buttonType) {
-                ReportActivity result = null;
-                if (buttonType == confirmType) {
-                    reportActivity.setPeriodo(periodField.getText().trim());
-                    reportActivity.setObservaciones(observationsField.getText().trim());
-                    result = reportActivity;
-                }
-                return result;
-            }
-        });
+        dialog.setResultConverter(
+                new MonthlyActivityConverter(confirmType, reportActivity, periodField, observationsField));
 
         return dialog;
     }
@@ -595,44 +510,35 @@ public class GenerateReportController {
         ButtonType confirmType = new ButtonType("Confirmar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(confirmType, ButtonType.CANCEL);
 
-        int planStart = activity.getSemanaInicioPlan() > 0 ? activity.getSemanaInicioPlan() : 1;
-        int planEnd = activity.getSemanaFinPlan() > 0 ? activity.getSemanaFinPlan() : 8;
+        String fechaInicioText = activity.getFechaInicio() != null
+                ? activity.getFechaInicio().toString() : "—";
+        String fechaFinText = activity.getFechaFin() != null
+                ? activity.getFechaFin().toString() : "—";
 
         GridPane grid = buildDialogGrid();
         TextField realFromField = new TextField("1");
-        TextField realToField = new TextField(String.valueOf(planEnd));
+        TextField realToField = new TextField("8");
         TextArea observationsField = new TextArea();
         observationsField.setPromptText("Observaciones");
         observationsField.setPrefRowCount(2);
 
-        grid.add(new Label("Plan (semanas del proyecto):"), 0, 0);
-        grid.add(new Label("Plan: S" + planStart + " - S" + planEnd), 1, 0);
-        grid.add(new Label("Real desde semana:"), 0, 1);
-        grid.add(realFromField, 1, 1);
-        grid.add(new Label("Real hasta semana:"), 0, 2);
-        grid.add(realToField, 1, 2);
-        grid.add(new Label("Observaciones:"), 0, 3);
-        grid.add(observationsField, 1, 3);
+        grid.add(new Label("Fecha inicio planificada:"), 0, 0);
+        grid.add(new Label(fechaInicioText), 1, 0);
+        grid.add(new Label("Fecha fin planificada:"), 0, 1);
+        grid.add(new Label(fechaFinText), 1, 1);
+        grid.add(new Label("Real desde semana:"), 0, 2);
+        grid.add(realFromField, 1, 2);
+        grid.add(new Label("Real hasta semana:"), 0, 3);
+        grid.add(realToField, 1, 3);
+        grid.add(new Label("Observaciones:"), 0, 4);
+        grid.add(observationsField, 1, 4);
         dialog.getDialogPane().setContent(grid);
 
         final ReportActivity reportActivity = createReportActivity(activity);
-        final int finalPlanStart = planStart;
-        final int finalPlanEnd = planEnd;
 
-        dialog.setResultConverter(new Callback<ButtonType, ReportActivity>() {
-            @Override
-            public ReportActivity call(ButtonType buttonType) {
-                ReportActivity result = null;
-                if (buttonType == confirmType) {
-                    reportActivity.setPlanSemanas(finalPlanStart + ":" + finalPlanEnd);
-                    reportActivity.setRealSemanas(
-                            realFromField.getText().trim() + ":" + realToField.getText().trim());
-                    reportActivity.setObservaciones(observationsField.getText().trim());
-                    result = reportActivity;
-                }
-                return result;
-            }
-        });
+        dialog.setResultConverter(
+                new PartialActivityConverter(confirmType, reportActivity,
+                        realFromField, realToField, observationsField));
 
         return dialog;
     }
@@ -657,18 +563,8 @@ public class GenerateReportController {
 
         final ReportActivity reportActivity = createReportActivity(activity);
 
-        dialog.setResultConverter(new Callback<ButtonType, ReportActivity>() {
-            @Override
-            public ReportActivity call(ButtonType buttonType) {
-                ReportActivity result = null;
-                if (buttonType == confirmType) {
-                    reportActivity.setPorcentajeAvance(parseIntSafe(advanceField.getText().trim()));
-                    reportActivity.setObservaciones(observationsField.getText().trim());
-                    result = reportActivity;
-                }
-                return result;
-            }
-        });
+        dialog.setResultConverter(
+                new FinalActivityConverter(confirmType, reportActivity, advanceField, observationsField));
 
         return dialog;
     }
@@ -737,25 +633,12 @@ public class GenerateReportController {
 
         dialog.getDialogPane().setContent(grid);
 
-        dialog.setResultConverter(new Callback<ButtonType, ReportDeliverable>() {
-            @Override
-            public ReportDeliverable call(ButtonType buttonType) {
-                ReportDeliverable deliverable = null;
-                boolean isConfirm = buttonType == confirmType;
-                boolean isResultNotBlank = !resultTextField.getText().isBlank();
+        dialog.setResultConverter(
+                new DeliverableConverter(confirmType, resultTextField,
+                        descriptionField, advanceField, observationsField));
 
-                if (isConfirm && isResultNotBlank) {
-                    deliverable = new ReportDeliverable();
-                    deliverable.setResultado(resultTextField.getText().trim());
-                    deliverable.setDescripcion(descriptionField.getText().trim());
-                    deliverable.setPorcentajeAvance(parseIntSafe(advanceField.getText().trim()));
-                    deliverable.setObservaciones(observationsField.getText().trim());
-                }
-                return deliverable;
-            }
-        });
-
-        return dialog.showAndWait();
+        Optional<ReportDeliverable> deliverableResult = dialog.showAndWait();
+        return deliverableResult;
     }
 
     private boolean validateBusinessRules(String reportType) throws ServiceException {
@@ -910,7 +793,7 @@ public class GenerateReportController {
             ReportContent reportContent = new ReportContent(
                     Collections.unmodifiableList(reportActivities), null);
 
-            String internalPath = ReportDocxGenerator.generateMonthlyReport(
+            String internalPath = MonthlyReportGenerator.generate(
                     report, generationContext, reportContent);
 
             monthlyReportDAO.updateDocumentPath(report.getIdReport(), internalPath);
@@ -935,7 +818,8 @@ public class GenerateReportController {
         boolean isMethodologyBlank = methodologyTextArea.getText().isBlank();
         boolean isValid = true;
 
-        if (isReportNumberBlank || isMethodologyBlank) {
+        boolean hasMissingFields = isReportNumberBlank || isMethodologyBlank;
+        if (hasMissingFields) {
             showAlert("Campos requeridos",
                     "Complete el número de informe y la metodología.",
                     Alert.AlertType.WARNING);
@@ -1012,14 +896,14 @@ public class GenerateReportController {
         if (REPORT_TYPE_PARTIAL.equals(reportType)) {
             ReportContent reportContent = new ReportContent(
                     Collections.unmodifiableList(reportActivities), null);
-            internalPath = ReportDocxGenerator.generatePartialReport(
+            internalPath = PartialReportGenerator.generate(
                     report, generationContext, reportContent);
         } else {
             persistReportDeliverables(report.getIdReport());
             ReportContent reportContent = new ReportContent(
                     Collections.unmodifiableList(reportActivities),
                     Collections.unmodifiableList(reportDeliverables));
-            internalPath = ReportDocxGenerator.generateFinalReport(
+            internalPath = FinalReportGenerator.generate(
                     report, generationContext, reportContent);
         }
 
@@ -1042,7 +926,7 @@ public class GenerateReportController {
             technicianPosition = currentSupervisor.getPosition();
         }
 
-        return new ReportGenerationContext.Builder()
+        ReportGenerationContext generationContext = new ReportGenerationContext.Builder()
                 .internFullName(buildFullName(currentIntern))
                 .matricula(currentIntern.getMatricula())
                 .organizationName(organizationName)
@@ -1053,6 +937,7 @@ public class GenerateReportController {
                 .totalApprovedHours(approvedHours)
                 .ownerWindow(generateButton.getScene().getWindow())
                 .build();
+        return generationContext;
     }
 
     private void persistReportActivities(int idReport) {
@@ -1083,8 +968,9 @@ public class GenerateReportController {
 
     private String buildAcademicPeriod(int year, String month) {
         int monthNumber = MONTHS.indexOf(month) + 1;
+        boolean isSpringMonth = monthNumber >= SPRING_FIRST_MONTH && monthNumber <= SPRING_LAST_MONTH;
         String period;
-        if (monthNumber >= SPRING_FIRST_MONTH && monthNumber <= SPRING_LAST_MONTH) {
+        if (isSpringMonth) {
             period = SPRING_PERIOD_LABEL + year;
         } else if (monthNumber == JANUARY_MONTH_NUMBER) {
             period = String.format(FALL_PERIOD_TEMPLATE, year - 1, year);
@@ -1134,6 +1020,123 @@ public class GenerateReportController {
         }
         reportActivities.clear();
         reportDeliverables.clear();
+    }
+
+    private final class MonthlyActivityConverter implements Callback<ButtonType, ReportActivity> {
+        private final ButtonType confirmType;
+        private final ReportActivity reportActivity;
+        private final TextField periodField;
+        private final TextArea observationsField;
+
+        MonthlyActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
+                                  TextField periodField, TextArea observationsField) {
+            this.confirmType = confirmType;
+            this.reportActivity = reportActivity;
+            this.periodField = periodField;
+            this.observationsField = observationsField;
+        }
+
+        @Override
+        public ReportActivity call(ButtonType buttonType) {
+            ReportActivity result = null;
+            if (buttonType == confirmType) {
+                reportActivity.setPeriodo(periodField.getText().trim());
+                reportActivity.setObservaciones(observationsField.getText().trim());
+                result = reportActivity;
+            }
+            return result;
+        }
+    }
+
+    private final class PartialActivityConverter implements Callback<ButtonType, ReportActivity> {
+        private final ButtonType confirmType;
+        private final ReportActivity reportActivity;
+        private final TextField realFromField;
+        private final TextField realToField;
+        private final TextArea observationsField;
+
+        PartialActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
+                                  TextField realFromField, TextField realToField,
+                                  TextArea observationsField) {
+            this.confirmType = confirmType;
+            this.reportActivity = reportActivity;
+            this.realFromField = realFromField;
+            this.realToField = realToField;
+            this.observationsField = observationsField;
+        }
+
+        @Override
+        public ReportActivity call(ButtonType buttonType) {
+            ReportActivity result = null;
+            if (buttonType == confirmType) {
+                reportActivity.setPlanSemanas("1:8");
+                reportActivity.setRealSemanas(
+                        realFromField.getText().trim() + ":" + realToField.getText().trim());
+                reportActivity.setObservaciones(observationsField.getText().trim());
+                result = reportActivity;
+            }
+            return result;
+        }
+    }
+
+    private final class FinalActivityConverter implements Callback<ButtonType, ReportActivity> {
+        private final ButtonType confirmType;
+        private final ReportActivity reportActivity;
+        private final TextField advanceField;
+        private final TextArea observationsField;
+
+        FinalActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
+                                TextField advanceField, TextArea observationsField) {
+            this.confirmType = confirmType;
+            this.reportActivity = reportActivity;
+            this.advanceField = advanceField;
+            this.observationsField = observationsField;
+        }
+
+        @Override
+        public ReportActivity call(ButtonType buttonType) {
+            ReportActivity result = null;
+            if (buttonType == confirmType) {
+                reportActivity.setPorcentajeAvance(parseIntSafe(advanceField.getText().trim()));
+                reportActivity.setObservaciones(observationsField.getText().trim());
+                result = reportActivity;
+            }
+            return result;
+        }
+    }
+
+    private final class DeliverableConverter implements Callback<ButtonType, ReportDeliverable> {
+        private final ButtonType confirmType;
+        private final TextField resultTextField;
+        private final TextArea descriptionField;
+        private final TextField advanceField;
+        private final TextArea observationsField;
+
+        DeliverableConverter(ButtonType confirmType, TextField resultTextField,
+                              TextArea descriptionField, TextField advanceField,
+                              TextArea observationsField) {
+            this.confirmType = confirmType;
+            this.resultTextField = resultTextField;
+            this.descriptionField = descriptionField;
+            this.advanceField = advanceField;
+            this.observationsField = observationsField;
+        }
+
+        @Override
+        public ReportDeliverable call(ButtonType buttonType) {
+            ReportDeliverable deliverable = null;
+            boolean isConfirm = buttonType == confirmType;
+            boolean isResultNotBlank = !resultTextField.getText().isBlank();
+
+            if (isConfirm && isResultNotBlank) {
+                deliverable = new ReportDeliverable();
+                deliverable.setResultado(resultTextField.getText().trim());
+                deliverable.setDescripcion(descriptionField.getText().trim());
+                deliverable.setPorcentajeAvance(parseIntSafe(advanceField.getText().trim()));
+                deliverable.setObservaciones(observationsField.getText().trim());
+            }
+            return deliverable;
+        }
     }
 
 }

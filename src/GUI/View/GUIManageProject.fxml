@@ -3,6 +3,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="420.0" prefWidth="654.0"
@@ -13,13 +14,27 @@
       <TableView fx:id="tableView" layoutX="14.0" layoutY="14.0"
                  prefHeight="350.0" prefWidth="626.0">
         <columns>
-            <TableColumn fx:id="nrcColumn"          prefWidth="55.0"  text="NRC" />
-            <TableColumn fx:id="nameColumn"         prefWidth="90.0"  text="Nombre" />
-            <TableColumn fx:id="organizationColumn" prefWidth="95.0"  text="Organización" />
-            <TableColumn fx:id="statusColumn"       prefWidth="75.0"  text="Estado" />
-            <TableColumn fx:id="capacityColumn"     prefWidth="60.0"  text="Cupo" />
-            <TableColumn fx:id="startDateColumn"    prefWidth="90.0"  text="F. Inicio" />
-            <TableColumn fx:id="endDateColumn"      prefWidth="161.0" text="F. Fin" />
+            <TableColumn fx:id="nrcColumn"          prefWidth="55.0"  text="NRC">
+               <cellValueFactory><PropertyValueFactory property="idProyectDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="nameColumn"         prefWidth="90.0"  text="Nombre">
+               <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="organizationColumn" prefWidth="95.0"  text="Organización">
+               <cellValueFactory><PropertyValueFactory property="organizationName"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="statusColumn"       prefWidth="75.0"  text="Estado">
+               <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="capacityColumn"     prefWidth="60.0"  text="Cupo">
+               <cellValueFactory><PropertyValueFactory property="maximumPlacesDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="startDateColumn"    prefWidth="90.0"  text="F. Inicio">
+               <cellValueFactory><PropertyValueFactory property="startDateDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="endDateColumn"      prefWidth="161.0" text="F. Fin">
+               <cellValueFactory><PropertyValueFactory property="endDateDisplay"/></cellValueFactory>
+            </TableColumn>
         </columns>
       </TableView>
       <Button layoutX="14.0"  layoutY="378.0" mnemonicParsing="false"

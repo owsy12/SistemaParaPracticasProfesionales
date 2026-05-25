@@ -13,11 +13,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 import java.util.List;
 
@@ -138,8 +135,6 @@ public class UpdateProjectController {
         professorComboBox.getItems().setAll(getProfessorList());
         technicalComboBox.getItems().setAll(getProjectTechnicalList(project.getIdOrganization()));
 
-        configureTechnicalComboBox();
-        configureProfessorComboBox();
         preselectTechnicalSupervisor();
         preselectProfessor();
 
@@ -148,70 +143,6 @@ public class UpdateProjectController {
         setTypeAndLength(nameTextField, "Name");
         setTypeAndLength(descriptionTextField, "Text");
         setTypeAndLength(capacityTextField, "Number");
-    }
-
-    private void configureTechnicalComboBox() {
-        technicalComboBox.setCellFactory(
-                new Callback<ListView<TechnicalSupervisor>, ListCell<TechnicalSupervisor>>() {
-            @Override
-            public ListCell<TechnicalSupervisor> call(ListView<TechnicalSupervisor> listView) {
-                return new ListCell<TechnicalSupervisor>() {
-                    @Override
-                    protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String displayText = null;
-                        if (!empty && item != null) {
-                            displayText = item.getName();
-                        }
-                        setText(displayText);
-                    }
-                };
-            }
-        });
-
-        technicalComboBox.setButtonCell(new ListCell<TechnicalSupervisor>() {
-            @Override
-            protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                super.updateItem(item, empty);
-                String displayText = null;
-                if (!empty && item != null) {
-                    displayText = item.getName();
-                }
-                setText(displayText);
-            }
-        });
-    }
-
-    private void configureProfessorComboBox() {
-        professorComboBox.setCellFactory(
-                new Callback<ListView<Professor>, ListCell<Professor>>() {
-            @Override
-            public ListCell<Professor> call(ListView<Professor> listView) {
-                return new ListCell<Professor>() {
-                    @Override
-                    protected void updateItem(Professor item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String displayText = null;
-                        if (!empty && item != null) {
-                            displayText = item.getFirstName();
-                        }
-                        setText(displayText);
-                    }
-                };
-            }
-        });
-
-        professorComboBox.setButtonCell(new ListCell<Professor>() {
-            @Override
-            protected void updateItem(Professor item, boolean empty) {
-                super.updateItem(item, empty);
-                String displayText = null;
-                if (!empty && item != null) {
-                    displayText = item.getFirstName();
-                }
-                setText(displayText);
-            }
-        });
     }
 
     private void preselectTechnicalSupervisor() {
@@ -283,8 +214,10 @@ public class UpdateProjectController {
         boolean isProfessorMissing = professorComboBox.getValue() == null;
         boolean isTechnicalMissing = technicalComboBox.getValue() == null;
 
-        return isNameEmpty || isDescriptionEmpty || isCapacityEmpty
-                || isObjectiveEmpty || isProfessorMissing || isTechnicalMissing;
+        boolean hasEmpty = isNameEmpty || isDescriptionEmpty || isCapacityEmpty || isObjectiveEmpty
+                || isProfessorMissing || isTechnicalMissing;
+
+        return hasEmpty;
     }
 
     public Project getProject() {

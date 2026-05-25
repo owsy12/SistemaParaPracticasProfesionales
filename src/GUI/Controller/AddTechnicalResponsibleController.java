@@ -12,11 +12,8 @@ import static GUI.Utils.Alert.showAlert;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
-import javafx.util.Callback;
 
 public class AddTechnicalResponsibleController {
 
@@ -41,7 +38,6 @@ public class AddTechnicalResponsibleController {
     @FXML
     private void initialize() {
         loadLinkedOrganization();
-        configureOrganizationComboBox();
         setTypeAndLength(nameField, "Name");
         setTypeAndLength(lastNameField, "Name");
         setTypeAndLength(lastNameMaterField, "Name");
@@ -67,38 +63,6 @@ public class AddTechnicalResponsibleController {
         } else {
             processRegistration();
         }
-    }
-
-    private void configureOrganizationComboBox() {
-        organizationComboBox.setCellFactory(
-                new Callback<ListView<LinkedOrganization>, ListCell<LinkedOrganization>>() {
-            @Override
-            public ListCell<LinkedOrganization> call(ListView<LinkedOrganization> listView) {
-                return new ListCell<LinkedOrganization>() {
-                    @Override
-                    protected void updateItem(LinkedOrganization item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String displayText = null;
-                        if (!empty && item != null) {
-                            displayText = item.getName();
-                        }
-                        setText(displayText);
-                    }
-                };
-            }
-        });
-
-        organizationComboBox.setButtonCell(new ListCell<LinkedOrganization>() {
-            @Override
-            protected void updateItem(LinkedOrganization item, boolean empty) {
-                super.updateItem(item, empty);
-                String displayText = null;
-                if (!empty && item != null) {
-                    displayText = item.getName();
-                }
-                setText(displayText);
-            }
-        });
     }
 
     private void loadLinkedOrganization() {
@@ -160,8 +124,7 @@ public class AddTechnicalResponsibleController {
         boolean isCargoEmpty = cargoField.getText().isEmpty();
         boolean isOrganizationMissing = organizationComboBox.getValue() == null;
 
-        boolean hasEmpty = isNameEmpty || isEmailEmpty || isLastNameEmpty
-                || isSecondLastNameEmpty || isCargoEmpty || isOrganizationMissing;
+        boolean hasEmpty = isNameEmpty || isEmailEmpty || isLastNameEmpty || isSecondLastNameEmpty || isCargoEmpty || isOrganizationMissing;
 
         return hasEmpty;
     }

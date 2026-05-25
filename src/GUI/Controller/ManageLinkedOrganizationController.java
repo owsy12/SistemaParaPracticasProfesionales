@@ -4,7 +4,6 @@ import Logic.DAO.LinkedOrganizationDAO;
 import Logic.DTOs.LinkedOrganization;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -14,7 +13,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +48,6 @@ public class ManageLinkedOrganizationController {
 
     @FXML
     private void initialize() {
-        configureDataColumns();
         configureListeners();
         loadOrganizations();
     }
@@ -70,79 +67,28 @@ public class ManageLinkedOrganizationController {
             return;
         }
 
-        String confirmationMessage = "¿Desea eliminar la organización «"
-                + selectedOrganization.getName()
-                + "»? Se eliminarán también sus técnicos responsables."
-                + " Esta acción es irreversible.";
+        String confirmationMessage = "¿Desea eliminar la organización «" + selectedOrganization.getName()
+                + "»? Se eliminarán también sus técnicos responsables." + " Esta acción es irreversible.";
         Optional<ButtonType> response = showAlertAndWait(
                 "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-        if (response.isPresent() && response.get() == ButtonType.OK) {
+        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isUserConfirmed) {
             deleteLinkedOrganizationProcess(selectedOrganization.getIdLinkedOrganization());
         }
     }
 
-    private void configureDataColumns() {
-        nameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<LinkedOrganization, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<LinkedOrganization, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getName());
-            }
-        });
-
-        emailColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<LinkedOrganization, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<LinkedOrganization, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getEmail());
-            }
-        });
-
-        addressColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<LinkedOrganization, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<LinkedOrganization, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getAddress());
-            }
-        });
-
-        sectorColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<LinkedOrganization, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<LinkedOrganization, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getSector());
-            }
-        });
-
-        statusColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<LinkedOrganization, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<LinkedOrganization, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getStatus());
-            }
-        });
-    }
-
     private void configureListeners() {
         organizationTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<LinkedOrganization>() {
-                    @Override
-                    public void changed(ObservableValue<? extends LinkedOrganization> observable,
-                                        LinkedOrganization oldValue, LinkedOrganization newValue) {
-                        selectedOrganization = newValue;
-                    }
-                });
+                .addListener(new OrganizationSelectionListener());
+    }
+
+    private final class OrganizationSelectionListener implements ChangeListener<LinkedOrganization> {
+        @Override
+        public void changed(ObservableValue<? extends LinkedOrganization> observable,
+                            LinkedOrganization oldValue, LinkedOrganization newValue) {
+            selectedOrganization = newValue;
+        }
     }
 
     private void loadOrganizations() {

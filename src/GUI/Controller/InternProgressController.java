@@ -11,8 +11,6 @@ import Logic.DTOs.InternActivity;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -21,13 +19,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -66,7 +61,7 @@ public class InternProgressController {
     private TableColumn<InternActivity, String> activityNameColumn;
 
     @FXML
-    private TableColumn<InternActivity, Integer> hoursColumn;
+    private TableColumn<InternActivity, String> hoursColumn;
 
     @FXML
     private TableColumn<InternActivity, String> statusColumn;
@@ -94,7 +89,6 @@ public class InternProgressController {
     private void initialize() {
         setTypeAndLength(hoursTextField, "Number");
         statusComboBox.getItems().setAll("Pendiente", "En Progreso", "Completada");
-        configureTable();
         configureListeners();
         loadInternContext();
     }
@@ -135,60 +129,20 @@ public class InternProgressController {
         clearForm();
     }
 
-    private void configureTable() {
-        activityNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<InternActivity, String> data) {
-                return new SimpleStringProperty(data.getValue().getActivityName());
-            }
-        });
-
-        hoursColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, Integer>,
-                        ObservableValue<Integer>>() {
-            @Override
-            public ObservableValue<Integer> call(
-                    TableColumn.CellDataFeatures<InternActivity, Integer> data) {
-                return new SimpleIntegerProperty(data.getValue().getDedicatedHours()).asObject();
-            }
-        });
-
-        statusColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<InternActivity, String> data) {
-                return new SimpleStringProperty(data.getValue().getStatus());
-            }
-        });
-
-        observationsColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<InternActivity, String> data) {
-                return new SimpleStringProperty(data.getValue().getObservations());
-            }
-        });
-    }
-
     private void configureListeners() {
         activitiesTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<InternActivity>() {
-                    @Override
-                    public void changed(ObservableValue<? extends InternActivity> observable,
-                                        InternActivity oldValue, InternActivity newValue) {
-                        if (newValue != null) {
-                            selectedInternActivity = newValue;
-                            populateForm(newValue);
-                        }
-                    }
-                });
+                .addListener(new InternActivitySelectionListener());
+    }
+
+    private final class InternActivitySelectionListener implements ChangeListener<InternActivity> {
+        @Override
+        public void changed(ObservableValue<? extends InternActivity> observable,
+                            InternActivity oldValue, InternActivity newValue) {
+            if (newValue != null) {
+                selectedInternActivity = newValue;
+                populateForm(newValue);
+            }
+        }
     }
 
     private void loadInternContext() {
@@ -332,36 +286,6 @@ public class InternProgressController {
             ActivityDAO activityDAO = new ActivityDAO();
             List<Activity> activities = activityDAO.findByProject(currentProjectId);
             activityComboBox.getItems().setAll(activities);
-
-            activityComboBox.setCellFactory(
-                    new Callback<ListView<Activity>, ListCell<Activity>>() {
-                @Override
-                public ListCell<Activity> call(ListView<Activity> listView) {
-                    return new ListCell<Activity>() {
-                        @Override
-                        protected void updateItem(Activity item, boolean empty) {
-                            super.updateItem(item, empty);
-                            String displayText = null;
-                            if (!empty && item != null) {
-                                displayText = item.getName();
-                            }
-                            setText(displayText);
-                        }
-                    };
-                }
-            });
-
-            activityComboBox.setButtonCell(new ListCell<Activity>() {
-                @Override
-                protected void updateItem(Activity item, boolean empty) {
-                    super.updateItem(item, empty);
-                    String displayText = null;
-                    if (!empty && item != null) {
-                        displayText = item.getName();
-                    }
-                    setText(displayText);
-                }
-            });
 
         } catch (ValidationException validationException) {
             showAlert("Error de validación",

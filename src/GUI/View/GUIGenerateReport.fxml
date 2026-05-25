@@ -8,6 +8,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -30,10 +31,12 @@
 
             <Label layoutX="20.0"  layoutY="112.0" text="Tipo de reporte:" />
             <ComboBox fx:id="reportTypeComboBox" layoutX="20.0" layoutY="130.0"
+                      onAction="#handleReportTypeChange"
                       prefHeight="26.0" prefWidth="200.0" />
 
             <Label layoutX="240.0" layoutY="112.0" text="Mes:" />
             <ComboBox fx:id="monthComboBox" layoutX="240.0" layoutY="130.0"
+                      onAction="#handleMonthChange"
                       prefHeight="26.0" prefWidth="160.0" visible="false" />
 
             <Label layoutX="420.0" layoutY="112.0" text="Horas del período:" />
@@ -65,10 +68,18 @@
             <TableView fx:id="projectActivitiesTable" layoutX="20.0" layoutY="464.0"
                        prefHeight="130.0" prefWidth="810.0">
                <columns>
-                  <TableColumn fx:id="colActName"      prefWidth="280.0" text="Nombre" />
-                  <TableColumn fx:id="colActDesc"      prefWidth="310.0" text="Descripción" />
-                  <TableColumn fx:id="colActPlanStart" prefWidth="110.0" text="Sem. inicio" />
-                  <TableColumn fx:id="colActPlanEnd"   prefWidth="110.0" text="Sem. fin" />
+                  <TableColumn fx:id="colActName"      prefWidth="280.0" text="Nombre">
+                     <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colActDesc"      prefWidth="310.0" text="Descripción">
+                     <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colActPlanStart" prefWidth="110.0" text="Fecha inicio">
+                     <cellValueFactory><PropertyValueFactory property="fechaInicioDisplay"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colActPlanEnd"   prefWidth="110.0" text="Fecha fin">
+                     <cellValueFactory><PropertyValueFactory property="fechaFinDisplay"/></cellValueFactory>
+                  </TableColumn>
                </columns>
             </TableView>
 
@@ -84,9 +95,15 @@
             <TableView fx:id="reportActivitiesTable" layoutX="20.0" layoutY="656.0"
                        prefHeight="110.0" prefWidth="810.0">
                <columns>
-                  <TableColumn fx:id="colRaName"   prefWidth="310.0" text="Actividad" />
-                  <TableColumn fx:id="colRaPeriod" prefWidth="240.0" text="Período / Semanas" />
-                  <TableColumn fx:id="colRaDetail" prefWidth="250.0" text="Avance / Obs." />
+                  <TableColumn fx:id="colRaName"   prefWidth="310.0" text="Actividad">
+                     <cellValueFactory><PropertyValueFactory property="activityName"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colRaPeriod" prefWidth="240.0" text="Período / Semanas">
+                     <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colRaDetail" prefWidth="250.0" text="Avance / Obs.">
+                     <cellValueFactory><PropertyValueFactory property="detailDisplay"/></cellValueFactory>
+                  </TableColumn>
                </columns>
             </TableView>
 
@@ -99,10 +116,18 @@
             <TableView fx:id="reportDeliverablesTable" layoutX="20.0" layoutY="798.0"
                        prefHeight="100.0" prefWidth="810.0" visible="false">
                <columns>
-                  <TableColumn fx:id="colRdResult"  prefWidth="200.0" text="Resultado entregable" />
-                  <TableColumn fx:id="colRdDesc"    prefWidth="220.0" text="Descripción" />
-                  <TableColumn fx:id="colRdAdvance" prefWidth="80.0"  text="Avance" />
-                  <TableColumn fx:id="colRdObs"     prefWidth="310.0" text="Observaciones" />
+                  <TableColumn fx:id="colRdResult"  prefWidth="200.0" text="Resultado entregable">
+                     <cellValueFactory><PropertyValueFactory property="resultado"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colRdDesc"    prefWidth="220.0" text="Descripción">
+                     <cellValueFactory><PropertyValueFactory property="descripcionDisplay"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colRdAdvance" prefWidth="80.0"  text="Avance">
+                     <cellValueFactory><PropertyValueFactory property="advanceDisplay"/></cellValueFactory>
+                  </TableColumn>
+                  <TableColumn fx:id="colRdObs"     prefWidth="310.0" text="Observaciones">
+                     <cellValueFactory><PropertyValueFactory property="observacionesDisplay"/></cellValueFactory>
+                  </TableColumn>
                </columns>
             </TableView>
             <Button fx:id="addDeliverableButton" layoutX="20.0" layoutY="906.0"

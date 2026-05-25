@@ -1,6 +1,7 @@
 package Logic.DTOs;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Project {
@@ -146,6 +147,91 @@ public class Project {
         this.nrc = nrc;
     }
 
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+    private String preferenceLabel = "";
+
+    public String getPreferenceLabel() {
+        return preferenceLabel;
+    }
+
+    public void setPreferenceLabel(String preferenceLabel) {
+        this.preferenceLabel = preferenceLabel;
+    }
+
+    public String getStartDateDisplay() {
+        String display = "";
+        if (startDate != null) {
+            display = startDate.toString();
+        }
+        return display;
+    }
+
+    public String getEndDateDisplay() {
+        String display = "";
+        if (endDate != null) {
+            display = endDate.toString();
+        }
+        return display;
+    }
+
+    public String getStartDateFormatted() {
+        String display = "";
+        if (startDate != null) {
+            display = startDate.format(DISPLAY_DATE_FORMAT);
+        }
+        return display;
+    }
+
+    public String getEndDateFormatted() {
+        String display = "";
+        if (endDate != null) {
+            display = endDate.format(DISPLAY_DATE_FORMAT);
+        }
+        return display;
+    }
+
+    public String getPeriodDisplay() {
+        String period = "";
+        if (startDate != null && endDate != null) {
+            period = startDate.format(DISPLAY_DATE_FORMAT)
+                    + " - " + endDate.format(DISPLAY_DATE_FORMAT);
+        }
+        return period;
+    }
+
+    public String getPeriodIsoDisplay() {
+        String period = "";
+        if (startDate != null && endDate != null) {
+            period = startDate.toString() + " - " + endDate.toString();
+        }
+        return period;
+    }
+
+    public String getMaximumPlacesDisplay() {
+        String display = String.valueOf(maximumPlaces);
+        return display;
+    }
+
+    public String getAvaliablePlacesDisplay() {
+        String display = String.valueOf(avaliablePlaces);
+        return display;
+    }
+
+    public String getOrganizationNameDisplay() {
+        String display = "";
+        if (organizationName != null) {
+            display = organizationName;
+        }
+        return display;
+    }
+
+    public String getIdProyectDisplay() {
+        String display = String.valueOf(idProyect);
+        return display;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -168,5 +254,10 @@ public class Project {
     public int hashCode() {
         return Objects.hash(name, description, objetivo, maximumPlaces,
                 IdProfessor, idTechnicalSupervisor);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

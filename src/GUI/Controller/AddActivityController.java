@@ -11,14 +11,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,12 +40,6 @@ public class AddActivityController {
     private TextArea descriptionTextArea;
 
     @FXML
-    private Spinner<Integer> semanaInicioSpinner;
-
-    @FXML
-    private Spinner<Integer> semanaFinSpinner;
-
-    @FXML
     private DatePicker fechaInicioPicker;
 
     @FXML
@@ -59,8 +48,6 @@ public class AddActivityController {
     @FXML
     private void initialize() {
         setTypeAndLength(nameTextField, "Text");
-        semanaInicioSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 8, 1));
-        semanaFinSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 8, 8));
         loadProjects();
     }
 
@@ -127,8 +114,6 @@ public class AddActivityController {
         activity.setIdProject(projectComboBox.getValue().getIdProyect());
         activity.setName(nameTextField.getText().trim());
         activity.setDescription(descriptionTextArea.getText().trim());
-        activity.setSemanaInicioPlan(semanaInicioSpinner.getValue());
-        activity.setSemanaFinPlan(semanaFinSpinner.getValue());
         activity.setFechaInicio(fechaInicioPicker.getValue());
         activity.setFechaFin(fechaFinPicker.getValue());
         activity.setCreationDate(LocalDate.now());
@@ -142,35 +127,6 @@ public class AddActivityController {
             List<Project> projects = projectDAO.findAll();
 
             projectComboBox.getItems().setAll(projects);
-
-            projectComboBox.setCellFactory(new Callback<ListView<Project>, ListCell<Project>>() {
-                @Override
-                public ListCell<Project> call(ListView<Project> listView) {
-                    return new ListCell<Project>() {
-                        @Override
-                        protected void updateItem(Project item, boolean empty) {
-                            super.updateItem(item, empty);
-                            String displayText = null;
-                            if (!empty && item != null) {
-                                displayText = item.getName();
-                            }
-                            setText(displayText);
-                        }
-                    };
-                }
-            });
-
-            projectComboBox.setButtonCell(new ListCell<Project>() {
-                @Override
-                protected void updateItem(Project item, boolean empty) {
-                    super.updateItem(item, empty);
-                    String displayText = null;
-                    if (!empty && item != null) {
-                        displayText = item.getName();
-                    }
-                    setText(displayText);
-                }
-            });
 
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar proyectos: {0}",
@@ -199,8 +155,6 @@ public class AddActivityController {
     private void clearForm() {
         nameTextField.clear();
         descriptionTextArea.clear();
-        semanaInicioSpinner.getValueFactory().setValue(1);
-        semanaFinSpinner.getValueFactory().setValue(8);
         fechaInicioPicker.setValue(null);
         fechaFinPicker.setValue(null);
     }

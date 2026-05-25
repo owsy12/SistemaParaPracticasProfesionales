@@ -3,7 +3,6 @@ package GUI.Controller;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -16,10 +15,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -31,8 +28,6 @@ public class SelectProjectForActivityController {
 
     private static final Logger LOGGER =
             Logger.getLogger(SelectProjectForActivityController.class.getName());
-
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     @FXML
     private TableView<Project> projectsTable;
@@ -57,7 +52,6 @@ public class SelectProjectForActivityController {
 
     @FXML
     private void initialize() {
-        configureTable();
         configureListeners();
         loadProjects();
     }
@@ -72,59 +66,19 @@ public class SelectProjectForActivityController {
         navigateTo("/GUI/view/GUIManageActivities.fxml");
     }
 
-    private void configureTable() {
-        colName.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> data) {
-                return new SimpleStringProperty(data.getValue().getName());
-            }
-        });
-
-        colOrganization.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> data) {
-                String organizationName = "";
-                if (data.getValue().getOrganizationName() != null) {
-                    organizationName = data.getValue().getOrganizationName();
-                }
-                return new SimpleStringProperty(organizationName);
-            }
-        });
-
-        colStatus.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> data) {
-                return new SimpleStringProperty(data.getValue().getStatus());
-            }
-        });
-
-        colPeriod.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> data) {
-                return new SimpleStringProperty(buildPeriod(data.getValue()));
-            }
-        });
-    }
-
     private void configureListeners() {
         projectsTable.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<Project>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Project> observable,
-                                        Project oldValue, Project newValue) {
-                        boolean hasSelection = newValue != null;
-                        addActivityButton.setDisable(!hasSelection);
-                        manageActivitiesButton.setDisable(!hasSelection);
-                    }
-                });
+                .addListener(new ProjectSelectionListener());
+    }
+
+    private final class ProjectSelectionListener implements ChangeListener<Project> {
+        @Override
+        public void changed(ObservableValue<? extends Project> observable,
+                            Project oldValue, Project newValue) {
+            boolean hasSelection = newValue != null;
+            addActivityButton.setDisable(!hasSelection);
+            manageActivitiesButton.setDisable(!hasSelection);
+        }
     }
 
     private void loadProjects() {
@@ -185,14 +139,5 @@ public class SelectProjectForActivityController {
         }
     }
 
-    private String buildPeriod(Project project) {
-        String period = "";
-        boolean hasDates = project.getStartDate() != null && project.getEndDate() != null;
-        if (hasDates) {
-            period = project.getStartDate().format(DATE_FORMAT)
-                    + " - " + project.getEndDate().format(DATE_FORMAT);
-        }
-        return period;
-    }
 
 }

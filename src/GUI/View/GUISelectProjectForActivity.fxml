@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -19,10 +20,18 @@
       <TableView fx:id="projectsTable" layoutX="20.0" layoutY="50.0"
                  prefHeight="270.0" prefWidth="660.0">
          <columns>
-            <TableColumn fx:id="colName"         prefWidth="220.0" text="Nombre del proyecto" />
-            <TableColumn fx:id="colOrganization"  prefWidth="200.0" text="Organización" />
-            <TableColumn fx:id="colStatus"        prefWidth="100.0" text="Estado" />
-            <TableColumn fx:id="colPeriod"        prefWidth="140.0" text="Período" />
+            <TableColumn fx:id="colName"         prefWidth="220.0" text="Nombre del proyecto">
+               <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colOrganization"  prefWidth="200.0" text="Organización">
+               <cellValueFactory><PropertyValueFactory property="organizationNameDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colStatus"        prefWidth="100.0" text="Estado">
+               <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="colPeriod"        prefWidth="140.0" text="Período">
+               <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
+            </TableColumn>
          </columns>
       </TableView>
 

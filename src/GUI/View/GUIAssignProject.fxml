@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -19,8 +20,12 @@
       <TableView fx:id="internsTableView" layoutX="32.0" layoutY="65.0"
                  prefHeight="270.0" prefWidth="536.0">
         <columns>
-          <TableColumn fx:id="matriculaColumn" prefWidth="130.0" text="Matrícula" />
-          <TableColumn fx:id="fullNameColumn"  prefWidth="406.0" text="Nombre Completo" />
+          <TableColumn fx:id="matriculaColumn" prefWidth="130.0" text="Matrícula">
+             <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
+          </TableColumn>
+          <TableColumn fx:id="fullNameColumn"  prefWidth="406.0" text="Nombre Completo">
+             <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
+          </TableColumn>
         </columns>
       </TableView>
       <Button layoutX="32.0"  layoutY="350.0" mnemonicParsing="false"

@@ -5,6 +5,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -19,12 +20,24 @@
 
       <TableView fx:id="reportsTableView" layoutX="20.0" layoutY="46.0" prefHeight="200.0" prefWidth="740.0">
          <columns>
-            <TableColumn fx:id="internColumn"  prefWidth="120.0" text="Practicante" />
-            <TableColumn fx:id="typeColumn"    prefWidth="100.0" text="Tipo" />
-            <TableColumn fx:id="periodColumn"  prefWidth="120.0" text="Período" />
-            <TableColumn fx:id="hoursColumn"   prefWidth="70.0"  text="Horas" />
-            <TableColumn fx:id="statusColumn"  prefWidth="100.0" text="Estado" />
-            <TableColumn fx:id="dateColumn"    prefWidth="190.0" text="Fecha entrega" />
+            <TableColumn fx:id="internColumn"  prefWidth="120.0" text="Practicante">
+               <cellValueFactory><PropertyValueFactory property="idInternDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="typeColumn"    prefWidth="100.0" text="Tipo">
+               <cellValueFactory><PropertyValueFactory property="reportType"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="periodColumn"  prefWidth="120.0" text="Período">
+               <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="hoursColumn"   prefWidth="70.0"  text="Horas">
+               <cellValueFactory><PropertyValueFactory property="reportedHoursDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="statusColumn"  prefWidth="100.0" text="Estado">
+               <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="dateColumn"    prefWidth="190.0" text="Fecha entrega">
+               <cellValueFactory><PropertyValueFactory property="dateDisplay"/></cellValueFactory>
+            </TableColumn>
          </columns>
       </TableView>
 
@@ -41,10 +54,18 @@
 
       <TableView fx:id="activitiesTableView" layoutX="20.0" layoutY="368.0" prefHeight="160.0" prefWidth="740.0">
          <columns>
-            <TableColumn fx:id="actNameColumn"   prefWidth="280.0" text="Actividad" />
-            <TableColumn fx:id="actHoursColumn"  prefWidth="80.0"  text="Horas" />
-            <TableColumn fx:id="actStatusColumn" prefWidth="120.0" text="Estado" />
-            <TableColumn fx:id="actObsColumn"    prefWidth="220.0" text="Observaciones" />
+            <TableColumn fx:id="actNameColumn"   prefWidth="280.0" text="Actividad">
+               <cellValueFactory><PropertyValueFactory property="activityName"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="actHoursColumn"  prefWidth="80.0"  text="Horas">
+               <cellValueFactory><PropertyValueFactory property="dedicatedHoursDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="actStatusColumn" prefWidth="120.0" text="Estado">
+               <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="actObsColumn"    prefWidth="220.0" text="Observaciones">
+               <cellValueFactory><PropertyValueFactory property="observations"/></cellValueFactory>
+            </TableColumn>
          </columns>
       </TableView>
 

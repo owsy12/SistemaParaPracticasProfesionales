@@ -4,7 +4,6 @@ import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -16,7 +15,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.List;
@@ -59,7 +57,6 @@ public class ManegeProjectController {
 
     @FXML
     private void initialize() {
-        configureDataColumns();
         configureListeners();
         loadProjectsOnTableView();
     }
@@ -84,7 +81,8 @@ public class ManegeProjectController {
                 "¿Desea eliminar este proyecto? Esta acción es irreversible.",
                 Alert.AlertType.CONFIRMATION);
 
-        if (response.isPresent() && response.get() == ButtonType.OK) {
+        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isUserConfirmed) {
             deleteProcess(selectedProject.getIdProyect());
         }
     }
@@ -101,89 +99,17 @@ public class ManegeProjectController {
         openModifyProjectView(selectedProject);
     }
 
-    private void configureDataColumns() {
-        capacityColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(
-                        String.valueOf(cellData.getValue().getMaximumPlaces()));
-            }
-        });
-
-        endDateColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getEndDate().toString());
-            }
-        });
-
-        startDateColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getStartDate().toString());
-            }
-        });
-
-        nameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getName());
-            }
-        });
-
-        statusColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getStatus());
-            }
-        });
-
-        organizationColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getOrganizationName());
-            }
-        });
-
-        nrcColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(
-                        String.valueOf(cellData.getValue().getIdProyect()));
-            }
-        });
-    }
-
     private void configureListeners() {
         tableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<Project>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Project> observable,
-                                        Project oldValue, Project newValue) {
-                        selectedProject = newValue;
-                    }
-                });
+                .addListener(new ProjectSelectionListener());
+    }
+
+    private final class ProjectSelectionListener implements ChangeListener<Project> {
+        @Override
+        public void changed(ObservableValue<? extends Project> observable,
+                            Project oldValue, Project newValue) {
+            selectedProject = newValue;
+        }
     }
 
     private void loadProjectsOnTableView() {

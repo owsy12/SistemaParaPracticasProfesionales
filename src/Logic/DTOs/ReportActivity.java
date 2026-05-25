@@ -86,6 +86,30 @@ public class ReportActivity {
         this.observaciones = observaciones;
     }
 
+    public String getPeriodDisplay() {
+        String periodDisplay;
+        if (periodo != null) {
+            periodDisplay = periodo;
+        } else if (planSemanas != null) {
+            periodDisplay = "Plan:" + planSemanas;
+        } else {
+            periodDisplay = "";
+        }
+        return periodDisplay;
+    }
+
+    public String getDetailDisplay() {
+        String detailDisplay;
+        if (porcentajeAvance > 0) {
+            detailDisplay = porcentajeAvance + "%";
+        } else if (observaciones != null) {
+            detailDisplay = observaciones;
+        } else {
+            detailDisplay = "";
+        }
+        return detailDisplay;
+    }
+
     // Returns boolean[8] for S1..S8 parsed from "from:to" format e.g. "2:5"
     public boolean[] getPlanWeeks() {
         return parseRange(planSemanas);

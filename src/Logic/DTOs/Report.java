@@ -155,4 +155,33 @@ public class Report {
     public void setEntregaTardia(boolean entregaTardia) {
         this.entregaTardia = entregaTardia;
     }
+
+    public String getDisplayStatus() {
+        boolean isLateDelivery = entregaTardia && "Entregado".equals(status);
+        String statusLabel;
+        if (isLateDelivery) {
+            statusLabel = "Entrega tardía";
+        } else {
+            statusLabel = status;
+        }
+        return statusLabel;
+    }
+
+    public String getDateDisplay() {
+        String dateText = "";
+        if (sumissionDate != null) {
+            dateText = sumissionDate.toString();
+        }
+        return dateText;
+    }
+
+    public String getIdInternDisplay() {
+        String display = String.valueOf(idIntern);
+        return display;
+    }
+
+    public String getReportedHoursDisplay() {
+        String display = String.valueOf(reportedHours);
+        return display;
+    }
 }

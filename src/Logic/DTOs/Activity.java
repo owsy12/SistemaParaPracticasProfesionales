@@ -10,8 +10,6 @@ public class Activity {
     private LocalDate creationDate;
     private String status;
     private String projectName;
-    private int semanaInicioPlan;
-    private int semanaFinPlan;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
 
@@ -84,22 +82,6 @@ public class Activity {
         this.projectName = projectName;
     }
 
-    public int getSemanaInicioPlan() {
-        return semanaInicioPlan;
-    }
-
-    public void setSemanaInicioPlan(int semanaInicioPlan) {
-        this.semanaInicioPlan = semanaInicioPlan;
-    }
-
-    public int getSemanaFinPlan() {
-        return semanaFinPlan;
-    }
-
-    public void setSemanaFinPlan(int semanaFinPlan) {
-        this.semanaFinPlan = semanaFinPlan;
-    }
-
     public LocalDate getFechaInicio() {
         return fechaInicio;
     }
@@ -114,6 +96,22 @@ public class Activity {
 
     public void setFechaFin(LocalDate fechaFin) {
         this.fechaFin = fechaFin;
+    }
+
+    public String getFechaInicioDisplay() {
+        String display = "";
+        if (fechaInicio != null) {
+            display = fechaInicio.toString();
+        }
+        return display;
+    }
+
+    public String getFechaFinDisplay() {
+        String display = "";
+        if (fechaFin != null) {
+            display = fechaFin.toString();
+        }
+        return display;
     }
 
     @Override
