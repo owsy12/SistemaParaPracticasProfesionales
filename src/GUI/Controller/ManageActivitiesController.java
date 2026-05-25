@@ -6,7 +6,6 @@ import Logic.DTOs.Activity;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -17,15 +16,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -62,12 +56,6 @@ public class ManageActivitiesController {
     private TextArea descriptionTextArea;
 
     @FXML
-    private Spinner<Integer> semanaInicioSpinner;
-
-    @FXML
-    private Spinner<Integer> semanaFinSpinner;
-
-    @FXML
     private DatePicker fechaInicioPicker;
 
     @FXML
@@ -81,11 +69,6 @@ public class ManageActivitiesController {
     @FXML
     private void initialize() {
         setTypeAndLength(nameTextField, "Text");
-        semanaInicioSpinner.setValueFactory(
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 8, 1));
-        semanaFinSpinner.setValueFactory(
-                new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 8, 8));
-        configureTable();
         configureListeners();
         loadProjects();
     }
@@ -135,7 +118,9 @@ public class ManageActivitiesController {
                     ButtonType.YES, ButtonType.NO);
             Optional<ButtonType> confirmationResult = confirmation.showAndWait();
 
-            if (confirmationResult.isPresent() && confirmationResult.get() == ButtonType.YES) {
+            boolean isDeletionConfirmed = confirmationResult.isPresent()
+                    && confirmationResult.get() == ButtonType.YES;
+            if (isDeletionConfirmed) {
                 deleteProcess();
             }
         }
@@ -155,55 +140,26 @@ public class ManageActivitiesController {
         }
     }
 
-    private void configureTable() {
-        nameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Activity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Activity, String> data) {
-                return new SimpleStringProperty(data.getValue().getName());
-            }
-        });
-
-        descriptionColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Activity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Activity, String> data) {
-                return new SimpleStringProperty(data.getValue().getDescription());
-            }
-        });
-
-        statusColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Activity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Activity, String> data) {
-                return new SimpleStringProperty(data.getValue().getStatus());
-            }
-        });
-    }
-
     private void configureListeners() {
         activitiesTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<Activity>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Activity> observable,
-                                        Activity oldValue, Activity newValue) {
-                        if (newValue != null) {
-                            selectedActivity = newValue;
-                            populateForm(newValue);
-                        }
-                    }
-                });
+                .addListener(new ActivitySelectionListener());
+    }
+
+    private final class ActivitySelectionListener implements ChangeListener<Activity> {
+        @Override
+        public void changed(ObservableValue<? extends Activity> observable,
+                            Activity oldValue, Activity newValue) {
+            if (newValue != null) {
+                selectedActivity = newValue;
+                populateForm(newValue);
+            }
+        }
     }
 
     private void updateProcess() {
         try {
             selectedActivity.setName(nameTextField.getText().trim());
             selectedActivity.setDescription(descriptionTextArea.getText().trim());
-            selectedActivity.setSemanaInicioPlan(semanaInicioSpinner.getValue());
-            selectedActivity.setSemanaFinPlan(semanaFinSpinner.getValue());
             selectedActivity.setFechaInicio(fechaInicioPicker.getValue());
             selectedActivity.setFechaFin(fechaFinPicker.getValue());
 
@@ -273,36 +229,6 @@ public class ManageActivitiesController {
             List<Project> projects = projectDAO.findAll();
             projectComboBox.getItems().setAll(projects);
 
-            projectComboBox.setCellFactory(
-                    new Callback<ListView<Project>, ListCell<Project>>() {
-                @Override
-                public ListCell<Project> call(ListView<Project> listView) {
-                    return new ListCell<Project>() {
-                        @Override
-                        protected void updateItem(Project item, boolean empty) {
-                            super.updateItem(item, empty);
-                            String displayText = null;
-                            if (!empty && item != null) {
-                                displayText = item.getName();
-                            }
-                            setText(displayText);
-                        }
-                    };
-                }
-            });
-
-            projectComboBox.setButtonCell(new ListCell<Project>() {
-                @Override
-                protected void updateItem(Project item, boolean empty) {
-                    super.updateItem(item, empty);
-                    String displayText = null;
-                    if (!empty && item != null) {
-                        displayText = item.getName();
-                    }
-                    setText(displayText);
-                }
-            });
-
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar proyectos: {0}",
                     serviceException.getMessage());
@@ -336,8 +262,6 @@ public class ManageActivitiesController {
         }
         descriptionTextArea.setText(description);
 
-        semanaInicioSpinner.getValueFactory().setValue(activity.getSemanaInicioPlan());
-        semanaFinSpinner.getValueFactory().setValue(activity.getSemanaFinPlan());
         fechaInicioPicker.setValue(activity.getFechaInicio());
         fechaFinPicker.setValue(activity.getFechaFin());
         String statusText = "Estado: " + activity.getStatus();
@@ -348,8 +272,6 @@ public class ManageActivitiesController {
         selectedActivity = null;
         nameTextField.clear();
         descriptionTextArea.clear();
-        semanaInicioSpinner.getValueFactory().setValue(1);
-        semanaFinSpinner.getValueFactory().setValue(8);
         fechaInicioPicker.setValue(null);
         fechaFinPicker.setValue(null);
         statusLabel.setText("");

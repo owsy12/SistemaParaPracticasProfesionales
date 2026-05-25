@@ -9,8 +9,6 @@ import Logic.DTOs.Report;
 import Logic.DTOs.ReportObservation;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -22,7 +20,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -48,7 +45,7 @@ public class EvaluateReportController {
     private TableColumn<Report, String> periodColumn;
 
     @FXML
-    private TableColumn<Report, Integer> hoursColumn;
+    private TableColumn<Report, String> hoursColumn;
 
     @FXML
     private TableColumn<Report, String> statusColumn;
@@ -72,7 +69,7 @@ public class EvaluateReportController {
     private TableColumn<InternActivity, String> actNameColumn;
 
     @FXML
-    private TableColumn<InternActivity, Integer> actHoursColumn;
+    private TableColumn<InternActivity, String> actHoursColumn;
 
     @FXML
     private TableColumn<InternActivity, String> actStatusColumn;
@@ -99,8 +96,6 @@ public class EvaluateReportController {
 
     @FXML
     private void initialize() {
-        configureReportsTable();
-        configureActivitiesTable();
         configureListeners();
         loadProfessorReports();
     }
@@ -169,113 +164,21 @@ public class EvaluateReportController {
         clearForm();
     }
 
-    private void configureReportsTable() {
-        internColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                return new SimpleStringProperty(String.valueOf(data.getValue().getIdIntern()));
-            }
-        });
-
-        typeColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                return new SimpleStringProperty(data.getValue().getReportType());
-            }
-        });
-
-        periodColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                return new SimpleStringProperty(data.getValue().getPeriod());
-            }
-        });
-
-        hoursColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, Integer>, ObservableValue<Integer>>() {
-            @Override
-            public ObservableValue<Integer> call(TableColumn.CellDataFeatures<Report, Integer> data) {
-                return new SimpleIntegerProperty(data.getValue().getReportedHours()).asObject();
-            }
-        });
-
-        statusColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                return new SimpleStringProperty(data.getValue().getStatus());
-            }
-        });
-
-        dateColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                java.util.Date submissionDate = data.getValue().getSumissionDate();
-                String dateText = "";
-                if (submissionDate != null) {
-                    dateText = submissionDate.toString();
-                }
-                return new SimpleStringProperty(dateText);
-            }
-        });
-    }
-
-    private void configureActivitiesTable() {
-        actNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<InternActivity, String> data) {
-                return new SimpleStringProperty(data.getValue().getActivityName());
-            }
-        });
-
-        actHoursColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, Integer>,
-                        ObservableValue<Integer>>() {
-            @Override
-            public ObservableValue<Integer> call(
-                    TableColumn.CellDataFeatures<InternActivity, Integer> data) {
-                return new SimpleIntegerProperty(data.getValue().getDedicatedHours()).asObject();
-            }
-        });
-
-        actStatusColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<InternActivity, String> data) {
-                return new SimpleStringProperty(data.getValue().getStatus());
-            }
-        });
-
-        actObsColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<InternActivity, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<InternActivity, String> data) {
-                return new SimpleStringProperty(data.getValue().getObservations());
-            }
-        });
-    }
-
     private void configureListeners() {
         reportsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<Report>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Report> observable,
-                                        Report oldValue, Report newValue) {
-                        if (newValue != null) {
-                            selectedReport = newValue;
-                            populateReportDetail(newValue);
-                            loadActivitiesForReport(newValue);
-                        }
-                    }
-                });
+                .addListener(new ReportSelectionListener());
+    }
+
+    private final class ReportSelectionListener implements ChangeListener<Report> {
+        @Override
+        public void changed(ObservableValue<? extends Report> observable,
+                            Report oldValue, Report newValue) {
+            if (newValue != null) {
+                selectedReport = newValue;
+                populateReportDetail(newValue);
+                loadActivitiesForReport(newValue);
+            }
+        }
     }
 
     private void loadProfessorReports() {

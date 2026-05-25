@@ -4,7 +4,6 @@ import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -14,7 +13,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +48,6 @@ public class ManageTechnicalResponsibleController {
 
     @FXML
     private void initialize() {
-        configureDataColumns();
         configureListeners();
         loadTechnicalResponsibles();
     }
@@ -76,72 +73,23 @@ public class ManageTechnicalResponsibleController {
         Optional<ButtonType> response = showAlertAndWait(
                 "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-        if (response.isPresent() && response.get() == ButtonType.OK) {
+        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isUserConfirmed) {
             deleteTechnicalResponsibleProcess(selectedTechnical.getIdTechnicalSupervisor());
         }
     }
 
-    private void configureDataColumns() {
-        nameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<TechnicalSupervisor, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<TechnicalSupervisor, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getName());
-            }
-        });
-
-        lastNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<TechnicalSupervisor, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<TechnicalSupervisor, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getLastName());
-            }
-        });
-
-        secondLastNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<TechnicalSupervisor, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<TechnicalSupervisor, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getSecondLastName());
-            }
-        });
-
-        emailColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<TechnicalSupervisor, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<TechnicalSupervisor, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().geteMail());
-            }
-        });
-
-        positionColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<TechnicalSupervisor, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<TechnicalSupervisor, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getPosition());
-            }
-        });
-    }
-
     private void configureListeners() {
         technicalResponsibleTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<TechnicalSupervisor>() {
-                    @Override
-                    public void changed(ObservableValue<? extends TechnicalSupervisor> observable,
-                                        TechnicalSupervisor oldValue, TechnicalSupervisor newValue) {
-                        selectedTechnical = newValue;
-                    }
-                });
+                .addListener(new TechnicalSelectionListener());
+    }
+
+    private final class TechnicalSelectionListener implements ChangeListener<TechnicalSupervisor> {
+        @Override
+        public void changed(ObservableValue<? extends TechnicalSupervisor> observable,
+                            TechnicalSupervisor oldValue, TechnicalSupervisor newValue) {
+            selectedTechnical = newValue;
+        }
     }
 
     private void loadTechnicalResponsibles() {

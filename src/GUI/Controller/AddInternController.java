@@ -107,15 +107,34 @@ public class AddInternController {
     }
 
     private boolean hasEmptyFields() {
-        boolean isEmpty = idTextField.getText().isEmpty()
-                || creditTextField.getText().isEmpty()
-                || lastNameTextField.getText().isEmpty()
-                || secondLastNameTextField.getText().isEmpty()
-                || emailTextField.getText().isEmpty()
-                || firstNameTextField.getText().isEmpty()
-                || passwordField.getText().isEmpty()
-                || confirmPasswordField.getText().isEmpty();
-        return isEmpty;
+        boolean isIdEmpty =
+                idTextField.getText().isEmpty();
+
+        boolean isCreditEmpty =
+                creditTextField.getText().isEmpty();
+
+        boolean isLastNameEmpty =
+                lastNameTextField.getText().isEmpty();
+
+        boolean isSecondLastNameEmpty =
+                secondLastNameTextField.getText().isEmpty();
+
+        boolean isEmailEmpty =
+                emailTextField.getText().isEmpty();
+
+        boolean isFirstNameEmpty =
+                firstNameTextField.getText().isEmpty();
+
+        boolean isPasswordEmpty =
+                passwordField.getText().isEmpty();
+
+        boolean isConfirmPasswordEmpty =
+                confirmPasswordField.getText().isEmpty();
+
+        boolean hasEmptyFields = isIdEmpty || isLastNameEmpty || isSecondLastNameEmpty || isEmailEmpty
+                || isFirstNameEmpty || isPasswordEmpty || isConfirmPasswordEmpty;
+
+        return hasEmptyFields;
     }
 
     private boolean isPasswordMatching() {

@@ -5,7 +5,6 @@ import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -15,7 +14,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.util.Optional;
 
@@ -47,7 +45,6 @@ public class DeactivateCoordinatorController {
 
     @FXML
     private void initialize() {
-        configureDataColumns();
         configureListeners();
         loadCoordinators();
     }
@@ -67,7 +64,8 @@ public class DeactivateCoordinatorController {
                 "¿Desea desactivar este coordinador?",
                 Alert.AlertType.CONFIRMATION);
 
-        if (response.isPresent() && response.get() == ButtonType.OK) {
+        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isUserConfirmed) {
             selectedUser.setStatus("Inactivo");
             selectedUser.setRole("Coordinador");
             deactivateProcess(selectedUser);
@@ -81,49 +79,17 @@ public class DeactivateCoordinatorController {
         openWelcomePage(anchorPane);
     }
 
-    private void configureDataColumns() {
-        tagColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getMatricula());
-            }
-        });
-
-        nameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getFirstName());
-            }
-        });
-
-        lastNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getLastName());
-            }
-        });
-
-        secondLastNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getSecondLastName());
-            }
-        });
-    }
-
     private void configureListeners() {
         tableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<User>() {
-                    @Override
-                    public void changed(ObservableValue<? extends User> observable,
-                                        User oldValue, User newValue) {
-                        selectedUser = newValue;
-                    }
-                });
+                .addListener(new UserSelectionListener());
+    }
+
+    private final class UserSelectionListener implements ChangeListener<User> {
+        @Override
+        public void changed(ObservableValue<? extends User> observable,
+                            User oldValue, User newValue) {
+            selectedUser = newValue;
+        }
     }
 
     private void deactivateProcess(User user) {

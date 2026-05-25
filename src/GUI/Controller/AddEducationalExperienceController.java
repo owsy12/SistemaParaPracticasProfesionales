@@ -11,11 +11,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.util.List;
 
@@ -42,7 +39,6 @@ public class AddEducationalExperienceController {
         setTypeAndLength(nrcTextField, "Number");
         setTypeAndLength(nameTextField, "Name");
         loadProfessors();
-        configureProfessorComboBox();
     }
 
     @FXML
@@ -58,37 +54,6 @@ public class AddEducationalExperienceController {
     @FXML
     public void cancel(ActionEvent actionEvent) {
         openWelcomePage(anchorPane);
-    }
-
-    private void configureProfessorComboBox() {
-        professorComboBox.setCellFactory(new Callback<ListView<Professor>, ListCell<Professor>>() {
-            @Override
-            public ListCell<Professor> call(ListView<Professor> listView) {
-                return new ListCell<Professor>() {
-                    @Override
-                    protected void updateItem(Professor item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String displayText = null;
-                        if (!empty && item != null) {
-                            displayText = item.getFirstName() + " " + item.getLastName();
-                        }
-                        setText(displayText);
-                    }
-                };
-            }
-        });
-
-        professorComboBox.setButtonCell(new ListCell<Professor>() {
-            @Override
-            protected void updateItem(Professor item, boolean empty) {
-                super.updateItem(item, empty);
-                String displayText = null;
-                if (!empty && item != null) {
-                    displayText = item.getFirstName() + " " + item.getLastName();
-                }
-                setText(displayText);
-            }
-        });
     }
 
     private void registrationProcess() {

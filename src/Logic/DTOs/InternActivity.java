@@ -91,6 +91,11 @@ public class InternActivity {
         this.activityName = activityName;
     }
 
+    public String getDedicatedHoursDisplay() {
+        String display = String.valueOf(dedicatedHours);
+        return display;
+    }
+
     @Override
     public String toString() {
         return activityName != null ? activityName : String.valueOf(idActivity);

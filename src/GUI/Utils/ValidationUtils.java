@@ -1,10 +1,13 @@
 package GUI.Utils;
 
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.util.StringConverter;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 public class ValidationUtils {
@@ -31,49 +34,80 @@ public class ValidationUtils {
 
 
     public static void setTypeAndLength(TextField campo, String type) {
-        campo.setTextFormatter(new javafx.scene.control.TextFormatter<>(change -> {
-            String nuevoTexto = change.getControlNewText();
-            boolean isValid = false;
+        UnaryOperator<TextFormatter.Change> filter =
+                new UnaryOperator<TextFormatter.Change>() {
+            @Override
+            public TextFormatter.Change apply(TextFormatter.Change change) {
+                String nuevoTexto = change.getControlNewText();
+                boolean isValid = false;
 
-            switch (type) {
-                case "ID":
-                    if (nuevoTexto.matches(ID_PATTERN.pattern()) && nuevoTexto.length() <= 10) {
-                        isValid = true;
-                    }
-                    break;
-                case "Name":
-                    if (nuevoTexto.matches(TEXT_PATTERN.pattern()) && nuevoTexto.length() <= 30) {
-                        isValid = true;
-                    }
-                    break;
-                case "Email":
-                    if (nuevoTexto.matches(EMAIL_PATTERN.pattern()) && nuevoTexto.length() <= 50) {
-                        isValid = true;
-                    }
-                    break;
-                case "Text":
-                    if (nuevoTexto.matches(TEXT_PATTERN.pattern()) && nuevoTexto.length() <= 45) {
-                        isValid = true;
-                    }
-                    break;
-                case "Number":
-                    if (nuevoTexto.matches(NUMBER_PARTTERN.pattern()) && nuevoTexto.length() <= 8){
-                        isValid = true;
-                    }
-                    break;
-                case "Password":
-                    if (nuevoTexto.matches(PASSWORD_PATTERN.pattern()) && nuevoTexto.length() <= 20) {
-                        isValid = true;
-                    }
-                    break;
-                default:
-                    isValid = false;
+                switch (type) {
+                    case "ID":
+                        boolean isIdMatch =
+                                nuevoTexto.matches(ID_PATTERN.pattern());
+                        boolean isIdLength =
+                                nuevoTexto.length() <= 10;
+                        if (isIdMatch && isIdLength) {
+                            isValid = true;
+                        }
+                        break;
+                    case "Name":
+                        boolean isNameMatch =
+                                nuevoTexto.matches(TEXT_PATTERN.pattern());
+                        boolean isNameLength =
+                                nuevoTexto.length() <= 30;
+                        if (isNameMatch && isNameLength) {
+                            isValid = true;
+                        }
+                        break;
+                    case "Email":
+                        boolean isEmailMatch =
+                                nuevoTexto.matches(EMAIL_PATTERN.pattern());
+                        boolean isEmailLength =
+                                nuevoTexto.length() <= 50;
+                        if (isEmailMatch && isEmailLength) {
+                            isValid = true;
+                        }
+                        break;
+                    case "Text":
+                        boolean isTextMatch =
+                                nuevoTexto.matches(TEXT_PATTERN.pattern());
+                        boolean isTextLength =
+                                nuevoTexto.length() <= 45;
+                        if (isTextMatch && isTextLength) {
+                            isValid = true;
+                        }
+                        break;
+                    case "Number":
+                        boolean isNumberMatch =
+                                nuevoTexto.matches(NUMBER_PARTTERN.pattern());
+                        boolean isNumberLength =
+                                nuevoTexto.length() <= 8;
+                        if (isNumberMatch && isNumberLength) {
+                            isValid = true;
+                        }
+                        break;
+                    case "Password":
+                        boolean isPasswordMatch =
+                                nuevoTexto.matches(PASSWORD_PATTERN.pattern());
+                        boolean isPasswordLength =
+                                nuevoTexto.length() <= 20;
+                        if (isPasswordMatch && isPasswordLength) {
+                            isValid = true;
+                        }
+                        break;
+                    default:
+                        isValid = false;
+                }
+
+                TextFormatter.Change result = change;
+                if (!isValid) {
+                    result = null;
+                }
+                return result;
             }
-            if (!isValid) {
-              change = null;
-            }
-            return change;
-        }));
+        };
+        campo.setTextFormatter(new TextFormatter<>(filter));
     }
 
     public static boolean isValidEmail(String email) {

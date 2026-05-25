@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="740.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.ManageActivitiesController">
+<AnchorPane prefHeight="660.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.ManageActivitiesController">
    <children>
       <Label layoutX="20.0" layoutY="14.0" text="Gestión de Actividades del Proyecto">
          <font><Font size="18.0" /></font>
@@ -16,9 +16,15 @@
 
       <TableView fx:id="activitiesTableView" layoutX="20.0" layoutY="108.0" prefHeight="220.0" prefWidth="660.0">
          <columns>
-            <TableColumn fx:id="nameColumn" prefWidth="240.0" text="Nombre" />
-            <TableColumn fx:id="descriptionColumn" prefWidth="300.0" text="Descripción" />
-            <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Estado" />
+            <TableColumn fx:id="nameColumn" prefWidth="240.0" text="Nombre">
+               <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="descriptionColumn" prefWidth="300.0" text="Descripción">
+               <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Estado">
+               <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+            </TableColumn>
          </columns>
       </TableView>
 
@@ -28,21 +34,16 @@
       <Label layoutX="20.0" layoutY="396.0" text="Descripción:" />
       <TextArea fx:id="descriptionTextArea" layoutX="20.0" layoutY="414.0" prefHeight="80.0" prefWidth="660.0" wrapText="true" />
 
-      <Label layoutX="20.0" layoutY="502.0" text="Semana inicio plan (1-8):" />
-      <Spinner fx:id="semanaInicioSpinner" layoutX="20.0" layoutY="520.0" prefHeight="26.0" prefWidth="100.0" />
-      <Label layoutX="140.0" layoutY="502.0" text="Semana fin plan (1-8):" />
-      <Spinner fx:id="semanaFinSpinner" layoutX="140.0" layoutY="520.0" prefHeight="26.0" prefWidth="100.0" />
+      <Label layoutX="20.0" layoutY="506.0" text="Fecha de inicio:" />
+      <DatePicker fx:id="fechaInicioPicker" layoutX="20.0" layoutY="524.0" prefHeight="26.0" prefWidth="220.0" />
 
-      <Label layoutX="20.0" layoutY="558.0" text="Fecha de inicio:" />
-      <DatePicker fx:id="fechaInicioPicker" layoutX="20.0" layoutY="576.0" prefHeight="26.0" prefWidth="220.0" />
+      <Label layoutX="260.0" layoutY="506.0" text="Fecha de fin (límite de entrega):" />
+      <DatePicker fx:id="fechaFinPicker" layoutX="260.0" layoutY="524.0" prefHeight="26.0" prefWidth="220.0" />
 
-      <Label layoutX="260.0" layoutY="558.0" text="Fecha de fin (límite de entrega):" />
-      <DatePicker fx:id="fechaFinPicker" layoutX="260.0" layoutY="576.0" prefHeight="26.0" prefWidth="220.0" />
+      <Label fx:id="statusLabel" layoutX="20.0" layoutY="566.0" text="" />
 
-      <Label fx:id="statusLabel" layoutX="20.0" layoutY="616.0" text="" />
-
-      <Button layoutX="20.0" layoutY="648.0" mnemonicParsing="false" onAction="#updateActivity" prefHeight="26.0" prefWidth="120.0" text="Actualizar" />
-      <Button layoutX="280.0" layoutY="648.0" mnemonicParsing="false" onAction="#deleteActivity" prefHeight="26.0" prefWidth="120.0" text="Eliminar" />
-      <Button layoutX="560.0" layoutY="648.0" mnemonicParsing="false" onAction="#clearSelection" prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
+      <Button layoutX="20.0" layoutY="598.0" mnemonicParsing="false" onAction="#updateActivity" prefHeight="26.0" prefWidth="120.0" text="Actualizar" />
+      <Button layoutX="280.0" layoutY="598.0" mnemonicParsing="false" onAction="#deleteActivity" prefHeight="26.0" prefWidth="120.0" text="Eliminar" />
+      <Button layoutX="560.0" layoutY="598.0" mnemonicParsing="false" onAction="#clearSelection" prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
    </children>
 </AnchorPane>

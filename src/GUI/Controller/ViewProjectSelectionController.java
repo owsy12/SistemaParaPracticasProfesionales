@@ -51,7 +51,8 @@ public class ViewProjectSelectionController {
                 "¿Seguro que desea seleccionar estos proyectos?",
                 Alert.AlertType.CONFIRMATION);
 
-        if (response.isPresent() && response.get() == ButtonType.OK) {
+        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isUserConfirmed) {
             requestProjectProcess();
         }
     }

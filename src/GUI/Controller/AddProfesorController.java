@@ -174,8 +174,8 @@ public class AddProfesorController {
         boolean isPasswordEmpty = passwordField.getText().isEmpty();
         boolean isConfirmPasswordEmpty = confirmPasswordField.getText().isEmpty();
 
-        boolean hasEmpty = isIdEmpty || isEmailEmpty || isFirstNameEmpty || isLastNameEmpty
-                || isSecondLastNameEmpty || isAcademicAreaEmpty || isPasswordEmpty || isConfirmPasswordEmpty;
+        boolean hasEmpty = isIdEmpty || isEmailEmpty || isFirstNameEmpty || isLastNameEmpty || isSecondLastNameEmpty
+                || isAcademicAreaEmpty || isPasswordEmpty || isConfirmPasswordEmpty;
 
         return hasEmpty;
     }

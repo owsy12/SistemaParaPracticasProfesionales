@@ -12,4 +12,6 @@ public interface IReportActivityDAO {
     List<ReportActivity> findByReport(int idReport) throws ServiceException, ValidationException;
     int  saveDeliverable(ReportDeliverable rd) throws ServiceException, ValidationException;
     List<ReportDeliverable> findDeliverablesByReport(int idReport) throws ServiceException, ValidationException;
+    List<Integer> findActivityIdsInMonthlyReportsByIntern(int internId)
+            throws ServiceException, ValidationException;
 }

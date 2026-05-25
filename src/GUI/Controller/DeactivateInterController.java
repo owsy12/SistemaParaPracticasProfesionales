@@ -5,7 +5,6 @@ import Logic.DTOs.Intern;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -15,7 +14,6 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +40,6 @@ public class DeactivateInterController {
 
     @FXML
     private void initialize() {
-        configureDataColumns();
         configureListeners();
         loadActiveInterns();
     }
@@ -62,7 +59,9 @@ public class DeactivateInterController {
                 "¿Está seguro que desea inactivar este practicante?",
                 Alert.AlertType.CONFIRMATION);
 
-        if (confirmationResponse.isPresent() && confirmationResponse.get() == ButtonType.OK) {
+        boolean isUserConfirmed = confirmationResponse.isPresent()
+                && confirmationResponse.get() == ButtonType.OK;
+        if (isUserConfirmed) {
             inactiveProcess(selectedUser);
             internsTableView.refresh();
         }
@@ -73,37 +72,17 @@ public class DeactivateInterController {
         openWelcomePage(anchorPane);
     }
 
-    private void configureDataColumns() {
-        tagColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getMatricula());
-            }
-        });
-
-        interFullNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                String firstName = cellData.getValue().getFirstName();
-                String lastName = cellData.getValue().getLastName();
-                String secondLastName = cellData.getValue().getSecondLastName();
-                String fullName = firstName + " " + lastName + " " + secondLastName;
-                return new SimpleStringProperty(fullName);
-            }
-        });
-    }
-
     private void configureListeners() {
         internsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<User>() {
-                    @Override
-                    public void changed(ObservableValue<? extends User> observable,
-                                        User oldValue, User newValue) {
-                        selectedUser = newValue;
-                    }
-                });
+                .addListener(new UserSelectionListener());
+    }
+
+    private final class UserSelectionListener implements ChangeListener<User> {
+        @Override
+        public void changed(ObservableValue<? extends User> observable,
+                            User oldValue, User newValue) {
+            selectedUser = newValue;
+        }
     }
 
     private void loadActiveInterns() {

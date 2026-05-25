@@ -79,5 +79,34 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="mindrot.jbcrypt" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library name="ApachePOI-DocxConverter">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/poi/poi-5.2.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/poi-ooxml-5.2.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/poi-ooxml-full-5.2.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/xmlbeans-5.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/commons-compress-1.26.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/commons-io-2.15.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/commons-collections4-4.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/commons-lang3-3.14.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/commons-math3-3.6.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/curvesapi-1.08.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/log4j-api-2.23.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/log4j-core-2.23.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/pdfbox-2.0.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/fontbox-2.0.29.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/itext-2.1.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/xwpf.converter.core-2.0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/xwpf.converter.pdf-2.0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.itext.extension-2.0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.core-2.0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.template-2.0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.document-2.0.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

@@ -5,7 +5,6 @@ import Logic.DAO.ReportDAO;
 import Logic.DTOs.Report;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -22,7 +21,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
-import javafx.util.Callback;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +73,6 @@ public class ControllerAddReportController {
 
     @FXML
     private void initialize() {
-        configureTable();
         configureListeners();
         loadPendingReports();
     }
@@ -129,84 +126,49 @@ public class ControllerAddReportController {
         return isLate;
     }
 
-    private void configureTable() {
-        reportTypeColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                return new SimpleStringProperty(data.getValue().getReportType());
-            }
-        });
-
-        periodColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                return new SimpleStringProperty(data.getValue().getPeriod());
-            }
-        });
-
-        statusColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                return new SimpleStringProperty(data.getValue().getStatus());
-            }
-        });
-
-        dateColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-                java.util.Date submissionDate = data.getValue().getSumissionDate();
-                String dateText = "";
-                if (submissionDate != null) {
-                    dateText = submissionDate.toString();
-                }
-                return new SimpleStringProperty(dateText);
-            }
-        });
-    }
-
     private void configureListeners() {
         reportsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<Report>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Report> observable,
-                                        Report oldValue, Report newValue) {
-                        if (newValue != null) {
-                            selectedReport = newValue;
-                            String selectionStatusText = "Reporte seleccionado: "
-                                    + newValue.getReportType() + " - " + newValue.getPeriod();
-                            showStatus(selectionStatusText, false);
-                        }
-                    }
-                });
+                .addListener(new ReportSelectionListener());
+        dropZone.setOnDragOver(new DragOverHandler());
+        dropZone.setOnDragDropped(new DragDroppedHandler());
+    }
 
-        dropZone.setOnDragOver(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                if (event.getDragboard().hasFiles()) {
-                    event.acceptTransferModes(TransferMode.COPY);
-                }
-                event.consume();
+    private final class ReportSelectionListener implements ChangeListener<Report> {
+        @Override
+        public void changed(ObservableValue<? extends Report> observable,
+                            Report oldValue, Report newValue) {
+            if (newValue != null) {
+                selectedReport = newValue;
+                String selectionStatusText = "Reporte seleccionado: "
+                        + newValue.getReportType() + " - " + newValue.getPeriod();
+                showStatus(selectionStatusText, false);
             }
-        });
+        }
+    }
 
-        dropZone.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                Dragboard dragboard = event.getDragboard();
-                boolean hasFiles = dragboard.hasFiles();
-                if (hasFiles) {
-                    processSelectedFile(dragboard.getFiles().get(0));
-                    event.setDropCompleted(true);
-                } else {
-                    event.setDropCompleted(false);
-                }
-                event.consume();
+    private final class DragOverHandler implements EventHandler<DragEvent> {
+        @Override
+        public void handle(DragEvent event) {
+            if (event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY);
             }
-        });
+            event.consume();
+        }
+    }
+
+    private final class DragDroppedHandler implements EventHandler<DragEvent> {
+        @Override
+        public void handle(DragEvent event) {
+            Dragboard dragboard = event.getDragboard();
+            boolean hasFiles = dragboard.hasFiles();
+            if (hasFiles) {
+                processSelectedFile(dragboard.getFiles().get(0));
+                event.setDropCompleted(true);
+            } else {
+                event.setDropCompleted(false);
+            }
+            event.consume();
+        }
     }
 
     private void loadPendingReports() {
@@ -289,7 +251,8 @@ public class ControllerAddReportController {
 
         Path destination = folderPath.resolve(fileName + ".pdf");
         Files.copy(selectedFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
-        return destination.toString();
+        String destinationPath = destination.toString();
+        return destinationPath;
     }
 
     private void showStatus(String message, boolean isError) {
@@ -298,6 +261,7 @@ public class ControllerAddReportController {
         labelStatus.setText(message);
     }
 
+    @FXML
     private void clearSelection() {
         selectedFile = null;
         selectedReport = null;

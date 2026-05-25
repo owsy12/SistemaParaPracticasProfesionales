@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -18,19 +19,31 @@
       </Label>
 
       <Label layoutX="20.0" layoutY="50.0" text="Filtrar por estado:" />
-      <ComboBox fx:id="filterStatusComboBox" layoutX="20.0" layoutY="68.0" prefHeight="26.0" prefWidth="200.0" />
+      <ComboBox fx:id="filterStatusComboBox" layoutX="20.0" layoutY="68.0" onAction="#handleStatusFilter" prefHeight="26.0" prefWidth="200.0" />
       <Button layoutX="230.0" layoutY="68.0" mnemonicParsing="false" onAction="#clearFilter"    prefHeight="26.0" prefWidth="100.0" text="Limpiar filtro" />
       <Button layoutX="340.0" layoutY="68.0" mnemonicParsing="false" onAction="#refreshReports" prefHeight="26.0" prefWidth="100.0" text="Actualizar" />
       <Label fx:id="totalLabel" layoutX="580.0" layoutY="74.0" text="Total: 0" />
 
       <TableView fx:id="reportsTableView" layoutX="20.0" layoutY="108.0" prefHeight="300.0" prefWidth="700.0">
          <columns>
-            <TableColumn fx:id="idColumn"     prefWidth="50.0"  text="ID" />
-            <TableColumn fx:id="typeColumn"   prefWidth="100.0" text="Tipo" />
-            <TableColumn fx:id="periodColumn" prefWidth="130.0" text="Período" />
-            <TableColumn fx:id="hoursColumn"  prefWidth="70.0"  text="Horas" />
-            <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Estado" />
-            <TableColumn fx:id="dateColumn"   prefWidth="210.0" text="Fecha entrega" />
+            <TableColumn fx:id="idColumn"     prefWidth="50.0"  text="ID">
+               <cellValueFactory><PropertyValueFactory property="idReport"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="typeColumn"   prefWidth="100.0" text="Tipo">
+               <cellValueFactory><PropertyValueFactory property="reportType"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="periodColumn" prefWidth="130.0" text="Período">
+               <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="hoursColumn"  prefWidth="70.0"  text="Horas">
+               <cellValueFactory><PropertyValueFactory property="reportedHours"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Estado">
+               <cellValueFactory><PropertyValueFactory property="displayStatus"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="dateColumn"   prefWidth="210.0" text="Fecha entrega">
+               <cellValueFactory><PropertyValueFactory property="dateDisplay"/></cellValueFactory>
+            </TableColumn>
          </columns>
       </TableView>
 

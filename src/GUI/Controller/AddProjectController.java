@@ -13,16 +13,12 @@ import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -71,11 +67,6 @@ public class AddProjectController {
         loadOrganizations();
         loadProfessors();
         loadEducationalExperiences();
-
-        configureTechnicalComboBox();
-        configureOrganizationComboBox();
-        configureEducationalExperienceComboBox();
-        configureListeners();
     }
 
     @FXML
@@ -93,110 +84,12 @@ public class AddProjectController {
         clear();
     }
 
-    private void configureTechnicalComboBox() {
-        technicalComboBox.setCellFactory(new Callback<ListView<TechnicalSupervisor>, ListCell<TechnicalSupervisor>>() {
-            @Override
-            public ListCell<TechnicalSupervisor> call(ListView<TechnicalSupervisor> listView) {
-                return new ListCell<TechnicalSupervisor>() {
-                    @Override
-                    protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String displayText = null;
-                        if (!empty && item != null) {
-                            displayText = item.getName();
-                        }
-                        setText(displayText);
-                    }
-                };
-            }
-        });
-
-        technicalComboBox.setButtonCell(new ListCell<TechnicalSupervisor>() {
-            @Override
-            protected void updateItem(TechnicalSupervisor item, boolean empty) {
-                super.updateItem(item, empty);
-                String displayText = null;
-                if (!empty && item != null) {
-                    displayText = item.getName();
-                }
-                setText(displayText);
-            }
-        });
-    }
-
-    private void configureOrganizationComboBox() {
-        organizationComboBox.setCellFactory(new Callback<ListView<LinkedOrganization>, ListCell<LinkedOrganization>>() {
-            @Override
-            public ListCell<LinkedOrganization> call(ListView<LinkedOrganization> listView) {
-                return new ListCell<LinkedOrganization>() {
-                    @Override
-                    protected void updateItem(LinkedOrganization item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String displayText = null;
-                        if (!empty && item != null) {
-                            displayText = item.getName();
-                        }
-                        setText(displayText);
-                    }
-                };
-            }
-        });
-
-        organizationComboBox.setButtonCell(new ListCell<LinkedOrganization>() {
-            @Override
-            protected void updateItem(LinkedOrganization item, boolean empty) {
-                super.updateItem(item, empty);
-                String displayText = null;
-                if (!empty && item != null) {
-                    displayText = item.getName();
-                }
-                setText(displayText);
-            }
-        });
-    }
-
-    private void configureEducationalExperienceComboBox() {
-        educationalExperienceComboBox.setCellFactory(
-                new Callback<ListView<EducationalExperience>, ListCell<EducationalExperience>>() {
-            @Override
-            public ListCell<EducationalExperience> call(ListView<EducationalExperience> listView) {
-                return new ListCell<EducationalExperience>() {
-                    @Override
-                    protected void updateItem(EducationalExperience item, boolean empty) {
-                        super.updateItem(item, empty);
-                        String displayText = null;
-                        if (!empty && item != null) {
-                            displayText = item.getNrc() + " - " + item.getName();
-                        }
-                        setText(displayText);
-                    }
-                };
-            }
-        });
-
-        educationalExperienceComboBox.setButtonCell(new ListCell<EducationalExperience>() {
-            @Override
-            protected void updateItem(EducationalExperience item, boolean empty) {
-                super.updateItem(item, empty);
-                String displayText = null;
-                if (!empty && item != null) {
-                    displayText = item.getNrc() + " - " + item.getName();
-                }
-                setText(displayText);
-            }
-        });
-    }
-
-    private void configureListeners() {
-        organizationComboBox.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                LinkedOrganization linkedOrganization = organizationComboBox.getValue();
-                if (linkedOrganization != null) {
-                    loadTechnicians(linkedOrganization.getIdLinkedOrganization());
-                }
-            }
-        });
+    @FXML
+    private void handleOrganizationSelection(ActionEvent actionEvent) {
+        LinkedOrganization linkedOrganization = organizationComboBox.getValue();
+        if (linkedOrganization != null) {
+            loadTechnicians(linkedOrganization.getIdLinkedOrganization());
+        }
     }
 
     private void registrationProcess() {
@@ -303,15 +196,12 @@ public class AddProjectController {
         boolean isEndDateMissing = endDate.getValue() == null;
         boolean isEducationalExperienceMissing = educationalExperienceComboBox.getValue() == null;
 
-        boolean hasEmptyFields = isCapacityEmpty || isNameEmpty || isDescriptionEmpty
-                || isOrganizationMissing || isTechnicalMissing || isStartDateMissing
-                || isProfessorMissing || isEndDateMissing || isEducationalExperienceMissing;
+        boolean hasEmptyFields = isCapacityEmpty || isNameEmpty || isDescriptionEmpty || isOrganizationMissing || isTechnicalMissing
+                || isStartDateMissing || isProfessorMissing || isEndDateMissing || isEducationalExperienceMissing;
 
-        if (hasEmptyFields) {
-            return false;
-        }
-
-        boolean isEndAfterStart = endDate.getValue().isAfter(startDate.getValue());
+        boolean noFieldsEmpty = !hasEmptyFields;
+        boolean isEndAfterStart =
+                noFieldsEmpty && endDate.getValue().isAfter(startDate.getValue());
 
         return isEndAfterStart;
     }

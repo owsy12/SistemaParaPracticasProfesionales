@@ -12,7 +12,6 @@ import Logic.DTOs.Project;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -23,7 +22,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -85,12 +83,10 @@ public class ViewInterProjectSelection {
 
     public void setUser(User user) {
         this.user = user;
-        String fullName = user.getFirstName() + " " + user.getLastName()
-                + " " + user.getSecondLastName();
+        String fullName = user.getFirstName() + " " + user.getLastName() + " " + user.getSecondLastName();
         internNameLabel.setText(fullName);
-        loadProjectList();
-        configureDataColumns();
         configureListeners();
+        loadProjectList();
     }
 
     @FXML
@@ -105,82 +101,17 @@ public class ViewInterProjectSelection {
         handleAssignAction(selectedProject);
     }
 
-    private void configureDataColumns() {
-        projetcNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getName());
-            }
-        });
-
-        organizationColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getOrganizationName());
-            }
-        });
-
-        placesColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                return new SimpleStringProperty(
-                        String.valueOf(cellData.getValue().getAvaliablePlaces()));
-            }
-        });
-
-        datesColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                String startDate = cellData.getValue().getStartDate();
-                String endDate = cellData.getValue().getEndDate();
-                return new SimpleStringProperty(startDate + " - " + endDate);
-            }
-        });
-
-        typeColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<Project, String>,
-                        ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(
-                    TableColumn.CellDataFeatures<Project, String> cellData) {
-                Integer preferenceOrder =
-                        preferenceOrderMap.get(cellData.getValue().getIdProyect());
-                String label;
-                if (preferenceOrder == null) {
-                    label = "Disponible";
-                } else if (preferenceOrder == 1) {
-                    label = "Primera opción";
-                } else if (preferenceOrder == 2) {
-                    label = "Segunda opción";
-                } else {
-                    label = "Tercera opción";
-                }
-                return new SimpleStringProperty(label);
-            }
-        });
-    }
-
     private void configureListeners() {
         projectsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<Project>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Project> observable,
-                                        Project oldValue, Project newValue) {
-                        selectedProject = newValue;
-                    }
-                });
+                .addListener(new ProjectSelectionListener());
+    }
+
+    private final class ProjectSelectionListener implements ChangeListener<Project> {
+        @Override
+        public void changed(ObservableValue<? extends Project> observable,
+                            Project oldValue, Project newValue) {
+            selectedProject = newValue;
+        }
     }
 
     private void loadProjectList() {
@@ -264,7 +195,8 @@ public class ViewInterProjectSelection {
         Optional<ButtonType> response = showAlertAndWait(
                 "Confirmación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-        if (response.isPresent() && response.get() == ButtonType.OK) {
+        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isUserConfirmed) {
             assignProjectProcess(project, justification);
         }
     }

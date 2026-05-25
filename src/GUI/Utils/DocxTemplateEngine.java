@@ -29,9 +29,7 @@ public class DocxTemplateEngine {
         }
     }
 
-    public static byte[] fill(String resourcePath,
-                              Map<String, String> values,
-                              List<RowExpansion> expansions) throws IOException {
+    public static byte[] fill(String resourcePath, Map<String, String> values, List<RowExpansion> expansions) throws IOException {
 
         InputStream templateStream = DocxTemplateEngine.class.getResourceAsStream(resourcePath);
         if (templateStream == null) {
@@ -68,8 +66,7 @@ public class DocxTemplateEngine {
         return outputStream.toByteArray();
     }
 
-    public static byte[] fill(String resourcePath,
-                              Map<String, String> values) throws IOException {
+    public static byte[] fill(String resourcePath, Map<String, String> values) throws IOException {
         return fill(resourcePath, values, null);
     }
 

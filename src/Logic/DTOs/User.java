@@ -73,4 +73,13 @@ public class User{
         this.email = email;
     }
 
+    public String getFullName() {
+        String second = "";
+        if (secondLastName != null && !secondLastName.isEmpty()) {
+            second = " " + secondLastName;
+        }
+        String fullName = firstName + " " + lastName + second;
+        return fullName;
+    }
+
 }

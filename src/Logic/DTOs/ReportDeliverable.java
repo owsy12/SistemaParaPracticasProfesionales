@@ -58,4 +58,25 @@ public class ReportDeliverable {
     public void setObservaciones(String observaciones) {
         this.observaciones = observaciones;
     }
+
+    public String getAdvanceDisplay() {
+        String display = porcentajeAvance + "%";
+        return display;
+    }
+
+    public String getDescripcionDisplay() {
+        String display = "";
+        if (descripcion != null) {
+            display = descripcion;
+        }
+        return display;
+    }
+
+    public String getObservacionesDisplay() {
+        String display = "";
+        if (observaciones != null) {
+            display = observaciones;
+        }
+        return display;
+    }
 }

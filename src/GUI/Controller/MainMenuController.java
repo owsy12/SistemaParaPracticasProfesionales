@@ -101,17 +101,20 @@ public class MainMenuController {
     private String formatDate(LocalDate date) {
         String dayAbbr = DAYS_ES[date.getDayOfWeek().getValue() - 1];
         String monthAbbr = MONTHS_ES[date.getMonthValue() - 1];
-        return dayAbbr + " · " + date.getDayOfMonth() + " " + monthAbbr + " " + date.getYear();
+        String formattedDate = dayAbbr + " · " + date.getDayOfMonth() + " " + monthAbbr + " " + date.getYear();
+        return formattedDate;
     }
 
     private String buildPeriodLabel(LocalDate date) {
         int month = date.getMonthValue();
         int year = date.getYear();
+        boolean isSpringPeriod = month >= 2 && month <= 7;
         String result;
-        if (month >= 2 && month <= 7) {
+        if (isSpringPeriod) {
             result = "Periodo Feb-Jul " + year;
         } else {
-            int startYear = (month >= 8) ? year : year - 1;
+            boolean isLaterInYear = month >= 8;
+            int startYear = isLaterInYear ? year : year - 1;
             result = "Periodo Ago-Ene " + startYear;
         }
         return result;
@@ -133,7 +136,8 @@ public class MainMenuController {
         boolean isLastNameEmpty = lastName == null || lastName.isEmpty();
         String first = isFirstNameEmpty ? "" : String.valueOf(firstName.charAt(0));
         String last = isLastNameEmpty ? "" : String.valueOf(lastName.charAt(0));
-        return first + last;
+        String initials = first + last;
+        return initials;
     }
 
     private String buildFullName(User user) {
@@ -141,7 +145,8 @@ public class MainMenuController {
         if (user.getSecondLastName() != null) {
             second = " " + user.getSecondLastName();
         }
-        return user.getFirstName() + " " + user.getLastName() + second;
+        String fullName = user.getFirstName() + " " + user.getLastName() + second;
+        return fullName;
     }
 
     private String resolveActiveRole(User user) {
@@ -197,6 +202,7 @@ public class MainMenuController {
 
     private void loadProfesorActions() {
         addButton("Evaluar Reporte", "/GUI/View/GUIEvaluateReport.fxml");
+        addButton("Prórroga de Actividad", "/GUI/View/GUIProrroga.fxml");
     }
 
     private void loadCoordinadorActions() {

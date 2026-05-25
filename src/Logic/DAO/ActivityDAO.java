@@ -19,23 +19,23 @@ public class ActivityDAO implements IActivityDAO {
 
     private static final String SQL_INSERT =
             "INSERT INTO actividad (id_proyecto, nombre, descripcion, " +
-            "semana_inicio_plan, semana_fin_plan, fecha_inicio, fecha_fin, fecha_creacion, estado) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "fecha_inicio, fecha_fin, fecha_creacion, estado) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_SELECT_BY_ID =
             "SELECT id_actividad, id_proyecto, nombre, descripcion, " +
-            "semana_inicio_plan, semana_fin_plan, fecha_inicio, fecha_fin, fecha_creacion, estado " +
+            "fecha_inicio, fecha_fin, fecha_creacion, estado " +
             "FROM actividad WHERE id_actividad = ?";
 
     private static final String SQL_SELECT_BY_PROJECT =
             "SELECT id_actividad, id_proyecto, nombre, descripcion, " +
-            "semana_inicio_plan, semana_fin_plan, fecha_inicio, fecha_fin, fecha_creacion, estado " +
-            "FROM actividad WHERE id_proyecto = ? AND estado = 'Activa' " +
+            "fecha_inicio, fecha_fin, fecha_creacion, estado " +
+            "FROM actividad WHERE id_proyecto = ? " +
+            "AND (estado = 'Activa' OR estado = 'En prórroga') " +
             "ORDER BY fecha_creacion ASC";
 
     private static final String SQL_UPDATE =
             "UPDATE actividad SET nombre = ?, descripcion = ?, " +
-            "semana_inicio_plan = ?, semana_fin_plan = ?, " +
             "fecha_inicio = ?, fecha_fin = ?, estado = ? " +
             "WHERE id_actividad = ?";
 
@@ -64,22 +64,20 @@ public class ActivityDAO implements IActivityDAO {
             statement.setInt   (1, activity.getIdProject());
             statement.setString(2, activity.getName());
             statement.setString(3, activity.getDescription());
-            statement.setInt   (4, activity.getSemanaInicioPlan() > 0 ? activity.getSemanaInicioPlan() : 1);
-            statement.setInt   (5, activity.getSemanaFinPlan()   > 0 ? activity.getSemanaFinPlan()   : 8);
             if (activity.getFechaInicio() != null) {
-                statement.setDate(6, java.sql.Date.valueOf(activity.getFechaInicio()));
+                statement.setDate(4, java.sql.Date.valueOf(activity.getFechaInicio()));
             } else {
-                statement.setNull(6, java.sql.Types.DATE);
+                statement.setNull(4, java.sql.Types.DATE);
             }
             if (activity.getFechaFin() != null) {
-                statement.setDate(7, java.sql.Date.valueOf(activity.getFechaFin()));
+                statement.setDate(5, java.sql.Date.valueOf(activity.getFechaFin()));
             } else {
-                statement.setNull(7, java.sql.Types.DATE);
+                statement.setNull(5, java.sql.Types.DATE);
             }
-            statement.setDate  (8, activity.getCreationDate() != null
+            statement.setDate  (6, activity.getCreationDate() != null
                     ? java.sql.Date.valueOf(activity.getCreationDate())
                     : new java.sql.Date(System.currentTimeMillis()));
-            statement.setString(9, activity.getStatus() != null ? activity.getStatus() : "Activa");
+            statement.setString(7, activity.getStatus() != null ? activity.getStatus() : "Activa");
 
             statement.executeUpdate();
 
@@ -179,20 +177,18 @@ public class ActivityDAO implements IActivityDAO {
 
             statement.setString(1, activity.getName());
             statement.setString(2, activity.getDescription());
-            statement.setInt   (3, activity.getSemanaInicioPlan() > 0 ? activity.getSemanaInicioPlan() : 1);
-            statement.setInt   (4, activity.getSemanaFinPlan()   > 0 ? activity.getSemanaFinPlan()   : 8);
             if (activity.getFechaInicio() != null) {
-                statement.setDate(5, java.sql.Date.valueOf(activity.getFechaInicio()));
+                statement.setDate(3, java.sql.Date.valueOf(activity.getFechaInicio()));
             } else {
-                statement.setNull(5, java.sql.Types.DATE);
+                statement.setNull(3, java.sql.Types.DATE);
             }
             if (activity.getFechaFin() != null) {
-                statement.setDate(6, java.sql.Date.valueOf(activity.getFechaFin()));
+                statement.setDate(4, java.sql.Date.valueOf(activity.getFechaFin()));
             } else {
-                statement.setNull(6, java.sql.Types.DATE);
+                statement.setNull(4, java.sql.Types.DATE);
             }
-            statement.setString(7, activity.getStatus());
-            statement.setInt   (8, activity.getIdActivity());
+            statement.setString(5, activity.getStatus());
+            statement.setInt   (6, activity.getIdActivity());
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -263,13 +259,11 @@ public class ActivityDAO implements IActivityDAO {
 
     private Activity mapResultSet(ResultSet resultSet) throws SQLException {
         Activity activity = new Activity();
-        activity.setIdActivity      (resultSet.getInt   ("id_actividad"));
-        activity.setIdProject       (resultSet.getInt   ("id_proyecto"));
-        activity.setName            (resultSet.getString("nombre"));
-        activity.setDescription     (resultSet.getString("descripcion"));
-        activity.setSemanaInicioPlan(resultSet.getInt   ("semana_inicio_plan"));
-        activity.setSemanaFinPlan   (resultSet.getInt   ("semana_fin_plan"));
-        activity.setStatus          (resultSet.getString("estado"));
+        activity.setIdActivity (resultSet.getInt   ("id_actividad"));
+        activity.setIdProject  (resultSet.getInt   ("id_proyecto"));
+        activity.setName       (resultSet.getString("nombre"));
+        activity.setDescription(resultSet.getString("descripcion"));
+        activity.setStatus     (resultSet.getString("estado"));
 
         java.sql.Date creationDate = resultSet.getDate("fecha_creacion");
         if (creationDate != null) {

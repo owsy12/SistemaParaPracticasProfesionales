@@ -1,7 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.ReportDocxGenerator;
+import GUI.Utils.SelfEvaluationGenerator;
 import GUI.Utils.ReportGenerationContext;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InternDAO;
@@ -213,9 +213,7 @@ public class GenerateSelfEvaluationController {
     }
 
     private boolean hasInternContext() {
-        boolean hasContext = currentIntern != null
-                && currentProject != null
-                && currentOrganization != null
+        boolean hasContext = currentIntern != null && currentProject != null && currentOrganization != null
                 && currentSupervisor != null;
         return hasContext;
     }
@@ -281,31 +279,14 @@ public class GenerateSelfEvaluationController {
     }
 
     private String generateAndSavePdf(SelfEvaluation selfEvaluation) throws IOException {
-        int[] answers = collectAnswers(selfEvaluation);
-
         ReportGenerationContext generationContext = buildGenerationContext();
-
-        return ReportDocxGenerator.generateSelfEvaluation(
-                answers,
-                selfEvaluation.getPlaceAndDate(),
-                generationContext,
-                currentProject.getIdProyect(),
-                selfEvaluation.getIdSelfEvalation());
-    }
-
-    private int[] collectAnswers(SelfEvaluation selfEvaluation) {
-        return new int[]{
-                selfEvaluation.getStatement01(), selfEvaluation.getStatement02(),
-                selfEvaluation.getStatement03(), selfEvaluation.getStatement04(),
-                selfEvaluation.getStatement05(), selfEvaluation.getStatement06(),
-                selfEvaluation.getStatement07(), selfEvaluation.getStatement08(),
-                selfEvaluation.getStatement09(), selfEvaluation.getStatement10()
-        };
+        String generatedFilePath = SelfEvaluationGenerator.generate(selfEvaluation, generationContext);
+        return generatedFilePath;
     }
 
     private ReportGenerationContext buildGenerationContext() {
         javafx.stage.Window ownerWindow = resolveOwnerWindow();
-        return new ReportGenerationContext.Builder()
+        ReportGenerationContext generationContext = new ReportGenerationContext.Builder()
                 .internFullName(buildInternFullName(currentIntern))
                 .matricula(currentIntern.getMatricula())
                 .organizationName(currentOrganization.getName())
@@ -314,6 +295,7 @@ public class GenerateSelfEvaluationController {
                 .projectName(currentProject.getName())
                 .ownerWindow(ownerWindow)
                 .build();
+        return generationContext;
     }
 
     private javafx.stage.Window resolveOwnerWindow() {
@@ -353,21 +335,24 @@ public class GenerateSelfEvaluationController {
     }
 
     private int calculateFinalScore(SelfEvaluation selfEvaluation) {
-        return selfEvaluation.getStatement01() + selfEvaluation.getStatement02()
+        int totalScore = selfEvaluation.getStatement01() + selfEvaluation.getStatement02()
                 + selfEvaluation.getStatement03() + selfEvaluation.getStatement04()
                 + selfEvaluation.getStatement05() + selfEvaluation.getStatement06()
                 + selfEvaluation.getStatement07() + selfEvaluation.getStatement08()
                 + selfEvaluation.getStatement09() + selfEvaluation.getStatement10();
+        return totalScore;
     }
 
     private String buildInternFullName(Intern intern) {
-        return intern.getFirstName() + " " + intern.getLastName()
+        String fullName = intern.getFirstName() + " " + intern.getLastName()
                 + " " + intern.getSecondLastName();
+        return fullName;
     }
 
     private String buildSupervisorFullName(TechnicalSupervisor supervisor) {
-        return supervisor.getName() + " " + supervisor.getLastName()
+        String fullName = supervisor.getName() + " " + supervisor.getLastName()
                 + " " + supervisor.getSecondLastName();
+        return fullName;
     }
     private String buildAcademicPeriod() {
         LocalDateTime now = LocalDateTime.now();
@@ -375,7 +360,8 @@ public class GenerateSelfEvaluationController {
         int year = now.getYear();
         String period;
 
-        if (month >= FIRST_SPRING_MONTH && month <= LAST_SPRING_MONTH) {
+        boolean isSpringMonth = month >= FIRST_SPRING_MONTH && month <= LAST_SPRING_MONTH;
+        if (isSpringMonth) {
             period = SPRING_PERIOD_START_LABEL + year;
         } else if (month == JANUARY_MONTH) {
             period = String.format(FALL_PERIOD_LABEL_TEMPLATE, year - 1, year);

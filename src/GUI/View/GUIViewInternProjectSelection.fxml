@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
@@ -31,11 +32,21 @@
       <TableView fx:id="projectsTableView" layoutX="28.0" layoutY="70.0"
                  prefHeight="310.0" prefWidth="564.0">
         <columns>
-            <TableColumn fx:id="projetcNameColumn"  prefWidth="148.0" text="Proyecto" />
-            <TableColumn fx:id="organizationColumn" prefWidth="110.0" text="Organización" />
-            <TableColumn fx:id="placesColumn"       prefWidth="60.0"  text="Lugares" />
-            <TableColumn fx:id="datesColumn"        prefWidth="121.0" text="Fechas" />
-            <TableColumn fx:id="typeColumn"         prefWidth="125.0" text="Tipo" />
+            <TableColumn fx:id="projetcNameColumn"  prefWidth="148.0" text="Proyecto">
+               <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="organizationColumn" prefWidth="110.0" text="Organización">
+               <cellValueFactory><PropertyValueFactory property="organizationName"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="placesColumn"       prefWidth="60.0"  text="Lugares">
+               <cellValueFactory><PropertyValueFactory property="avaliablePlacesDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="datesColumn"        prefWidth="121.0" text="Fechas">
+               <cellValueFactory><PropertyValueFactory property="periodIsoDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="typeColumn"         prefWidth="125.0" text="Tipo">
+               <cellValueFactory><PropertyValueFactory property="preferenceLabel"/></cellValueFactory>
+            </TableColumn>
         </columns>
       </TableView>
 

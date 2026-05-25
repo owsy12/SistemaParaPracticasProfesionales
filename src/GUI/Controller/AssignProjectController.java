@@ -6,7 +6,6 @@ import Logic.DTOs.Application;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -17,7 +16,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,7 +42,6 @@ public class AssignProjectController {
 
     @FXML
     private void initialize() {
-        configureDataColumns();
         configureListeners();
         loadPendingApplicationInterns();
     }
@@ -66,37 +63,17 @@ public class AssignProjectController {
         openWelcomePage(anchorPane);
     }
 
-    private void configureDataColumns() {
-        fullNameColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                String firstName = cellData.getValue().getFirstName();
-                String lastName = cellData.getValue().getLastName();
-                String secondLastName = cellData.getValue().getSecondLastName();
-                String fullName = firstName + " " + lastName + " " + secondLastName;
-                return new SimpleStringProperty(fullName);
-            }
-        });
-
-        matriculaColumn.setCellValueFactory(
-                new Callback<TableColumn.CellDataFeatures<User, String>, ObservableValue<String>>() {
-            @Override
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<User, String> cellData) {
-                return new SimpleStringProperty(cellData.getValue().getMatricula());
-            }
-        });
-    }
-
     private void configureListeners() {
         internsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ChangeListener<User>() {
-                    @Override
-                    public void changed(ObservableValue<? extends User> observable,
-                                        User oldValue, User newValue) {
-                        selectedUser = newValue;
-                    }
-                });
+                .addListener(new InternSelectionListener());
+    }
+
+    private final class InternSelectionListener implements ChangeListener<User> {
+        @Override
+        public void changed(ObservableValue<? extends User> observable,
+                            User oldValue, User newValue) {
+            selectedUser = newValue;
+        }
     }
 
     private void loadPendingApplicationInterns() {

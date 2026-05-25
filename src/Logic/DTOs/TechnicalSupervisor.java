@@ -72,11 +72,20 @@ public class TechnicalSupervisor {
         this.eMail = eMail;
     }
 
+    public String getEmail() {
+        return eMail;
+    }
+
     public String getPosition() {
         return position;
     }
 
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

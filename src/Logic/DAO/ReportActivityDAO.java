@@ -32,6 +32,12 @@ public class ReportActivityDAO implements IReportActivityDAO {
             "JOIN actividad a ON a.id_actividad = ra.id_actividad " +
             "WHERE ra.id_reporte = ? ORDER BY ra.id_reporte_actividad ASC";
 
+    private static final String SQL_SELECT_ACTIVITY_IDS_IN_MONTHLY_REPORTS =
+            "SELECT DISTINCT ra.id_actividad " +
+            "FROM reporte_actividad ra " +
+            "JOIN reporte r ON r.id_reporte = ra.id_reporte " +
+            "WHERE r.id_practicante = ? AND r.tipo_reporte = 'Mensual'";
+
     private static final String SQL_INSERT_DELIVERABLE =
             "INSERT INTO reporte_entregable " +
             "(id_reporte, resultado, descripcion, porcentaje_avance, observaciones) " +
@@ -181,6 +187,38 @@ public class ReportActivityDAO implements IReportActivityDAO {
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al buscar los entregables del reporte.", sqlException);
+        }
+    }
+
+    @Override
+    public List<Integer> findActivityIdsInMonthlyReportsByIntern(int internId)
+            throws ServiceException, ValidationException {
+
+        if (internId <= 0) {
+            throw new ValidationException("El ID del practicante debe ser mayor a cero.");
+        }
+
+        List<Integer> activityIds = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(
+                     SQL_SELECT_ACTIVITY_IDS_IN_MONTHLY_REPORTS)) {
+
+            statement.setInt(1, internId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int activityId = resultSet.getInt("id_actividad");
+                    activityIds.add(activityId);
+                }
+            }
+            return activityIds;
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al buscar IDs de actividades en reportes mensuales del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al buscar las actividades de reportes mensuales.", sqlException);
         }
     }
 
