@@ -29,7 +29,7 @@ public class LoginController {
     @FXML
     private void initialize() {
         setTypeAndLength(userTextField, "Email");
-        setTypeAndLength(passwordField, "Text");
+        setTypeAndLength(passwordField, "Password");
     }
 
     @FXML

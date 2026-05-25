@@ -1,48 +1,145 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="GUI.Controller.AddLinkedOrganizationController">
+<AnchorPane
+        fx:id="anchorPane"
+        stylesheets="@css/GUIAddLinkedOrganizationStyles.css"
+        xmlns="http://javafx.com/javafx/25"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="GUI.Controller.AddLinkedOrganizationController">
 
-   <children>
-      <VBox spacing="15.0" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+   <ScrollPane
+           styleClass="subViewScrollPane"
+           fitToWidth="true"
+           fitToHeight="false"
+           hbarPolicy="NEVER"
+           vbarPolicy="AS_NEEDED"
+           AnchorPane.topAnchor="0.0"
+           AnchorPane.bottomAnchor="0.0"
+           AnchorPane.leftAnchor="0.0"
+           AnchorPane.rightAnchor="0.0">
 
-         <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
-         </padding>
+      <content>
+         <VBox styleClass="subViewContentVBox" spacing="20.0">
+            <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-         <Label text="Registrar Organización" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <VBox styleClass="viewHeaderVBox" spacing="5.0">
+               <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                  <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                  <Label text="ADMINISTRACIÓN · ORGANIZACIONES" styleClass="viewBreadcrumbLabel"/>
+               </HBox>
+               <Label text="Registrar Organización" styleClass="viewTitleLabel"/>
+               <Label text="Alta de una empresa o institución como receptora de practicantes."
+                      styleClass="viewSubtitleLabel"/>
+            </VBox>
 
-         <VBox spacing="5">
-            <Label text="Nombre de la organización"/>
-            <TextField fx:id="organizationNameTextField" promptText="Ingrese el nombre"/>
+            <Separator styleClass="viewTopAccentSeparator"/>
+
+            <VBox styleClass="formCardVBox">
+
+               <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                  <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                  <StackPane styleClass="formSectionIconStackPane">
+                     <Label text="&amp;#61" styleClass="formSectionIconLabel"/>
+                  </StackPane>
+                  <Label text="Información de la organización" styleClass="formSectionTitleLabel"/>
+               </HBox>
+
+               <VBox spacing="18.0">
+                  <padding><Insets top="26.0" right="36.0" bottom="10.0" left="36.0"/></padding>
+
+                  <GridPane hgap="0.0" vgap="20.0" maxWidth="Infinity">
+                     <columnConstraints>
+                        <ColumnConstraints prefWidth="230.0" minWidth="160.0" halignment="RIGHT"/>
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="0.0"/>
+                     </columnConstraints>
+
+                     <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                           GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <padding><Insets right="18.0"/></padding>
+                        <Label text="Nombre de la organización" styleClass="fieldLabelText"/>
+                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                     </HBox>
+                     <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <TextField fx:id="organizationNameTextField"
+                                   promptText="Ej. Jabones Olimppo S.A. de C.V."
+                                   styleClass="formTextField"
+                                   maxWidth="Infinity"/>
+                     </VBox>
+
+                     <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                           GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <padding><Insets right="18.0"/></padding>
+                        <Label text="Correo de contacto" styleClass="fieldLabelText"/>
+                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                     </HBox>
+                     <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <TextField fx:id="organizationEmailTextField"
+                                   promptText="contacto@empresa.com"
+                                   styleClass="formTextField"
+                                   maxWidth="Infinity"/>
+                     </VBox>
+
+                     <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                           GridPane.columnIndex="0" GridPane.rowIndex="2">
+                        <padding><Insets right="18.0"/></padding>
+                        <Label text="Dirección" styleClass="fieldLabelText"/>
+                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                     </HBox>
+                     <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <TextField fx:id="organizationAddressTextField"
+                                   promptText="Av. Xalapa #123, Centro, Xalapa, Ver."
+                                   styleClass="formTextField"
+                                   maxWidth="Infinity"/>
+                        <Label text="Calle, número, colonia, ciudad y estado"
+                               styleClass="fieldHintLabel"/>
+                     </VBox>
+
+                     <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                           GridPane.columnIndex="0" GridPane.rowIndex="3">
+                        <padding><Insets right="18.0"/></padding>
+                        <Label text="Sector" styleClass="fieldLabelText"/>
+                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                     </HBox>
+                     <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <TextField fx:id="sectorOrganizacionTextField"
+                                   promptText="Ej. Privado / Público"
+                                   styleClass="formTextField"
+                                   maxWidth="Infinity"/>
+                     </VBox>
+
+                  </GridPane>
+               </VBox>
+
+               <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                  <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                  <Region HBox.hgrow="ALWAYS"/>
+                  <Button text="Cancelar"
+                          styleClass="cancelActionButton"
+                          onAction="#cancel"
+                          mnemonicParsing="false"/>
+                  <Button text="&#10003;  Registrar"
+                          styleClass="primaryActionButton"
+                          onAction="#addOrganization"
+                          mnemonicParsing="false"/>
+               </HBox>
+
+            </VBox>
          </VBox>
+      </content>
+   </ScrollPane>
 
-         <VBox spacing="5">
-            <Label text="Correo"/>
-            <TextField fx:id="organizationEmailTextField" promptText="correo@ejemplo.com"/>
-         </VBox>
-
-         <VBox spacing="5">
-            <Label text="Dirección"/>
-            <TextField fx:id="organizationAddressTextField" promptText="Dirección completa"/>
-         </VBox>
-
-         <VBox spacing="5">
-            <Label text="Sector"/>
-            <TextField fx:id="sectorOrganizacionTextField" promptText="Ej. Público / Privado"/>
-         </VBox>
-
-         <HBox spacing="15">
-            <Button text="Registrar" onAction="#addOrganization"/>
-            <Button text="Cancelar" onAction="#cancel"/>
-         </HBox>
-
-      </VBox>
-   </children>
 </AnchorPane>

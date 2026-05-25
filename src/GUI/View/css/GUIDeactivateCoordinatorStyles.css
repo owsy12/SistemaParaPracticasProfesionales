@@ -1,0 +1,243 @@
+.subViewScrollPane {
+    -fx-background-color: transparent;
+    -fx-background: #F1F4F9;
+    -fx-border-width: 0;
+    -fx-padding: 0;
+}
+
+.subViewScrollPane > .viewport {
+    -fx-background-color: #F1F4F9;
+}
+
+.subViewScrollPane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(27, 52, 100, 0.18);
+    -fx-background-radius: 3;
+}
+
+.subViewScrollPane .scroll-bar:vertical .track,
+.subViewScrollPane .scroll-bar:vertical .increment-button,
+.subViewScrollPane .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+}
+
+.subViewContentVBox {
+    -fx-background-color: transparent;
+}
+
+.viewHeaderVBox {
+    -fx-background-color: transparent;
+}
+
+.viewBreadcrumbHBox {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.viewBreadcrumbIconLabel {
+    -fx-text-fill: #4A6FA5;
+    -fx-font-size: 11px;
+}
+
+.viewBreadcrumbLabel {
+    -fx-text-fill: #4A6FA5;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.viewTitleLabel {
+    -fx-text-fill: #111827;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.viewSubtitleLabel {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-wrap-text: true;
+}
+
+.viewTopAccentSeparator .line {
+    -fx-border-color: #1B3464 transparent transparent transparent;
+    -fx-border-width: 2 0 0 0;
+}
+
+.formCardVBox {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #E8EDF3;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.09), 14, 0, 0, 4);
+}
+
+.formCardSeparator .line {
+    -fx-border-color: #E8EDF3 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.tableSearchVBox {
+    -fx-background-color: transparent;
+}
+
+.tableSearchBarHBox {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 8;
+    -fx-border-width: 1.5;
+    -fx-pref-height: 44px;
+    -fx-max-width: 420px;
+}
+
+.tableSearchBarHBox:hover {
+    -fx-border-color: #4A6FA5;
+}
+
+.tableSearchIconLabel {
+    -fx-text-fill: #9CA3AF;
+    -fx-font-size: 15px;
+}
+
+.tableSearchTextField {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: #111827;
+    -fx-prompt-text-fill: #9CA3AF;
+    -fx-padding: 0 0 0 2;
+}
+
+.tableSearchTextField:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.mainDataTableView {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+}
+
+.mainDataTableView .column-header-background {
+    -fx-background-color: #F5F7FA;
+}
+
+.mainDataTableView .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #E8EDF3 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.mainDataTableView .column-header .label {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 12 0 12;
+}
+
+.mainDataTableView .table-row-cell {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: transparent transparent #F3F4F6 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.mainDataTableView .table-row-cell:odd {
+    -fx-background-color: #FAFBFC;
+}
+
+.mainDataTableView .table-row-cell:selected {
+    -fx-background-color: #EEF3FA;
+}
+
+.mainDataTableView .table-cell {
+    -fx-text-fill: #1F2937;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 12 0 12;
+}
+
+.statusActiveBadgeLabel {
+    -fx-background-color: #DCFCE7;
+    -fx-text-fill: #14532D;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 20;
+}
+
+.statusInactiveBadgeLabel {
+    -fx-background-color: #F3F4F6;
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 20;
+}
+
+.tableFooterHBox {
+    -fx-background-color: #FAFBFC;
+    -fx-border-color: #E8EDF3 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-background-radius: 0 0 10 10;
+}
+
+.tableSummaryLabel {
+    -fx-text-fill: #6B7280;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.cancelActionButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-padding: 10 18 10 18;
+    -fx-background-radius: 7;
+    -fx-border-color: #D1D5DB;
+    -fx-border-radius: 7;
+    -fx-border-width: 1.5;
+    -fx-cursor: hand;
+}
+
+.cancelActionButton:hover {
+    -fx-background-color: #F3F4F6;
+    -fx-border-color: #9CA3AF;
+}
+
+.tableDeactivateButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #DC2626;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-border-color: #FECACA;
+    -fx-border-radius: 7;
+    -fx-background-radius: 7;
+    -fx-border-width: 1.5;
+    -fx-padding: 10 18 10 18;
+    -fx-cursor: hand;
+}
+
+.tableDeactivateButton:hover {
+    -fx-background-color: #FEF2F2;
+    -fx-border-color: #DC2626;
+}
+
+.tableDeactivateButton:pressed {
+    -fx-background-color: #FEE2E2;
+}

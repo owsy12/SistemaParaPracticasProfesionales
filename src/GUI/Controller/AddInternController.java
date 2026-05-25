@@ -6,34 +6,29 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import org.mindrot.jbcrypt.BCrypt;
-
-import static GUI.Utils.Alert.showAlert;
-import static GUI.Utils.ValidationUtils.setTypeAndLength;
-import static GUI.Utils.ValidationUtils.isValidEmail;
 import static GUI.Utils.ValidationUtils.getPasswordValidationMessage;
+import static GUI.Utils.ValidationUtils.isValidEmail;
+import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import javafx.scene.control.Alert.AlertType;
+import static GUI.Utils.Alert.showFormAlert;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class AddInternController {
 
-    @FXML
-    private TextField idTextField;
-    @FXML
-    private TextField lastNameTextField;
-    @FXML
-    private TextField secondLastNameTextField;
-    @FXML
-    private TextField emailTextField;
-    @FXML
-    private TextField firstNameTextField;
-    @FXML
-    private PasswordField passwordField;
-    @FXML
-    private PasswordField confirmPasswordField;
-    @FXML
-    private TextField creditTextField;
+    @FXML private TextField idTextField;
+    @FXML private TextField lastNameTextField;
+    @FXML private TextField secondLastNameTextField;
+    @FXML private TextField emailTextField;
+    @FXML private TextField firstNameTextField;
+    @FXML private PasswordField passwordField;
+    @FXML private PasswordField confirmPasswordField;
+    @FXML private TextField creditTextField;
+    @FXML private AnchorPane anchorPane;
 
     @FXML
     private void initialize() {
@@ -49,7 +44,12 @@ public class AddInternController {
 
     @FXML
     public void cancelRegistration(ActionEvent actionEvent) {
+        showFormAlert(AlertType.INFORMATION,
+                "Registro cancelado",
+                "Operaci\u00F3n cancelada",
+                "El registro del practicante ha sido cancelado. Ser\u00E1s redirigido al inicio.");
         clear();
+        openWelcomePage(anchorPane);
     }
 
     @FXML
@@ -58,18 +58,25 @@ public class AddInternController {
         boolean isPasswordInvalid = passwordValidationMessage != null;
 
         if (hasEmptyFields()) {
-            showAlert("Campos vacíos", "Por favor complete todos los campos obligatorios.",
-                    Alert.AlertType.WARNING);
+            showFormAlert(AlertType.WARNING,
+                    "Campos incompletos",
+                    "Campos obligatorios vac\u00EDos",
+                    "Por favor completa todos los campos obligatorios antes de continuar.");
         } else if (!isValidEmail(emailTextField.getText())) {
-            showAlert("Correo inválido", "Ingrese un correo electrónico válido.",
-                    Alert.AlertType.WARNING);
+            showFormAlert(AlertType.WARNING,
+                    "Correo inv\u00E1lido",
+                    "Formato de correo incorrecto",
+                    "Ingresa un correo electr\u00F3nico v\u00E1lido.");
         } else if (isPasswordInvalid) {
-            showAlert("Contraseña no válida", passwordValidationMessage,
-                    Alert.AlertType.WARNING);
+            showFormAlert(AlertType.WARNING,
+                    "Contrase\u00F1a no v\u00E1lida",
+                    "Requisitos de contrase\u00F1a",
+                    passwordValidationMessage);
         } else if (!isPasswordMatching()) {
-            showAlert("Contraseñas no coinciden",
-                    "La confirmación de contraseña no coincide con la contraseña ingresada.",
-                    Alert.AlertType.WARNING);
+            showFormAlert(AlertType.WARNING,
+                    "Contrase\u00F1as no coinciden",
+                    "Error de confirmaci\u00F3n",
+                    "La confirmaci\u00F3n de contrase\u00F1a no coincide con la contrase\u00F1a ingresada.");
         } else {
             registrationProcess();
         }
@@ -78,32 +85,44 @@ public class AddInternController {
     private void registrationProcess() {
         try {
             InternDAO internDAO = new InternDAO();
-            Intern intern = new Intern();
-            intern.setMatricula(idTextField.getText());
-            intern.setFirstName(firstNameTextField.getText());
-            intern.setLastName(lastNameTextField.getText());
-            intern.setSecondLastName(secondLastNameTextField.getText());
-            intern.setEmail(emailTextField.getText());
-            intern.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
-            intern.setCredits(Integer.parseInt(creditTextField.getText()));
-            intern.setStatus("Activo");
-            intern.setRole("Practicante");
-
+            Intern intern = buildIntern();
             if (internDAO.saveIntern(intern)) {
-                showAlert("Éxito", "Practicante registrado exitosamente.",
-                        Alert.AlertType.INFORMATION);
+                showFormAlert(AlertType.INFORMATION,
+                        "\u00C9xito",
+                        "Practicante registrado",
+                        "El practicante ha sido registrado exitosamente en el sistema.");
                 clear();
             } else {
-                showAlert("Error", "No se pudo registrar el practicante.",
-                        Alert.AlertType.ERROR);
+                showFormAlert(AlertType.ERROR,
+                        "Registro fallido",
+                        "No se pudo registrar",
+                        "No se pudo registrar el practicante. Intenta nuevamente.");
             }
         } catch (ValidationException validationException) {
-            showAlert("Error de validación", validationException.getMessage(),
-                    Alert.AlertType.ERROR);
+            showFormAlert(AlertType.ERROR,
+                    "Error de validaci\u00F3n",
+                    "Datos inv\u00E1lidos",
+                    validationException.getMessage());
         } catch (ServiceException serviceException) {
-            showAlert("Servicio no disponible", "No se pudo conectar al servicio. Intente más tarde.",
-                    Alert.AlertType.ERROR);
+            showFormAlert(AlertType.ERROR,
+                    "Servicio no disponible",
+                    "Error de conexi\u00F3n",
+                    "No se pudo conectar al servicio. Intente m\u00E1s tarde.");
         }
+    }
+
+    private Intern buildIntern() {
+        Intern intern = new Intern();
+        intern.setMatricula(idTextField.getText());
+        intern.setFirstName(firstNameTextField.getText());
+        intern.setLastName(lastNameTextField.getText());
+        intern.setSecondLastName(secondLastNameTextField.getText());
+        intern.setEmail(emailTextField.getText());
+        intern.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
+        intern.setCredits(Integer.parseInt(creditTextField.getText()));
+        intern.setStatus("Activo");
+        intern.setRole("Practicante");
+        return intern;
     }
 
     private boolean hasEmptyFields() {
@@ -133,4 +152,5 @@ public class AddInternController {
         confirmPasswordField.clear();
         creditTextField.clear();
     }
+
 }
