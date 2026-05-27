@@ -34,6 +34,15 @@ public class InternDAO extends UserDAO implements IInternDAO {
     private static final String FIND_ALL_ACTIVE_INTERNS =
             "SELECT u.* FROM usuario u JOIN usuario_rol  ur ON u.id_usuario = ur.id_usuario WHERE ur.rol = 'Practicante' AND ur.estado = 'Activo'";
 
+    private static final String SELECT_BY_PROJECT_SQL =
+            "SELECT DISTINCT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
+            "u.apellido_materno, u.contrasenia " +
+            "FROM usuario u " +
+            "JOIN practicante p ON p.id_usuario = u.id_usuario " +
+            "JOIN asignacion a ON a.id_practicante = u.id_usuario " +
+            "WHERE a.id_proyecto = ? " +
+            "ORDER BY u.apellido_paterno, u.nombre";
+
     public InternDAO() throws ServiceException {
     }
 
@@ -210,6 +219,40 @@ public class InternDAO extends UserDAO implements IInternDAO {
 
         }catch (SQLException sqlException) {
             throw new ServiceException("Error en servicio, no se logro recuperar los practicantes",sqlException);
+        }
+
+        return internList;
+    }
+
+    public List<Intern> findByProject(int idProject) throws ServiceException, ValidationException {
+        if (idProject <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
+        }
+
+        List<Intern> internList = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_BY_PROJECT_SQL)) {
+
+            preparedStatement.setInt(1, idProject);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    internList.add(mapIntern(resultSet));
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar practicantes del proyecto {0}: {1}",
+                    new Object[]{idProject, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.",
+                        sqlException);
+            }
+            throw new ServiceException(
+                    "Error al recuperar los practicantes del proyecto.", sqlException);
         }
 
         return internList;

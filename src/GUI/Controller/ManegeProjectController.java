@@ -144,6 +144,8 @@ public class ManegeProjectController {
         }
     }
 
+    private static final int MYSQL_FK_VIOLATION = 1451;
+
     private void deleteProcess(int idProject) {
         try {
             ProjectDAO projectDAO = new ProjectDAO();
@@ -152,10 +154,29 @@ public class ManegeProjectController {
             loadProjectsOnTableView();
             showAlert("Éxito", "Proyecto eliminado exitosamente.", Alert.AlertType.INFORMATION);
         } catch (ServiceException serviceException) {
-            showAlert("Error", "Servicio no disponible.", Alert.AlertType.ERROR);
+            boolean hasFKViolation = hasForeignKeyViolation(serviceException);
+            if (hasFKViolation) {
+                showAlert("No se puede eliminar",
+                        "El proyecto no puede eliminarse porque tiene practicantes, "
+                        + "asignaciones activas o relaciones asociadas.",
+                        Alert.AlertType.WARNING);
+            } else {
+                showAlert("Servicio no disponible",
+                        "No se pudo eliminar el proyecto. Intente más tarde.",
+                        Alert.AlertType.ERROR);
+            }
         } catch (ValidationException validationException) {
-            showAlert("Error", "No se logró validar el proyecto.", Alert.AlertType.ERROR);
+            showAlert("Error de validación",
+                    "No se logró validar el proyecto.", Alert.AlertType.ERROR);
         }
+    }
+
+    private boolean hasForeignKeyViolation(ServiceException serviceException) {
+        Throwable cause = serviceException.getCause();
+        boolean isSQLException = cause instanceof java.sql.SQLException;
+        boolean isFKError = isSQLException
+                && ((java.sql.SQLException) cause).getErrorCode() == MYSQL_FK_VIOLATION;
+        return isFKError;
     }
 
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -9,8 +10,8 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="742.0" prefWidth="780.0"
-            xmlns="http://javafx.com/javafx/25"
+<AnchorPane prefHeight="800.0" prefWidth="780.0"
+            xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.EvaluateReportController">
    <children>
@@ -18,65 +19,70 @@
          <font><Font size="18.0"/></font>
       </Label>
 
-      <TableView fx:id="reportsTableView" layoutX="20.0" layoutY="46.0" prefHeight="200.0" prefWidth="740.0">
+      <Label layoutX="20.0" layoutY="50.0" text="Proyecto:" />
+      <ComboBox fx:id="projectComboBox" layoutX="20.0" layoutY="68.0" prefHeight="26.0" prefWidth="360.0" />
+
+      <Label layoutX="400.0" layoutY="50.0" text="Practicante:" />
+      <ComboBox fx:id="internComboBox" layoutX="400.0" layoutY="68.0" prefHeight="26.0" prefWidth="340.0" disable="true" />
+
+      <TableView fx:id="reportsTableView" layoutX="20.0" layoutY="108.0" prefHeight="200.0" prefWidth="740.0">
          <columns>
-            <TableColumn fx:id="internColumn"  prefWidth="120.0" text="Practicante">
-               <cellValueFactory><PropertyValueFactory property="idInternDisplay"/></cellValueFactory>
+            <TableColumn fx:id="numColumn"    prefWidth="50.0"  text="No.">
+               <cellValueFactory><PropertyValueFactory property="idReportDisplay"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="typeColumn"    prefWidth="100.0" text="Tipo">
+            <TableColumn fx:id="typeColumn"   prefWidth="100.0" text="Tipo">
                <cellValueFactory><PropertyValueFactory property="reportType"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="periodColumn"  prefWidth="120.0" text="Período">
+            <TableColumn fx:id="periodColumn" prefWidth="130.0" text="Período">
                <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="hoursColumn"   prefWidth="70.0"  text="Horas">
+            <TableColumn fx:id="hoursColumn"  prefWidth="70.0"  text="Horas">
                <cellValueFactory><PropertyValueFactory property="reportedHoursDisplay"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="statusColumn"  prefWidth="100.0" text="Estado">
+            <TableColumn fx:id="statusColumn" prefWidth="110.0" text="Estado">
                <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="dateColumn"    prefWidth="190.0" text="Fecha entrega">
+            <TableColumn fx:id="dateColumn"   prefWidth="240.0" text="Fecha entrega">
                <cellValueFactory><PropertyValueFactory property="dateDisplay"/></cellValueFactory>
             </TableColumn>
          </columns>
       </TableView>
 
-      <Label layoutX="20.0" layoutY="260.0" text="Detalle del reporte:" />
-      <Label fx:id="reportDetailLabel" layoutX="20.0" layoutY="278.0" prefWidth="740.0" text="" />
+      <Label layoutX="20.0" layoutY="322.0" text="Detalle del reporte:" />
+      <Label fx:id="reportDetailLabel" layoutX="20.0" layoutY="340.0" prefWidth="740.0" text="" />
 
-      <Label layoutX="20.0" layoutY="304.0" text="Documento generado:" />
-      <Label fx:id="documentPathLabel" layoutX="170.0" layoutY="304.0" prefWidth="570.0" text="—" />
+      <Label layoutX="20.0" layoutY="366.0" text="Documento generado:" />
+      <Label fx:id="documentPathLabel" layoutX="170.0" layoutY="366.0" prefWidth="450.0" text="—" />
+      <Button fx:id="openDocumentButton"   layoutX="630.0" layoutY="362.0" mnemonicParsing="false" onAction="#openDocument"      prefHeight="26.0" prefWidth="50.0"  text="Abrir" />
+      <Button fx:id="saveDocumentButton"   layoutX="688.0" layoutY="362.0" mnemonicParsing="false" onAction="#saveDocumentCopy"  prefHeight="26.0" prefWidth="72.0"  text="Guardar" />
 
-      <Label layoutX="20.0" layoutY="322.0" text="Documento firmado:" />
-      <Label fx:id="signedPathLabel" layoutX="170.0" layoutY="322.0" prefWidth="570.0" text="—" />
+      <Label layoutX="20.0" layoutY="396.0" text="Documento firmado:" />
+      <Label fx:id="signedPathLabel" layoutX="170.0" layoutY="396.0" prefWidth="450.0" text="—" />
+      <Button fx:id="openSignedButton"     layoutX="630.0" layoutY="392.0" mnemonicParsing="false" onAction="#openSignedDocument" prefHeight="26.0" prefWidth="50.0"  text="Abrir" />
+      <Button fx:id="saveSignedButton"     layoutX="688.0" layoutY="392.0" mnemonicParsing="false" onAction="#saveSignedCopy"     prefHeight="26.0" prefWidth="72.0"  text="Guardar" />
 
-      <Label layoutX="20.0" layoutY="350.0" text="Actividades del practicante:" />
+      <Label layoutX="20.0" layoutY="430.0" text="Actividades del reporte:" />
 
-      <TableView fx:id="activitiesTableView" layoutX="20.0" layoutY="368.0" prefHeight="160.0" prefWidth="740.0">
+      <TableView fx:id="activitiesTableView" layoutX="20.0" layoutY="448.0" prefHeight="150.0" prefWidth="740.0">
          <columns>
-            <TableColumn fx:id="actNameColumn"   prefWidth="280.0" text="Actividad">
+            <TableColumn fx:id="actNameColumn"   prefWidth="310.0" text="Actividad">
                <cellValueFactory><PropertyValueFactory property="activityName"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="actHoursColumn"  prefWidth="80.0"  text="Horas">
-               <cellValueFactory><PropertyValueFactory property="dedicatedHoursDisplay"/></cellValueFactory>
+            <TableColumn fx:id="actPeriodColumn" prefWidth="200.0" text="Período">
+               <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="actStatusColumn" prefWidth="120.0" text="Estado">
-               <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="actObsColumn"    prefWidth="220.0" text="Observaciones">
-               <cellValueFactory><PropertyValueFactory property="observations"/></cellValueFactory>
+            <TableColumn fx:id="actObsColumn"    prefWidth="210.0" text="Observaciones">
+               <cellValueFactory><PropertyValueFactory property="observaciones"/></cellValueFactory>
             </TableColumn>
          </columns>
       </TableView>
 
-      <Label layoutX="20.0" layoutY="542.0" text="Observaciones del profesor:" />
-      <TextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="560.0" prefHeight="80.0" prefWidth="740.0" wrapText="true" />
+      <Label layoutX="20.0" layoutY="608.0" text="Observaciones del profesor:" />
+      <TextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="626.0" prefHeight="70.0" prefWidth="740.0" wrapText="true" />
 
-      <Label layoutX="20.0" layoutY="648.0" text="Acciones:" />
-      <Button fx:id="approveButton"          layoutX="20.0"  layoutY="666.0" mnemonicParsing="false" onAction="#approveReport"      prefHeight="26.0" prefWidth="150.0" text="Aprobar" />
-      <Button fx:id="rejectButton"           layoutX="178.0" layoutY="666.0" mnemonicParsing="false" onAction="#rejectReport"       prefHeight="26.0" prefWidth="150.0" text="Rechazar" />
-      <Button fx:id="requestCorrectionButton" layoutX="336.0" layoutY="666.0" mnemonicParsing="false" onAction="#requestCorrection" prefHeight="26.0" prefWidth="170.0" text="Solicitar corrección" />
-      <Button fx:id="markInReviewButton"     layoutX="514.0" layoutY="666.0" mnemonicParsing="false" onAction="#markInReview"       prefHeight="26.0" prefWidth="110.0" text="En revisión" />
-      <Button layoutX="660.0" layoutY="700.0" mnemonicParsing="false" onAction="#clearSelection" prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
+      <Label layoutX="20.0" layoutY="710.0" text="Acciones:" />
+      <Button fx:id="rejectButton"       layoutX="20.0"  layoutY="728.0" mnemonicParsing="false" onAction="#rejectReport" prefHeight="26.0" prefWidth="150.0" text="Rechazar" />
+      <Button fx:id="markInReviewButton" layoutX="178.0" layoutY="728.0" mnemonicParsing="false" onAction="#markInReview" prefHeight="26.0" prefWidth="110.0" text="Evaluar" />
+      <Button layoutX="660.0" layoutY="762.0" mnemonicParsing="false" onAction="#clearSelection" prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
    </children>
 </AnchorPane>

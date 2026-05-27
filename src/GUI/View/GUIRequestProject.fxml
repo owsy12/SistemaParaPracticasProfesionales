@@ -8,43 +8,61 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="378.0" prefWidth="625.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.RequestProjectController">
+<AnchorPane fx:id="anchorPane" prefHeight="450.0" prefWidth="720.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.RequestProjectController">
    <children>
-      <TableView fx:id="projectsTableView" layoutY="85.0" maxHeight="250.0">
+      <Label layoutX="14.0" layoutY="10.0" prefHeight="31.0" prefWidth="692.0" text="Selección de proyectos" textAlignment="CENTER">
+         <font><Font size="24.0" /></font>
+      </Label>
+
+      <!-- Left table: available projects -->
+      <Label layoutX="14.0" layoutY="50.0" text="Proyectos disponibles:">
+         <font><Font size="13.0" /></font>
+      </Label>
+      <TableView fx:id="availableTableView" layoutX="14.0" layoutY="72.0" prefHeight="280.0" prefWidth="320.0">
         <columns>
-            <TableColumn fx:id="nrcColumn" prefWidth="75.0" text="NRC">
-               <cellValueFactory><PropertyValueFactory property="idProyectDisplay"/></cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="nameColumn" prefWidth="90.0" text="Nombre">
+            <TableColumn fx:id="nameColumn" prefWidth="120.0" text="Nombre">
                <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="descriptionColumn" prefWidth="73.0" text="Descripcion">
-               <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="organizationColumn" prefWidth="90.0" text="Organizacion">
+            <TableColumn fx:id="organizationColumn" prefWidth="100.0" text="Organización">
                <cellValueFactory><PropertyValueFactory property="organizationName"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="placesColumn" prefWidth="60.0" text="lugares">
+            <TableColumn fx:id="placesColumn" prefWidth="55.0" text="Cupo">
                <cellValueFactory><PropertyValueFactory property="maximumPlacesDisplay"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="startDateColumn" prefWidth="76.0" text="fecha inicio">
+            <TableColumn fx:id="startDateColumn" prefWidth="76.0" text="Inicio">
                <cellValueFactory><PropertyValueFactory property="startDateFormatted"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="endDateColumn" prefWidth="82.0" text="fecha fin">
+            <TableColumn fx:id="endDateColumn" prefWidth="76.0" text="Fin">
                <cellValueFactory><PropertyValueFactory property="endDateFormatted"/></cellValueFactory>
             </TableColumn>
         </columns>
       </TableView>
-      <Label layoutX="24.0" layoutY="54.0" prefHeight="37.0" prefWidth="540.0" text="Seleccione 3 proyectos (use Ctrl+clic para selección múltiple)">
-         <font>
-            <Font size="17.0" />
-         </font>
+
+      <!-- Center buttons -->
+      <Button layoutX="346.0" layoutY="155.0" prefWidth="40.0" mnemonicParsing="false"
+              onAction="#addToSelection" text="→" />
+      <Button layoutX="346.0" layoutY="195.0" prefWidth="40.0" mnemonicParsing="false"
+              onAction="#removeFromSelection" text="←" />
+
+      <!-- Right table: selected projects (max 3) -->
+      <Label fx:id="selectedCountLabel" layoutX="396.0" layoutY="50.0" text="Mis selecciones (0 / 3):">
+         <font><Font size="13.0" /></font>
       </Label>
-      <Label layoutX="14.0" layoutY="14.0" prefHeight="31.0" prefWidth="571.0" text="Seleccion de proyectos" textAlignment="CENTER">
-         <font>
-            <Font size="26.0" />
-         </font>
-      </Label>
-      <Button layoutX="469.0" layoutY="352.0" mnemonicParsing="false" onAction="#projectSelectionListButton" text="Ver seleccion" />
+      <TableView fx:id="selectedTableView" layoutX="396.0" layoutY="72.0" prefHeight="280.0" prefWidth="310.0">
+        <columns>
+            <TableColumn fx:id="selOrderColumn" prefWidth="35.0" text="#">
+               <cellValueFactory><PropertyValueFactory property="selectionOrderDisplay"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="selNameColumn" prefWidth="140.0" text="Nombre">
+               <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="selOrgColumn" prefWidth="100.0" text="Organización">
+               <cellValueFactory><PropertyValueFactory property="organizationName"/></cellValueFactory>
+            </TableColumn>
+        </columns>
+      </TableView>
+
+      <Button layoutX="576.0" layoutY="368.0" mnemonicParsing="false"
+              onAction="#projectSelectionListButton" text="Ver selección" />
    </children>
 </AnchorPane>

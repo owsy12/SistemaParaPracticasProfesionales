@@ -19,14 +19,22 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 public class AddProjectController {
+
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     private TextField capacityTextField;
@@ -81,7 +89,15 @@ public class AddProjectController {
 
     @FXML
     public void cancelButton(ActionEvent actionEvent) {
-        clear();
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los datos ingresados no se guardarán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            clear();
+            openWelcomePage(anchorPane);
+        }
     }
 
     @FXML
@@ -96,6 +112,15 @@ public class AddProjectController {
         try {
             Project project = buildProject();
             ProjectDAO projectDAO = new ProjectDAO();
+
+            boolean nrcAlreadyUsed = projectDAO.existsByNrc(project.getNrc());
+            if (nrcAlreadyUsed) {
+                showAlert("EE con proyecto existente",
+                        "Ya existe un proyecto registrado para esta Experiencia Educativa. "
+                        + "No es posible registrar otro simultáneamente.",
+                        Alert.AlertType.WARNING);
+                return;
+            }
 
             if (projectDAO.saveProject(project)) {
                 showAlert("Éxito", "El proyecto ha sido guardado exitosamente.",

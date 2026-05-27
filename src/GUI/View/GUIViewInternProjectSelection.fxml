@@ -26,7 +26,7 @@
       </HBox>
 
       <Label layoutX="28.0" layoutY="46.0"
-             text="Las selecciones originales aparecen primero. Asignar un proyecto diferente requiere justificación."
+             text="Los proyectos seleccionados por el practicante aparecen marcados. Asignar uno diferente requiere justificación."
              style="-fx-text-fill: #555555;" />
 
       <TableView fx:id="projectsTableView" layoutX="28.0" layoutY="70.0"
@@ -44,7 +44,7 @@
             <TableColumn fx:id="datesColumn"        prefWidth="121.0" text="Fechas">
                <cellValueFactory><PropertyValueFactory property="periodIsoDisplay"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="typeColumn"         prefWidth="125.0" text="Tipo">
+            <TableColumn fx:id="typeColumn"         prefWidth="125.0" text="Selección practicante">
                <cellValueFactory><PropertyValueFactory property="preferenceLabel"/></cellValueFactory>
             </TableColumn>
         </columns>

@@ -3,6 +3,7 @@ package GUI.Controller;
 import Logic.DAO.ApplicationDAO;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InitialFormatDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectApplicationDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Application;
@@ -26,10 +27,8 @@ import javafx.scene.control.TextInputDialog;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
@@ -66,12 +65,14 @@ public class ViewInterProjectSelection {
     @FXML
     private Label internNameLabel;
 
+    private static final String LABEL_SELECTED = "✓ Seleccionado";
+    private static final String LABEL_NOT_SELECTED = "—";
+
     private User user;
     private int internId;
     private int applicationId;
     private Project selectedProject;
-    private final Set<Integer> originalProjectIds = new HashSet<>();
-    private final Map<Integer, Integer> preferenceOrderMap = new HashMap<>();
+    private final Set<Integer> internSelectedIds = new HashSet<>();
 
     @FXML
     private void initialize() {
@@ -123,11 +124,7 @@ public class ViewInterProjectSelection {
 
             ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
             List<Integer> selectedIds = projectApplicationDAO.findProjectIdsByIntern(user.getId());
-            originalProjectIds.addAll(selectedIds);
-
-            for (int index = 0; index < selectedIds.size(); index++) {
-                preferenceOrderMap.put(selectedIds.get(index), index + 1);
-            }
+            internSelectedIds.addAll(selectedIds);
 
             ProjectDAO projectDAO = new ProjectDAO();
             List<Project> result = new ArrayList<>();
@@ -135,14 +132,16 @@ public class ViewInterProjectSelection {
             for (Integer projectId : selectedIds) {
                 Project project = projectDAO.findById(projectId);
                 if (project != null) {
+                    project.setPreferenceLabel(LABEL_SELECTED);
                     result.add(project);
                 }
             }
 
             List<Project> allAvailable = projectDAO.findAllAvailable();
             for (Project project : allAvailable) {
-                boolean isAlreadyIncluded = originalProjectIds.contains(project.getIdProyect());
+                boolean isAlreadyIncluded = internSelectedIds.contains(project.getIdProyect());
                 if (!isAlreadyIncluded) {
+                    project.setPreferenceLabel(LABEL_NOT_SELECTED);
                     result.add(project);
                 }
             }
@@ -160,7 +159,7 @@ public class ViewInterProjectSelection {
     }
 
     private void handleAssignAction(Project project) {
-        boolean isOriginalSelection = originalProjectIds.contains(project.getIdProyect());
+        boolean isOriginalSelection = internSelectedIds.contains(project.getIdProyect());
         if (isOriginalSelection) {
             confirmAndAssign(project, null);
         } else {
@@ -202,6 +201,14 @@ public class ViewInterProjectSelection {
     }
 
     private void assignProjectProcess(Project project, String justification) {
+        boolean hasNoCapacity = project.getAvaliablePlaces() <= 0;
+        if (hasNoCapacity) {
+            showAlert("Sin cupo disponible",
+                    "Este proyecto no tiene cupos disponibles para asignación.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+
         try {
             Assignment assignment = new Assignment();
             assignment.setIdApplication(applicationId);
@@ -213,10 +220,20 @@ public class ViewInterProjectSelection {
             AssignmentDAO assignmentDAO = new AssignmentDAO();
             assignmentDAO.save(assignment);
 
+            ProjectDAO projectDAO = new ProjectDAO();
+            boolean cupoDecremented = projectDAO.decrementAvailableSlot(project.getIdProyect());
+            boolean cupoNotDecremented = !cupoDecremented;
+            if (cupoNotDecremented) {
+                LOGGER.log(Level.WARNING,
+                        "No se pudo decrementar cupo del proyecto {0}: sin cupo disponible",
+                        project.getIdProyect());
+            }
+
             ApplicationDAO applicationDAO = new ApplicationDAO();
             applicationDAO.updateStatus(applicationId, "Aceptada");
 
             createInitialDocuments(project.getIdProyect());
+            createOrReactivatePractice(project);
 
             showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
                     Alert.AlertType.INFORMATION);
@@ -229,6 +246,28 @@ public class ViewInterProjectSelection {
                     Alert.AlertType.ERROR);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    private void createOrReactivatePractice(Project project) {
+        String nrc = project.getNrc();
+        boolean hasNrc = nrc != null && !nrc.isBlank();
+        if (!hasNrc) {
+            LOGGER.log(Level.WARNING,
+                    "Proyecto {0} sin NRC: no se puede crear práctica.", project.getIdProyect());
+            return;
+        }
+
+        try {
+            PracticeDAO practiceDAO = new PracticeDAO();
+            practiceDAO.reactivateOrCreate(
+                    user.getId(), nrc, project.getIdProyect(), LocalDate.now(ZoneId.of("America/Mexico_City")));
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al gestionar práctica para practicante {0}: {1}",
+                    new Object[]{user.getId(), serviceException.getMessage()});
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.WARNING, "Validación al gestionar práctica: {0}",
+                    validationException.getMessage());
         }
     }
 

@@ -9,8 +9,8 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="560.0" prefWidth="680.0"
-            xmlns="http://javafx.com/javafx/25"
+<AnchorPane fx:id="anchorPane" prefHeight="560.0" prefWidth="680.0"
+            xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.ControllerAddReportController">
    <children>
@@ -25,13 +25,13 @@
             <TableColumn fx:id="reportTypeColumn" prefWidth="120.0" text="Tipo">
                <cellValueFactory><PropertyValueFactory property="reportType"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="periodColumn"     prefWidth="160.0" text="Período">
+            <TableColumn fx:id="periodColumn" prefWidth="160.0" text="Período">
                <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="statusColumn"     prefWidth="120.0" text="Estado">
+            <TableColumn fx:id="statusColumn" prefWidth="120.0" text="Estado">
                <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
             </TableColumn>
-            <TableColumn fx:id="dateColumn"       prefWidth="200.0" text="Fecha entrega">
+            <TableColumn fx:id="dateColumn" prefWidth="200.0" text="Fecha entrega">
                <cellValueFactory><PropertyValueFactory property="dateDisplay"/></cellValueFactory>
             </TableColumn>
          </columns>
@@ -50,7 +50,7 @@
       <Label fx:id="labelFileName" layoutX="20.0" layoutY="412.0" text="" />
       <Label fx:id="labelStatus"   layoutX="20.0" layoutY="430.0" text="" />
 
-      <Button fx:id="uploadButton" layoutX="20.0" layoutY="470.0" mnemonicParsing="false" onAction="#uploadSignedReport" prefHeight="26.0" prefWidth="180.0" text="Subir Reporte Firmado" />
-      <Button layoutX="560.0" layoutY="470.0" mnemonicParsing="false" onAction="#clearSelection" prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
+      <Button fx:id="uploadButton" layoutX="20.0"  layoutY="470.0" mnemonicParsing="false" onAction="#uploadSignedReport" prefHeight="26.0" prefWidth="180.0" text="Subir Reporte Firmado" />
+      <Button                      layoutX="560.0" layoutY="470.0" mnemonicParsing="false" onAction="#cancelAction"       prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
    </children>
 </AnchorPane>

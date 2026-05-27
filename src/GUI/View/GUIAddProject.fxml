@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="480.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.AddProjectController">
+<AnchorPane fx:id="anchorPane" prefHeight="480.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.AddProjectController">
    <children>
       <Label layoutX="29.0" layoutY="9.0" prefHeight="36.0" prefWidth="164.0" text="Registrar Proyecto">
          <font>

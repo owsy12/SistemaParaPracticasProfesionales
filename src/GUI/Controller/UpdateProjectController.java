@@ -1,29 +1,52 @@
 package GUI.Controller;
 
+import Logic.DAO.AssignmentDAO;
+import Logic.DAO.InitialFormatDAO;
+import Logic.DAO.InternActivityDAO;
+import Logic.DAO.InternDAO;
+import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.ProjectDAO;
+import Logic.DAO.ReportDAO;
+import Logic.DAO.SelfEvaluationDAO;
 import Logic.DAO.TechnicalResponsibleDAO;
+import Logic.DTOs.Intern;
 import Logic.DTOs.Professor;
 import Logic.DTOs.Project;
 import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 
 public class UpdateProjectController {
 
+    private static final Logger LOGGER = Logger.getLogger(UpdateProjectController.class.getName());
+
     private Project project;
+    private Intern selectedIntern;
 
     @FXML
     private TextField capacityTextField;
@@ -56,6 +79,21 @@ public class UpdateProjectController {
     private TextArea objetivoTextArea;
 
     @FXML
+    private TableView<Intern> internsTableView;
+
+    @FXML
+    private TableColumn<Intern, String> internNameColumn;
+
+    @FXML
+    private TableColumn<Intern, String> internMatriculaColumn;
+
+    @FXML
+    private Label internsStatusLabel;
+
+    @FXML
+    private Button removeInternButton;
+
+    @FXML
     public void cancelButton(ActionEvent actionEvent) {
         configureProjectInformation();
     }
@@ -68,6 +106,76 @@ public class UpdateProjectController {
         } else {
             updateProjectProcess();
         }
+    }
+
+    @FXML
+    public void removeIntern(ActionEvent actionEvent) {
+        boolean isInternMissing = selectedIntern == null;
+        if (isInternMissing) {
+            internsStatusLabel.setText("Seleccione un practicante de la tabla.");
+            internsStatusLabel.setStyle("-fx-text-fill: red;");
+            return;
+        }
+
+        String confirmMessage = "¿Eliminar la asignación de "
+                + selectedIntern.getFullName() + " de este proyecto?";
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, confirmMessage,
+                ButtonType.YES, ButtonType.NO);
+        Optional<ButtonType> result = confirmation.showAndWait();
+
+        boolean isConfirmed = result.isPresent() && result.get() == ButtonType.YES;
+        if (isConfirmed) {
+            removeInternProcess();
+        }
+    }
+
+    private void removeInternProcess() {
+        int internId = selectedIntern.getId();
+        int projectId = project.getIdProyect();
+
+        try {
+            deleteInternData(internId, projectId);
+
+            AssignmentDAO assignmentDAO = new AssignmentDAO();
+            boolean deleted = assignmentDAO.deleteByInternAndProject(internId, projectId);
+
+            if (deleted) {
+                ProjectDAO projectDAO = new ProjectDAO();
+                projectDAO.incrementAvailableSlot(projectId);
+
+                showAlert("Practicante eliminado",
+                        "La asignación y todos los datos asociados fueron eliminados.",
+                        Alert.AlertType.INFORMATION);
+                loadInternsForProject();
+                selectedIntern = null;
+                internsStatusLabel.setText("");
+            } else {
+                showAlert("Error",
+                        "No se encontró la asignación del practicante en este proyecto.",
+                        Alert.AlertType.ERROR);
+            }
+
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    validationException.getMessage(), Alert.AlertType.ERROR);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al eliminar asignación del practicante {0} del proyecto {1}: {2}",
+                    new Object[]{internId, projectId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo eliminar la asignación. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private void deleteInternData(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        new ReportDAO().deleteByInternAndProject(internId, projectId);
+        new InitialFormatDAO().deleteByInternAndProject(internId, projectId);
+        new SelfEvaluationDAO().deleteByInternAndProject(internId, projectId);
+        new OVEvaluationDAO().deleteByInternAndProject(internId, projectId);
+        new InternActivityDAO().deleteByInternAndProject(internId, projectId);
+        new PracticeDAO().cancelActiveByInternAndProject(internId, projectId);
     }
 
     private void updateProjectProcess() {
@@ -115,8 +223,26 @@ public class UpdateProjectController {
         return snapshot;
     }
 
+    private void configureListeners() {
+        internsTableView.getSelectionModel().selectedItemProperty()
+                .addListener(new InternSelectionListener());
+    }
+
+    private final class InternSelectionListener implements ChangeListener<Intern> {
+        @Override
+        public void changed(ObservableValue<? extends Intern> observable,
+                            Intern oldValue, Intern newValue) {
+            if (newValue != null) {
+                selectedIntern = newValue;
+                String selectionText = "Practicante seleccionado: " + newValue.getFullName();
+                internsStatusLabel.setText(selectionText);
+                internsStatusLabel.setStyle("-fx-text-fill: green;");
+            }
+        }
+    }
+
     private void configureProjectInformation() {
-        nrcTextField.setText(String.valueOf(project.getIdProyect()));
+        nrcTextField.setText(project.getNrc() != null ? project.getNrc() : "");
         nrcTextField.setDisable(true);
         capacityTextField.setText(String.valueOf(project.getMaximumPlaces()));
         endDate.setValue(project.getEndDate());
@@ -143,6 +269,27 @@ public class UpdateProjectController {
         setTypeAndLength(nameTextField, "Name");
         setTypeAndLength(descriptionTextField, "Text");
         setTypeAndLength(capacityTextField, "Number");
+
+        loadInternsForProject();
+    }
+
+    private void loadInternsForProject() {
+        try {
+            InternDAO internDAO = new InternDAO();
+            List<Intern> interns = internDAO.findByProject(project.getIdProyect());
+            internsTableView.setItems(FXCollections.observableArrayList(interns));
+            internsStatusLabel.setText("");
+            selectedIntern = null;
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.SEVERE, "Error de validación al cargar practicantes: {0}",
+                    validationException.getMessage());
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar practicantes del proyecto {0}: {1}",
+                    new Object[]{project.getIdProyect(), serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los practicantes. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
     }
 
     private void preselectTechnicalSupervisor() {
@@ -226,6 +373,7 @@ public class UpdateProjectController {
 
     public void setProject(Project project) {
         this.project = project;
+        configureListeners();
         configureProjectInformation();
     }
 

@@ -18,6 +18,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
@@ -29,17 +30,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.isPDF;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
+import javafx.scene.control.ButtonType;
+import javafx.scene.layout.AnchorPane;
+import java.util.Optional;
 
 public class ControllerAddReportController {
 
     private static final Logger LOGGER =
             Logger.getLogger(ControllerAddReportController.class.getName());
+
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     private TableView<Report> reportsTableView;
@@ -78,7 +88,7 @@ public class ControllerAddReportController {
     }
 
     @FXML
-    public void openFileChooser(ActionEvent actionEvent) {
+    public void openFileChooser(MouseEvent mouseEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Seleccionar PDF firmado");
         fileChooser.getExtensionFilters().add(
@@ -95,15 +105,14 @@ public class ControllerAddReportController {
         boolean isReportMissing = selectedReport == null;
         boolean isFileMissing = selectedFile == null;
         boolean isStatusInvalid = selectedReport != null
-                && !"Pendiente".equals(selectedReport.getStatus())
-                && !"Entregado".equals(selectedReport.getStatus());
+                && !"Pendiente".equals(selectedReport.getStatus());
 
         if (isReportMissing) {
             showStatus("Seleccione un reporte de la tabla.", true);
         } else if (isFileMissing) {
             showStatus("Seleccione el PDF firmado.", true);
         } else if (isStatusInvalid) {
-            showStatus("Solo puede subir firmados de reportes en estado Pendiente.", true);
+            showStatus("Solo puede subir el documento firmado de reportes en estado Pendiente.", true);
         } else {
             if (isLateDelivery()) {
                 showAlert("Entrega tardía",
@@ -117,7 +126,15 @@ public class ControllerAddReportController {
 
     @FXML
     public void cancelAction(ActionEvent actionEvent) {
-        clearSelection();
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los datos ingresados no se guardarán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            clearSelection();
+            openWelcomePage(anchorPane);
+        }
     }
 
     private boolean isLateDelivery() {
@@ -175,8 +192,17 @@ public class ControllerAddReportController {
         try {
             int internId = SessionManager.getInstance().getUsuario().getId();
             ReportDAO reportDAO = new ReportDAO();
-            List<Report> reports = reportDAO.getByIdIntern(internId);
-            reportsTableView.setItems(FXCollections.observableArrayList(reports));
+            List<Report> allReports = reportDAO.getByIdIntern(internId);
+            List<Report> pendingReports = new ArrayList<>();
+
+            for (Report report : allReports) {
+                boolean isPending = "Pendiente".equals(report.getStatus());
+                if (isPending) {
+                    pendingReports.add(report);
+                }
+            }
+
+            reportsTableView.setItems(FXCollections.observableArrayList(pendingReports));
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
                     validationException.getMessage(), Alert.AlertType.ERROR);

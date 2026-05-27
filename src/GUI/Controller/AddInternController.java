@@ -2,6 +2,7 @@ package GUI.Controller;
 
 import Logic.DAO.InternDAO;
 import Logic.DTOs.Intern;
+import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
@@ -9,14 +10,22 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import org.mindrot.jbcrypt.BCrypt;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ValidationUtils.isValidEmail;
 import static GUI.Utils.ValidationUtils.getPasswordValidationMessage;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 public class AddInternController {
+
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     private TextField idTextField;
@@ -49,7 +58,15 @@ public class AddInternController {
 
     @FXML
     public void cancelRegistration(ActionEvent actionEvent) {
-        clear();
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los datos ingresados no se guardarán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            clear();
+            openWelcomePage(anchorPane);
+        }
     }
 
     @FXML
@@ -97,6 +114,10 @@ public class AddInternController {
                 showAlert("Error", "No se pudo registrar el practicante.",
                         Alert.AlertType.ERROR);
             }
+        } catch (DuplicateEntryException duplicateEntryException) {
+            showAlert("Matrícula duplicada",
+                    "La matrícula ya se encuentra registrada.",
+                    Alert.AlertType.WARNING);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);

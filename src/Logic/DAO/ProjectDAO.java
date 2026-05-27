@@ -24,13 +24,17 @@ public class ProjectDAO implements IProjectDAO {
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SELECT_PROJECT_BY_ID_SQL =
-            "SELECT id_proyecto, id_organizacion, id_tecnico, id_profesor, " +
-                    "nombre, descripcion, objetivo, fecha_inicio, fecha_fin, cupo_maximo, " +
-                    "cupo_disponible, estado FROM proyecto WHERE id_proyecto = ?";
+            "SELECT p.id_proyecto, p.id_organizacion, p.id_tecnico, p.id_profesor, " +
+            "       p.nombre, p.descripcion, p.objetivo, p.fecha_inicio, p.fecha_fin, " +
+            "       p.cupo_maximo, p.cupo_disponible, p.estado, p.nrc, " +
+            "       ov.nombre_organizacion " +
+            "FROM proyecto p " +
+            "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
+            "WHERE p.id_proyecto = ?";
     private static final String SELECT_ALL_PROJECTS_SQL =
             "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
-                    "p.nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, " +
-                    "p.cupo_maximo, p.cupo_disponible, p.estado, " +
+                    "p.nombre, p.descripcion, p.objetivo, p.fecha_inicio, p.fecha_fin, " +
+                    "p.cupo_maximo, p.cupo_disponible, p.estado, p.nrc, " +
                     "ov.id_organizacion, ov.nombre_organizacion " +
                     "FROM proyecto p " +
                     "JOIN spp.organizacion_vinculada ov " +
@@ -58,6 +62,24 @@ public class ProjectDAO implements IProjectDAO {
                     "WHERE id_proyecto = ? AND cupo_disponible > 0";
     private static final String DELETE_PROYECT =
             "DELETE FROM proyecto WHERE id_proyecto = ?";
+
+    private static final String SQL_SELECT_BY_PROFESSOR_AVAILABLE =
+            "SELECT p.id_proyecto, p.id_organizacion, p.id_tecnico, p.id_profesor, " +
+            "       p.nombre, p.descripcion, p.objetivo, p.fecha_inicio, p.fecha_fin, " +
+            "       p.cupo_maximo, p.cupo_disponible, p.estado, " +
+            "       ov.nombre_organizacion " +
+            "FROM proyecto p " +
+            "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
+            "WHERE p.id_profesor = ? AND p.estado = 'Disponible'";
+
+    private static final String SQL_EXISTS_BY_NRC =
+            "SELECT COUNT(*) AS total FROM proyecto WHERE nrc = ?";
+
+    private static final String SQL_INCREMENT_AVAILABLE_SLOT =
+            "UPDATE proyecto " +
+            "SET cupo_disponible = cupo_disponible + 1, " +
+            "    estado = CASE WHEN estado = 'Lleno' THEN 'Disponible' ELSE estado END " +
+            "WHERE id_proyecto = ?";
 
     @Override
     public boolean saveProject(Project project) throws ServiceException, ValidationException {
@@ -158,11 +180,13 @@ public class ProjectDAO implements IProjectDAO {
                 project.setIdProfessor(resultSet.getInt("id_profesor"));
                 project.setName(resultSet.getString("nombre"));
                 project.setDescription(resultSet.getString("descripcion"));
+                project.setObjetivo(resultSet.getString("objetivo"));
                 project.setStartDate(resultSet.getDate("fecha_inicio").toLocalDate());
                 project.setEndDate(resultSet.getDate("fecha_fin").toLocalDate());
                 project.setMaximumPlaces(resultSet.getInt("cupo_maximo"));
                 project.setAvaliablePlaces(resultSet.getInt("cupo_disponible"));
                 project.setStatus(resultSet.getString("estado"));
+                project.setNrc(resultSet.getString("nrc"));
                 project.setOrganizationName(resultSet.getString("nombre_organizacion"));
 
                 projectList.add(project);
@@ -348,6 +372,99 @@ public class ProjectDAO implements IProjectDAO {
         return isDecremented;
     }
 
+    public List<Project> findByProfessorAvailable(int professorId)
+            throws ServiceException, ValidationException {
+        if (professorId <= 0) {
+            throw new ValidationException(
+                    "El ID del profesor debe ser mayor a cero. ID recibido: " + professorId);
+        }
+
+        List<Project> projectList = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     SQL_SELECT_BY_PROFESSOR_AVAILABLE)) {
+
+            preparedStatement.setInt(1, professorId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Project project = mapProject(resultSet);
+                    project.setIdProfessor(resultSet.getInt("id_profesor"));
+                    project.setStatus(resultSet.getString("estado"));
+                    project.setOrganizationName(resultSet.getString("nombre_organizacion"));
+                    projectList.add(project);
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al recuperar proyectos disponibles del profesor {0}: {1}",
+                    new Object[]{professorId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los proyectos del profesor.", sqlException);
+        }
+
+        return projectList;
+    }
+
+    public boolean incrementAvailableSlot(int idProyecto)
+            throws ServiceException, ValidationException {
+        if (idProyecto <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
+        }
+
+        boolean isIncremented = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     SQL_INCREMENT_AVAILABLE_SLOT)) {
+
+            preparedStatement.setInt(1, idProyecto);
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isIncremented = true;
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al incrementar cupo del proyecto {0}: {1}",
+                    new Object[]{idProyecto, sqlException.getMessage()});
+            throw new ServiceException("Error al incrementar el cupo del proyecto.", sqlException);
+        }
+
+        return isIncremented;
+    }
+
+    public boolean existsByNrc(String nrc) throws ServiceException, ValidationException {
+        if (nrc == null || nrc.isBlank()) {
+            throw new ValidationException("El NRC de la experiencia educativa no puede estar vacío.");
+        }
+
+        boolean exists = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_EXISTS_BY_NRC)) {
+
+            statement.setString(1, nrc);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    exists = resultSet.getInt("total") > 0;
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al verificar existencia de proyecto por NRC {0}: {1}",
+                    new Object[]{nrc, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al verificar el NRC de la experiencia educativa.", sqlException);
+        }
+
+        return exists;
+    }
+
     @Override
     public int deleteProject(int idProject) throws ServiceException, ValidationException {
         if (idProject <= 0){
@@ -395,6 +512,16 @@ public class ProjectDAO implements IProjectDAO {
         );
         try {
             project.setObjetivo(resultSet.getString("objetivo"));
+        } catch (SQLException ignored) {
+            // Column may not exist in all queries
+        }
+        try {
+            project.setNrc(resultSet.getString("nrc"));
+        } catch (SQLException ignored) {
+            // Column may not exist in all queries
+        }
+        try {
+            project.setOrganizationName(resultSet.getString("nombre_organizacion"));
         } catch (SQLException ignored) {
             // Column may not exist in all queries
         }

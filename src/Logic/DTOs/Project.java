@@ -160,6 +160,24 @@ public class Project {
         this.preferenceLabel = preferenceLabel;
     }
 
+    private int selectionOrder = 0;
+
+    public int getSelectionOrder() {
+        return selectionOrder;
+    }
+
+    public void setSelectionOrder(int selectionOrder) {
+        this.selectionOrder = selectionOrder;
+    }
+
+    public String getSelectionOrderDisplay() {
+        String display = "";
+        if (selectionOrder > 0) {
+            display = String.valueOf(selectionOrder);
+        }
+        return display;
+    }
+
     public String getStartDateDisplay() {
         String display = "";
         if (startDate != null) {

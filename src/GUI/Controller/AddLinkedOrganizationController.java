@@ -7,13 +7,21 @@ import Logic.DTOs.LinkedOrganization;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ValidationUtils.isValidEmail;
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.AnchorPane;
+import java.util.Optional;
 
 public class AddLinkedOrganizationController {
+
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     public TextField organizationNameTextField;
@@ -48,8 +56,15 @@ public class AddLinkedOrganizationController {
     }
 
     public void cancel(ActionEvent actionEvent) {
-        showAlert("Registro cancelado", "La operación ha sido cancelada.", AlertType.INFORMATION);
-        clearFields();
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los datos ingresados no se guardarán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            clearFields();
+            openWelcomePage(anchorPane);
+        }
     }
 
     private void processRegistration() {

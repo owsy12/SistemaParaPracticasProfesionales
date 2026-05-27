@@ -263,8 +263,6 @@ create table formato_inicial
     estado         enum ('Pendiente', 'Entregado') default 'Pendiente'                                           not null,
     fecha_entrega  datetime                                                                                      null,
     id_proyecto    int                                                                                           null,
-    constraint uq_fmt_prac_tipo
-        unique (id_practicante, tipo_formato),
     constraint fk_fmt_prac
         foreign key (id_practicante) references practicante (id_usuario)
             on update cascade,

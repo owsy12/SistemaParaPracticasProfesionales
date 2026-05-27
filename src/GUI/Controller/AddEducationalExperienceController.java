@@ -17,8 +17,11 @@ import javafx.scene.layout.AnchorPane;
 import java.util.List;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 public class AddEducationalExperienceController {
 
@@ -53,7 +56,15 @@ public class AddEducationalExperienceController {
 
     @FXML
     public void cancel(ActionEvent actionEvent) {
-        openWelcomePage(anchorPane);
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los datos ingresados no se guardarán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            clear();
+            openWelcomePage(anchorPane);
+        }
     }
 
     private void registrationProcess() {

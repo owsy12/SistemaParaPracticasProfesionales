@@ -44,6 +44,11 @@ public class ReportDAO implements IReportDAO {
             SQL_SELECT_COLUMNS +
             "FROM reporte WHERE id_profesor = ? ORDER BY fecha_entrega DESC";
 
+    private static final String SQL_SELECT_BY_INTERN_AND_PROFESSOR =
+            SQL_SELECT_COLUMNS +
+            "FROM reporte WHERE id_practicante = ? AND id_profesor = ? " +
+            "ORDER BY fecha_entrega DESC";
+
     private static final String SQL_UPDATE_STATUS =
             "UPDATE reporte " +
             "SET estado = ?, observaciones_profesor = ?, fecha_revision = ? " +
@@ -53,7 +58,7 @@ public class ReportDAO implements IReportDAO {
             "UPDATE reporte SET ruta_documento = ? WHERE id_reporte = ?";
 
     private static final String SQL_UPDATE_SIGNED_PATH =
-            "UPDATE reporte SET ruta_documento_firmado = ?, estado = 'Entregado' " +
+            "UPDATE reporte SET ruta_documento_firmado = ?, estado = 'En revision' " +
             "WHERE id_reporte = ?";
 
     private static final String SQL_MARK_LATE_DELIVERY =
@@ -63,7 +68,8 @@ public class ReportDAO implements IReportDAO {
             "SELECT COALESCE(SUM(rm.horas_reportadas), 0) AS total_horas " +
             "FROM reporte r " +
             "JOIN reporte_mensual rm ON rm.id_reporte_mensual = r.id_reporte " +
-            "WHERE r.id_practicante = ? AND r.estado = 'Aprobado'";
+            "WHERE r.id_practicante = ? " +
+            "  AND (r.estado = 'Evaluado' OR r.estado = 'Aprobado')";
 
     private static final String SQL_EXISTS_MONTHLY =
             "SELECT COUNT(*) AS total " +
@@ -245,6 +251,42 @@ public class ReportDAO implements IReportDAO {
                     new Object[]{idProfessor, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los reportes del profesor.", sqlException);
+        }
+
+        return reports;
+    }
+
+    public List<Report> getByInternAndProfessor(int internId, int professorId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (professorId <= 0) {
+            throw new ValidationException(
+                    "El ID del profesor debe ser mayor a cero. ID recibido: " + professorId);
+        }
+
+        List<Report> reports = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(
+                     SQL_SELECT_BY_INTERN_AND_PROFESSOR)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, professorId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    reports.add(mapResultSetToReport(resultSet));
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al recuperar reportes del practicante {0} para el profesor {1}: {2}",
+                    new Object[]{internId, professorId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los reportes del practicante.", sqlException);
         }
 
         return reports;
@@ -508,5 +550,37 @@ public class ReportDAO implements IReportDAO {
         report.setEntregaTardia(resultSet.getBoolean("entrega_tardia"));
 
         return report;
+    }
+
+    public boolean deleteByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        String sql = "DELETE FROM reporte WHERE id_practicante = ? AND id_proyecto = ?";
+        int rowsAffected = 0;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+            rowsAffected = statement.executeUpdate();
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al eliminar reportes del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al eliminar reportes del practicante.", sqlException);
+        }
+
+        return rowsAffected >= 0;
     }
 }

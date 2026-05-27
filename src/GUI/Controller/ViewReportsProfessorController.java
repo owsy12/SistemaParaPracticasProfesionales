@@ -1,10 +1,15 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import Logic.DAO.InternDAO;
+import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportDAO;
+import Logic.DTOs.Intern;
+import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -16,6 +21,8 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +37,19 @@ public class ViewReportsProfessorController {
             Logger.getLogger(ViewReportsProfessorController.class.getName());
 
     @FXML
+    private ComboBox<Project> projectComboBox;
+
+    @FXML
+    private ComboBox<Intern> internComboBox;
+
+    @FXML
+    private ComboBox<String> filterStatusComboBox;
+
+    @FXML
     private TableView<Report> reportsTableView;
 
     @FXML
-    private TableColumn<Report, Integer> idColumn;
+    private TableColumn<Report, String> idColumn;
 
     @FXML
     private TableColumn<Report, String> typeColumn;
@@ -42,7 +58,7 @@ public class ViewReportsProfessorController {
     private TableColumn<Report, String> periodColumn;
 
     @FXML
-    private TableColumn<Report, Integer> hoursColumn;
+    private TableColumn<Report, String> hoursColumn;
 
     @FXML
     private TableColumn<Report, String> statusColumn;
@@ -51,37 +67,41 @@ public class ViewReportsProfessorController {
     private TableColumn<Report, String> dateColumn;
 
     @FXML
-    private ComboBox<String> filterStatusComboBox;
-
-    @FXML
     private Label totalLabel;
 
     @FXML
     private Label detailLabel;
 
     private ObservableList<Report> allReports = FXCollections.observableArrayList();
+    private int currentProfessorId;
 
     @FXML
     private void initialize() {
+        currentProfessorId = SessionManager.getInstance().getUsuario().getId();
+        configureTableColumns();
         configureListeners();
         filterStatusComboBox.getItems().setAll(
                 "Todos", "Pendiente", "Entregado", "Aprobado", "Rechazado",
                 "Entrega tardía", "En prórroga");
         filterStatusComboBox.setValue("Todos");
-        loadReports();
+        loadProjects();
     }
 
     @FXML
     public void refreshReports(ActionEvent actionEvent) {
-        loadReports();
+        Intern selectedIntern = internComboBox.getValue();
+        boolean hasIntern = selectedIntern != null;
+        if (hasIntern) {
+            loadReportsForIntern(selectedIntern);
+        }
     }
 
     @FXML
     public void clearFilter(ActionEvent actionEvent) {
         filterStatusComboBox.setValue("Todos");
         reportsTableView.setItems(allReports);
-        String clearedTotalText = "Total: " + allReports.size();
-        totalLabel.setText(clearedTotalText);
+        String totalText = "Total: " + allReports.size();
+        totalLabel.setText(totalText);
     }
 
     @FXML
@@ -89,34 +109,84 @@ public class ViewReportsProfessorController {
         applyFilter();
     }
 
-    private void configureListeners() {
-        reportsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ReportSelectionListener());
+    private void configureTableColumns() {
+        idColumn.setCellValueFactory(new ReportIdCellFactory());
+        typeColumn.setCellValueFactory(new ReportTypeCellFactory());
+        periodColumn.setCellValueFactory(new ReportPeriodCellFactory());
+        hoursColumn.setCellValueFactory(new ReportHoursCellFactory());
+        statusColumn.setCellValueFactory(new ReportStatusCellFactory());
+        dateColumn.setCellValueFactory(new ReportDateCellFactory());
     }
 
-    private final class ReportSelectionListener implements ChangeListener<Report> {
-        @Override
-        public void changed(ObservableValue<? extends Report> observable,
-                            Report oldValue, Report newValue) {
-            if (newValue != null) {
-                showDetail(newValue);
+    private void configureListeners() {
+        projectComboBox.getSelectionModel().selectedItemProperty()
+                .addListener(new ProjectSelectionListener());
+        internComboBox.getSelectionModel().selectedItemProperty()
+                .addListener(new InternSelectionListener());
+        reportsTableView.getSelectionModel().selectedItemProperty()
+                .addListener(new ReportSelectionListener());
+        internComboBox.setConverter(new InternStringConverter());
+    }
+
+    private void loadProjects() {
+        try {
+            ProjectDAO projectDAO = new ProjectDAO();
+            List<Project> allProjects = projectDAO.findAll();
+            List<Project> professorProjects = new ArrayList<>();
+
+            for (Project project : allProjects) {
+                if (project.getIdProfessor() == currentProfessorId) {
+                    professorProjects.add(project);
+                }
             }
+
+            projectComboBox.setItems(FXCollections.observableArrayList(professorProjects));
+            internComboBox.setDisable(true);
+
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar proyectos del profesor {0}: {1}",
+                    new Object[]{currentProfessorId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los proyectos. Intente más tarde.",
+                    Alert.AlertType.ERROR);
         }
     }
 
-    private void loadReports() {
+    private void loadInternsForProject(Project project) {
         try {
-            int professorId = SessionManager.getInstance().getUsuario().getId();
-            ReportDAO reportDAO = new ReportDAO();
-            List<Report> reports = reportDAO.getByIdProfessor(professorId);
-            allReports.setAll(reports);
-            applyFilter();
+            InternDAO internDAO = new InternDAO();
+            List<Intern> interns = internDAO.findByProject(project.getIdProyect());
+            internComboBox.setItems(FXCollections.observableArrayList(interns));
+            internComboBox.setDisable(false);
+            allReports.clear();
+            reportsTableView.getItems().clear();
+            clearDetail();
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar reportes del profesor: {0}",
-                    serviceException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al cargar practicantes del proyecto {0}: {1}",
+                    new Object[]{project.getIdProyect(), serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los practicantes. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private void loadReportsForIntern(Intern intern) {
+        try {
+            ReportDAO reportDAO = new ReportDAO();
+            List<Report> reports = reportDAO.getByInternAndProfessor(
+                    intern.getId(), currentProfessorId);
+            allReports.setAll(reports);
+            applyFilter();
+            clearDetail();
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    validationException.getMessage(), Alert.AlertType.ERROR);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar reportes del practicante {0}: {1}",
+                    new Object[]{intern.getId(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los reportes. Intente más tarde.",
                     Alert.AlertType.ERROR);
@@ -148,23 +218,152 @@ public class ViewReportsProfessorController {
             reportsTableView.setItems(FXCollections.observableArrayList(filteredReports));
         }
 
-        String filteredTotalText = "Total: " + reportsTableView.getItems().size();
-        totalLabel.setText(filteredTotalText);
+        String totalText = "Total: " + reportsTableView.getItems().size();
+        totalLabel.setText(totalText);
     }
 
     private void showDetail(Report report) {
         String observations = "";
-        if (report.getProfessorObservations() != null) {
+        boolean hasObservations = report.getProfessorObservations() != null;
+        if (hasObservations) {
             observations = "  |  Obs: " + report.getProfessorObservations();
         }
+        String tardyIndicator = "";
+        boolean isTardy = report.isEntregaTardia();
+        if (isTardy) {
+            tardyIndicator = "  ENTREGA TARDÍA";
+        }
         String detailText = "ID: " + report.getIdReport()
-                + "  |  Practicante ID: " + report.getIdIntern()
-                + "  |  Proyecto ID: " + report.getIdProyect()
                 + "  |  Tipo: " + report.getReportType()
+                + "  |  Período: " + report.getPeriod()
                 + "  |  Horas: " + report.getReportedHours()
                 + "  |  Estado: " + report.getStatus()
+                + tardyIndicator
                 + observations;
         detailLabel.setText(detailText);
+    }
+
+    private void clearDetail() {
+        detailLabel.setText("");
+        reportsTableView.getSelectionModel().clearSelection();
+    }
+
+    private final class ProjectSelectionListener implements ChangeListener<Project> {
+        @Override
+        public void changed(ObservableValue<? extends Project> observable,
+                            Project oldValue, Project newValue) {
+            if (newValue != null) {
+                loadInternsForProject(newValue);
+            }
+        }
+    }
+
+    private final class InternSelectionListener implements ChangeListener<Intern> {
+        @Override
+        public void changed(ObservableValue<? extends Intern> observable,
+                            Intern oldValue, Intern newValue) {
+            if (newValue != null) {
+                loadReportsForIntern(newValue);
+            }
+        }
+    }
+
+    private final class ReportSelectionListener implements ChangeListener<Report> {
+        @Override
+        public void changed(ObservableValue<? extends Report> observable,
+                            Report oldValue, Report newValue) {
+            if (newValue != null) {
+                showDetail(newValue);
+            }
+        }
+    }
+
+    private final class ReportIdCellFactory
+            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
+        @Override
+        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+            String id = String.valueOf(data.getValue().getIdReport());
+            ObservableValue<String> result = new SimpleStringProperty(id);
+            return result;
+        }
+    }
+
+    private final class ReportTypeCellFactory
+            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
+        @Override
+        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+            String type = data.getValue().getReportType();
+            String safeType = type != null ? type : "";
+            ObservableValue<String> result = new SimpleStringProperty(safeType);
+            return result;
+        }
+    }
+
+    private final class ReportPeriodCellFactory
+            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
+        @Override
+        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+            String period = data.getValue().getPeriod();
+            String safePeriod = period != null ? period : "";
+            ObservableValue<String> result = new SimpleStringProperty(safePeriod);
+            return result;
+        }
+    }
+
+    private final class ReportHoursCellFactory
+            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
+        @Override
+        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+            String hours = String.valueOf(data.getValue().getReportedHours());
+            ObservableValue<String> result = new SimpleStringProperty(hours);
+            return result;
+        }
+    }
+
+    private final class ReportStatusCellFactory
+            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
+        @Override
+        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+            String status = data.getValue().getDisplayStatus();
+            String safeStatus = status != null ? status : "";
+            ObservableValue<String> result = new SimpleStringProperty(safeStatus);
+            return result;
+        }
+    }
+
+    private final class ReportDateCellFactory
+            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
+        @Override
+        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
+            String dateText = "—";
+            java.util.Date submissionDate = data.getValue().getSumissionDate();
+            boolean hasDate = submissionDate != null;
+            if (hasDate) {
+                dateText = submissionDate.toString();
+            }
+            ObservableValue<String> result = new SimpleStringProperty(dateText);
+            return result;
+        }
+    }
+
+    private final class InternStringConverter extends StringConverter<Intern> {
+        @Override
+        public String toString(Intern intern) {
+            String result = "";
+            boolean hasIntern = intern != null;
+            if (hasIntern) {
+                result = intern.getFirstName() + " "
+                        + intern.getLastName() + " "
+                        + intern.getSecondLastName();
+            }
+            return result;
+        }
+
+        @Override
+        public Intern fromString(String string) {
+            Intern result = null;
+            return result;
+        }
     }
 
 }

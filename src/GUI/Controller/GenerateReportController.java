@@ -10,6 +10,7 @@ import Logic.DAO.*;
 import Logic.DTOs.*;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,6 +28,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -42,6 +44,7 @@ import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class GenerateReportController {
 
@@ -61,6 +64,9 @@ public class GenerateReportController {
     private static final List<String> MONTHS = Arrays.asList(
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
+
+    @FXML
+    private AnchorPane rootPane;
 
     @FXML
     private Label internNameLabel;
@@ -164,7 +170,6 @@ public class GenerateReportController {
         setTypeAndLength(reportNumberTextField, "Number");
 
         reportTypeComboBox.getItems().setAll(REPORT_TYPE_MONTHLY, REPORT_TYPE_PARTIAL, REPORT_TYPE_FINAL);
-        monthComboBox.getItems().setAll(MONTHS);
 
         projectActivitiesTable.setItems(projectActivities);
         reportActivitiesTable.setItems(reportActivities);
@@ -245,12 +250,17 @@ public class GenerateReportController {
         String reportType = reportTypeComboBox.getValue();
         boolean isReportTypeMissing = reportType == null;
         boolean isAlreadyAdded = isActivityAlreadyAdded(selected);
+        boolean isOutsideProjectRange = isActivityOutsideProjectRange(selected);
 
         if (isReportTypeMissing) {
             showAlert("Tipo de reporte", "Seleccione primero el tipo de reporte.",
                     Alert.AlertType.WARNING);
         } else if (isAlreadyAdded) {
             showAlert("Actividad duplicada", "Esta actividad ya fue agregada al reporte.",
+                    Alert.AlertType.WARNING);
+        } else if (isOutsideProjectRange) {
+            showAlert("Actividad fuera del rango del proyecto",
+                    "Las fechas de esta actividad están fuera del período del proyecto.",
                     Alert.AlertType.WARNING);
         } else {
             Optional<ReportActivity> result = showActivityProgressDialog(selected, reportType);
@@ -268,6 +278,19 @@ public class GenerateReportController {
             }
         }
         return alreadyAdded;
+    }
+
+    private boolean isActivityOutsideProjectRange(Activity activity) {
+        boolean hasProjectStart = currentProject != null && currentProject.getStartDate() != null;
+        boolean hasProjectEnd = currentProject != null && currentProject.getEndDate() != null;
+
+        boolean startBeforeProject = hasProjectStart && activity.getFechaInicio() != null
+                && activity.getFechaInicio().isBefore(currentProject.getStartDate());
+        boolean endAfterProject = hasProjectEnd && activity.getFechaFin() != null
+                && activity.getFechaFin().isAfter(currentProject.getEndDate());
+
+        boolean isOutOfRange = startBeforeProject || endAfterProject;
+        return isOutOfRange;
     }
 
     private void tryProcessGeneration(String reportType) {
@@ -294,7 +317,7 @@ public class GenerateReportController {
 
             monthComboBox.setVisible(isMonthly);
             reportedHoursTextField.setVisible(isMonthly);
-            reportNumberTextField.setVisible(isPartialOrFinal);
+            reportNumberTextField.setVisible(true);
             methodologyTextArea.setVisible(isPartialOrFinal);
             resultsTextArea.setVisible(isPartialOrFinal);
 
@@ -366,7 +389,31 @@ public class GenerateReportController {
         approvedHours = reportDAO.getTotalApprovedHoursByIntern(internId);
 
         populateReadOnlyInfo();
+        filterMonthsToProjectPeriod();
         loadProjectActivities();
+    }
+
+    private void filterMonthsToProjectPeriod() {
+        LocalDate projectStart = currentProject.getStartDate();
+        LocalDate projectEnd = currentProject.getEndDate();
+        boolean hasValidRange = projectStart != null && projectEnd != null;
+        if (!hasValidRange) {
+            monthComboBox.getItems().setAll(MONTHS);
+            return;
+        }
+        List<String> validMonths = new ArrayList<>();
+        YearMonth startYM = YearMonth.from(projectStart);
+        YearMonth endYM = YearMonth.from(projectEnd);
+        YearMonth current = startYM;
+        while (!current.isAfter(endYM)) {
+            String monthName = MONTHS.get(current.getMonthValue() - 1);
+            boolean isNotDuplicate = !validMonths.contains(monthName);
+            if (isNotDuplicate) {
+                validMonths.add(monthName);
+            }
+            current = current.plusMonths(1);
+        }
+        monthComboBox.getItems().setAll(validMonths);
     }
 
     private void loadProjectActivities() {
@@ -662,8 +709,7 @@ public class GenerateReportController {
             throws ServiceException {
         boolean isValid = true;
         if (monthComboBox.getValue() == null) {
-            showAlert("Mes requerido",
-                    "Seleccione el mes para el reporte mensual.",
+            showAlert("Mes requerido", "Seleccione el mes para el reporte mensual.",
                     Alert.AlertType.WARNING);
             isValid = false;
         } else {
@@ -671,8 +717,7 @@ public class GenerateReportController {
             boolean exists = reportDAO.existsMonthlyByInternAndPeriod(
                     internId, monthComboBox.getValue(), year);
             if (exists) {
-                showAlert("Reporte duplicado",
-                        "Ya existe un reporte mensual para "
+                showAlert("Reporte duplicado", "Ya existe un reporte mensual para "
                         + monthComboBox.getValue() + " " + year + ".",
                         Alert.AlertType.WARNING);
                 isValid = false;
@@ -685,8 +730,7 @@ public class GenerateReportController {
             throws ServiceException {
         boolean isValid = true;
         if (approvedHours < PARTIAL_MIN_HOURS) {
-            showAlert("Horas insuficientes",
-                    "Necesita al menos " + PARTIAL_MIN_HOURS
+            showAlert("Horas insuficientes", "Necesita al menos " + PARTIAL_MIN_HOURS
                     + " horas validadas. Actuales: " + approvedHours + ".",
                     Alert.AlertType.WARNING);
             isValid = false;
@@ -703,8 +747,7 @@ public class GenerateReportController {
             throws ServiceException {
         boolean isValid = true;
         if (approvedHours < FINAL_MIN_HOURS) {
-            showAlert("Horas insuficientes",
-                    "Necesita al menos " + FINAL_MIN_HOURS
+            showAlert("Horas insuficientes", "Necesita al menos " + FINAL_MIN_HOURS
                     + " horas validadas. Actuales: " + approvedHours + ".",
                     Alert.AlertType.WARNING);
             isValid = false;
@@ -754,6 +797,10 @@ public class GenerateReportController {
             showAlert("Mes requerido",
                     "Seleccione el mes del reporte.", Alert.AlertType.WARNING);
             isValid = false;
+        } else if (reportNumberTextField.getText().isBlank()) {
+            showAlert("Número de informe requerido",
+                    "Ingrese el número de informe.", Alert.AlertType.WARNING);
+            isValid = false;
         } else if (reportedHoursTextField.getText().isBlank()) {
             showAlert("Horas requeridas",
                     "Ingrese las horas reportadas en el mes.", Alert.AlertType.WARNING);
@@ -767,7 +814,9 @@ public class GenerateReportController {
         int year = LocalDate.now().getYear();
         String month = monthComboBox.getValue();
         int reportedHoursCount = Integer.parseInt(reportedHoursTextField.getText());
+        int reportNumber = Integer.parseInt(reportNumberTextField.getText());
         String period = buildAcademicPeriod(year, month);
+        int totalHours = approvedHours + reportedHoursCount;
 
         MonthlyReport report = new MonthlyReport();
         report.setIdIntern(currentIntern.getId());
@@ -780,6 +829,7 @@ public class GenerateReportController {
         report.setYear(year);
         report.setMonthlyHours(reportedHoursCount);
         report.setReportedHours(reportedHoursCount);
+        report.setReportNumber(reportNumber);
         report.setDocumentPath("");
         report.setSumissionDate(new Date());
 
@@ -789,7 +839,7 @@ public class GenerateReportController {
         if (rowsAffected > 0) {
             persistReportActivities(report.getIdReport());
 
-            ReportGenerationContext generationContext = buildCurrentContext();
+            ReportGenerationContext generationContext = buildCurrentContext(totalHours);
             ReportContent reportContent = new ReportContent(
                     Collections.unmodifiableList(reportActivities), null);
 
@@ -890,7 +940,7 @@ public class GenerateReportController {
                                           String reportType,
                                           PartialAndFinalReportDAO partialAndFinalReportDAO)
             throws ValidationException, ServiceException, IOException {
-        ReportGenerationContext generationContext = buildCurrentContext();
+        ReportGenerationContext generationContext = buildCurrentContext(approvedHours);
         String internalPath;
 
         if (REPORT_TYPE_PARTIAL.equals(reportType)) {
@@ -915,7 +965,7 @@ public class GenerateReportController {
         clearForm();
     }
 
-    private ReportGenerationContext buildCurrentContext() {
+    private ReportGenerationContext buildCurrentContext(int totalHours) {
         String organizationName = "";
         if (currentOrganization != null) {
             organizationName = currentOrganization.getName();
@@ -934,7 +984,7 @@ public class GenerateReportController {
                 .technicianPosition(technicianPosition)
                 .professorName(buildFullName(currentProfessor))
                 .projectName(currentProject.getName())
-                .totalApprovedHours(approvedHours)
+                .totalApprovedHours(totalHours)
                 .ownerWindow(generateButton.getScene().getWindow())
                 .build();
         return generationContext;
@@ -1002,6 +1052,11 @@ public class GenerateReportController {
         if (generateButton != null) {
             generateButton.setDisable(true);
         }
+        Platform.runLater(() -> {
+            if (rootPane != null) {
+                openWelcomePage(rootPane);
+            }
+        });
     }
 
     private void clearForm() {
