@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="460.0" prefWidth="620.0"
+<AnchorPane fx:id="anchorPane" prefHeight="460.0" prefWidth="620.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.ViewInterProjectSelection">

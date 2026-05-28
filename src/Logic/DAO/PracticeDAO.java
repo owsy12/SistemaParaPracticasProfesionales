@@ -25,11 +25,11 @@ public class PracticeDAO implements IPracticeDAO {
     private static final String DEFAULT_STATUS = "Activa";
 
     private static final String SQL_INSERT =
-            "INSERT INTO practica (nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion, id_proyecto) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO practica (nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_SELECT_COLUMNS =
-            "SELECT id_practica, nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion, id_proyecto ";
+            "SELECT id_practica, nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion ";
 
     private static final String SQL_SELECT_BY_ID =
             SQL_SELECT_COLUMNS + "FROM practica WHERE id_practica = ?";
@@ -48,16 +48,18 @@ public class PracticeDAO implements IPracticeDAO {
             "SELECT COUNT(*) AS total FROM practica WHERE id_practicante = ? AND estado = 'Concluida'";
 
     private static final String SQL_CANCEL_BY_INTERN_AND_PROJECT =
-            "UPDATE practica SET estado = 'Cancelada' " +
-            "WHERE id_practicante = ? AND id_proyecto = ? AND estado = 'Activa'";
+            "UPDATE practica p " +
+            "INNER JOIN proyecto pr ON p.nrc = pr.nrc " +
+            "SET p.estado = 'Cancelada' " +
+            "WHERE p.id_practicante = ? AND pr.id_proyecto = ? AND p.estado = 'Activa'";
 
     private static final String SQL_REACTIVATE_CANCELLED =
-            "UPDATE practica SET estado = 'Activa', id_proyecto = ?, fecha_inicio = ? " +
+            "UPDATE practica SET estado = 'Activa', fecha_inicio = ? " +
             "WHERE id_practicante = ? AND nrc = ? AND estado = 'Cancelada' LIMIT 1";
 
     private static final String SQL_UPDATE =
             "UPDATE practica SET nrc = ?, id_practicante = ?, fecha_inicio = ?, " +
-                    "fecha_fin = ?, estado = ?, calificacion = ?, id_proyecto = ? WHERE id_practica = ?";
+                    "fecha_fin = ?, estado = ?, calificacion = ? WHERE id_practica = ?";
 
     private static final String SQL_DELETE =
             "DELETE FROM practica WHERE id_practica = ?";
@@ -78,11 +80,6 @@ public class PracticeDAO implements IPracticeDAO {
             statement.setString(5, DEFAULT_STATUS);
             statement.setBigDecimal(6, practice.getGrade() != null
                     ? java.math.BigDecimal.valueOf(practice.getGrade()) : null);
-            if (practice.getIdProject() != null) {
-                statement.setInt(7, practice.getIdProject());
-            } else {
-                statement.setNull(7, java.sql.Types.INTEGER);
-            }
 
             if (statement.executeUpdate() > 0) {
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
@@ -213,12 +210,7 @@ public class PracticeDAO implements IPracticeDAO {
             statement.setString(5, practice.getStatus());
             statement.setBigDecimal(6, practice.getGrade() != null
                     ? java.math.BigDecimal.valueOf(practice.getGrade()) : null);
-            if (practice.getIdProject() != null) {
-                statement.setInt(7, practice.getIdProject());
-            } else {
-                statement.setNull(7, java.sql.Types.INTEGER);
-            }
-            statement.setInt(8, practice.getIdPractice());
+            statement.setInt(7, practice.getIdPractice());
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -347,8 +339,7 @@ public class PracticeDAO implements IPracticeDAO {
         return updated;
     }
 
-    public boolean reactivateOrCreate(int internId, String nrc, int projectId,
-                                      java.time.LocalDate startDate)
+    public boolean reactivateOrCreate(int internId, String nrc, java.time.LocalDate startDate)
             throws ServiceException, ValidationException {
         if (internId <= 0) {
             throw new ValidationException(
@@ -361,10 +352,9 @@ public class PracticeDAO implements IPracticeDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement updateStmt = connection.prepareStatement(SQL_REACTIVATE_CANCELLED)) {
 
-            updateStmt.setInt   (1, projectId);
-            updateStmt.setDate  (2, Date.valueOf(startDate));
-            updateStmt.setInt   (3, internId);
-            updateStmt.setString(4, nrc);
+            updateStmt.setDate  (1, Date.valueOf(startDate));
+            updateStmt.setInt   (2, internId);
+            updateStmt.setString(3, nrc);
 
             boolean reactivated = updateStmt.executeUpdate() > 0;
             if (reactivated) {
@@ -383,7 +373,6 @@ public class PracticeDAO implements IPracticeDAO {
         practice.setIdIntern(internId);
         practice.setStartDate(startDate);
         practice.setStatus(DEFAULT_STATUS);
-        practice.setIdProject(projectId);
         return save(practice);
     }
 
@@ -417,11 +406,6 @@ public class PracticeDAO implements IPracticeDAO {
         java.math.BigDecimal grade = resultSet.getBigDecimal("calificacion");
         if (grade != null) {
             practice.setGrade(grade.doubleValue());
-        }
-
-        int idProject = resultSet.getInt("id_proyecto");
-        if (!resultSet.wasNull()) {
-            practice.setIdProject(idProject);
         }
 
         return practice;

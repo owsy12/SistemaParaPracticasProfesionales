@@ -5,12 +5,11 @@ import Logic.DAO.InternDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DAO.ReportDAO;
-import Logic.DAO.ReportObservationDAO;
 import Logic.DTOs.Intern;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportActivity;
-import Logic.DTOs.ReportObservation;
+import Logic.DTOs.ReportStatusUpdate;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.value.ChangeListener;
@@ -33,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,8 +122,7 @@ public class EvaluateReportController {
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
         } else if (isStatusInvalid) {
-            showAlert("Estado inválido",
-                    "Solo puede rechazar reportes en estado En revision.",
+            showAlert("Estado inválido", "Solo puede rechazar reportes en estado En revision.",
                     Alert.AlertType.WARNING);
         } else if (isObservationEmpty) {
             showAlert("Observación requerida",
@@ -228,16 +227,14 @@ public class EvaluateReportController {
         File file = new File(filePath);
         boolean fileExists = file.exists();
         if (!fileExists) {
-            showAlert("Archivo no encontrado",
-                    "El documento no fue encontrado en: " + filePath,
+            showAlert("Archivo no encontrado", "El documento no fue encontrado en: " + filePath,
                     Alert.AlertType.WARNING);
         } else {
             try {
                 Desktop.getDesktop().open(file);
             } catch (IOException ioException) {
                 LOGGER.log(Level.SEVERE, "Error al abrir documento: {0}", ioException.getMessage());
-                showAlert("Error al abrir",
-                        "No se pudo abrir el documento con el visor predeterminado.",
+                showAlert("Error al abrir", "No se pudo abrir el documento con el visor predeterminado.",
                         Alert.AlertType.ERROR);
             }
         }
@@ -378,7 +375,7 @@ public class EvaluateReportController {
         try {
             ReportDAO reportDAO = new ReportDAO();
             String observations = observationsTextArea.getText().trim();
-            java.sql.Date reviewDate = java.sql.Date.valueOf(LocalDate.now());
+            Date reviewDate = Date.valueOf(LocalDate.now());
 
             String observationsToSave = null;
             boolean hasObservations = !observations.isEmpty();
@@ -386,13 +383,10 @@ public class EvaluateReportController {
                 observationsToSave = observations;
             }
 
-            boolean updated = reportDAO.updateStatus(
-                    selectedReport.getIdReport(), newStatus, observationsToSave, reviewDate);
+            ReportStatusUpdate statusUpdate = new ReportStatusUpdate(newStatus, observationsToSave, reviewDate);
+            boolean updated = reportDAO.updateStatus(selectedReport.getIdReport(), statusUpdate);
 
             if (updated) {
-                if (hasObservations) {
-                    saveObservationRecord(observations);
-                }
                 String message = buildStatusMessage(newStatus);
                 showAlert("Estado actualizado", message, Alert.AlertType.INFORMATION);
                 Intern currentIntern = internComboBox.getValue();
@@ -472,21 +466,6 @@ public class EvaluateReportController {
         return message;
     }
 
-    private void saveObservationRecord(String comment) {
-        try {
-            ReportObservation observation = new ReportObservation();
-            observation.setIdReport(selectedReport.getIdReport());
-            observation.setIdProfessor(currentProfessorId);
-            observation.setComment(comment);
-
-            ReportObservationDAO observationDAO = new ReportObservationDAO();
-            observationDAO.save(observation);
-        } catch (ValidationException | ServiceException observationException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar observación del reporte: {0}",
-                    observationException.getMessage());
-        }
-    }
-
     private void clearForm() {
         selectedReport = null;
         reportDetailLabel.setText("");
@@ -535,9 +514,7 @@ public class EvaluateReportController {
             String result = "";
             boolean hasIntern = intern != null;
             if (hasIntern) {
-                result = intern.getFirstName() + " "
-                        + intern.getLastName() + " "
-                        + intern.getSecondLastName();
+                result = intern.getFirstName() + " " + intern.getLastName() + " " + intern.getSecondLastName();
             }
             return result;
         }

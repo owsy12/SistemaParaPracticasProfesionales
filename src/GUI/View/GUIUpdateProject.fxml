@@ -12,18 +12,18 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.UpdateProjectController">
+<AnchorPane fx:id="anchorPane" prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.UpdateProjectController">
     <children>
-        <Label layoutX="29.0" layoutY="9.0" prefHeight="36.0" prefWidth="164.0" text="Registrar Proyecto">
+        <Label layoutX="29.0" layoutY="9.0" prefHeight="36.0" prefWidth="200.0" text="Actualizar Proyecto">
             <font>
                 <Font size="21.0" />
             </font>
         </Label>
-        <Label layoutX="29.0" layoutY="59.0" text="nombre de proeycto :" />
+        <Label layoutX="29.0" layoutY="59.0" text="Nombre del proyecto:" />
         <TextField fx:id="nameTextField" layoutX="31.0" layoutY="86.0" prefHeight="26.0" prefWidth="265.0" />
-        <Label layoutX="145.0" layoutY="134.0" text="cupo maximo" />
+        <Label layoutX="145.0" layoutY="134.0" text="Cupo máximo" />
         <TextField fx:id="capacityTextField" layoutX="148.0" layoutY="162.0" prefHeight="26.0" prefWidth="148.0" />
-        <Label layoutX="29.0" layoutY="201.0" text="descripcion" />
+        <Label layoutX="29.0" layoutY="201.0" text="Descripción" />
         <TextField fx:id="descriptionTextField" layoutX="31.0" layoutY="229.0" prefHeight="89.0" prefWidth="265.0" />
         <DatePicker fx:id="startDate" layoutX="314.0" layoutY="86.0" prefHeight="26.0" prefWidth="130.0" />
         <DatePicker fx:id="endDate" layoutX="462.0" layoutY="86.0" prefHeight="26.0" prefWidth="130.0" />
@@ -31,12 +31,12 @@
         <Label layoutX="500.0" layoutY="59.0" text="Fecha fin" />
         <ComboBox fx:id="technicalComboBox" layoutX="319.0" layoutY="229.0" prefHeight="26.0" prefWidth="265.0" />
         <ComboBox fx:id="organizationComboBox" layoutX="319.0" layoutY="162.0" prefHeight="26.0" prefWidth="265.0" />
-        <Label layoutX="324.0" layoutY="134.0" text="Organizaciones Vinculadas" />
-        <Label layoutX="319.0" layoutY="201.0" text="Resposnable tecnicos" />
+        <Label layoutX="324.0" layoutY="134.0" text="Organización vinculada" />
+        <Label layoutX="319.0" layoutY="201.0" text="Responsable técnico" />
         <Label layoutX="31.0" layoutY="330.0" text="Objetivo del proyecto:" />
         <TextArea fx:id="objetivoTextArea" layoutX="31.0" layoutY="348.0" prefHeight="70.0" prefWidth="265.0" wrapText="true" />
-        <Button layoutX="485.0" layoutY="430.0" mnemonicParsing="false" onAction="#updateProject" prefHeight="26.0" prefWidth="80.0" text="guardar" />
-        <Button layoutX="412.0" layoutY="430.0" mnemonicParsing="false" onAction="#cancelButton" text="cancelar" />
+        <Button layoutX="485.0" layoutY="430.0" mnemonicParsing="false" onAction="#updateProject" prefHeight="26.0" prefWidth="80.0" text="Guardar" />
+        <Button layoutX="412.0" layoutY="430.0" mnemonicParsing="false" onAction="#cancelButton" text="Cancelar" />
         <ComboBox fx:id="professorComboBox" layoutX="312.0" layoutY="292.0" prefHeight="26.0" prefWidth="265.0" />
         <Label layoutX="316.0" layoutY="265.0" text="Profesor" />
         <Label layoutX="31.0" layoutY="134.0" text="NRC asociado" />

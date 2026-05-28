@@ -84,14 +84,17 @@ public class ViewProjectSelectionController {
             ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
 
             int currentUserId = SessionManager.getInstance().getUsuario().getId();
-            Application application = applicationDAO.findByIntern(currentUserId);
+            Application pendingApplication = applicationDAO.findActiveApplicationByIntern(currentUserId);
 
-            if (application == null) {
+            Application application;
+            if (pendingApplication == null) {
                 application = new Application();
                 application.setIdIntern(currentUserId);
                 application.setApplicationDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
                 application.setStatus("Pendiente");
                 application.setIdApplication(applicationDAO.create(application));
+            } else {
+                application = pendingApplication;
             }
 
             for (Project project : projectList) {

@@ -94,7 +94,7 @@ public class AddOVEvaluationController {
 
     @FXML
     public void cancelAction(ActionEvent actionEvent) {
-        clearSelection();
+        openWelcomePage(anchorPane);
     }
 
     private void configureDropZone() {
@@ -118,7 +118,7 @@ public class AddOVEvaluationController {
             Dragboard dragboard = event.getDragboard();
             boolean hasFiles = dragboard.hasFiles();
             if (hasFiles) {
-                processSelectedFile(dragboard.getFiles().get(0));
+                processSelectedFile(dragboard.getFiles().getFirst());
                 event.setDropCompleted(true);
             } else {
                 event.setDropCompleted(false);
@@ -178,12 +178,7 @@ public class AddOVEvaluationController {
         Project currentProject = projectDAO.findById(activeAssignment.getIdProyect());
         projectId = currentProject.getIdProyect();
 
-        String prerequisiteMessage = EvaluationPrerequisiteChecker.check(
-                internId,
-                projectId,
-                currentProject.getStartDate(),
-                currentProject.getEndDate()
-        );
+        String prerequisiteMessage = EvaluationPrerequisiteChecker.check(internId, currentProject);
 
         if (prerequisiteMessage != null) {
             showAlert("Requisitos no cumplidos", prerequisiteMessage, Alert.AlertType.WARNING);
@@ -199,8 +194,7 @@ public class AddOVEvaluationController {
         OVEvaluation existing = ovEvaluationDAO.findByInternAndProject(internId, projectId);
 
         if (existing != null) {
-            showAlert("Evaluación OV ya entregada",
-                    "Ya entregó su evaluación OV para este proyecto.",
+            showAlert("Evaluación OV ya entregada", "Ya entregó su evaluación OV para este proyecto.",
                     Alert.AlertType.INFORMATION);
             openWelcomePage(anchorPane);
         }

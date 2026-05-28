@@ -194,11 +194,7 @@ public class GenerateSelfEvaluationController {
         currentSupervisor = supervisorDAO.findById(currentProject.getIdTechnicalSupervisor());
 
         String prerequisiteMessage = EvaluationPrerequisiteChecker.check(
-                currentIntern.getId(),
-                currentProject.getIdProyect(),
-                currentProject.getStartDate(),
-                currentProject.getEndDate()
-        );
+                currentIntern.getId(), currentProject);
 
         if (prerequisiteMessage != null) {
             showAlert("Requisitos no cumplidos", prerequisiteMessage, AlertType.WARNING);

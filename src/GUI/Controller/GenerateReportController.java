@@ -223,8 +223,8 @@ public class GenerateReportController {
             showAlert("Tipo de reporte", "Seleccione el tipo de reporte.",
                     Alert.AlertType.WARNING);
         } else if (isActivitiesEmpty) {
-            showAlert("Actividades requeridas",
-                    "Agregue al menos una actividad al reporte.", Alert.AlertType.WARNING);
+            showAlert("Actividades requeridas", "Agregue al menos una actividad al reporte.",
+                    Alert.AlertType.WARNING);
         } else {
             tryProcessGeneration(reportType);
         }
@@ -371,8 +371,7 @@ public class GenerateReportController {
         }
     }
 
-    private void fetchProjectData(Assignment assignment, int internId)
-            throws ValidationException, ServiceException {
+    private void fetchProjectData(Assignment assignment, int internId) throws ValidationException, ServiceException {
         ProjectDAO projectDAO = new ProjectDAO();
         currentProject = projectDAO.findById(assignment.getIdProyect());
 
@@ -397,23 +396,23 @@ public class GenerateReportController {
         LocalDate projectStart = currentProject.getStartDate();
         LocalDate projectEnd = currentProject.getEndDate();
         boolean hasValidRange = projectStart != null && projectEnd != null;
-        if (!hasValidRange) {
-            monthComboBox.getItems().setAll(MONTHS);
-            return;
-        }
-        List<String> validMonths = new ArrayList<>();
-        YearMonth startYM = YearMonth.from(projectStart);
-        YearMonth endYM = YearMonth.from(projectEnd);
-        YearMonth current = startYM;
-        while (!current.isAfter(endYM)) {
-            String monthName = MONTHS.get(current.getMonthValue() - 1);
-            boolean isNotDuplicate = !validMonths.contains(monthName);
-            if (isNotDuplicate) {
-                validMonths.add(monthName);
+        if (hasValidRange) {
+            List<String> validMonths = new ArrayList<>();
+            YearMonth startYM = YearMonth.from(projectStart);
+            YearMonth endYM = YearMonth.from(projectEnd);
+            YearMonth current = startYM;
+            while (!current.isAfter(endYM)) {
+                String monthName = MONTHS.get(current.getMonthValue() - 1);
+                boolean isNotDuplicate = !validMonths.contains(monthName);
+                if (isNotDuplicate) {
+                    validMonths.add(monthName);
+                }
+                current = current.plusMonths(1);
             }
-            current = current.plusMonths(1);
+            monthComboBox.getItems().setAll(validMonths);
+        } else {
+            monthComboBox.getItems().setAll(MONTHS);
         }
-        monthComboBox.getItems().setAll(validMonths);
     }
 
     private void loadProjectActivities() {
@@ -547,7 +546,8 @@ public class GenerateReportController {
         final ReportActivity reportActivity = createReportActivity(activity);
 
         dialog.setResultConverter(
-                new MonthlyActivityConverter(confirmType, reportActivity, periodField, observationsField));
+                new MonthlyActivityConverter(confirmType, reportActivity,
+                        new MonthlyActivityInput(periodField, observationsField)));
 
         return dialog;
     }
@@ -735,8 +735,7 @@ public class GenerateReportController {
                     Alert.AlertType.WARNING);
             isValid = false;
         } else if (reportDAO.existsPartialByInternAndProject(internId, projectId)) {
-            showAlert("Reporte duplicado",
-                    "Ya existe un reporte parcial para este proyecto.",
+            showAlert("Reporte duplicado", "Ya existe un reporte parcial para este proyecto.",
                     Alert.AlertType.WARNING);
             isValid = false;
         }
@@ -809,8 +808,7 @@ public class GenerateReportController {
         return isValid;
     }
 
-    private void executeMonthlyGeneration()
-            throws ValidationException, ServiceException, IOException {
+    private void executeMonthlyGeneration() throws ValidationException, ServiceException, IOException {
         int year = LocalDate.now().getYear();
         String month = monthComboBox.getValue();
         int reportedHoursCount = Integer.parseInt(reportedHoursTextField.getText());
@@ -1077,26 +1075,42 @@ public class GenerateReportController {
         reportDeliverables.clear();
     }
 
-    private final class MonthlyActivityConverter implements Callback<ButtonType, ReportActivity> {
-        private final ButtonType confirmType;
-        private final ReportActivity reportActivity;
+    private static final class MonthlyActivityInput {
         private final TextField periodField;
         private final TextArea observationsField;
 
-        MonthlyActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
-                                  TextField periodField, TextArea observationsField) {
-            this.confirmType = confirmType;
-            this.reportActivity = reportActivity;
+        MonthlyActivityInput(TextField periodField, TextArea observationsField) {
             this.periodField = periodField;
             this.observationsField = observationsField;
+        }
+
+        TextField getPeriodField() {
+            return periodField;
+        }
+
+        TextArea getObservationsField() {
+            return observationsField;
+        }
+    }
+
+    private final class MonthlyActivityConverter implements Callback<ButtonType, ReportActivity> {
+        private final ButtonType confirmType;
+        private final ReportActivity reportActivity;
+        private final MonthlyActivityInput input;
+
+        MonthlyActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
+                                  MonthlyActivityInput input) {
+            this.confirmType = confirmType;
+            this.reportActivity = reportActivity;
+            this.input = input;
         }
 
         @Override
         public ReportActivity call(ButtonType buttonType) {
             ReportActivity result = null;
             if (buttonType == confirmType) {
-                reportActivity.setPeriodo(periodField.getText().trim());
-                reportActivity.setObservaciones(observationsField.getText().trim());
+                reportActivity.setPeriodo(input.getPeriodField().getText().trim());
+                reportActivity.setObservaciones(input.getObservationsField().getText().trim());
                 result = reportActivity;
             }
             return result;

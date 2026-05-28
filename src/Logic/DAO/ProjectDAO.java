@@ -40,10 +40,12 @@ public class ProjectDAO implements IProjectDAO {
                     "JOIN spp.organizacion_vinculada ov " +
                     "ON ov.id_organizacion = p.id_organizacion;";
     private static final String SELECT_ALL_AVAILABLE_PROJECTS_SQL =
-            "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor,\n" +
-                    "p.nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, p.cupo_maximo,\n" +
+            "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
+                    "p.nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, p.cupo_maximo, " +
                     "p.cupo_disponible, ov.id_organizacion, ov.nombre_organizacion " +
-                    "FROM proyecto p JOIN spp.organizacion_vinculada ov on ov.id_organizacion = p.id_organizacion WHERE p.estado = 'Disponible';";
+                    "FROM proyecto p " +
+                    "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
+                    "WHERE p.estado = 'Disponible' AND p.cupo_disponible > 0";
     private static final String SELECT_PROJECTS_BY_COORDINATOR_SQL =
             "SELECT id_proyecto, id_organizacion, id_tecnico, id_coordinador, " +
                     "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +

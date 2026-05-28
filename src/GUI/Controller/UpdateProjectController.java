@@ -1,5 +1,6 @@
 package GUI.Controller;
 
+import Logic.DAO.ApplicationDAO;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternActivityDAO;
@@ -39,11 +40,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class UpdateProjectController {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateProjectController.class.getName());
+
+    @FXML
+    private javafx.scene.layout.AnchorPane anchorPane;
 
     private Project project;
     private Intern selectedIntern;
@@ -95,7 +101,14 @@ public class UpdateProjectController {
 
     @FXML
     public void cancelButton(ActionEvent actionEvent) {
-        configureProjectInformation();
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los cambios no guardados se perderán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            openWelcomePage(anchorPane);
+        }
     }
 
     @FXML
@@ -176,29 +189,42 @@ public class UpdateProjectController {
         new OVEvaluationDAO().deleteByInternAndProject(internId, projectId);
         new InternActivityDAO().deleteByInternAndProject(internId, projectId);
         new PracticeDAO().cancelActiveByInternAndProject(internId, projectId);
+        new ApplicationDAO().cancelAcceptedByIntern(internId);
     }
 
     private void updateProjectProcess() {
         try {
-            Project originalSnapshot = buildSnapshot();
+            int newCapacity = Integer.parseInt(capacityTextField.getText().trim());
+            int currentInternCount = internsTableView.getItems().size();
+            boolean isCapacityTooLow = newCapacity < currentInternCount;
 
-            project.setName(nameTextField.getText().trim());
-            project.setDescription(descriptionTextField.getText().trim());
-            project.setObjetivo(objetivoTextArea.getText().trim());
-            project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText().trim()));
-            project.setIdProfessor(professorComboBox.getValue().getId());
-            project.setIdTechnicalSupervisor(
-                    technicalComboBox.getValue().getIdTechnicalSupervisor());
-
-            if (project.equals(originalSnapshot)) {
-                showAlert("Sin cambios",
-                        "No se detectaron cambios en el proyecto.",
-                        Alert.AlertType.INFORMATION);
+            if (isCapacityTooLow) {
+                showAlert("Capacidad inválida",
+                        "La capacidad no puede ser menor a la cantidad actual de practicantes asociados al proyecto.",
+                        Alert.AlertType.WARNING);
             } else {
-                ProjectDAO projectDAO = new ProjectDAO();
-                projectDAO.update(project);
-                showAlert("Éxito", "Proyecto actualizado correctamente.",
-                        Alert.AlertType.INFORMATION);
+                Project originalSnapshot = buildSnapshot();
+
+                project.setName(nameTextField.getText().trim());
+                project.setDescription(descriptionTextField.getText().trim());
+                project.setObjetivo(objetivoTextArea.getText().trim());
+                project.setMaximumPlaces(newCapacity);
+                project.setAvaliablePlaces(newCapacity - currentInternCount);
+                project.setIdProfessor(professorComboBox.getValue().getId());
+                project.setIdTechnicalSupervisor(
+                        technicalComboBox.getValue().getIdTechnicalSupervisor());
+
+                if (project.equals(originalSnapshot)) {
+                    showAlert("Sin cambios",
+                            "No se detectaron cambios en el proyecto.",
+                            Alert.AlertType.INFORMATION);
+                } else {
+                    ProjectDAO projectDAO = new ProjectDAO();
+                    projectDAO.update(project);
+                    showAlert("Éxito", "Proyecto actualizado correctamente.",
+                            Alert.AlertType.INFORMATION);
+                    openWelcomePage(anchorPane);
+                }
             }
 
         } catch (ValidationException validationException) {
@@ -218,6 +244,7 @@ public class UpdateProjectController {
         snapshot.setDescription(project.getDescription());
         snapshot.setObjetivo(project.getObjetivo());
         snapshot.setMaximumPlaces(project.getMaximumPlaces());
+        snapshot.setAvaliablePlaces(project.getAvaliablePlaces());
         snapshot.setIdProfessor(project.getIdProfessor());
         snapshot.setIdTechnicalSupervisor(project.getIdTechnicalSupervisor());
         return snapshot;

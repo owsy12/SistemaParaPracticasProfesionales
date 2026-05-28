@@ -2,13 +2,12 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.ApplicationDAO;
-import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InternDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Application;
-import Logic.DTOs.Assignment;
 import Logic.DTOs.Intern;
+import Logic.DTOs.Practice;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -127,36 +126,45 @@ public class RequestProjectController {
 
     private void verifyActiveInternProjectApplication() {
         try {
-            InternDAO internDAO = new InternDAO();
-            AssignmentDAO assignmentDAO = new AssignmentDAO();
-            ApplicationDAO applicationDAO = new ApplicationDAO();
             int currentUserId = SessionManager.getInstance().getUsuario().getId();
 
-            Application application = applicationDAO.findActiveApplicationByIntern(currentUserId);
-            Assignment assignment = assignmentDAO.getActiveByIdIntern(currentUserId);
-            Intern intern = internDAO.findById(currentUserId);
             PracticeDAO practiceDAO = new PracticeDAO();
             boolean hasConcluded = practiceDAO.hasConcludedPractice(currentUserId);
+            Practice activePractice = practiceDAO.findActiveByIntern(currentUserId);
 
+            ApplicationDAO applicationDAO = new ApplicationDAO();
+            Application pendingApplication = applicationDAO.findActiveApplicationByIntern(currentUserId);
+
+            InternDAO internDAO = new InternDAO();
+            Intern intern = internDAO.findById(currentUserId);
             boolean hasEnoughCredits = intern.getCredits() > MINIMUM_NUMBER_OF_CREDITS_REQUIRED;
-            boolean hasNoAssignment = assignment == null;
-            boolean hasNoApplication = application == null;
-            boolean canRequest = hasEnoughCredits && hasNoAssignment && hasNoApplication
-                    && !hasConcluded;
 
-            if (hasConcluded) {
+            boolean hasConcludedPractice = hasConcluded;
+            boolean hasActivePractice = activePractice != null;
+            boolean hasPendingApplication = pendingApplication != null;
+
+            if (hasConcludedPractice) {
                 showAlert("Práctica concluida",
-                        "Su práctica profesional ya fue concluida exitosamente. "
-                        + "No puede realizar una nueva solicitud.",
+                        "Ya concluyó una práctica profesional y no puede volver a solicitar.",
                         Alert.AlertType.INFORMATION);
                 openWelcomePage(anchorPane);
-            } else if (canRequest) {
-                allowRequest();
-            } else {
-                showAlert("Advertencia",
-                        "No cumple con los requisitos para poder crear una solicitud.",
+            } else if (hasActivePractice) {
+                showAlert("Práctica activa",
+                        "Ya cuenta con una práctica activa.",
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
+            } else if (hasPendingApplication) {
+                showAlert("Solicitud pendiente",
+                        "Ya cuenta con una solicitud pendiente.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else if (!hasEnoughCredits) {
+                showAlert("Créditos insuficientes",
+                        "No cuenta con los créditos suficientes para solicitar una práctica profesional.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else {
+                loadProjects();
             }
 
         } catch (ServiceException serviceException) {
@@ -165,23 +173,6 @@ public class RequestProjectController {
         } catch (ValidationException validationException) {
             showAlert("Error", "No se logró encontrar su usuario.",
                     Alert.AlertType.ERROR);
-        }
-    }
-
-    private void allowRequest() throws ServiceException {
-        ApplicationDAO applicationDAO = new ApplicationDAO();
-        int currentUserId = SessionManager.getInstance().getUsuario().getId();
-        Application application = applicationDAO.findByIntern(currentUserId);
-
-        boolean hasPendingApplication =
-                application != null && "Pendiente".equals(application.getStatus());
-
-        if (!hasPendingApplication) {
-            loadProjects();
-        } else {
-            showAlert("Advertencia", "Usted ya tiene una solicitud pendiente.",
-                    Alert.AlertType.WARNING);
-            openWelcomePage(anchorPane);
         }
     }
 

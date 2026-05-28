@@ -1,6 +1,7 @@
 package Logic.DAO;
 
 import Logic.DTOs.Report;
+import Logic.DTOs.ReportStatusUpdate;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IReportDAO;
@@ -293,14 +294,13 @@ public class ReportDAO implements IReportDAO {
     }
 
     @Override
-    public boolean updateStatus(int idReport, String status, String professorObservations,
-                                java.sql.Date reviewDate)
+    public boolean updateStatus(int idReport, ReportStatusUpdate update)
             throws ServiceException, ValidationException {
         if (idReport <= 0) {
             throw new ValidationException(
                     "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
         }
-        if (status == null || status.isBlank()) {
+        if (update == null || update.getStatus() == null || update.getStatus().isBlank()) {
             throw new ValidationException("El estado del reporte no puede estar vacío.");
         }
 
@@ -309,9 +309,9 @@ public class ReportDAO implements IReportDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_STATUS)) {
 
-            statement.setString(1, status);
-            statement.setString(2, professorObservations);
-            statement.setDate  (3, reviewDate);
+            statement.setString(1, update.getStatus());
+            statement.setString(2, update.getProfessorObservations());
+            statement.setDate  (3, update.getReviewDate());
             statement.setInt   (4, idReport);
 
             if (statement.executeUpdate() > 0) {

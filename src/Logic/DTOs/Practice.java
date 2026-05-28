@@ -10,7 +10,6 @@ public class Practice {
     private LocalDate endDate;
     private String status;
     private Double grade;
-    private Integer idProject;
 
     public Practice() {
     }
@@ -71,11 +70,4 @@ public class Practice {
         this.grade = grade;
     }
 
-    public Integer getIdProject() {
-        return idProject;
-    }
-
-    public void setIdProject(Integer idProject) {
-        this.idProject = idProject;
-    }
 }

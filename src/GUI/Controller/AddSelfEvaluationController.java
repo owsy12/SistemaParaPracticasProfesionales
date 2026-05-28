@@ -180,12 +180,7 @@ public class AddSelfEvaluationController {
         ProjectDAO projectDAO = new ProjectDAO();
         Project currentProject = projectDAO.findById(activeAssignment.getIdProyect());
 
-        String prerequisiteMessage = EvaluationPrerequisiteChecker.check(
-                internId,
-                currentProject.getIdProyect(),
-                currentProject.getStartDate(),
-                currentProject.getEndDate()
-        );
+        String prerequisiteMessage = EvaluationPrerequisiteChecker.check(internId, currentProject);
 
         if (prerequisiteMessage != null) {
             showAlert("Requisitos no cumplidos", prerequisiteMessage, Alert.AlertType.WARNING);

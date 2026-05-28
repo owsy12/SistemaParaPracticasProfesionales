@@ -2,12 +2,10 @@ package GUI.Controller;
 
 import Logic.DAO.EducationalExperienceDAO;
 import Logic.DAO.LinkedOrganizationDAO;
-import Logic.DAO.ProfessorDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.EducationalExperience;
 import Logic.DTOs.LinkedOrganization;
-import Logic.DTOs.Professor;
 import Logic.DTOs.Project;
 import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.ServiceException;
@@ -21,7 +19,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static GUI.Utils.Alert.showAlert;
@@ -58,9 +56,6 @@ public class AddProjectController {
     private DatePicker startDate;
 
     @FXML
-    private ComboBox<Professor> professorComboBox;
-
-    @FXML
     private ComboBox<EducationalExperience> educationalExperienceComboBox;
 
     @FXML
@@ -73,16 +68,13 @@ public class AddProjectController {
         setTypeAndLength(descriptionTextField, "Text");
 
         loadOrganizations();
-        loadProfessors();
         loadEducationalExperiences();
     }
 
     @FXML
     public void addProject(ActionEvent actionEvent) {
-        if (!isInputValid()) {
-            showAlert("Alerta", "Por favor verifique la información ingresada.",
-                    Alert.AlertType.WARNING);
-        } else {
+        boolean inputIsValid = hasValidInput();
+        if (inputIsValid) {
             registrationProcess();
         }
     }
@@ -112,17 +104,14 @@ public class AddProjectController {
         try {
             Project project = buildProject();
             ProjectDAO projectDAO = new ProjectDAO();
-
             boolean nrcAlreadyUsed = projectDAO.existsByNrc(project.getNrc());
+
             if (nrcAlreadyUsed) {
                 showAlert("EE con proyecto existente",
                         "Ya existe un proyecto registrado para esta Experiencia Educativa. "
                         + "No es posible registrar otro simultáneamente.",
                         Alert.AlertType.WARNING);
-                return;
-            }
-
-            if (projectDAO.saveProject(project)) {
+            } else if (projectDAO.saveProject(project)) {
                 showAlert("Éxito", "El proyecto ha sido guardado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();
@@ -137,26 +126,22 @@ public class AddProjectController {
         } catch (ServiceException serviceException) {
             showAlert("Error inesperado", "El servicio no se encuentra disponible.",
                     Alert.AlertType.ERROR);
-        } catch (NullPointerException nullPointerException) {
-            showAlert("Precaución", "Seleccione fechas válidas.",
-                    Alert.AlertType.INFORMATION);
         }
     }
 
     private Project buildProject() {
-        LocalDate startdate = startDate.getValue();
-        LocalDate enddate = endDate.getValue();
+        EducationalExperience selectedEE = educationalExperienceComboBox.getValue();
         Project project = new Project();
-        project.setNrc(educationalExperienceComboBox.getValue().getNrc());
-        project.setName(nameTextField.getText());
-        project.setDescription(descriptionTextField.getText());
+        project.setNrc(selectedEE.getNrc());
+        project.setName(nameTextField.getText().trim());
+        project.setDescription(descriptionTextField.getText().trim());
         project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
         project.setIdTechnicalSupervisor(technicalComboBox.getValue().getIdTechnicalSupervisor());
-        project.setIdProfessor(professorComboBox.getValue().getId());
-        project.setStartDate(startdate);
-        project.setEndDate(enddate);
-        project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText()));
-        project.setAvaliablePlaces(Integer.parseInt(capacityTextField.getText()));
+        project.setIdProfessor(selectedEE.getIdProfessor());
+        project.setStartDate(startDate.getValue());
+        project.setEndDate(endDate.getValue());
+        project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText().trim()));
+        project.setAvaliablePlaces(Integer.parseInt(capacityTextField.getText().trim()));
         project.setObjetivo(objetivoTextArea.getText().trim());
         return project;
     }
@@ -185,50 +170,82 @@ public class AddProjectController {
         }
     }
 
-    private void loadProfessors() {
-        try {
-            ProfessorDAO professorDAO = new ProfessorDAO();
-            List<Professor> professorList = professorDAO.findActiveProfessors();
-            professorComboBox.getItems().setAll(professorList);
-        } catch (ServiceException serviceException) {
-            showAlert("Error", "Servicio no disponible, intente más tarde.",
-                    Alert.AlertType.ERROR);
-        } catch (ValidationException validationException) {
-            showAlert("Error", "Error al validar los profesores.",
-                    Alert.AlertType.ERROR);
-        }
-    }
-
     private void loadEducationalExperiences() {
         try {
             EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
-            List<EducationalExperience> experienceList = educationalExperienceDAO.findAll();
-            educationalExperienceComboBox.getItems().setAll(experienceList);
+            ProjectDAO projectDAO = new ProjectDAO();
+            List<EducationalExperience> allExperiences = educationalExperienceDAO.findAll();
+            List<EducationalExperience> availableExperiences = new ArrayList<>();
+
+            for (EducationalExperience experience : allExperiences) {
+                boolean hasActiveProject = projectDAO.existsByNrc(experience.getNrc());
+                if (!hasActiveProject) {
+                    availableExperiences.add(experience);
+                }
+            }
+
+            educationalExperienceComboBox.getItems().setAll(availableExperiences);
         } catch (ServiceException serviceException) {
             showAlert("Error", "No se pueden cargar las experiencias educativas.",
+                    Alert.AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", "Error al filtrar las experiencias educativas.",
                     Alert.AlertType.ERROR);
         }
     }
 
-    private boolean isInputValid() {
-        boolean isCapacityEmpty = capacityTextField.getText().isEmpty();
-        boolean isNameEmpty = nameTextField.getText().isEmpty();
-        boolean isDescriptionEmpty = descriptionTextField.getText().isEmpty();
+    private boolean hasValidInput() {
+        boolean isEEMissing = educationalExperienceComboBox.getValue() == null;
         boolean isOrganizationMissing = organizationComboBox.getValue() == null;
         boolean isTechnicalMissing = technicalComboBox.getValue() == null;
+        boolean isNameEmpty = nameTextField.getText().isBlank();
+        boolean isDescriptionEmpty = descriptionTextField.getText().isBlank();
+        boolean isCapacityEmpty = capacityTextField.getText().isBlank();
+        boolean isObjectiveEmpty = objetivoTextArea.getText().isBlank();
         boolean isStartDateMissing = startDate.getValue() == null;
-        boolean isProfessorMissing = professorComboBox.getValue() == null;
         boolean isEndDateMissing = endDate.getValue() == null;
-        boolean isEducationalExperienceMissing = educationalExperienceComboBox.getValue() == null;
+        boolean hasAllDates = !isStartDateMissing && !isEndDateMissing;
+        boolean isDateOrderInvalid = hasAllDates
+                && !endDate.getValue().isAfter(startDate.getValue());
 
-        boolean hasEmptyFields = isCapacityEmpty || isNameEmpty || isDescriptionEmpty || isOrganizationMissing || isTechnicalMissing
-                || isStartDateMissing || isProfessorMissing || isEndDateMissing || isEducationalExperienceMissing;
+        if (isEEMissing) {
+            showAlert("Experiencia Educativa requerida",
+                    "Seleccione una Experiencia Educativa.", Alert.AlertType.WARNING);
+        } else if (isOrganizationMissing) {
+            showAlert("Organización requerida",
+                    "Seleccione una organización vinculada.", Alert.AlertType.WARNING);
+        } else if (isTechnicalMissing) {
+            showAlert("Responsable técnico requerido",
+                    "Seleccione un responsable técnico.", Alert.AlertType.WARNING);
+        } else if (isNameEmpty) {
+            showAlert("Nombre requerido",
+                    "Ingrese el nombre del proyecto.", Alert.AlertType.WARNING);
+        } else if (isDescriptionEmpty) {
+            showAlert("Descripción requerida",
+                    "Ingrese la descripción del proyecto.", Alert.AlertType.WARNING);
+        } else if (isCapacityEmpty) {
+            showAlert("Cupo requerido",
+                    "Ingrese el cupo máximo del proyecto.", Alert.AlertType.WARNING);
+        } else if (isObjectiveEmpty) {
+            showAlert("Objetivo requerido",
+                    "Ingrese el objetivo del proyecto.", Alert.AlertType.WARNING);
+        } else if (isStartDateMissing) {
+            showAlert("Fecha de inicio requerida",
+                    "Seleccione la fecha de inicio del proyecto.", Alert.AlertType.WARNING);
+        } else if (isEndDateMissing) {
+            showAlert("Fecha de fin requerida",
+                    "Seleccione la fecha de fin del proyecto.", Alert.AlertType.WARNING);
+        } else if (isDateOrderInvalid) {
+            showAlert("Período incorrecto",
+                    "La fecha de fin debe ser posterior a la fecha de inicio.",
+                    Alert.AlertType.WARNING);
+        }
 
-        boolean noFieldsEmpty = !hasEmptyFields;
-        boolean isEndAfterStart =
-                noFieldsEmpty && endDate.getValue().isAfter(startDate.getValue());
+        boolean isValid = !isEEMissing && !isOrganizationMissing && !isTechnicalMissing
+                && !isNameEmpty && !isDescriptionEmpty && !isCapacityEmpty && !isObjectiveEmpty
+                && !isStartDateMissing && !isEndDateMissing && !isDateOrderInvalid;
 
-        return isEndAfterStart;
+        return isValid;
     }
 
     private void clear() {
@@ -238,7 +255,6 @@ public class AddProjectController {
         objetivoTextArea.clear();
         technicalComboBox.getSelectionModel().clearSelection();
         organizationComboBox.getSelectionModel().clearSelection();
-        professorComboBox.getSelectionModel().clearSelection();
         educationalExperienceComboBox.getSelectionModel().clearSelection();
         startDate.setValue(null);
         endDate.setValue(null);

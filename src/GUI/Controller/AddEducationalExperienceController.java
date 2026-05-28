@@ -103,7 +103,15 @@ public class AddEducationalExperienceController {
         try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             List<Professor> professorList = professorDAO.findActiveProfessors();
-            professorComboBox.getItems().setAll(professorList);
+            boolean hasProfessors = !professorList.isEmpty();
+            if (hasProfessors) {
+                professorComboBox.getItems().setAll(professorList);
+            } else {
+                showAlert("Sin profesores disponibles",
+                        "No existen profesores disponibles para asociar a la Experiencia Educativa.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            }
         } catch (ServiceException serviceException) {
             showAlert("Error", "No se pudieron cargar los profesores. Intente más tarde.",
                     Alert.AlertType.ERROR);
