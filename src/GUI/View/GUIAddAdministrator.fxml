@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import GUI.Utils.*?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<ScrollPane
+        prefWidth="640.0"
+        prefHeight="720.0"
+        styleClass="subViewScrollPane"
+        stylesheets="@css/GUIAddCoordinadorStyles.css"
+        fitToWidth="true"
+        fitToHeight="false"
+        hbarPolicy="NEVER"
+        vbarPolicy="AS_NEEDED"
+        xmlns="http://javafx.com/javafx/25"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="GUI.Controller.AddAdministratorController">
+
+    <content>
+        <VBox styleClass="subViewContentVBox" spacing="20.0">
+            <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
+            <VBox styleClass="viewHeaderVBox" spacing="5.0">
+
+                <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                    <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                    <Label text="ADMINISTRACIÓN · USUARIOS" styleClass="viewBreadcrumbLabel"/>
+                </HBox>
+
+                <Label text="Registrar Administrador" styleClass="viewTitleLabel"/>
+
+                <Label text="Da de alta al administrador inicial del SGPP con acceso completo al sistema."
+                       styleClass="viewSubtitleLabel"/>
+            </VBox>
+
+            <Separator styleClass="viewTopAccentSeparator"/>
+
+            <VBox styleClass="formCardVBox">
+
+                <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                    <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                    <StackPane styleClass="formSectionIconStackPane">
+                        <Label text="+" styleClass="formSectionIconLabel"/>
+                    </StackPane>
+                    <Label text="Datos del administrador" styleClass="formSectionTitleLabel"/>
+                </HBox>
+
+                <VBox spacing="18.0">
+                    <padding><Insets top="26.0" right="36.0" bottom="10.0" left="36.0"/></padding>
+
+                    <GridPane hgap="0.0" vgap="20.0" maxWidth="Infinity">
+                        <columnConstraints>
+                            <ColumnConstraints prefWidth="210.0" minWidth="160.0" halignment="RIGHT"/>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="0.0"/>
+                        </columnConstraints>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <padding><Insets right="18.0"/></padding>
+                            <Label text="Matrícula" styleClass="fieldLabelText"/>
+                            <Label text=" *" styleClass="requiredMarkLabel"/>
+                        </HBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <RestrictedTextField fx:id="idTextField"
+                                       promptText="S00000000"
+                                       styleClass="formTextField"
+                                       maxWidth="Infinity"/>
+                            <Label text="Identificador institucional del administrador"
+                                   styleClass="fieldHintLabel"/>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <padding><Insets right="18.0"/></padding>
+                            <Label text="Nombre(s)" styleClass="fieldLabelText"/>
+                            <Label text=" *" styleClass="requiredMarkLabel"/>
+                        </HBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <RestrictedTextField fx:id="firstNameTextField"
+                                       promptText="Ej. María Fernanda"
+                                       styleClass="formTextField"
+                                       maxWidth="Infinity"/>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <padding><Insets right="18.0"/></padding>
+                            <Label text="Apellido Paterno" styleClass="fieldLabelText"/>
+                            <Label text=" *" styleClass="requiredMarkLabel"/>
+                        </HBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <RestrictedTextField fx:id="lastNameTextField"
+                                       styleClass="formTextField"
+                                       maxWidth="Infinity"/>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT"
+                              GridPane.columnIndex="0" GridPane.rowIndex="3">
+                            <padding><Insets right="18.0"/></padding>
+                            <Label text="Apellido Materno" styleClass="fieldLabelText"/>
+                        </HBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                            <RestrictedTextField fx:id="secondLastNameTextField"
+                                       styleClass="formTextField"
+                                       maxWidth="Infinity"/>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="4">
+                            <padding><Insets right="18.0"/></padding>
+                            <Label text="Correo institucional" styleClass="fieldLabelText"/>
+                            <Label text=" *" styleClass="requiredMarkLabel"/>
+                        </HBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                            <RestrictedTextField fx:id="emailTextField"
+                                       promptText="usuario@uv.mx"
+                                       styleClass="formTextField"
+                                       maxWidth="Infinity"/>
+                        </VBox>
+
+                    </GridPane>
+                </VBox>
+
+                <Separator styleClass="formDashedSeparator">
+                    <VBox.margin><Insets top="10.0" right="36.0" bottom="0.0" left="36.0"/></VBox.margin>
+                </Separator>
+
+                <VBox spacing="18.0">
+                    <padding><Insets top="20.0" right="36.0" bottom="26.0" left="36.0"/></padding>
+
+                    <GridPane hgap="0.0" vgap="20.0" maxWidth="Infinity">
+                        <columnConstraints>
+                            <ColumnConstraints prefWidth="210.0" minWidth="160.0" halignment="RIGHT"/>
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="0.0"/>
+                        </columnConstraints>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <padding><Insets right="18.0"/></padding>
+                            <Label text="Contraseña" styleClass="fieldLabelText"/>
+                            <Label text=" *" styleClass="requiredMarkLabel"/>
+                        </HBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <RestrictedPasswordField fx:id="passwordField"
+                                           styleClass="formPasswordField"
+                                           maxWidth="Infinity"/>
+                            <Label text="Mínimo 8 caracteres, incluye mayúsculas y números"
+                                   styleClass="fieldHintLabel"/>
+                        </VBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                              GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <padding><Insets right="18.0"/></padding>
+                            <Label text="Confirmar Contraseña" styleClass="fieldLabelText"/>
+                            <Label text=" *" styleClass="requiredMarkLabel"/>
+                        </HBox>
+                        <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <RestrictedPasswordField fx:id="confirmPasswordField"
+                                           styleClass="formPasswordField"
+                                           maxWidth="Infinity"/>
+                        </VBox>
+
+                    </GridPane>
+                </VBox>
+
+                <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                    <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+
+                    <Region HBox.hgrow="ALWAYS"/>
+
+                    <Button fx:id="cancelButton"
+                            text="Cancelar"
+                            styleClass="cancelActionButton"
+                            onAction="#cancelRegistration"
+                            mnemonicParsing="false"/>
+
+                    <Button fx:id="registerButton"
+                            text="&#10003;  Registrar"
+                            styleClass="primaryActionButton"
+                            onAction="#registerAdministrator"
+                            mnemonicParsing="false"/>
+                </HBox>
+
+            </VBox>
+        </VBox>
+    </content>
+</ScrollPane>
