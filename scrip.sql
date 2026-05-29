@@ -1,11 +1,3 @@
-
-SET FOREIGN_KEY_CHECKS = 0;
-DROP DATABASE IF EXISTS spp;
-CREATE DATABASE spp
-    CHARACTER SET utf8mb4
-    COLLATE utf8mb4_unicode_ci;
-USE spp;
-
 create table organizacion_vinculada
 (
     id_organizacion     int auto_increment
@@ -73,6 +65,17 @@ create table coordinador
 )
     comment 'CU-01 registra; CU-03 inactiva (via usuario.estado)';
 
+create table experiencia_educativa
+(
+    nrc         varchar(10)  not null
+        primary key,
+    nombre      varchar(150) not null,
+    id_profesor int          not null,
+    constraint fk_ee_profesor
+        foreign key (id_profesor) references usuario (id_usuario)
+            on update cascade
+);
+
 create table practicante
 (
     id_usuario int not null
@@ -84,6 +87,30 @@ create table practicante
 )
     comment 'CU-14 registra; CU-13 inactiva; CU-19/20/21/22/23/24 operan';
 
+create table practica
+(
+    id_practica    int auto_increment
+        primary key,
+    nrc            varchar(10)                                                not null,
+    id_practicante int                                                        not null,
+    fecha_inicio   date                                                       not null,
+    fecha_fin      date                                                       null,
+    estado         enum ('Activa', 'Concluida', 'Cancelada') default 'Activa' not null,
+    calificacion   decimal(4, 2)                                              null,
+    constraint uq_practica_nrc_practicante
+        unique (nrc, id_practicante),
+    constraint fk_practica_ee
+        foreign key (nrc) references experiencia_educativa (nrc)
+            on update cascade,
+    constraint fk_practica_practicante
+        foreign key (id_practicante) references practicante (id_usuario)
+            on update cascade,
+    constraint chk_practica_calificacion
+        check ((`calificacion` is null) or (`calificacion` between 0 and 10)),
+    constraint chk_practica_fechas
+        check ((`fecha_fin` is null) or (`fecha_fin` >= `fecha_inicio`))
+);
+
 create table profesor
 (
     id_usuario int          not null
@@ -94,17 +121,6 @@ create table profesor
             on update cascade on delete cascade
 )
     comment 'CU-02 registra; CU-04 inactiva; CU-15 consulta';
-
-create table experiencia_educativa
-(
-    nrc         varchar(10)  not null
-        primary key,
-    nombre      varchar(150) not null,
-    id_profesor int          not null,
-    constraint fk_ee_profesor
-        foreign key (id_profesor) references usuario (id_usuario)
-            on update cascade
-);
 
 create table proyecto
 (
@@ -124,6 +140,9 @@ create table proyecto
     nrc             varchar(10)                                                                 null,
     constraint uq_proy_nombre_org
         unique (nombre, id_organizacion),
+    constraint fk_proy_ee
+        foreign key (nrc) references experiencia_educativa (nrc)
+            on update cascade,
     constraint fk_proy_org
         foreign key (id_organizacion) references organizacion_vinculada (id_organizacion)
             on update cascade,
@@ -132,9 +151,6 @@ create table proyecto
             on update cascade,
     constraint id_profesor
         foreign key (id_profesor) references usuario (id_usuario),
-    constraint fk_proy_ee
-        foreign key (nrc) references experiencia_educativa (nrc)
-            on update cascade,
     constraint chk_cupo_disponible
         check (`cupo_disponible` >= 0),
     constraint chk_cupo_maximo
@@ -155,6 +171,8 @@ create table actividad
     semana_fin_plan    int                         default 8           not null,
     fecha_creacion     date                        default (curdate()) not null,
     estado             enum ('Activa', 'Inactiva') default 'Activa'    not null,
+    fecha_inicio       date                                            null,
+    fecha_fin          date                                            null,
     constraint fk_actividad_proyecto
         foreign key (id_proyecto) references proyecto (id_proyecto)
             on update cascade on delete cascade
@@ -263,6 +281,8 @@ create table formato_inicial
     estado         enum ('Pendiente', 'Entregado') default 'Pendiente'                                           not null,
     fecha_entrega  datetime                                                                                      null,
     id_proyecto    int                                                                                           null,
+    constraint uq_fmt_prac_proy_tipo
+        unique (id_practicante, id_proyecto, tipo_formato),
     constraint fk_fmt_prac
         foreign key (id_practicante) references practicante (id_usuario)
             on update cascade,
@@ -271,6 +291,22 @@ create table formato_inicial
             on update cascade on delete set null
 )
     comment 'CU-18: practicante sube los 4 formatos iniciales';
+
+create index idx_fmt_practicante
+    on formato_inicial (id_practicante);
+
+create table prorroga
+(
+    id_prorroga        int auto_increment
+        primary key,
+    id_actividad       int  not null,
+    fecha_fin_original date not null,
+    fecha_fin_nueva    date not null,
+    motivo             text not null,
+    constraint fk_prorroga_actividad
+        foreign key (id_actividad) references actividad (id_actividad)
+            on update cascade on delete cascade
+);
 
 create table reporte
 (
@@ -282,16 +318,14 @@ create table reporte
     tipo_reporte           enum ('Parcial', 'Final', 'Mensual')                                    not null,
     periodo                varchar(50)                                                             not null comment 'Ej: 2024-01 o número de informe',
     ruta_documento         varchar(500)                                                            not null comment 'Ruta del PDF firmado (CU-21)',
-    estado                 enum ('Pendiente', 'En revisión', 'Revisado', 'Corrección solicitada', 'Aprobado', 'Rechazado') default 'Pendiente' not null,
+    estado                 enum ('Pendiente', 'En revision', 'Evaluado') default 'Pendiente'       not null,
     horas_reportadas       int                                           default 0                 null,
     observaciones_profesor text                                                                    null,
     fecha_revision         date                                                                    null,
     fecha_entrega          datetime                                      default CURRENT_TIMESTAMP not null,
-    fecha_limite           date                                                                    null,
-    entrega_tardia         tinyint(1)                                    default 0                 not null,
     ruta_documento_firmado varchar(150)                                                            null,
-    constraint uq_rep_prac_tipo_periodo
-        unique (id_practicante, tipo_reporte, periodo),
+    fecha_limite           date                                                                    null,
+    entrega_tardia         tinyint(1)                                                              null,
     constraint fk_rep_prac
         foreign key (id_practicante) references practicante (id_usuario)
             on update cascade,
@@ -322,6 +356,25 @@ create table evaluacion_reporte
 
 create index id_reporte
     on evaluacion_reporte (id_reporte);
+
+create table observacion_reporte
+(
+    id_observacion    int auto_increment
+        primary key,
+    id_reporte        int                                not null,
+    id_profesor       int                                not null,
+    comentario        text                               not null,
+    fecha_observacion datetime default CURRENT_TIMESTAMP not null,
+    constraint fk_obs_profesor
+        foreign key (id_profesor) references profesor (id_usuario)
+            on update cascade,
+    constraint fk_obs_reporte
+        foreign key (id_reporte) references reporte (id_reporte)
+            on update cascade on delete cascade
+);
+
+create index idx_rep_practicante
+    on reporte (id_practicante);
 
 create table reporte_actividad
 (
@@ -399,11 +452,9 @@ create table solicitud
 (
     id_solicitud    int auto_increment
         primary key,
-    id_practicante  int                                                                   not null,
-    estado          enum ('Pendiente', 'Aceptada', 'Rechazada') default 'Pendiente'       not null,
-    fecha_solicitud datetime                                    default CURRENT_TIMESTAMP not null,
-    constraint uq_sol_practicante_activa
-        unique (id_practicante, estado),
+    id_practicante  int                                                                                not null,
+    estado          enum ('Pendiente', 'Cancelada', 'Aceptada', 'Rechazada') default 'Pendiente'       not null,
+    fecha_solicitud datetime                                                 default CURRENT_TIMESTAMP not null,
     constraint fk_sol_prac
         foreign key (id_practicante) references practicante (id_usuario)
             on update cascade
@@ -414,12 +465,12 @@ create table asignacion
 (
     id_asignacion    int auto_increment
         primary key,
-    id_practicante   int                                                    not null,
-    id_proyecto      int                                                    not null,
-    id_solicitud     int                                                    not null,
-    fecha_asignacion datetime                     default CURRENT_TIMESTAMP not null,
-    estado           enum ('Activa', 'Concluida') default 'Activa'          not null,
-    razon_asignacion text                                                    null,
+    id_practicante   int                                                                 not null,
+    id_proyecto      int                                                                 not null,
+    id_solicitud     int                                                                 not null,
+    fecha_asignacion datetime                                  default CURRENT_TIMESTAMP not null,
+    estado           enum ('Activa', 'Concluida', 'Cancelada') default 'Activa'          not null,
+    razon_asignacion text                                                                null,
     constraint uq_asig_practicante
         unique (id_practicante),
     constraint fk_asig_prac
@@ -434,6 +485,9 @@ create table asignacion
 )
     comment 'CU-10 registra; un practicante solo puede tener una asignación';
 
+create index idx_sol_practicante
+    on solicitud (id_practicante);
+
 create table solicitud_proyecto
 (
     id_solicitud_proyecto int auto_increment
@@ -441,8 +495,6 @@ create table solicitud_proyecto
     id_solicitud          int     not null,
     id_proyecto           int     not null,
     orden_preferencia     tinyint null comment '1=primera, 2=segunda, 3=tercera',
-    constraint uq_sol_proy
-        unique (id_solicitud, id_proyecto),
     constraint fk_solproy_proy
         foreign key (id_proyecto) references proyecto (id_proyecto)
             on update cascade,
@@ -451,6 +503,12 @@ create table solicitud_proyecto
             on update cascade on delete cascade
 )
     comment 'CU-19: hasta 3 opciones por solicitud';
+
+create index idx_solproy_proyecto
+    on solicitud_proyecto (id_proyecto);
+
+create index idx_solproy_solicitud
+    on solicitud_proyecto (id_solicitud);
 
 create table usuario_rol
 (
@@ -464,38 +522,10 @@ create table usuario_rol
 )
     comment 'Un usuario puede tener más de un rol (ej. Coordinador + Profesor)';
 
-create table practica
-(
-    id_practica    int auto_increment
-        primary key,
-    nrc            varchar(10)                                             not null,
-    id_practicante int                                                     not null,
-    fecha_inicio   date                                                    not null,
-    fecha_fin      date                                                    null,
-    estado         enum ('Activa', 'Concluida', 'Cancelada') default 'Activa' not null,
-    calificacion   decimal(4, 2)                                          null,
-    id_proyecto    int                                                     null,
-    constraint uq_practica_nrc_practicante
-        unique (nrc, id_practicante),
-    constraint fk_practica_ee
-        foreign key (nrc) references experiencia_educativa (nrc)
-            on update cascade,
-    constraint fk_practica_practicante
-        foreign key (id_practicante) references practicante (id_usuario)
-            on update cascade,
-    constraint chk_practica_calificacion
-        check (calificacion is null or calificacion between 0 and 10),
-    constraint chk_practica_fechas
-        check (fecha_fin is null or fecha_fin >= fecha_inicio),
-    constraint fk_practica_proyecto
-        foreign key (id_proyecto) references proyecto (id_proyecto)
-            on update cascade on delete set null
-);
-
-delimiter //
-create trigger trg_single_active_coordinator
-before insert on usuario_rol
-for each row
+create definer = root@localhost trigger trg_single_active_coordinator
+    before insert
+    on usuario_rol
+    for each row
 begin
     declare active_count int;
     if new.rol = 'Coordinador' and new.estado = 'Activo' then
@@ -507,22 +537,5 @@ begin
                 set message_text = 'Solo puede existir un coordinador activo en el sistema.';
         end if;
     end if;
-end;//
-delimiter ;
-
-create table observacion_reporte
-(
-    id_observacion    int auto_increment
-        primary key,
-    id_reporte        int      not null,
-    id_profesor       int      not null,
-    comentario        text     not null,
-    fecha_observacion datetime default CURRENT_TIMESTAMP not null,
-    constraint fk_obs_reporte
-        foreign key (id_reporte) references reporte (id_reporte)
-            on update cascade on delete cascade,
-    constraint fk_obs_profesor
-        foreign key (id_profesor) references profesor (id_usuario)
-            on update cascade
-);
+end;
 

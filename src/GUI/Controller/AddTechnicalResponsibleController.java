@@ -16,7 +16,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import java.util.Optional;
@@ -27,22 +27,22 @@ public class AddTechnicalResponsibleController {
     private AnchorPane anchorPane;
 
     @FXML
-    public TextField nameField;
+    public RestrictedTextField nameField;
 
     @FXML
-    private TextField emailField;
+    private RestrictedTextField emailField;
 
     @FXML
     private ComboBox<LinkedOrganization> organizationComboBox;
 
     @FXML
-    private TextField lastNameField;
+    private RestrictedTextField lastNameField;
 
     @FXML
-    private TextField lastNameMaterField;
+    private RestrictedTextField lastNameMaterField;
 
     @FXML
-    private TextField cargoField;
+    private RestrictedTextField cargoField;
 
     @FXML
     private void initialize() {

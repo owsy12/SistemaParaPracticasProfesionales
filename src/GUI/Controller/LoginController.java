@@ -1,6 +1,8 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.RestrictedPasswordField;
+import GUI.Utils.RestrictedTextField;
 import Logic.DAO.UserDAO;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
@@ -12,8 +14,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -21,15 +23,58 @@ import static GUI.Utils.Alert.showAlert;
 
 public class LoginController {
     @FXML
-    private TextField userTextField;
+    private RestrictedTextField userTextField;
     @FXML
-    private PasswordField passwordField;
+    private RestrictedPasswordField passwordField;
+    @FXML
+    private Button registerAdminButton;
     private User currentUser;
 
     @FXML
     private void initialize() {
         setTypeAndLength(userTextField, "Email");
         setTypeAndLength(passwordField, "Password");
+        updateAdminRegistrationVisibility();
+    }
+
+    @FXML
+    public void clickRegisterAdmin(ActionEvent actionEvent) {
+        openAdministratorRegistration();
+        updateAdminRegistrationVisibility();
+    }
+
+    private void updateAdminRegistrationVisibility() {
+        boolean noUsersExist = hasNoRegisteredUsers();
+        registerAdminButton.setVisible(noUsersExist);
+        registerAdminButton.setManaged(noUsersExist);
+    }
+
+    private boolean hasNoRegisteredUsers() {
+        boolean noUsersExist = false;
+        try {
+            UserDAO userDAO = new UserDAO();
+            noUsersExist = userDAO.findAll().isEmpty();
+        } catch (ServiceException serviceException) {
+            showAlert("Error de servicio",
+                    "No se pudo verificar el estado del sistema. Inténtalo de nuevo más tarde.",
+                    Alert.AlertType.ERROR);
+        }
+        return noUsersExist;
+    }
+
+    private void openAdministratorRegistration() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/View/GUIAddAdministrator.fxml"));
+            Parent root = loader.load();
+            Stage adminStage = new Stage();
+            adminStage.setScene(new Scene(root));
+            adminStage.setTitle("Registrar Administrador");
+            adminStage.initModality(Modality.APPLICATION_MODAL);
+            adminStage.showAndWait();
+        } catch (Exception exception) {
+            showAlert("Error", "Error al abrir el registro de administrador, intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
     }
 
     @FXML

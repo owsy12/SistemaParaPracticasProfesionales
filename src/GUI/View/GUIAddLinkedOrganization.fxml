@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0"
@@ -20,22 +21,22 @@
 
          <VBox spacing="5">
             <Label text="Nombre de la organización"/>
-            <TextField fx:id="organizationNameTextField" promptText="Ingrese el nombre"/>
+            <RestrictedTextField fx:id="organizationNameTextField" promptText="Ingrese el nombre"/>
          </VBox>
 
          <VBox spacing="5">
             <Label text="Correo"/>
-            <TextField fx:id="organizationEmailTextField" promptText="correo@ejemplo.com"/>
+            <RestrictedTextField fx:id="organizationEmailTextField" promptText="correo@ejemplo.com"/>
          </VBox>
 
          <VBox spacing="5">
             <Label text="Dirección"/>
-            <TextField fx:id="organizationAddressTextField" promptText="Dirección completa"/>
+            <RestrictedTextField fx:id="organizationAddressTextField" promptText="Dirección completa"/>
          </VBox>
 
          <VBox spacing="5">
             <Label text="Sector"/>
-            <TextField fx:id="sectorOrganizacionTextField" promptText="Ej. Público / Privado"/>
+            <RestrictedTextField fx:id="sectorOrganizacionTextField" promptText="Ej. Público / Privado"/>
          </VBox>
 
          <HBox spacing="15">

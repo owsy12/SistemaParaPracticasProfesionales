@@ -3,10 +3,9 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -69,7 +68,7 @@
                             <Label text=" *" styleClass="requiredMarkLabel"/>
                         </HBox>
                         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <TextField fx:id="idTextField"
+                            <RestrictedTextField fx:id="idTextField"
                                        promptText="S00000000"
                                        styleClass="formTextField"
                                        maxWidth="Infinity"/>
@@ -84,7 +83,7 @@
                             <Label text=" *" styleClass="requiredMarkLabel"/>
                         </HBox>
                         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <TextField fx:id="firstNameTextField"
+                            <RestrictedTextField fx:id="firstNameTextField"
                                        promptText="Ej. María Fernanda"
                                        styleClass="formTextField"
                                        maxWidth="Infinity"/>
@@ -97,7 +96,7 @@
                             <Label text=" *" styleClass="requiredMarkLabel"/>
                         </HBox>
                         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                            <TextField fx:id="lastNameTextField"
+                            <RestrictedTextField fx:id="lastNameTextField"
                                        styleClass="formTextField"
                                        maxWidth="Infinity"/>
                         </VBox>
@@ -108,7 +107,7 @@
                             <Label text="Apellido Materno" styleClass="fieldLabelText"/>
                         </HBox>
                         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                            <TextField fx:id="secondLastNameTextField"
+                            <RestrictedTextField fx:id="secondLastNameTextField"
                                        styleClass="formTextField"
                                        maxWidth="Infinity"/>
                         </VBox>
@@ -120,7 +119,7 @@
                             <Label text=" *" styleClass="requiredMarkLabel"/>
                         </HBox>
                         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                            <TextField fx:id="emailTextField"
+                            <RestrictedTextField fx:id="emailTextField"
                                        promptText="usuario@uv.mx"
                                        styleClass="formTextField"
                                        maxWidth="Infinity"/>
@@ -149,7 +148,7 @@
                             <Label text=" *" styleClass="requiredMarkLabel"/>
                         </HBox>
                         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                            <PasswordField fx:id="passwordField"
+                            <RestrictedPasswordField fx:id="passwordField"
                                            styleClass="formPasswordField"
                                            maxWidth="Infinity"/>
                             <Label text="Mínimo 8 caracteres, incluye mayúsculas y números"
@@ -163,7 +162,7 @@
                             <Label text=" *" styleClass="requiredMarkLabel"/>
                         </HBox>
                         <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                            <PasswordField fx:id="confirmPasswordField"
+                            <RestrictedPasswordField fx:id="confirmPasswordField"
                                            styleClass="formPasswordField"
                                            maxWidth="Infinity"/>
                         </VBox>

@@ -4,8 +4,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
@@ -23,11 +22,11 @@
                 prefHeight="26.0" prefWidth="480.0" />
 
       <Label layoutX="20.0" layoutY="118.0" text="Nombre de la actividad:" />
-      <TextField fx:id="nameTextField" layoutX="20.0" layoutY="136.0"
+      <RestrictedTextField fx:id="nameTextField" layoutX="20.0" layoutY="136.0"
                  prefHeight="26.0" prefWidth="480.0" />
 
       <Label layoutX="20.0" layoutY="176.0" text="Descripción:" />
-      <TextArea fx:id="descriptionTextArea" layoutX="20.0" layoutY="194.0"
+      <RestrictedTextArea fx:id="descriptionTextArea" layoutX="20.0" layoutY="194.0"
                 prefHeight="90.0" prefWidth="480.0" wrapText="true" />
 
       <Label layoutX="20.0" layoutY="302.0" text="Fecha de inicio:" />

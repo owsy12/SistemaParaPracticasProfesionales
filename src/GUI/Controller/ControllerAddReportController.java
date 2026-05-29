@@ -157,7 +157,7 @@ public class ControllerAddReportController {
             if (newValue != null) {
                 selectedReport = newValue;
                 String selectionStatusText = "Reporte seleccionado: "
-                        + newValue.getReportType() + " - " + newValue.getPeriod();
+                        + newValue.getTypeWithMonth() + " - " + newValue.getPeriod();
                 showStatus(selectionStatusText, false);
             }
         }
@@ -192,7 +192,7 @@ public class ControllerAddReportController {
         try {
             int internId = SessionManager.getInstance().getUsuario().getId();
             ReportDAO reportDAO = new ReportDAO();
-            List<Report> allReports = reportDAO.getByIdIntern(internId);
+            List<Report> allReports = reportDAO.getByIdInternWithMonth(internId);
             List<Report> pendingReports = new ArrayList<>();
 
             for (Report report : allReports) {
@@ -282,7 +282,10 @@ public class ControllerAddReportController {
     }
 
     private void showStatus(String message, boolean isError) {
-        String textFillStyle = isError ? "-fx-text-fill: red;" : "-fx-text-fill: green;";
+        String textFillStyle = "-fx-text-fill: green;";
+        if (isError) {
+            textFillStyle = "-fx-text-fill: red;";
+        }
         labelStatus.setStyle(textFillStyle);
         labelStatus.setText(message);
     }

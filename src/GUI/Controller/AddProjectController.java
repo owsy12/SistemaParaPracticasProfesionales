@@ -16,7 +16,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class AddProjectController {
     private AnchorPane anchorPane;
 
     @FXML
-    private TextField capacityTextField;
+    private RestrictedTextField capacityTextField;
 
     @FXML
     private DatePicker endDate;
@@ -44,13 +44,13 @@ public class AddProjectController {
     private ComboBox<LinkedOrganization> organizationComboBox;
 
     @FXML
-    private TextField nameTextField;
+    private RestrictedTextField nameTextField;
 
     @FXML
     private ComboBox<TechnicalSupervisor> technicalComboBox;
 
     @FXML
-    private TextField descriptionTextField;
+    private RestrictedTextField descriptionTextField;
 
     @FXML
     private DatePicker startDate;

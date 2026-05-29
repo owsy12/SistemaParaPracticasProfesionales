@@ -40,8 +40,7 @@ public class PartialReportGenerator {
     private PartialReportGenerator() {
     }
 
-    public static String generate(PartialAndFinalReport report,
-                                   ReportGenerationContext context,
+    public static String generate(PartialAndFinalReport report, ReportGenerationContext context,
                                    ReportContent content) throws IOException {
         List<ReportActivity> activities = content.getActivities();
         Map<String, String> values = buildValues(report, context);
@@ -60,23 +59,23 @@ public class PartialReportGenerator {
     private static Map<String, String> buildValues(PartialAndFinalReport report,
                                                     ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
-        values.put("nrc",                 String.valueOf(report.getIdProyect()));
-        values.put("school_term",         safe(report.getPeriod()));
-        values.put("intern",              context.getInternFullName());
+        values.put("nrc", context.getNrc());
+        values.put("school_term", safe(report.getPeriod()));
+        values.put("intern", context.getInternFullName());
         values.put("linked_organization", context.getOrganizationName());
-        values.put("project",             context.getProjectName());
-        values.put("report_term",         safe(report.getPeriod()));
-        values.put("hours",               String.valueOf(report.getCoveredHours()));
-        values.put("report_date",         LocalDate.now().format(DATE_FORMAT));
-        values.put("report_number",       String.valueOf(report.getReportNumber()));
-        values.put("Project_objective",   safe(report.getGeneralObjective()));
-        values.put("metodology",          safe(report.getMethodology()));
-        values.put("result",              safe(report.getObtainedResults()));
-        values.put("observations",        safe(report.getObservations()));
-        values.put("name",                context.getInternFullName());
-        values.put("technician",          context.getTechnicianName());
+        values.put("project", context.getProjectName());
+        values.put("report_term", safe(report.getPeriod()));
+        values.put("hours", String.valueOf(report.getCoveredHours()));
+        values.put("report_date", LocalDate.now().format(DATE_FORMAT));
+        values.put("report_number", String.valueOf(report.getReportNumber()));
+        values.put("Project_objective", safe(report.getGeneralObjective()));
+        values.put("metodology", safe(report.getMethodology()));
+        values.put("result", safe(report.getObtainedResults()));
+        values.put("observations", safe(report.getObservations()));
+        values.put("name", context.getInternFullName());
+        values.put("technician", context.getTechnicianName());
         values.put("technician_position", context.getTechnicianPosition());
-        values.put("profesor",            context.getProfessorName());
+        values.put("profesor", context.getProfessorName());
         return values;
     }
 
@@ -111,37 +110,51 @@ public class PartialReportGenerator {
 
     private static String expandActivityRows(String xml, List<ReportActivity> activities) {
         boolean hasActivities = activities != null && !activities.isEmpty();
-        if (!hasActivities) {
-            return xml;
+        int markerPos = -1;
+        if (hasActivities) {
+            markerPos = xml.indexOf("{{activity_01}}");
         }
-
-        int markerPos = xml.indexOf("{{activity_01}}");
-        boolean markerMissing = markerPos < 0;
-        if (markerMissing) {
-            return xml;
-        }
-
-        int rowStart = xml.lastIndexOf("<w:tr ", markerPos);
-        boolean noSpaceVariant = rowStart < 0;
-        if (noSpaceVariant) {
-            rowStart = xml.lastIndexOf("<w:tr>", markerPos);
-        }
-        boolean rowNotFound = rowStart < 0;
-        if (rowNotFound) {
-            return xml;
-        }
-
-        int blockEnd = rowStart;
-        for (int rowIndex = 0; rowIndex < ROWS_PER_ACTIVITY; rowIndex++) {
-            int end = xml.indexOf("</w:tr>", blockEnd);
-            boolean endMissing = end < 0;
-            if (endMissing) {
-                return xml;
+        int rowStart = -1;
+        if (markerPos >= 0) {
+            rowStart = xml.lastIndexOf("<w:tr ", markerPos);
+            if (rowStart < 0) {
+                rowStart = xml.lastIndexOf("<w:tr>", markerPos);
             }
-            blockEnd = end + "</w:tr>".length();
         }
-        String templateBlock = xml.substring(rowStart, blockEnd);
+        int blockEnd = -1;
+        if (rowStart >= 0) {
+            blockEnd = findBlockEnd(xml, rowStart);
+        }
+        String result = xml;
+        if (blockEnd >= 0) {
+            result = buildExpandedXml(xml, activities, rowStart, blockEnd);
+        }
+        return result;
+    }
 
+    private static int findBlockEnd(String xml, int rowStart) {
+        int blockEnd = rowStart;
+        boolean allRowsFound = true;
+        for (int rowIndex = 0; rowIndex < ROWS_PER_ACTIVITY; rowIndex++) {
+            if (allRowsFound) {
+                int end = xml.indexOf("</w:tr>", blockEnd);
+                if (end < 0) {
+                    allRowsFound = false;
+                } else {
+                    blockEnd = end + "</w:tr>".length();
+                }
+            }
+        }
+        int result = -1;
+        if (allRowsFound) {
+            result = blockEnd;
+        }
+        return result;
+    }
+
+    private static String buildExpandedXml(String xml, List<ReportActivity> activities,
+                                             int rowStart, int blockEnd) {
+        String templateBlock = xml.substring(rowStart, blockEnd);
         StringBuilder expanded = new StringBuilder();
         for (int i = 0; i < activities.size(); i++) {
             String newIdx = String.format("%02d", i + 1);
@@ -155,7 +168,6 @@ public class PartialReportGenerator {
             block = replaceMarkers(block, rowValues);
             expanded.append(block);
         }
-
         String prefix = xml.substring(0, rowStart);
         String suffix = xml.substring(blockEnd);
         String result = prefix + expanded.toString() + suffix;

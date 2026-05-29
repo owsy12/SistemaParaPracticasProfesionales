@@ -5,12 +5,12 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="800.0" prefWidth="780.0"
+<AnchorPane prefHeight="960.0" prefWidth="780.0"
             xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.EvaluateReportController">
@@ -78,11 +78,27 @@
       </TableView>
 
       <Label layoutX="20.0" layoutY="608.0" text="Observaciones del profesor:" />
-      <TextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="626.0" prefHeight="70.0" prefWidth="740.0" wrapText="true" />
+      <RestrictedTextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="626.0" prefHeight="70.0" prefWidth="740.0" wrapText="true" />
 
       <Label layoutX="20.0" layoutY="710.0" text="Acciones:" />
       <Button fx:id="rejectButton"       layoutX="20.0"  layoutY="728.0" mnemonicParsing="false" onAction="#rejectReport" prefHeight="26.0" prefWidth="150.0" text="Rechazar" />
-      <Button fx:id="markInReviewButton" layoutX="178.0" layoutY="728.0" mnemonicParsing="false" onAction="#markInReview" prefHeight="26.0" prefWidth="110.0" text="Evaluar" />
+      <Button fx:id="markInReviewButton" layoutX="178.0" layoutY="728.0" mnemonicParsing="false" onAction="#evaluateReport" prefHeight="26.0" prefWidth="110.0" text="Evaluar" />
       <Button layoutX="660.0" layoutY="762.0" mnemonicParsing="false" onAction="#clearSelection" prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
+
+      <Label layoutX="20.0" layoutY="804.0" text="Documentos iniciales del practicante:" />
+
+      <TableView fx:id="initialFormatsTableView" layoutX="20.0" layoutY="822.0" prefHeight="120.0" prefWidth="740.0">
+         <columns>
+            <TableColumn fx:id="initFormatTypeColumn" prefWidth="400.0" text="Tipo de formato">
+               <cellValueFactory><PropertyValueFactory property="formatType"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="initStatusColumn" prefWidth="200.0" text="Estado">
+               <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+            </TableColumn>
+            <TableColumn prefWidth="120.0" text="Fecha entrega">
+               <cellValueFactory><PropertyValueFactory property="submissionDate"/></cellValueFactory>
+            </TableColumn>
+         </columns>
+      </TableView>
    </children>
 </AnchorPane>
