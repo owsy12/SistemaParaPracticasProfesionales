@@ -1,40 +1,177 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
 <?import GUI.Utils.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="480.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.AddProjectController">
-   <children>
-      <Label layoutX="29.0" layoutY="9.0" prefHeight="36.0" prefWidth="164.0" text="Registrar Proyecto">
-         <font>
-            <Font size="21.0" />
-         </font>
-      </Label>
-      <Label layoutX="29.0" layoutY="59.0" text="nombre de proeycto :" />
-      <RestrictedTextField fx:id="nameTextField" layoutX="31.0" layoutY="86.0" prefHeight="26.0" prefWidth="265.0" />
-      <Label layoutX="166.0" layoutY="134.0" text="cupo maximo" />
-      <RestrictedTextField fx:id="capacityTextField" layoutX="166.0" layoutY="162.0" prefHeight="26.0" prefWidth="130.0" />
-      <Label layoutX="29.0" layoutY="201.0" text="descripcion" />
-      <RestrictedTextField fx:id="descriptionTextField" alignment="TOP_LEFT" layoutX="31.0" layoutY="229.0" prefHeight="89.0" prefWidth="265.0" />
-      <DatePicker fx:id="startDate" layoutX="314.0" layoutY="86.0" prefHeight="26.0" prefWidth="130.0" />
-      <DatePicker fx:id="endDate" layoutX="462.0" layoutY="86.0" prefHeight="26.0" prefWidth="130.0" />
-      <Label layoutX="339.0" layoutY="59.0" text="Fecha inicio" />
-      <Label layoutX="500.0" layoutY="59.0" text="Fecha fin" />
-      <ComboBox fx:id="technicalComboBox" layoutX="319.0" layoutY="229.0" prefHeight="26.0" prefWidth="265.0" />
-      <ComboBox fx:id="organizationComboBox" layoutX="319.0" layoutY="162.0" onAction="#handleOrganizationSelection" prefHeight="26.0" prefWidth="265.0" />
-      <Label layoutX="324.0" layoutY="134.0" text="Organizaciones Vinculadas" />
-      <Label layoutX="319.0" layoutY="201.0" text="Resposnable tecnicos" />
-      <Label layoutX="31.0" layoutY="330.0" text="Objetivo del proyecto:" />
-      <TextArea fx:id="objetivoTextArea" layoutX="31.0" layoutY="348.0" prefHeight="70.0" prefWidth="265.0" wrapText="true" />
-      <Button layoutX="485.0" layoutY="430.0" mnemonicParsing="false" onAction="#addProject" prefHeight="26.0" prefWidth="80.0" text="guardar" />
-      <Button layoutX="412.0" layoutY="430.0" mnemonicParsing="false" onAction="#cancelButton" text="cancelar" />
-      <Label layoutX="31.0" layoutY="134.0" text="Experiencia Educativa" />
-      <ComboBox fx:id="educationalExperienceComboBox" layoutX="31.0" layoutY="163.0" prefHeight="26.0" prefWidth="130.0" />
-   </children>
+<AnchorPane fx:id="anchorPane"
+            prefHeight="720.0" prefWidth="880.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.AddProjectController">
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIAddProjectStyles.css"/>
+    </stylesheets>
+
+    <children>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
+
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="COORDINACIÓN · PROYECTOS" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Registrar Proyecto" styleClass="viewTitleLabel"/>
+                        <Label text="Registra un nuevo proyecto de prácticas profesionales con su organización y responsable técnico."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
+
+                    <Separator styleClass="viewTopAccentSeparator"/>
+
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="+" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Información general del proyecto" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="18.0">
+                            <padding><Insets top="26.0" right="36.0" bottom="26.0" left="36.0"/></padding>
+
+                            <GridPane hgap="22.0" vgap="20.0" maxWidth="Infinity">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="0.0" percentWidth="50.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="0.0" percentWidth="50.0"/>
+                                </columnConstraints>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <HBox spacing="2.0">
+                                        <Label text="Nombre del proyecto" styleClass="fieldLabelText"/>
+                                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                                    </HBox>
+                                    <RestrictedTextField fx:id="nameTextField"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <HBox spacing="22.0">
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <HBox spacing="2.0">
+                                                <Label text="Fecha inicio" styleClass="fieldLabelText"/>
+                                                <Label text=" *" styleClass="requiredMarkLabel"/>
+                                            </HBox>
+                                            <DatePicker fx:id="startDate" styleClass="formDatePicker" maxWidth="Infinity"/>
+                                        </VBox>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <HBox spacing="2.0">
+                                                <Label text="Fecha fin" styleClass="fieldLabelText"/>
+                                                <Label text=" *" styleClass="requiredMarkLabel"/>
+                                            </HBox>
+                                            <DatePicker fx:id="endDate" styleClass="formDatePicker" maxWidth="Infinity"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <HBox spacing="2.0">
+                                        <Label text="Experiencia Educativa" styleClass="fieldLabelText"/>
+                                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                                    </HBox>
+                                    <ComboBox fx:id="educationalExperienceComboBox"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <HBox spacing="2.0">
+                                        <Label text="Cupo máximo" styleClass="fieldLabelText"/>
+                                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                                    </HBox>
+                                    <RestrictedTextField fx:id="capacityTextField"
+                                                         promptText="Ej. 5"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <HBox spacing="2.0">
+                                        <Label text="Organización Vinculada" styleClass="fieldLabelText"/>
+                                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                                    </HBox>
+                                    <ComboBox fx:id="organizationComboBox"
+                                              styleClass="formComboBox" maxWidth="Infinity"
+                                              onAction="#handleOrganizationSelection"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <HBox spacing="2.0">
+                                        <Label text="Responsable técnico" styleClass="fieldLabelText"/>
+                                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                                    </HBox>
+                                    <ComboBox fx:id="technicalComboBox"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                    <HBox spacing="2.0">
+                                        <Label text="Descripción" styleClass="fieldLabelText"/>
+                                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                                    </HBox>
+                                    <RestrictedTextField fx:id="descriptionTextField"
+                                                         alignment="TOP_LEFT"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <HBox spacing="2.0">
+                                        <Label text="Objetivo del proyecto" styleClass="fieldLabelText"/>
+                                        <Label text=" *" styleClass="requiredMarkLabel"/>
+                                    </HBox>
+                                    <TextArea fx:id="objetivoTextArea"
+                                              wrapText="true"
+                                              styleClass="formTextArea"
+                                              prefHeight="90.0" maxWidth="Infinity"/>
+                                </VBox>
+
+                            </GridPane>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Cancelar" styleClass="cancelActionButton"
+                                    onAction="#cancelButton" mnemonicParsing="false"/>
+                            <Button text="&#10003;  Guardar" styleClass="primaryActionButton"
+                                    onAction="#addProject" mnemonicParsing="false"/>
+                        </HBox>
+
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
 </AnchorPane>

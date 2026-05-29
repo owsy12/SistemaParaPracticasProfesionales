@@ -1,14 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="GUI.Controller.IUsersController"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane prefHeight="500.0" prefWidth="760.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.IUsersController">
 
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIUsersStyles.css"/>
+    </stylesheets>
+
+    <children>
+        <VBox styleClass="subViewContentVBox" spacing="20.0"
+              AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+              AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
+
+            <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                    <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                    <Label text="USUARIOS" styleClass="viewBreadcrumbLabel"/>
+                </HBox>
+                <Label text="Usuarios" styleClass="viewTitleLabel"/>
+                <Label text="Sección reservada para la gestión de usuarios del sistema."
+                       styleClass="viewSubtitleLabel"/>
+            </VBox>
+
+            <StackPane styleClass="formCardVBox" VBox.vgrow="ALWAYS">
+                <Label text="Esta sección no tiene contenido configurado por el momento."
+                       styleClass="viewSubtitleLabel"/>
+            </StackPane>
+        </VBox>
+    </children>
 </AnchorPane>

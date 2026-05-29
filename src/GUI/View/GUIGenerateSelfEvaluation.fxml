@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -13,310 +14,291 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import java.net.URL?>
 
-<AnchorPane fx:id="rootPane" prefHeight="900.0" prefWidth="780.0"
+<AnchorPane fx:id="rootPane"
+            prefHeight="940.0" prefWidth="860.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.GenerateSelfEvaluationController">
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIGenerateSelfEvaluationStyles.css"/>
+    </stylesheets>
+
     <children>
-        <ScrollPane fitToWidth="true"
-                    AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0"
-                    AnchorPane.rightAnchor="0.0"
-                    AnchorPane.topAnchor="0.0">
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
-                <VBox alignment="TOP_LEFT" spacing="20.0">
-                    <padding>
-                        <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
-                    </padding>
-                    <children>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-                        <Label text="Generar Autoevaluación">
-                            <font>
-                                <Font name="System Bold" size="22.0" />
-                            </font>
-                        </Label>
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="PRACTICANTE · AUTOEVALUACIÓN" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Generar Autoevaluación" styleClass="viewTitleLabel"/>
+                        <Label text="Completa la autoevaluación de tu desempeño en la práctica profesional para generar el documento."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
 
-                        <GridPane hgap="20.0" vgap="15.0">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="320.0" />
-                                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="320.0" />
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="60.0" vgrow="SOMETIMES" />
-                            </rowConstraints>
-                            <children>
+                    <Separator styleClass="viewTopAccentSeparator"/>
 
-                                <VBox spacing="5.0">
-                                    <children>
-                                        <Label text="Nombre" />
-                                        <TextField fx:id="nameTextField" editable="false" focusTraversable="false"
-                                                   style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc;" />
-                                    </children>
-                                </VBox>
+                    <VBox styleClass="formCardVBox">
 
-                                <VBox spacing="5.0" GridPane.columnIndex="1">
-                                    <children>
-                                        <Label text="Matrícula" />
-                                        <TextField fx:id="idTextField" editable="false" focusTraversable="false"
-                                                   style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc;" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="5.0" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label text="Organización" />
-                                        <TextField fx:id="organizationTextField" editable="false" focusTraversable="false"
-                                                   style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc;" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                    <children>
-                                        <Label text="Departamento" />
-                                        <TextField fx:id="departmentTextField" editable="false" focusTraversable="false"
-                                                   style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc;" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="5.0" GridPane.rowIndex="2">
-                                    <children>
-                                        <Label text="Responsable" />
-                                        <TextField fx:id="responsibleTextField" editable="false" focusTraversable="false"
-                                                   style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc;" />
-                                    </children>
-                                </VBox>
-
-                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                    <children>
-                                        <Label text="Proyecto" />
-                                        <TextField fx:id="projectTextField" editable="false" focusTraversable="false"
-                                                   style="-fx-background-color: #f0f0f0; -fx-border-color: #cccccc;" />
-                                    </children>
-                                </VBox>
-
-                            </children>
-                        </GridPane>
-
-                        <Label text="Escala Likert (1 = Totalmente en desacuerdo · 5 = Totalmente de acuerdo)">
-                            <font>
-                                <Font name="System Bold" size="14.0" />
-                            </font>
-                            <VBox.margin>
-                                <Insets top="10.0" />
-                            </VBox.margin>
-                        </Label>
-
-                        <VBox spacing="10.0">
-                            <children>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="1. Apliqué conocimientos teóricos en la práctica."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question01ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question01ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question01ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question01ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question01ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="2. Cumplí con los objetivos establecidos."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question02ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question02ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question02ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question02ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question02ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="3. Trabajé de forma colaborativa con el equipo."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question03ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question03ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question03ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question03ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question03ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="4. Administré adecuadamente mi tiempo."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question04ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question04ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question04ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question04ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question04ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="5. Demostré iniciativa y proactividad."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question05ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question05ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question05ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question05ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question05ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="6. Resolví problemas de manera efectiva."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question06ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question06ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question06ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question06ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question06ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="7. Recibí retroalimentación constructiva."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question07ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question07ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question07ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question07ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question07ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="8. Mejoré mis habilidades técnicas."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question08ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question08ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question08ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question08ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question08ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="9. Me comuniqué efectivamente con mi responsable."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question09ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question09ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question09ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question09ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question09ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                                <HBox alignment="CENTER_LEFT" spacing="10.0">
-                                    <children>
-                                        <Label text="10. La práctica fue relevante para mi formación."
-                                               wrapText="true" prefWidth="420.0" />
-                                        <Region HBox.hgrow="ALWAYS" />
-                                        <RadioButton text="1">
-                                            <toggleGroup>
-                                                <ToggleGroup fx:id="question10ToggleGroup" />
-                                            </toggleGroup>
-                                        </RadioButton>
-                                        <RadioButton text="2" toggleGroup="$question10ToggleGroup" />
-                                        <RadioButton text="3" toggleGroup="$question10ToggleGroup" />
-                                        <RadioButton text="4" toggleGroup="$question10ToggleGroup" />
-                                        <RadioButton text="5" toggleGroup="$question10ToggleGroup" />
-                                    </children>
-                                </HBox>
-
-                            </children>
-                        </VBox>
-
-                        <VBox spacing="5.0">
-                            <VBox.margin>
-                                <Insets top="10.0" />
-                            </VBox.margin>
-                            <children>
-                                <Label text="Lugar y Fecha *">
-                                    <font>
-                                        <Font name="System Bold" size="13.0" />
-                                    </font>
-                                </Label>
-                                <TextField fx:id="placeAndDateTextField"
-                                           promptText="ej. Xalapa, Ver., 25 de abril de 2026" />
-                            </children>
-                        </VBox>
-
-                        <HBox alignment="CENTER_RIGHT" spacing="15.0">
-                            <VBox.margin>
-                                <Insets top="15.0" />
-                            </VBox.margin>
-                            <children>
-                                <Button fx:id="cancelButton" onAction="#cancel"
-                                        prefHeight="36.0" prefWidth="130.0" text="Cancelar"
-                                        style="-fx-background-color: white; -fx-border-color: #2c2c2c; -fx-border-radius: 4; -fx-background-radius: 4;" />
-                                <Button fx:id="generateDocumentButton" onAction="#generateDocument"
-                                        prefHeight="36.0" prefWidth="180.0" text="Generar Documento"
-                                        style="-fx-background-color: #2c2c2c; -fx-text-fill: white; -fx-background-radius: 4;" />
-                            </children>
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9786;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Datos del practicante" styleClass="formSectionTitleLabel"/>
                         </HBox>
 
-                    </children>
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <GridPane hgap="22.0" vgap="14.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" percentWidth="50.0"/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                    <RowConstraints vgrow="SOMETIMES"/>
+                                </rowConstraints>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <Label text="Nombre" styleClass="fieldLabelText"/>
+                                    <TextField fx:id="nameTextField" editable="false" focusTraversable="false"
+                                               styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <Label text="Matrícula" styleClass="fieldLabelText"/>
+                                    <TextField fx:id="idTextField" editable="false" focusTraversable="false"
+                                               styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="Organización" styleClass="fieldLabelText"/>
+                                    <TextField fx:id="organizationTextField" editable="false" focusTraversable="false"
+                                               styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Departamento" styleClass="fieldLabelText"/>
+                                    <TextField fx:id="departmentTextField" editable="false" focusTraversable="false"
+                                               styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <Label text="Responsable" styleClass="fieldLabelText"/>
+                                    <TextField fx:id="responsibleTextField" editable="false" focusTraversable="false"
+                                               styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Label text="Proyecto" styleClass="fieldLabelText"/>
+                                    <TextField fx:id="projectTextField" editable="false" focusTraversable="false"
+                                               styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                            </GridPane>
+                        </VBox>
+                    </VBox>
+
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9733;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Escala Likert · 1 (Totalmente en desacuerdo) a 5 (Totalmente de acuerdo)"
+                                   styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="12.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="1. Apliqué conocimientos teóricos en la práctica."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question01ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question01ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question01ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question01ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question01ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="2. Cumplí con los objetivos establecidos."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question02ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question02ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question02ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question02ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question02ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="3. Trabajé de forma colaborativa con el equipo."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question03ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question03ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question03ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question03ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question03ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="4. Administré adecuadamente mi tiempo."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question04ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question04ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question04ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question04ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question04ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="5. Demostré iniciativa y proactividad."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question05ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question05ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question05ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question05ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question05ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="6. Resolví problemas de manera efectiva."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question06ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question06ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question06ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question06ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question06ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="7. Recibí retroalimentación constructiva."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question07ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question07ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question07ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question07ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question07ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="8. Mejoré mis habilidades técnicas."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question08ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question08ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question08ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question08ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question08ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="9. Me comuniqué efectivamente con mi responsable."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question09ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question09ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question09ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question09ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question09ToggleGroup"/>
+                            </HBox>
+
+                            <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                <Label text="10. La práctica fue relevante para mi formación."
+                                       wrapText="true" prefWidth="440.0" styleClass="fieldLabelText"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <RadioButton text="1" styleClass="radioButtonControl">
+                                    <toggleGroup><ToggleGroup fx:id="question10ToggleGroup"/></toggleGroup>
+                                </RadioButton>
+                                <RadioButton text="2" styleClass="radioButtonControl" toggleGroup="$question10ToggleGroup"/>
+                                <RadioButton text="3" styleClass="radioButtonControl" toggleGroup="$question10ToggleGroup"/>
+                                <RadioButton text="4" styleClass="radioButtonControl" toggleGroup="$question10ToggleGroup"/>
+                                <RadioButton text="5" styleClass="radioButtonControl" toggleGroup="$question10ToggleGroup"/>
+                            </HBox>
+
+                        </VBox>
+                    </VBox>
+
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9998;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Firma" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <VBox spacing="6.0">
+                                <HBox spacing="2.0">
+                                    <Label text="Lugar y Fecha" styleClass="fieldLabelText"/>
+                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                </HBox>
+                                <TextField fx:id="placeAndDateTextField"
+                                           promptText="ej. Xalapa, Ver., 25 de abril de 2026"
+                                           styleClass="formTextField" maxWidth="Infinity"/>
+                            </VBox>
+
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="cancelButton" text="Cancelar"
+                                    styleClass="cancelActionButton"
+                                    onAction="#cancel" mnemonicParsing="false"/>
+                            <Button fx:id="generateDocumentButton" text="&#9776;  Generar Documento"
+                                    styleClass="primaryActionButton"
+                                    onAction="#generateDocument" mnemonicParsing="false"/>
+                        </HBox>
+
+                    </VBox>
                 </VBox>
             </content>
         </ScrollPane>

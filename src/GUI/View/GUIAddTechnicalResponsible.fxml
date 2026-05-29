@@ -1,79 +1,174 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import GUI.Utils.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
 <AnchorPane fx:id="anchorPane"
-            prefHeight="400.0" prefWidth="600.0"
-            xmlns="http://javafx.com/javafx/21"
+            prefHeight="640.0" prefWidth="720.0"
+            xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.AddTechnicalResponsibleController">
-  <children>
-    <ScrollPane fitToWidth="true"
-                AnchorPane.topAnchor="0.0"
-                AnchorPane.bottomAnchor="0.0"
-                AnchorPane.leftAnchor="0.0"
-                AnchorPane.rightAnchor="0.0">
-      <content>
-        <AnchorPane>
-          <children>
 
-            <VBox spacing="15.0"
-                  AnchorPane.topAnchor="20.0"
-                  AnchorPane.leftAnchor="20.0"
-                  AnchorPane.rightAnchor="20.0">
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIAddTechnicalResponsibleStyles.css"/>
+    </stylesheets>
 
-              <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
-              </padding>
+    <children>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true"
+                    fitToHeight="false"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0"
+                    AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-              <Label text="Registrar Responsable Técnico"
-                     style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="COORDINACIÓN · RESPONSABLES TÉCNICOS" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Registrar Responsable Técnico" styleClass="viewTitleLabel"/>
+                        <Label text="Vincula un responsable técnico a una organización para que pueda supervisar practicantes."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
 
-              <VBox spacing="5">
-                <Label text="Nombre"/>
-                <RestrictedTextField fx:id="nameField"/>
-              </VBox>
+                    <Separator styleClass="viewTopAccentSeparator"/>
 
-              <VBox spacing="5">
-                <Label text="Apellido Paterno"/>
-                <RestrictedTextField fx:id="lastNameField"/>
-              </VBox>
+                    <VBox styleClass="formCardVBox">
 
-              <VBox spacing="5">
-                <Label text="Apellido Materno"/>
-                <RestrictedTextField fx:id="lastNameMaterField"/>
-              </VBox>
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="+" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Datos del responsable" styleClass="formSectionTitleLabel"/>
+                        </HBox>
 
-              <VBox spacing="5">
-                <Label text="Correo"/>
-                <RestrictedTextField fx:id="emailField"/>
-              </VBox>
+                        <VBox spacing="18.0">
+                            <padding><Insets top="26.0" right="36.0" bottom="26.0" left="36.0"/></padding>
 
-              <VBox spacing="5">
-                <Label text="Cargo"/>
-                <RestrictedTextField fx:id="cargoField"/>
-              </VBox>
+                            <GridPane hgap="0.0" vgap="20.0" maxWidth="Infinity">
+                                <columnConstraints>
+                                    <ColumnConstraints prefWidth="210.0" minWidth="160.0" halignment="RIGHT"/>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="0.0"/>
+                                </columnConstraints>
 
-              <VBox spacing="5">
-                <Label text="Organización vinculada"/>
-                <ComboBox fx:id="organizationComboBox"
-                          promptText="Seleccione una organización"/>
-              </VBox>
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <padding><Insets right="18.0"/></padding>
+                                    <Label text="Nombre" styleClass="fieldLabelText"/>
+                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                </HBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <RestrictedTextField fx:id="nameField"
+                                                         styleClass="formTextField"
+                                                         maxWidth="Infinity"/>
+                                </VBox>
 
-              <HBox spacing="15">
-                <Button text="Registrar"
-                        onAction="#addTechnical"/>
-                <Button text="Cancelar"
-                        onAction="#cancel"/>
-              </HBox>
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <padding><Insets right="18.0"/></padding>
+                                    <Label text="Apellido Paterno" styleClass="fieldLabelText"/>
+                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                </HBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <RestrictedTextField fx:id="lastNameField"
+                                                         styleClass="formTextField"
+                                                         maxWidth="Infinity"/>
+                                </VBox>
 
-            </VBox>
-          </children>
-        </AnchorPane>
-      </content>
-    </ScrollPane>
-  </children>
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <padding><Insets right="18.0"/></padding>
+                                    <Label text="Apellido Materno" styleClass="fieldLabelText"/>
+                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                </HBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <RestrictedTextField fx:id="lastNameMaterField"
+                                                         styleClass="formTextField"
+                                                         maxWidth="Infinity"/>
+                                </VBox>
+
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                    <padding><Insets right="18.0"/></padding>
+                                    <Label text="Correo" styleClass="fieldLabelText"/>
+                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                </HBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <RestrictedTextField fx:id="emailField"
+                                                         promptText="responsable@empresa.com"
+                                                         styleClass="formTextField"
+                                                         maxWidth="Infinity"/>
+                                </VBox>
+
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="4">
+                                    <padding><Insets right="18.0"/></padding>
+                                    <Label text="Cargo" styleClass="fieldLabelText"/>
+                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                </HBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                    <RestrictedTextField fx:id="cargoField"
+                                                         promptText="Ej. Gerente de Operaciones"
+                                                         styleClass="formTextField"
+                                                         maxWidth="Infinity"/>
+                                </VBox>
+
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
+                                      GridPane.columnIndex="0" GridPane.rowIndex="5">
+                                    <padding><Insets right="18.0"/></padding>
+                                    <Label text="Organización vinculada" styleClass="fieldLabelText"/>
+                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                </HBox>
+                                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <ComboBox fx:id="organizationComboBox"
+                                              promptText="Seleccione una organización"
+                                              styleClass="formComboBox"
+                                              maxWidth="Infinity"/>
+                                </VBox>
+
+                            </GridPane>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+
+                            <Region HBox.hgrow="ALWAYS"/>
+
+                            <Button text="Cancelar"
+                                    styleClass="cancelActionButton"
+                                    onAction="#cancel"
+                                    mnemonicParsing="false"/>
+
+                            <Button text="&#10003;  Registrar"
+                                    styleClass="primaryActionButton"
+                                    onAction="#addTechnical"
+                                    mnemonicParsing="false"/>
+                        </HBox>
+
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
 </AnchorPane>

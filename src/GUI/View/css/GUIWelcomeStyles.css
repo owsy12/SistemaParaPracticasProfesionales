@@ -1,12 +1,12 @@
 .dashboardScrollPane {
     -fx-background-color: transparent;
-    -fx-background: #F1F4F9;
+    -fx-background: #f4f4f4;
     -fx-border-width: 0;
     -fx-padding: 0;
 }
 
 .dashboardScrollPane > .viewport {
-    -fx-background-color: #F1F4F9;
+    -fx-background-color: #f4f4f4;
 }
 
 .dashboardContentVBox {
@@ -18,16 +18,16 @@
 }
 
 .welcomeTitleLabel {
-    -fx-text-fill: #111827;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
-    -fx-font-size: 32px;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
 }
 
 .welcomeSubtitleLabel {
-    -fx-text-fill: #6B7280;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
-    -fx-font-size: 14px;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 13px;
     -fx-wrap-text: true;
 }
 
@@ -36,70 +36,70 @@
 }
 
 .dashboardCardVBox {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
-    -fx-border-color: #E8EDF3;
-    -fx-border-width: 1.5;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0, 0, 3);
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-color: #d8dde3;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 40, 80, 0.08), 14, 0.08, 0, 4);
 }
 
 .dashboardCardVBox:hover {
-    -fx-border-color: #C4D0E8;
-    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.14), 14, 0, 0, 4);
+    -fx-border-color: #4a92c2;
+    -fx-effect: dropshadow(gaussian, rgba(0, 86, 145, 0.18), 18, 0.10, 0, 6);
 }
 
 .statusActiveLabel {
-    -fx-background-color: #DCFCE7;
-    -fx-text-fill: #14532D;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #e3f5ea;
+    -fx-text-fill: #2f9b5a;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 10px;
     -fx-font-weight: bold;
-    -fx-padding: 4 9 4 9;
+    -fx-padding: 3 9 3 9;
     -fx-background-radius: 10;
 }
 
 .statusPendingLabel {
-    -fx-background-color: #FEF9C3;
-    -fx-text-fill: #78350F;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #fdefdd;
+    -fx-text-fill: #ed8a2c;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 10px;
     -fx-font-weight: bold;
-    -fx-padding: 4 9 4 9;
+    -fx-padding: 3 9 3 9;
     -fx-background-radius: 10;
 }
 
 .cardCategoryLabel {
-    -fx-text-fill: #9CA3AF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
 .cardMainValueLabel {
-    -fx-text-fill: #111827;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
 
 .cardSubtitleLabel {
-    -fx-text-fill: #9CA3AF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #8a95a3;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 12px;
     -fx-wrap-text: true;
 }
 
 .roleSectionTagLabel {
-    -fx-text-fill: #1B3464;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #005691;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
 .roleSectionTitleLabel {
-    -fx-text-fill: #111827;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
-    -fx-font-size: 22px;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 20px;
     -fx-font-weight: bold;
 }

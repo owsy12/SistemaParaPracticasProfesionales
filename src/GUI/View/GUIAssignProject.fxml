@@ -1,36 +1,92 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0"
+<AnchorPane fx:id="anchorPane"
+            prefHeight="560.0" prefWidth="800.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.AssignProjectController">
-   <children>
-      <Label layoutX="32.0" layoutY="29.0" prefHeight="22.0" prefWidth="400.0"
-             text="Practicantes con solicitudes en estado pendiente">
-         <font><Font size="14.0" /></font>
-      </Label>
-      <TableView fx:id="internsTableView" layoutX="32.0" layoutY="65.0"
-                 prefHeight="270.0" prefWidth="536.0">
-        <columns>
-          <TableColumn fx:id="matriculaColumn" prefWidth="130.0" text="Matrícula">
-             <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
-          </TableColumn>
-          <TableColumn fx:id="fullNameColumn"  prefWidth="406.0" text="Nombre Completo">
-             <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
-          </TableColumn>
-        </columns>
-      </TableView>
-      <Button layoutX="32.0"  layoutY="350.0" mnemonicParsing="false"
-              onAction="#cancelAction" text="Cancelar" />
-      <Button layoutX="450.0" layoutY="350.0" mnemonicParsing="false"
-              onAction="#assignProject" text="Asignar" />
-   </children>
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIAssignProjectStyles.css"/>
+    </stylesheets>
+
+    <children>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
+
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="COORDINACIÓN · ASIGNACIONES" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Asignar Proyecto" styleClass="viewTitleLabel"/>
+                        <Label text="Selecciona un practicante con solicitud pendiente para asignarle un proyecto."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
+
+                    <Separator styleClass="viewTopAccentSeparator"/>
+
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9786;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Practicantes con solicitudes pendientes" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="36.0" bottom="22.0" left="36.0"/></padding>
+
+                            <TableView fx:id="internsTableView"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="320.0">
+                                <columns>
+                                    <TableColumn fx:id="matriculaColumn" prefWidth="180.0" text="Matrícula">
+                                        <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="fullNameColumn" prefWidth="500.0" text="Nombre Completo">
+                                        <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Cancelar" styleClass="cancelActionButton"
+                                    onAction="#cancelAction" mnemonicParsing="false"/>
+                            <Button text="&#10003;  Asignar" styleClass="primaryActionButton"
+                                    onAction="#assignProject" mnemonicParsing="false"/>
+                        </HBox>
+
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
 </AnchorPane>

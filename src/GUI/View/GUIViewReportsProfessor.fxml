@@ -1,45 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane prefHeight="580.0" prefWidth="740.0"
-            xmlns="http://javafx.com/javafx/17.0.12"
+<AnchorPane prefHeight="700.0" prefWidth="860.0"
+            xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.ViewReportsProfessorController">
-   <children>
-      <Label layoutX="20.0" layoutY="14.0" text="Reportes de Practicantes">
-         <font><Font size="18.0"/></font>
-      </Label>
 
-      <Label layoutX="20.0" layoutY="50.0" text="Proyecto:" />
-      <ComboBox fx:id="projectComboBox" layoutX="20.0" layoutY="68.0" prefHeight="26.0" prefWidth="360.0" />
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIViewReportsProfessorStyles.css"/>
+    </stylesheets>
 
-      <Label layoutX="400.0" layoutY="50.0" text="Practicante:" />
-      <ComboBox fx:id="internComboBox" layoutX="400.0" layoutY="68.0" prefHeight="26.0" prefWidth="320.0" disable="true" />
+    <children>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-      <Label layoutX="20.0" layoutY="108.0" text="Filtrar por estado:" />
-      <ComboBox fx:id="filterStatusComboBox" layoutX="20.0" layoutY="126.0" onAction="#handleStatusFilter" prefHeight="26.0" prefWidth="200.0" />
-      <Button layoutX="230.0" layoutY="126.0" mnemonicParsing="false" onAction="#clearFilter"    prefHeight="26.0" prefWidth="100.0" text="Limpiar filtro" />
-      <Button layoutX="340.0" layoutY="126.0" mnemonicParsing="false" onAction="#refreshReports" prefHeight="26.0" prefWidth="100.0" text="Actualizar" />
-      <Label fx:id="totalLabel" layoutX="580.0" layoutY="132.0" text="Total: 0" />
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="PROFESOR · REPORTES" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Reportes de Practicantes" styleClass="viewTitleLabel"/>
+                        <Label text="Consulta los reportes entregados por tus practicantes filtrando por proyecto, practicante y estado."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
 
-      <TableView fx:id="reportsTableView" layoutX="20.0" layoutY="166.0" prefHeight="300.0" prefWidth="700.0">
-         <columns>
-            <TableColumn fx:id="idColumn"     prefWidth="50.0"  text="ID" />
-            <TableColumn fx:id="typeColumn"   prefWidth="100.0" text="Tipo" />
-            <TableColumn fx:id="periodColumn" prefWidth="130.0" text="Período" />
-            <TableColumn fx:id="hoursColumn"  prefWidth="70.0"  text="Horas" />
-            <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Estado" />
-            <TableColumn fx:id="dateColumn"   prefWidth="210.0" text="Fecha entrega" />
-         </columns>
-      </TableView>
+                    <Separator styleClass="viewTopAccentSeparator"/>
 
-      <Label fx:id="detailLabel" layoutX="20.0" layoutY="480.0" prefWidth="700.0" text="" wrapText="true" />
-   </children>
+                    <VBox styleClass="formCardVBox">
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9776;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Filtros y resultados" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <HBox spacing="16.0">
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Proyecto" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="projectComboBox" styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Practicante" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="internComboBox" disable="true"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+                            </HBox>
+
+                            <HBox spacing="12.0" alignment="CENTER_LEFT">
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Filtrar por estado" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="filterStatusComboBox"
+                                              onAction="#handleStatusFilter"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+                                <Button text="Limpiar filtro" styleClass="cancelActionButton"
+                                        onAction="#clearFilter" mnemonicParsing="false"/>
+                                <Button text="Actualizar" styleClass="secondaryActionButton"
+                                        onAction="#refreshReports" mnemonicParsing="false"/>
+                                <Label fx:id="totalLabel" text="Total: 0" styleClass="tableSummaryLabel"/>
+                            </HBox>
+
+                            <TableView fx:id="reportsTableView"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="300.0">
+                                <columns>
+                                    <TableColumn fx:id="idColumn" prefWidth="60.0" text="ID"/>
+                                    <TableColumn fx:id="typeColumn" prefWidth="120.0" text="Tipo"/>
+                                    <TableColumn fx:id="periodColumn" prefWidth="160.0" text="Período"/>
+                                    <TableColumn fx:id="hoursColumn" prefWidth="80.0" text="Horas"/>
+                                    <TableColumn fx:id="statusColumn" prefWidth="120.0" text="Estado"/>
+                                    <TableColumn fx:id="dateColumn" prefWidth="240.0" text="Fecha entrega"/>
+                                </columns>
+                            </TableView>
+
+                            <Label fx:id="detailLabel" text=""
+                                   styleClass="tableDetailLabel" wrapText="true"/>
+                        </VBox>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
 </AnchorPane>

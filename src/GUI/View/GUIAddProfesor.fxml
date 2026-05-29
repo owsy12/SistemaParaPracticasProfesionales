@@ -12,10 +12,10 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
 <ScrollPane
         styleClass="subViewScrollPane"
-        stylesheets="@css/GUIAddProfesorStyles.css"
         fitToWidth="true"
         fitToHeight="false"
         hbarPolicy="NEVER"
@@ -23,6 +23,11 @@
         xmlns="http://javafx.com/javafx/25"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="GUI.Controller.AddProfesorController">
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIAddProfesorStyles.css"/>
+    </stylesheets>
 
     <content>
         <VBox styleClass="subViewContentVBox" spacing="20.0">

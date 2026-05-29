@@ -12,12 +12,12 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
 <ScrollPane
         prefWidth="640.0"
         prefHeight="720.0"
         styleClass="subViewScrollPane"
-        stylesheets="@css/GUIAddCoordinadorStyles.css"
         fitToWidth="true"
         fitToHeight="false"
         hbarPolicy="NEVER"
@@ -25,6 +25,11 @@
         xmlns="http://javafx.com/javafx/25"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="GUI.Controller.AddAdministratorController">
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIAddCoordinadorStyles.css"/>
+    </stylesheets>
 
     <content>
         <VBox styleClass="subViewContentVBox" spacing="20.0">

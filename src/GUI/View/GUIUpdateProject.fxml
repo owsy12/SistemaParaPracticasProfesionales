@@ -1,64 +1,199 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
-<?import GUI.Utils.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="700.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.UpdateProjectController">
+<AnchorPane fx:id="anchorPane"
+            prefHeight="860.0" prefWidth="880.0"
+            xmlns="http://javafx.com/javafx/25"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.UpdateProjectController">
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIUpdateProjectStyles.css"/>
+    </stylesheets>
+
     <children>
-        <Label layoutX="29.0" layoutY="9.0" prefHeight="36.0" prefWidth="200.0" text="Actualizar Proyecto">
-            <font>
-                <Font size="21.0" />
-            </font>
-        </Label>
-        <Label layoutX="29.0" layoutY="59.0" text="Nombre del proyecto:" />
-        <RestrictedTextField fx:id="nameTextField" layoutX="31.0" layoutY="86.0" prefHeight="26.0" prefWidth="265.0" />
-        <Label layoutX="145.0" layoutY="134.0" text="Cupo máximo" />
-        <RestrictedTextField fx:id="capacityTextField" layoutX="148.0" layoutY="162.0" prefHeight="26.0" prefWidth="148.0" />
-        <Label layoutX="29.0" layoutY="201.0" text="Descripción" />
-        <RestrictedTextField fx:id="descriptionTextField" layoutX="31.0" layoutY="229.0" prefHeight="89.0" prefWidth="265.0" />
-        <DatePicker fx:id="startDate" layoutX="314.0" layoutY="86.0" prefHeight="26.0" prefWidth="130.0" />
-        <DatePicker fx:id="endDate" layoutX="462.0" layoutY="86.0" prefHeight="26.0" prefWidth="130.0" />
-        <Label layoutX="339.0" layoutY="59.0" text="Fecha inicio" />
-        <Label layoutX="500.0" layoutY="59.0" text="Fecha fin" />
-        <ComboBox fx:id="technicalComboBox" layoutX="319.0" layoutY="229.0" prefHeight="26.0" prefWidth="265.0" />
-        <ComboBox fx:id="organizationComboBox" layoutX="319.0" layoutY="162.0" prefHeight="26.0" prefWidth="265.0" />
-        <Label layoutX="324.0" layoutY="134.0" text="Organización vinculada" />
-        <Label layoutX="319.0" layoutY="201.0" text="Responsable técnico" />
-        <Label layoutX="31.0" layoutY="330.0" text="Objetivo del proyecto:" />
-        <TextArea fx:id="objetivoTextArea" layoutX="31.0" layoutY="348.0" prefHeight="70.0" prefWidth="265.0" wrapText="true" />
-        <Button layoutX="485.0" layoutY="430.0" mnemonicParsing="false" onAction="#updateProject" prefHeight="26.0" prefWidth="80.0" text="Guardar" />
-        <Button layoutX="412.0" layoutY="430.0" mnemonicParsing="false" onAction="#cancelButton" text="Cancelar" />
-        <ComboBox fx:id="professorComboBox" layoutX="312.0" layoutY="292.0" prefHeight="26.0" prefWidth="265.0" />
-        <Label layoutX="316.0" layoutY="265.0" text="Profesor" />
-        <Label layoutX="31.0" layoutY="134.0" text="NRC asociado" />
-        <TextField fx:id="nrcTextField" layoutX="29.0" layoutY="162.0" prefHeight="26.0" prefWidth="116.0" />
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-        <Label layoutX="29.0" layoutY="470.0" text="Practicantes asociados al proyecto:">
-            <font><Font size="13.0"/></font>
-        </Label>
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="COORDINACIÓN · PROYECTOS" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Actualizar Proyecto" styleClass="viewTitleLabel"/>
+                        <Label text="Modifica los datos del proyecto y administra los practicantes asignados."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
 
-        <TableView fx:id="internsTableView" layoutX="29.0" layoutY="492.0" prefHeight="140.0" prefWidth="542.0">
-            <columns>
-                <TableColumn fx:id="internNameColumn" prefWidth="360.0" text="Nombre">
-                    <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
-                </TableColumn>
-                <TableColumn fx:id="internMatriculaColumn" prefWidth="180.0" text="Matrícula">
-                    <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
-                </TableColumn>
-            </columns>
-        </TableView>
+                    <Separator styleClass="viewTopAccentSeparator"/>
 
-        <Label fx:id="internsStatusLabel" layoutX="29.0" layoutY="642.0" prefWidth="380.0" text="" />
-        <Button fx:id="removeInternButton" layoutX="29.0" layoutY="662.0" mnemonicParsing="false" onAction="#removeIntern" prefHeight="26.0" prefWidth="180.0" text="Eliminar practicante" />
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9998;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Información del proyecto" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="18.0">
+                            <padding><Insets top="26.0" right="36.0" bottom="26.0" left="36.0"/></padding>
+
+                            <GridPane hgap="22.0" vgap="20.0" maxWidth="Infinity">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="0.0" percentWidth="50.0"/>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="0.0" percentWidth="50.0"/>
+                                </columnConstraints>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <HBox spacing="2.0">
+                                        <Label text="Nombre del proyecto" styleClass="fieldLabelText"/>
+                                    </HBox>
+                                    <RestrictedTextField fx:id="nameTextField"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <HBox spacing="22.0">
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Fecha inicio" styleClass="fieldLabelText"/>
+                                            <DatePicker fx:id="startDate" styleClass="formDatePicker" maxWidth="Infinity"/>
+                                        </VBox>
+                                        <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Fecha fin" styleClass="fieldLabelText"/>
+                                            <DatePicker fx:id="endDate" styleClass="formDatePicker" maxWidth="Infinity"/>
+                                        </VBox>
+                                    </HBox>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <Label text="NRC asociado" styleClass="fieldLabelText"/>
+                                    <TextField fx:id="nrcTextField"
+                                               styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <Label text="Cupo máximo" styleClass="fieldLabelText"/>
+                                    <RestrictedTextField fx:id="capacityTextField"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <Label text="Organización vinculada" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="organizationComboBox"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Label text="Responsable técnico" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="technicalComboBox"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="3">
+                                    <Label text="Descripción" styleClass="fieldLabelText"/>
+                                    <RestrictedTextField fx:id="descriptionTextField"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                    <Label text="Profesor" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="professorComboBox"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+
+                                <VBox spacing="6.0" GridPane.columnIndex="0" GridPane.rowIndex="4"
+                                      GridPane.columnSpan="2">
+                                    <Label text="Objetivo del proyecto" styleClass="fieldLabelText"/>
+                                    <TextArea fx:id="objetivoTextArea"
+                                              wrapText="true"
+                                              styleClass="formTextArea"
+                                              prefHeight="90.0" maxWidth="Infinity"/>
+                                </VBox>
+
+                            </GridPane>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Cancelar" styleClass="cancelActionButton"
+                                    onAction="#cancelButton" mnemonicParsing="false"/>
+                            <Button text="&#10003;  Guardar" styleClass="primaryActionButton"
+                                    onAction="#updateProject" mnemonicParsing="false"/>
+                        </HBox>
+
+                    </VBox>
+
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9786;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Practicantes asociados al proyecto" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="36.0" bottom="22.0" left="36.0"/></padding>
+
+                            <TableView fx:id="internsTableView"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="200.0">
+                                <columns>
+                                    <TableColumn fx:id="internNameColumn" prefWidth="430.0" text="Nombre">
+                                        <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="internMatriculaColumn" prefWidth="220.0" text="Matrícula">
+                                        <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+
+                            <Label fx:id="internsStatusLabel" text="" styleClass="tableSummaryLabel"/>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Button fx:id="removeInternButton"
+                                    text="Eliminar practicante" styleClass="rejectActionButton"
+                                    onAction="#removeIntern" mnemonicParsing="false"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                        </HBox>
+
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
     </children>
 </AnchorPane>

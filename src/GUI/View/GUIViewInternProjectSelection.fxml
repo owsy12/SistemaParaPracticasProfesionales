@@ -1,56 +1,100 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="460.0" prefWidth="620.0"
+<AnchorPane fx:id="anchorPane"
+            prefHeight="620.0" prefWidth="820.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.ViewInterProjectSelection">
-   <children>
-      <HBox layoutX="28.0" layoutY="14.0" prefHeight="26.0" prefWidth="560.0">
-         <children>
-            <Label text="Proyectos para: ">
-               <font><Font size="14.0" /></font>
-            </Label>
-            <Label fx:id="internNameLabel" text="...">
-               <font><Font size="14.0" /></font>
-            </Label>
-         </children>
-      </HBox>
 
-      <Label layoutX="28.0" layoutY="46.0"
-             text="Los proyectos seleccionados por el practicante aparecen marcados. Asignar uno diferente requiere justificación."
-             style="-fx-text-fill: #555555;" />
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIViewInternProjectSelectionStyles.css"/>
+    </stylesheets>
 
-      <TableView fx:id="projectsTableView" layoutX="28.0" layoutY="70.0"
-                 prefHeight="310.0" prefWidth="564.0">
-        <columns>
-            <TableColumn fx:id="projetcNameColumn"  prefWidth="148.0" text="Proyecto">
-               <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="organizationColumn" prefWidth="110.0" text="Organización">
-               <cellValueFactory><PropertyValueFactory property="organizationName"/></cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="placesColumn"       prefWidth="60.0"  text="Lugares">
-               <cellValueFactory><PropertyValueFactory property="avaliablePlacesDisplay"/></cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="datesColumn"        prefWidth="121.0" text="Fechas">
-               <cellValueFactory><PropertyValueFactory property="periodIsoDisplay"/></cellValueFactory>
-            </TableColumn>
-            <TableColumn fx:id="typeColumn"         prefWidth="125.0" text="Selección practicante">
-               <cellValueFactory><PropertyValueFactory property="preferenceLabel"/></cellValueFactory>
-            </TableColumn>
-        </columns>
-      </TableView>
+    <children>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-      <Button layoutX="450.0" layoutY="394.0" mnemonicParsing="false"
-              onAction="#assignProject" prefHeight="26.0" prefWidth="142.0" text="Asignar" />
-   </children>
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="COORDINACIÓN · ASIGNACIÓN DE PRÁCTICAS" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <HBox spacing="8.0" alignment="BASELINE_LEFT">
+                            <Label text="Proyectos para:" styleClass="viewTitleLabel"/>
+                            <Label fx:id="internNameLabel" text="..." styleClass="viewTitleLabel"/>
+                        </HBox>
+                        <Label text="Los proyectos seleccionados por el practicante aparecen marcados. Asignar uno diferente requiere justificación."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
+
+                    <Separator styleClass="viewTopAccentSeparator"/>
+
+                    <VBox styleClass="formCardVBox">
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9776;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Proyectos disponibles" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <TableView fx:id="projectsTableView"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="340.0">
+                                <columns>
+                                    <TableColumn fx:id="projetcNameColumn" prefWidth="180.0" text="Proyecto">
+                                        <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="organizationColumn" prefWidth="140.0" text="Organización">
+                                        <cellValueFactory><PropertyValueFactory property="organizationName"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="placesColumn" prefWidth="80.0" text="Lugares">
+                                        <cellValueFactory><PropertyValueFactory property="avaliablePlacesDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="datesColumn" prefWidth="160.0" text="Fechas">
+                                        <cellValueFactory><PropertyValueFactory property="periodIsoDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="typeColumn" prefWidth="180.0" text="Selección practicante">
+                                        <cellValueFactory><PropertyValueFactory property="preferenceLabel"/></cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="&#10003;  Asignar" styleClass="primaryActionButton"
+                                    onAction="#assignProject" mnemonicParsing="false"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
 </AnchorPane>

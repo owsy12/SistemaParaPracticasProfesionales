@@ -1,160 +1,271 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import GUI.Utils.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane fx:id="rootPane" prefHeight="820.0" prefWidth="870.0"
+<AnchorPane fx:id="rootPane"
+            prefHeight="980.0" prefWidth="940.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.GenerateReportController">
-   <children>
-   <ScrollPane fitToWidth="true"
-               prefHeight="820.0" prefWidth="870.0"
-               AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-   <content>
-      <AnchorPane minHeight="980.0" prefHeight="980.0" prefWidth="850.0">
-         <children>
 
-            <Label layoutX="20.0" layoutY="14.0" text="Generar Reporte de Prácticas">
-               <font><Font size="18.0"/></font>
-            </Label>
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIGenerateReportStyles.css"/>
+    </stylesheets>
 
-            <Label fx:id="internNameLabel"    layoutX="20.0" layoutY="48.0" text="Practicante: —" />
-            <Label fx:id="projectLabel"       layoutX="20.0" layoutY="66.0" text="Proyecto: —" />
-            <Label fx:id="approvedHoursLabel" layoutX="20.0" layoutY="84.0" text="Horas validadas: 0" />
+    <children>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-            <Label layoutX="20.0"  layoutY="112.0" text="Tipo de reporte:" />
-            <ComboBox fx:id="reportTypeComboBox" layoutX="20.0" layoutY="130.0"
-                      onAction="#handleReportTypeChange"
-                      prefHeight="26.0" prefWidth="200.0" />
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="PRACTICANTE · REPORTES" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Generar Reporte de Prácticas" styleClass="viewTitleLabel"/>
+                        <Label text="Construye el reporte parcial o final con tus actividades, metodología, resultados y entregables."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
 
-            <Label layoutX="240.0" layoutY="112.0" text="Mes:" />
-            <ComboBox fx:id="monthComboBox" layoutX="240.0" layoutY="130.0"
-                      onAction="#handleMonthChange"
-                      prefHeight="26.0" prefWidth="160.0" visible="false" />
+                    <Separator styleClass="viewTopAccentSeparator"/>
 
-            <Label layoutX="420.0" layoutY="112.0" text="Horas del período:" />
-            <RestrictedTextField fx:id="reportedHoursTextField" layoutX="420.0" layoutY="130.0"
-                       prefHeight="26.0" prefWidth="120.0" visible="false" />
+                    <VBox styleClass="formCardVBox">
 
-            <Label layoutX="560.0" layoutY="112.0" text="No. de informe:" />
-            <RestrictedTextField fx:id="reportNumberTextField" layoutX="560.0" layoutY="130.0"
-                       prefHeight="26.0" prefWidth="120.0" visible="false" />
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9786;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Información general" styleClass="formSectionTitleLabel"/>
+                        </HBox>
 
-            <Label layoutX="20.0" layoutY="170.0" text="Metodología:" />
-            <RestrictedTextArea fx:id="methodologyTextArea" layoutX="20.0" layoutY="188.0"
-                      prefHeight="70.0" prefWidth="810.0" wrapText="true" visible="false" />
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
 
-            <Label layoutX="20.0" layoutY="272.0" text="Resultados obtenidos:" />
-            <RestrictedTextArea fx:id="resultsTextArea" layoutX="20.0" layoutY="290.0"
-                      prefHeight="60.0" prefWidth="810.0" wrapText="true" visible="false" />
+                            <HBox spacing="22.0">
+                                <Label fx:id="internNameLabel" text="Practicante: —"
+                                       styleClass="infoValueLabel" HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="projectLabel" text="Proyecto: —"
+                                       styleClass="infoValueLabel" HBox.hgrow="ALWAYS"/>
+                                <Label fx:id="approvedHoursLabel" text="Horas validadas: 0"
+                                       styleClass="infoValueLabel"/>
+                            </HBox>
 
-            <Label layoutX="20.0" layoutY="364.0" text="Observaciones generales:" />
-            <RestrictedTextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="382.0"
-                      prefHeight="50.0" prefWidth="810.0" wrapText="true" visible="false" />
+                            <HBox spacing="16.0">
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Tipo de reporte" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="reportTypeComboBox"
+                                              onAction="#handleReportTypeChange"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Mes" styleClass="fieldLabelText"/>
+                                    <ComboBox fx:id="monthComboBox"
+                                              onAction="#handleMonthChange"
+                                              visible="false"
+                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="Horas del período" styleClass="fieldLabelText"/>
+                                    <RestrictedTextField fx:id="reportedHoursTextField"
+                                                         visible="false"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
+                                    <Label text="No. de informe" styleClass="fieldLabelText"/>
+                                    <RestrictedTextField fx:id="reportNumberTextField"
+                                                         visible="false"
+                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </VBox>
 
-            <!-- Project activities section -->
-            <Label layoutX="20.0" layoutY="446.0"
-                   text="Actividades del Proyecto (seleccionar y agregar al reporte):">
-               <font><Font size="13.0"/></font>
-            </Label>
+                    <VBox styleClass="formCardVBox">
 
-            <TableView fx:id="projectActivitiesTable" layoutX="20.0" layoutY="464.0"
-                       prefHeight="130.0" prefWidth="810.0">
-               <columns>
-                  <TableColumn fx:id="colActName"      prefWidth="280.0" text="Nombre">
-                     <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colActDesc"      prefWidth="310.0" text="Descripción">
-                     <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colActPlanStart" prefWidth="110.0" text="Fecha inicio">
-                     <cellValueFactory><PropertyValueFactory property="fechaInicioDisplay"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colActPlanEnd"   prefWidth="110.0" text="Fecha fin">
-                     <cellValueFactory><PropertyValueFactory property="fechaFinDisplay"/></cellValueFactory>
-                  </TableColumn>
-               </columns>
-            </TableView>
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9998;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Contenido del reporte" styleClass="formSectionTitleLabel"/>
+                        </HBox>
 
-            <Button layoutX="20.0"  layoutY="602.0" mnemonicParsing="false"
-                    onAction="#addActivityToReport"
-                    prefHeight="26.0" prefWidth="210.0" text="+ Agregar al reporte" />
-            <Button layoutX="240.0" layoutY="602.0" mnemonicParsing="false"
-                    onAction="#removeActivityFromReport"
-                    prefHeight="26.0" prefWidth="210.0" text="- Eliminar del reporte" />
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
 
-            <!-- Included activities table -->
-            <Label layoutX="20.0" layoutY="638.0" text="Actividades incluidas en el reporte:" />
-            <TableView fx:id="reportActivitiesTable" layoutX="20.0" layoutY="656.0"
-                       prefHeight="110.0" prefWidth="810.0">
-               <columns>
-                  <TableColumn fx:id="colRaName"   prefWidth="310.0" text="Actividad">
-                     <cellValueFactory><PropertyValueFactory property="activityName"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colRaPeriod" prefWidth="240.0" text="Período / Semanas">
-                     <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colRaDetail" prefWidth="250.0" text="Avance / Obs.">
-                     <cellValueFactory><PropertyValueFactory property="detailDisplay"/></cellValueFactory>
-                  </TableColumn>
-               </columns>
-            </TableView>
+                            <VBox spacing="6.0">
+                                <Label text="Metodología" styleClass="fieldLabelText"/>
+                                <RestrictedTextArea fx:id="methodologyTextArea"
+                                                    visible="false"
+                                                    wrapText="true"
+                                                    styleClass="formTextArea"
+                                                    prefHeight="80.0" maxWidth="Infinity"/>
+                            </VBox>
 
-            <!-- Deliverables (final report only, hidden by default) -->
-            <Label fx:id="deliverablesLabel" layoutX="20.0" layoutY="780.0"
-                   text="Entregables del reporte final:"
-                   visible="false">
-               <font><Font size="13.0"/></font>
-            </Label>
-            <TableView fx:id="reportDeliverablesTable" layoutX="20.0" layoutY="798.0"
-                       prefHeight="100.0" prefWidth="810.0" visible="false">
-               <columns>
-                  <TableColumn fx:id="colRdResult"  prefWidth="200.0" text="Resultado entregable">
-                     <cellValueFactory><PropertyValueFactory property="resultado"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colRdDesc"    prefWidth="220.0" text="Descripción">
-                     <cellValueFactory><PropertyValueFactory property="descripcionDisplay"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colRdAdvance" prefWidth="80.0"  text="Avance">
-                     <cellValueFactory><PropertyValueFactory property="advanceDisplay"/></cellValueFactory>
-                  </TableColumn>
-                  <TableColumn fx:id="colRdObs"     prefWidth="310.0" text="Observaciones">
-                     <cellValueFactory><PropertyValueFactory property="observacionesDisplay"/></cellValueFactory>
-                  </TableColumn>
-               </columns>
-            </TableView>
-            <Button fx:id="addDeliverableButton" layoutX="20.0" layoutY="906.0"
-                    mnemonicParsing="false"
-                    onAction="#addDeliverableToReport"
-                    prefHeight="26.0" prefWidth="180.0" text="+ Agregar entregable"
-                    visible="false" />
-            <Button fx:id="removeDeliverableButton" layoutX="210.0" layoutY="906.0"
-                    mnemonicParsing="false"
-                    onAction="#removeDeliverableFromReport"
-                    prefHeight="26.0" prefWidth="200.0" text="- Eliminar seleccionado"
-                    visible="false" />
+                            <VBox spacing="6.0">
+                                <Label text="Resultados obtenidos" styleClass="fieldLabelText"/>
+                                <RestrictedTextArea fx:id="resultsTextArea"
+                                                    visible="false"
+                                                    wrapText="true"
+                                                    styleClass="formTextArea"
+                                                    prefHeight="70.0" maxWidth="Infinity"/>
+                            </VBox>
 
-            <!-- Main action buttons -->
-            <Button fx:id="generateButton" layoutX="20.0" layoutY="942.0"
-                    mnemonicParsing="false" onAction="#generateReport"
-                    prefHeight="30.0" prefWidth="200.0" text="Generar Reporte PDF" />
-            <Button layoutX="710.0" layoutY="942.0"
-                    mnemonicParsing="false" onAction="#cancelAction"
-                    prefHeight="30.0" prefWidth="120.0" text="Cancelar" />
+                            <VBox spacing="6.0">
+                                <Label text="Observaciones generales" styleClass="fieldLabelText"/>
+                                <RestrictedTextArea fx:id="observationsTextArea"
+                                                    visible="false"
+                                                    wrapText="true"
+                                                    styleClass="formTextArea"
+                                                    prefHeight="60.0" maxWidth="Infinity"/>
+                            </VBox>
+                        </VBox>
+                    </VBox>
 
-         </children>
-      </AnchorPane>
-   </content>
-   </ScrollPane>
-   </children>
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9776;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Actividades del Proyecto" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <Label text="Selecciona y agrega actividades al reporte:" styleClass="fieldLabelText"/>
+
+                            <TableView fx:id="projectActivitiesTable"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="160.0">
+                                <columns>
+                                    <TableColumn fx:id="colActName" prefWidth="280.0" text="Nombre">
+                                        <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colActDesc" prefWidth="310.0" text="Descripción">
+                                        <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colActPlanStart" prefWidth="120.0" text="Fecha inicio">
+                                        <cellValueFactory><PropertyValueFactory property="fechaInicioDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colActPlanEnd" prefWidth="120.0" text="Fecha fin">
+                                        <cellValueFactory><PropertyValueFactory property="fechaFinDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+
+                            <HBox spacing="10.0">
+                                <Button text="+ Agregar al reporte" styleClass="secondaryActionButton"
+                                        onAction="#addActivityToReport" mnemonicParsing="false"/>
+                                <Button text="- Eliminar del reporte" styleClass="cancelActionButton"
+                                        onAction="#removeActivityFromReport" mnemonicParsing="false"/>
+                            </HBox>
+
+                            <Separator styleClass="formDashedSeparator"/>
+
+                            <Label text="Actividades incluidas en el reporte:" styleClass="fieldLabelText"/>
+                            <TableView fx:id="reportActivitiesTable"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="140.0">
+                                <columns>
+                                    <TableColumn fx:id="colRaName" prefWidth="320.0" text="Actividad">
+                                        <cellValueFactory><PropertyValueFactory property="activityName"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colRaPeriod" prefWidth="240.0" text="Período / Semanas">
+                                        <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colRaDetail" prefWidth="270.0" text="Avance / Obs.">
+                                        <cellValueFactory><PropertyValueFactory property="detailDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                    </VBox>
+
+                    <VBox styleClass="formCardVBox">
+
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9873;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label fx:id="deliverablesLabel" text="Entregables del reporte final"
+                                   visible="false"
+                                   styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <TableView fx:id="reportDeliverablesTable"
+                                       visible="false"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="140.0">
+                                <columns>
+                                    <TableColumn fx:id="colRdResult" prefWidth="210.0" text="Resultado entregable">
+                                        <cellValueFactory><PropertyValueFactory property="resultado"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colRdDesc" prefWidth="220.0" text="Descripción">
+                                        <cellValueFactory><PropertyValueFactory property="descripcionDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colRdAdvance" prefWidth="90.0" text="Avance">
+                                        <cellValueFactory><PropertyValueFactory property="advanceDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="colRdObs" prefWidth="310.0" text="Observaciones">
+                                        <cellValueFactory><PropertyValueFactory property="observacionesDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+
+                            <HBox spacing="10.0">
+                                <Button fx:id="addDeliverableButton"
+                                        text="+ Agregar entregable" styleClass="secondaryActionButton"
+                                        visible="false"
+                                        onAction="#addDeliverableToReport" mnemonicParsing="false"/>
+                                <Button fx:id="removeDeliverableButton"
+                                        text="- Eliminar seleccionado" styleClass="cancelActionButton"
+                                        visible="false"
+                                        onAction="#removeDeliverableFromReport" mnemonicParsing="false"/>
+                            </HBox>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Cancelar" styleClass="cancelActionButton"
+                                    onAction="#cancelAction" mnemonicParsing="false"/>
+                            <Button fx:id="generateButton"
+                                    text="&#9776;  Generar Reporte PDF" styleClass="primaryActionButton"
+                                    onAction="#generateReport" mnemonicParsing="false"/>
+                        </HBox>
+
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
 </AnchorPane>

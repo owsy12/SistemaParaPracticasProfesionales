@@ -1,48 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="350.0" prefWidth="520.0"
-            xmlns="http://javafx.com/javafx/17.0.12"
+<AnchorPane fx:id="anchorPane"
+            prefHeight="520.0" prefWidth="640.0"
+            xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.AddOVEvaluationController">
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUIAddOVEvaluationStyles.css"/>
+    </stylesheets>
+
     <children>
-        <Label layoutX="29.0" layoutY="14.0" text="Entregar Evaluación OV">
-            <font>
-                <Font size="18.0" />
-            </font>
-        </Label>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="false"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
 
-        <Label layoutX="29.0" layoutY="55.0" text="Seleccione el PDF de la evaluación firmada por el responsable técnico:" />
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="PRACTICANTE · EVALUACIONES" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Entregar Evaluación OV" styleClass="viewTitleLabel"/>
+                        <Label text="Sube el PDF de la evaluación firmada por el responsable técnico de tu organización."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
 
-        <Pane fx:id="dropZone"
-              layoutX="29.0" layoutY="80.0"
-              prefHeight="100.0" prefWidth="460.0"
-              onMouseClicked="#openFileChooser"
-              style="-fx-border-color: #aaaaaa; -fx-border-style: dashed; -fx-background-color: #f9f9f9; -fx-cursor: hand;" />
+                    <Separator styleClass="viewTopAccentSeparator"/>
 
-        <Label layoutX="29.0" layoutY="188.0" prefWidth="460.0"
-               text="Arrastre un PDF aquí o haga clic en el área gris para seleccionar" />
+                    <VBox styleClass="formCardVBox">
 
-        <Label fx:id="labelFileName" layoutX="29.0" layoutY="213.0" prefWidth="460.0"
-               text="Ningún archivo seleccionado" />
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#8682;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Documento de evaluación" styleClass="formSectionTitleLabel"/>
+                        </HBox>
 
-        <Label fx:id="statusLabel" layoutX="29.0" layoutY="238.0" prefWidth="460.0" text="" />
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="36.0" bottom="22.0" left="36.0"/></padding>
 
-        <Button layoutX="29.0" layoutY="283.0"
-                mnemonicParsing="false"
-                onAction="#uploadOVEvaluation"
-                prefHeight="26.0" prefWidth="200.0"
-                text="Entregar evaluación OV" />
+                            <Label text="Selecciona el PDF de la evaluación firmada por el responsable técnico:"
+                                   styleClass="fieldLabelText"/>
 
-        <Button layoutX="239.0" layoutY="283.0"
-                mnemonicParsing="false"
-                onAction="#cancelAction"
-                prefHeight="26.0" prefWidth="100.0"
-                text="Limpiar" />
+                            <Pane fx:id="dropZone"
+                                  styleClass="dropZonePane"
+                                  prefHeight="140.0"
+                                  onMouseClicked="#openFileChooser"/>
+
+                            <Label text="Arrastra un PDF aquí o haz clic en el área para seleccionar"
+                                   styleClass="dropZoneLabel"/>
+
+                            <Label fx:id="labelFileName"
+                                   text="Ningún archivo seleccionado"
+                                   styleClass="fileNameLabel"/>
+
+                            <Label fx:id="statusLabel"
+                                   text=""
+                                   styleClass="uploadStatusLabel"/>
+                        </VBox>
+
+                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="Limpiar" styleClass="cancelActionButton"
+                                    onAction="#cancelAction" mnemonicParsing="false"/>
+                            <Button text="&#10003;  Entregar evaluación OV" styleClass="primaryActionButton"
+                                    onAction="#uploadOVEvaluation" mnemonicParsing="false"/>
+                        </HBox>
+
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
     </children>
 </AnchorPane>

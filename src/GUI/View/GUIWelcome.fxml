@@ -6,10 +6,10 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
 
 <ScrollPane
         styleClass="dashboardScrollPane"
-        stylesheets="@css/GUIWelcomeStyles.css"
         fitToWidth="true"
         fitToHeight="false"
         hbarPolicy="NEVER"
@@ -17,6 +17,11 @@
         xmlns="http://javafx.com/javafx/25"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="GUI.Controller.WelcomeController">
+
+   <stylesheets>
+      <URL value="@css/SGPPTheme.css"/>
+      <URL value="@css/GUIWelcomeStyles.css"/>
+   </stylesheets>
 
    <content>
       <VBox styleClass="dashboardContentVBox" spacing="24.0">

@@ -1,16 +1,16 @@
 .subViewScrollPane {
     -fx-background-color: transparent;
-    -fx-background: #F1F4F9;
+    -fx-background: #f4f4f4;
     -fx-border-width: 0;
     -fx-padding: 0;
 }
 
 .subViewScrollPane > .viewport {
-    -fx-background-color: #F1F4F9;
+    -fx-background-color: #f4f4f4;
 }
 
 .subViewScrollPane .scroll-bar:vertical .thumb {
-    -fx-background-color: rgba(27, 52, 100, 0.18);
+    -fx-background-color: rgba(0, 40, 80, 0.18);
     -fx-background-radius: 3;
 }
 
@@ -24,7 +24,6 @@
     -fx-background-color: transparent;
 }
 
-
 .viewHeaderVBox {
     -fx-background-color: transparent;
 }
@@ -34,54 +33,54 @@
 }
 
 .viewBreadcrumbIconLabel {
-    -fx-text-fill: #4A6FA5;
+    -fx-text-fill: #005691;
     -fx-font-size: 11px;
 }
 
 .viewBreadcrumbLabel {
-    -fx-text-fill: #4A6FA5;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #005691;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
 .viewTitleLabel {
-    -fx-text-fill: #111827;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
-    -fx-font-size: 28px;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
 
 .viewSubtitleLabel {
-    -fx-text-fill: #6B7280;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-wrap-text: true;
 }
 
 .viewTopAccentSeparator .line {
-    -fx-border-color: #1B3464 transparent transparent transparent;
+    -fx-border-color: #005691 transparent transparent transparent;
     -fx-border-width: 2 0 0 0;
 }
 
 .formCardVBox {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: #ffffff;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
-    -fx-border-color: #E8EDF3;
-    -fx-border-width: 1.5;
-    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.09), 14, 0, 0, 4);
+    -fx-border-color: #d8dde3;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 40, 80, 0.08), 14, 0.08, 0, 4);
 }
 
 .formSectionHeaderHBox {
-    -fx-background-color: #F5F7FA;
-    -fx-background-radius: 8 8 0 0;
-    -fx-border-color: transparent transparent #E8EDF3 transparent;
+    -fx-background-color: #f4f4f4;
+    -fx-background-radius: 10 10 0 0;
+    -fx-border-color: transparent transparent #d8dde3 transparent;
     -fx-border-width: 0 0 1 0;
 }
 
 .formSectionIconStackPane {
-    -fx-background-color: #DBEAFE;
+    -fx-background-color: #e8f1f8;
     -fx-background-radius: 7;
     -fx-min-width: 34px;
     -fx-min-height: 34px;
@@ -90,120 +89,133 @@
 }
 
 .formSectionIconLabel {
-    -fx-text-fill: #1B3464;
+    -fx-text-fill: #005691;
     -fx-font-size: 15px;
+    -fx-font-weight: bold;
 }
 
 .formSectionTitleLabel {
-    -fx-text-fill: #111827;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
 
 .formCardSeparator .line {
-    -fx-border-color: #E8EDF3 transparent transparent transparent;
+    -fx-border-color: #d8dde3 transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
 }
 
 .formDashedSeparator .line {
-    -fx-border-color: #C8D8EA transparent transparent transparent;
+    -fx-border-color: #bcc4cd transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
     -fx-border-style: segments(6, 5) line-join bevel line-cap butt;
 }
 
 .fieldLabelText {
-    -fx-text-fill: #374151;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
+    -fx-font-weight: 600;
 }
 
 .requiredMarkLabel {
-    -fx-text-fill: #DC2626;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #c93838;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
 .fieldHintLabel {
-    -fx-text-fill: #9CA3AF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #8a95a3;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 11px;
     -fx-wrap-text: true;
 }
 
 .formTextField {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 7;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 7;
-    -fx-border-width: 1.5;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-text-fill: #111827;
-    -fx-prompt-text-fill: #9CA3AF;
-    -fx-pref-height: 44px;
-    -fx-padding: 0 14 0 14;
+    -fx-text-fill: #1c2330;
+    -fx-prompt-text-fill: #8a95a3;
+    -fx-pref-height: 40px;
+    -fx-padding: 0 12 0 12;
     -fx-background-insets: 0;
 }
 
 .formTextField:focused {
-    -fx-border-color: #1B3464;
-    -fx-background-color: #FAFBFF;
-    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.12), 6, 0, 0, 0);
+    -fx-border-color: #005691;
+    -fx-effect: dropshadow(gaussian, rgba(0, 86, 145, 0.18), 6, 0.08, 0, 0);
 }
 
 .formPasswordField {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 7;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 7;
-    -fx-border-width: 1.5;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-text-fill: #111827;
-    -fx-pref-height: 44px;
-    -fx-padding: 0 14 0 14;
+    -fx-text-fill: #1c2330;
+    -fx-pref-height: 40px;
+    -fx-padding: 0 12 0 12;
     -fx-background-insets: 0;
 }
 
 .formPasswordField:focused {
-    -fx-border-color: #1B3464;
-    -fx-background-color: #FAFBFF;
-    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.12), 6, 0, 0, 0);
+    -fx-border-color: #005691;
+    -fx-effect: dropshadow(gaussian, rgba(0, 86, 145, 0.18), 6, 0.08, 0, 0);
 }
 
 .formComboBox {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 7;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 7;
-    -fx-border-width: 1.5;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-pref-height: 44px;
+    -fx-pref-height: 40px;
 }
 
 .formComboBox:focused,
 .formComboBox:showing {
-    -fx-border-color: #1B3464;
+    -fx-border-color: #005691;
+}
+
+.formComboBox .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.formComboBox .arrow {
+    -fx-background-color: #5a6675;
+}
+
+.formComboBox .list-cell {
+    -fx-text-fill: #1c2330;
+    -fx-padding: 6 12 6 12;
 }
 
 .formTextArea {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 7;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 7;
-    -fx-border-width: 1.5;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-text-fill: #111827;
-    -fx-prompt-text-fill: #9CA3AF;
+    -fx-text-fill: #1c2330;
+    -fx-prompt-text-fill: #8a95a3;
     -fx-pref-height: 90px;
 }
 
 .formTextArea:focused {
-    -fx-border-color: #1B3464;
+    -fx-border-color: #005691;
 }
 
 .formTextArea .content {
@@ -212,18 +224,18 @@
 }
 
 .formDatePicker {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 7;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 7;
-    -fx-border-width: 1.5;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-pref-height: 44px;
+    -fx-pref-height: 40px;
 }
 
 .formDatePicker:focused {
-    -fx-border-color: #1B3464;
+    -fx-border-color: #005691;
 }
 
 .formDatePicker .text-field {
@@ -232,75 +244,86 @@
     -fx-background-radius: 0;
     -fx-border-width: 0;
     -fx-padding: 0 8 0 10;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
 }
 
+.formDatePicker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.formDatePicker .arrow-button .arrow {
+    -fx-background-color: #5a6675;
+}
+
 .formActionBarHBox {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #E8EDF3 transparent transparent transparent;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d8dde3 transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
     -fx-background-radius: 0 0 10 10;
 }
 
 .primaryActionButton {
-    -fx-background-color: #1B3464;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #005691;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 11 22 11 22;
-    -fx-background-radius: 7;
-    -fx-border-width: 0;
+    -fx-padding: 10 22 10 22;
+    -fx-background-radius: 6;
+    -fx-border-color: #003e6b;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
     -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 30, 60, 0.18), 4, 0.08, 0, 1);
 }
 
 .primaryActionButton:hover {
-    -fx-background-color: #2A4F96;
-    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.28), 10, 0, 0, 3);
+    -fx-background-color: #1976b8;
 }
 
 .primaryActionButton:pressed {
-    -fx-background-color: #152A52;
+    -fx-background-color: #003e6b;
     -fx-effect: none;
-    -fx-scale-x: 0.99;
-    -fx-scale-y: 0.99;
+    -fx-translate-y: 1;
 }
 
 .secondaryActionButton {
-    -fx-background-color: transparent;
-    -fx-text-fill: #1B3464;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #005691;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-padding: 10 18 10 18;
-    -fx-background-radius: 7;
-    -fx-border-color: #1B3464;
-    -fx-border-radius: 7;
-    -fx-border-width: 1.5;
+    -fx-font-weight: 600;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
     -fx-cursor: hand;
 }
 
 .secondaryActionButton:hover {
-    -fx-background-color: #EEF3F8;
+    -fx-background-color: #e8f1f8;
+    -fx-border-color: #005691;
 }
 
 .cancelActionButton {
     -fx-background-color: transparent;
-    -fx-text-fill: #374151;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-padding: 10 18 10 18;
-    -fx-background-radius: 7;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 7;
-    -fx-border-width: 1.5;
+    -fx-font-weight: 600;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
     -fx-cursor: hand;
 }
 
 .cancelActionButton:hover {
-    -fx-background-color: #F3F4F6;
-    -fx-border-color: #9CA3AF;
+    -fx-background-color: #f4f4f4;
+    -fx-border-color: #8a95a3;
 }
 
 .tableViewContentVBox {
@@ -308,42 +331,42 @@
 }
 
 .tableTitleLabel {
-    -fx-text-fill: #111827;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
-    -fx-font-size: 28px;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-size: 24px;
     -fx-font-weight: bold;
 }
 
 .tableSubtitleLabel {
-    -fx-text-fill: #6B7280;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-wrap-text: true;
 }
 
 .mainDataTableView {
-    -fx-background-color: #FFFFFF;
+    -fx-background-color: #ffffff;
     -fx-background-radius: 10;
     -fx-border-radius: 10;
-    -fx-border-color: #E8EDF3;
-    -fx-border-width: 1.5;
-    -fx-effect: dropshadow(gaussian, rgba(27, 52, 100, 0.07), 10, 0, 0, 3);
+    -fx-border-color: #d8dde3;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 40, 80, 0.06), 10, 0.08, 0, 3);
 }
 
 .mainDataTableView .column-header-background {
-    -fx-background-color: #F5F7FA;
-    -fx-background-radius: 8 8 0 0;
+    -fx-background-color: #f4f4f4;
+    -fx-background-radius: 10 10 0 0;
 }
 
 .mainDataTableView .column-header {
     -fx-background-color: transparent;
-    -fx-border-color: transparent transparent #E8EDF3 transparent;
+    -fx-border-color: transparent transparent #d8dde3 transparent;
     -fx-border-width: 0 0 1 0;
 }
 
 .mainDataTableView .column-header .label {
-    -fx-text-fill: #6B7280;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
     -fx-alignment: CENTER_LEFT;
@@ -351,22 +374,22 @@
 }
 
 .mainDataTableView .table-row-cell {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: transparent transparent #F3F4F6 transparent;
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #eef0f3 transparent;
     -fx-border-width: 0 0 1 0;
 }
 
 .mainDataTableView .table-row-cell:odd {
-    -fx-background-color: #FAFBFC;
+    -fx-background-color: #fafbfc;
 }
 
 .mainDataTableView .table-row-cell:selected {
-    -fx-background-color: #EEF3FA;
+    -fx-background-color: rgba(0, 86, 145, 0.10);
 }
 
 .mainDataTableView .table-cell {
-    -fx-text-fill: #1F2937;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 0 12 0 12;
@@ -374,167 +397,174 @@
 
 .tableRowButton {
     -fx-background-color: transparent;
-    -fx-text-fill: #1B3464;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #005691;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
-    -fx-border-color: #C4D0E8;
+    -fx-border-color: #cbd9e8;
     -fx-border-radius: 5;
     -fx-background-radius: 5;
-    -fx-border-width: 1.5;
+    -fx-border-width: 1;
     -fx-padding: 4 10 4 10;
     -fx-cursor: hand;
 }
 
 .tableRowButton:hover {
-    -fx-background-color: #EEF3FA;
-    -fx-border-color: #1B3464;
+    -fx-background-color: #e8f1f8;
+    -fx-border-color: #005691;
 }
 
 .tableFilterComboBox {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #D1D5DB;
-    -fx-border-radius: 7;
-    -fx-background-radius: 7;
-    -fx-border-width: 1.5;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-pref-height: 38px;
 }
 
 .tableActionButton {
-    -fx-background-color: transparent;
-    -fx-text-fill: #1B3464;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #005691;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-border-color: #1B3464;
-    -fx-border-radius: 7;
-    -fx-background-radius: 7;
-    -fx-border-width: 1.5;
+    -fx-font-weight: 600;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-border-width: 1;
     -fx-padding: 8 16 8 16;
     -fx-cursor: hand;
 }
 
 .tableActionButton:hover {
-    -fx-background-color: #EEF3FA;
+    -fx-background-color: #e8f1f8;
+    -fx-border-color: #005691;
 }
 
 .tableSummaryLabel {
-    -fx-text-fill: #6B7280;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
 .tableDetailLabel {
-    -fx-text-fill: #374151;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 12px;
     -fx-wrap-text: true;
 }
 
 .approveActionButton {
-    -fx-background-color: #15803D;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #2f9b5a;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 10 18 10 18;
-    -fx-background-radius: 7;
-    -fx-border-width: 0;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 6;
+    -fx-border-color: #267a48;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
     -fx-cursor: hand;
 }
 
 .approveActionButton:hover {
-    -fx-background-color: #166534;
+    -fx-background-color: #36b06a;
 }
 
 .rejectActionButton {
-    -fx-background-color: #DC2626;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #c93838;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 10 18 10 18;
-    -fx-background-radius: 7;
-    -fx-border-width: 0;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 6;
+    -fx-border-color: #9c2828;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
     -fx-cursor: hand;
 }
 
 .rejectActionButton:hover {
-    -fx-background-color: #B91C1C;
+    -fx-background-color: #d75050;
 }
 
 .warnActionButton {
-    -fx-background-color: #D97706;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #ed8a2c;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-padding: 10 18 10 18;
-    -fx-background-radius: 7;
-    -fx-border-width: 0;
+    -fx-padding: 9 18 9 18;
+    -fx-background-radius: 6;
+    -fx-border-color: #c46f1d;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
     -fx-cursor: hand;
 }
 
 .warnActionButton:hover {
-    -fx-background-color: #B45309;
+    -fx-background-color: #f49e4a;
 }
 
 .neutralActionButton {
-    -fx-background-color: #4B5563;
-    -fx-text-fill: #FFFFFF;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-background-color: #5a6675;
+    -fx-text-fill: #ffffff;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
-    -fx-padding: 10 16 10 16;
-    -fx-background-radius: 7;
+    -fx-padding: 9 16 9 16;
+    -fx-background-radius: 6;
     -fx-border-width: 0;
     -fx-cursor: hand;
 }
 
 .neutralActionButton:hover {
-    -fx-background-color: #374151;
+    -fx-background-color: #3f4855;
 }
 
 .dropZonePane {
-    -fx-background-color: #FAFBFF;
+    -fx-background-color: #f7faff;
     -fx-background-radius: 10;
-    -fx-border-color: #C8D8EA;
+    -fx-border-color: #cbd9e8;
     -fx-border-radius: 10;
     -fx-border-width: 2;
     -fx-border-style: segments(8, 5) line-join bevel line-cap butt;
 }
 
 .dropZoneLabel {
-    -fx-text-fill: #6B7280;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
 }
 
 .fileNameLabel {
-    -fx-text-fill: #1F2937;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #1c2330;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
 .uploadStatusLabel {
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 12px;
-    -fx-text-fill: #6B7280;
+    -fx-text-fill: #5a6675;
 }
 
 .infoValueLabel {
-    -fx-text-fill: #1B3464;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #005691;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
 }
 
 .infoKeyLabel {
-    -fx-text-fill: #6B7280;
-    -fx-font-family: "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-text-fill: #5a6675;
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }

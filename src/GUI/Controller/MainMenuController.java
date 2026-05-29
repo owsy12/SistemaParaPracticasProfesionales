@@ -195,6 +195,7 @@ public class MainMenuController {
 
     private void loadAdministratorActions() {
         addButton("Registrar coordinador", "/GUI/View/GUIAddCoordinador.fxml");
+        addButton("Registrar profesor", "/GUI/View/GUIAddProfesor.fxml");
     }
 
     private void loadProfesorActions() {
