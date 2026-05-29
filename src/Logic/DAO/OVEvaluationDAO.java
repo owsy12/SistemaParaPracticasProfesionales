@@ -1,0 +1,170 @@
+package Logic.DAO;
+
+import DataAccess.DataBaseConnection;
+import Logic.DTOs.OVEvaluation;
+import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
+import Logic.Exceptions.ValidationException;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class OVEvaluationDAO {
+
+    private static final Logger LOGGER = Logger.getLogger(OVEvaluationDAO.class.getName());
+
+    private static final String SQL_INSERT =
+            "INSERT INTO evaluacion_ov " +
+            "(id_practicante, id_proyecto, ruta_documento, estado, fecha_entrega) " +
+            "VALUES (?, ?, ?, ?, ?)";
+
+    private static final String SQL_SELECT_BY_INTERN_AND_PROJECT =
+            "SELECT id_evaluacion_ov, id_practicante, id_proyecto, " +
+            "       ruta_documento, estado, fecha_entrega " +
+            "FROM evaluacion_ov " +
+            "WHERE id_practicante = ? AND id_proyecto = ?";
+
+    public int save(OVEvaluation ovEvaluation) throws ServiceException, ValidationException {
+        if (ovEvaluation.getIdIntern() <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: "
+                    + ovEvaluation.getIdIntern());
+        }
+        if (ovEvaluation.getIdProject() <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: "
+                    + ovEvaluation.getIdProject());
+        }
+
+        int rowsAffected = 0;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(
+                     SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+
+            statement.setInt   (1, ovEvaluation.getIdIntern());
+            statement.setInt   (2, ovEvaluation.getIdProject());
+            statement.setString(3, ovEvaluation.getDocumentPath());
+            statement.setString(4, ovEvaluation.getStatus() != null
+                    ? ovEvaluation.getStatus() : "Entregado");
+            statement.setTimestamp(5, Timestamp.valueOf(
+                    ovEvaluation.getDeliveryDate() != null
+                    ? ovEvaluation.getDeliveryDate()
+                    : LocalDateTime.now()));
+
+            rowsAffected = statement.executeUpdate();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    ovEvaluation.setIdOVEvaluation(generatedKeys.getInt(1));
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al guardar evaluación OV del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{ovEvaluation.getIdIntern(), ovEvaluation.getIdProject(),
+                                 sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe una evaluación OV para este practicante en este proyecto.",
+                        sqlException);
+            }
+            throw new ServiceException("Error al guardar la evaluación OV.", sqlException);
+        }
+
+        return rowsAffected;
+    }
+
+    public OVEvaluation findByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        OVEvaluation ovEvaluation = null;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement =
+                     connection.prepareStatement(SQL_SELECT_BY_INTERN_AND_PROJECT)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    ovEvaluation = mapResultSet(resultSet);
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al buscar evaluación OV del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al buscar la evaluación OV.", sqlException);
+        }
+
+        return ovEvaluation;
+    }
+
+    private OVEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
+        OVEvaluation ovEvaluation = new OVEvaluation();
+        ovEvaluation.setIdOVEvaluation(resultSet.getInt   ("id_evaluacion_ov"));
+        ovEvaluation.setIdIntern      (resultSet.getInt   ("id_practicante"));
+        ovEvaluation.setIdProject     (resultSet.getInt   ("id_proyecto"));
+        ovEvaluation.setDocumentPath  (resultSet.getString("ruta_documento"));
+        ovEvaluation.setStatus        (resultSet.getString("estado"));
+
+        Timestamp deliveryDate = resultSet.getTimestamp("fecha_entrega");
+        if (deliveryDate != null) {
+            ovEvaluation.setDeliveryDate(deliveryDate.toLocalDateTime());
+        }
+
+        return ovEvaluation;
+    }
+
+    public boolean deleteByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        String sql = "DELETE FROM evaluacion_ov WHERE id_practicante = ? AND id_proyecto = ?";
+        int rowsAffected = 0;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+            rowsAffected = statement.executeUpdate();
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al eliminar evaluaciones OV del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al eliminar evaluaciones OV del practicante.", sqlException);
+        }
+
+        return rowsAffected >= 0;
+    }
+}
