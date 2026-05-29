@@ -1,0 +1,498 @@
+.root {
+    -fx-font-family: "Montserrat", "Segoe UI", "Helvetica Neue", "Arial", sans-serif;
+    -fx-base: #f4f4f4;
+    -fx-background: #f4f4f4;
+    -fx-control-inner-background: #ffffff;
+    -fx-focus-color: #005691;
+    -fx-faint-focus-color: rgba(0, 86, 145, 0.14);
+    -fx-accent: #005691;
+    -fx-text-base-color: #1c2330;
+}
+
+.appBackgroundPane {
+    -fx-background-color: #f4f4f4;
+}
+
+.panelBackgroundPane {
+    -fx-background-color: #ffffff;
+}
+
+.surfaceCardVBox,
+.surfaceCardHBox,
+.surfaceCardStackPane,
+.surfaceCardAnchorPane {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-color: #d8dde3;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, rgba(0, 40, 80, 0.10), 18, 0.08, 0, 4);
+}
+
+.surfaceFlatCardVBox,
+.surfaceFlatCardHBox {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-color: #d8dde3;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.pageContainerVBox,
+.pageContainerScrollPane {
+    -fx-background-color: #f4f4f4;
+}
+
+.pageContainerScrollPane > .viewport {
+    -fx-background-color: #f4f4f4;
+}
+
+.pageHeaderTitleLabel {
+    -fx-text-fill: #1c2330;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.pageHeaderSubtitleLabel {
+    -fx-text-fill: #5a6675;
+    -fx-font-size: 13px;
+}
+
+.pageSectionTitleLabel {
+    -fx-text-fill: #1c2330;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.pageSectionTagLabel {
+    -fx-text-fill: #005691;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.formFieldLabel {
+    -fx-text-fill: #1c2330;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.formFieldHintLabel {
+    -fx-text-fill: #8a95a3;
+    -fx-font-size: 11px;
+}
+
+.formFieldRequiredLabel {
+    -fx-text-fill: #c93838;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.formInputTextField,
+.formInputPasswordField,
+.formInputDatePicker,
+.formInputTextArea {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #1c2330;
+    -fx-prompt-text-fill: #8a95a3;
+    -fx-font-size: 13px;
+    -fx-padding: 8 12 8 12;
+    -fx-pref-height: 38px;
+    -fx-highlight-fill: #4a92c2;
+    -fx-highlight-text-fill: #ffffff;
+}
+
+.formInputTextField:focused,
+.formInputPasswordField:focused,
+.formInputDatePicker:focused,
+.formInputTextArea:focused {
+    -fx-border-color: #005691;
+    -fx-effect: dropshadow(gaussian, rgba(0, 86, 145, 0.20), 6, 0.10, 0, 0);
+}
+
+.formInputTextArea {
+    -fx-pref-height: -1;
+    -fx-min-height: 90px;
+}
+
+.formInputTextArea .content {
+    -fx-background-color: transparent;
+}
+
+.formInputComboBox,
+.formInputChoiceBox {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #1c2330;
+    -fx-font-size: 13px;
+    -fx-pref-height: 38px;
+}
+
+.formInputComboBox:focused,
+.formInputChoiceBox:focused {
+    -fx-border-color: #005691;
+}
+
+.formInputComboBox .arrow-button,
+.formInputComboBox .arrow,
+.formInputChoiceBox .arrow-button,
+.formInputChoiceBox .arrow {
+    -fx-background-color: transparent;
+}
+
+.formInputComboBox .arrow,
+.formInputChoiceBox .arrow {
+    -fx-background-color: #5a6675;
+}
+
+.formInputComboBox .list-cell {
+    -fx-text-fill: #1c2330;
+    -fx-padding: 6 12 6 12;
+}
+
+.formInputDatePicker .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.formInputDatePicker .arrow-button .arrow {
+    -fx-background-color: #5a6675;
+}
+
+.primaryButton {
+    -fx-background-color: #005691;
+    -fx-background-radius: 6;
+    -fx-border-color: #003e6b;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-pref-height: 38px;
+    -fx-padding: 0 22 0 22;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 30, 60, 0.16), 4, 0.10, 0, 1);
+}
+
+.primaryButton:hover {
+    -fx-background-color: #1976b8;
+}
+
+.primaryButton:pressed {
+    -fx-background-color: #003e6b;
+    -fx-translate-y: 1;
+}
+
+.primaryButton:disabled {
+    -fx-opacity: 0.6;
+    -fx-cursor: default;
+}
+
+.secondaryButton {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #005691;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-pref-height: 38px;
+    -fx-padding: 0 22 0 22;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 30, 60, 0.08), 3, 0.10, 0, 1);
+}
+
+.secondaryButton:hover {
+    -fx-background-color: #e8f1f8;
+    -fx-border-color: #005691;
+}
+
+.secondaryButton:pressed {
+    -fx-background-color: #d6e6f3;
+}
+
+.ghostButton {
+    -fx-background-color: transparent;
+    -fx-text-fill: #5a6675;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-pref-height: 38px;
+    -fx-padding: 0 18 0 18;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-background-radius: 6;
+}
+
+.ghostButton:hover {
+    -fx-background-color: rgba(0, 86, 145, 0.06);
+    -fx-text-fill: #005691;
+}
+
+.dangerButton {
+    -fx-background-color: #c93838;
+    -fx-background-radius: 6;
+    -fx-border-color: #9c2828;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-pref-height: 38px;
+    -fx-padding: 0 22 0 22;
+    -fx-cursor: hand;
+}
+
+.dangerButton:hover {
+    -fx-background-color: #d75050;
+}
+
+.dangerButton:pressed {
+    -fx-background-color: #9c2828;
+}
+
+.successButton {
+    -fx-background-color: #2f9b5a;
+    -fx-background-radius: 6;
+    -fx-border-color: #267a48;
+    -fx-border-radius: 6;
+    -fx-border-width: 1;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-pref-height: 38px;
+    -fx-padding: 0 22 0 22;
+    -fx-cursor: hand;
+}
+
+.successButton:hover {
+    -fx-background-color: #36b06a;
+}
+
+.dataTableView {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-color: #d8dde3;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+}
+
+.dataTableView .column-header-background {
+    -fx-background-color: #f4f4f4;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.dataTableView .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent transparent #d8dde3 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 10 14 10 14;
+}
+
+.dataTableView .column-header .label {
+    -fx-text-fill: #5a6675;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.dataTableView .table-cell {
+    -fx-text-fill: #1c2330;
+    -fx-font-size: 13px;
+    -fx-padding: 10 14 10 14;
+    -fx-border-color: transparent transparent #eef0f3 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.dataTableView .table-row-cell {
+    -fx-background-color: #ffffff;
+}
+
+.dataTableView .table-row-cell:odd {
+    -fx-background-color: #fafbfc;
+}
+
+.dataTableView .table-row-cell:hover {
+    -fx-background-color: rgba(0, 86, 145, 0.05);
+}
+
+.dataTableView .table-row-cell:selected {
+    -fx-background-color: rgba(0, 86, 145, 0.10);
+    -fx-text-fill: #1c2330;
+}
+
+.dataTableView .table-row-cell:selected .table-cell {
+    -fx-text-fill: #1c2330;
+}
+
+.dataTableView .filler {
+    -fx-background-color: #f4f4f4;
+}
+
+.statusChipLabel,
+.statusChipGreenLabel,
+.statusChipBlueLabel,
+.statusChipOrangeLabel,
+.statusChipRedLabel,
+.statusChipGrayLabel {
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 3 9 3 9;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.statusChipGreenLabel {
+    -fx-background-color: #e3f5ea;
+    -fx-text-fill: #2f9b5a;
+}
+
+.statusChipBlueLabel {
+    -fx-background-color: #e8f1f8;
+    -fx-text-fill: #005691;
+}
+
+.statusChipOrangeLabel {
+    -fx-background-color: #fdefdd;
+    -fx-text-fill: #ed8a2c;
+}
+
+.statusChipRedLabel {
+    -fx-background-color: #fdeaea;
+    -fx-text-fill: #c93838;
+}
+
+.statusChipGrayLabel {
+    -fx-background-color: #f4f4f4;
+    -fx-text-fill: #5a6675;
+    -fx-border-color: #d8dde3;
+    -fx-border-width: 1;
+}
+
+.formScrollPane {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.formScrollPane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.formScrollPane .scroll-bar:vertical,
+.formScrollPane .scroll-bar:horizontal {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+    -fx-pref-height: 8px;
+}
+
+.formScrollPane .scroll-bar .thumb {
+    -fx-background-color: rgba(0, 40, 80, 0.18);
+    -fx-background-radius: 6;
+}
+
+.formScrollPane .scroll-bar .thumb:hover {
+    -fx-background-color: rgba(0, 40, 80, 0.32);
+}
+
+.formScrollPane .scroll-bar .increment-button,
+.formScrollPane .scroll-bar .decrement-button,
+.formScrollPane .scroll-bar .increment-arrow,
+.formScrollPane .scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+    -fx-padding: 0;
+}
+
+.formScrollPane .corner {
+    -fx-background-color: transparent;
+}
+
+.formSeparator .line {
+    -fx-border-color: #d8dde3 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.dividerVerticalSeparator .line {
+    -fx-border-color: transparent #d8dde3 transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.sectionHeaderHBox {
+    -fx-background-color: #ffffff;
+    -fx-padding: 16 22 16 22;
+    -fx-border-color: transparent transparent #d8dde3 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.toolbarHBox {
+    -fx-background-color: #ffffff;
+    -fx-padding: 12 16 12 16;
+    -fx-border-color: transparent transparent #d8dde3 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-spacing: 12;
+}
+
+.checkBoxControl {
+    -fx-text-fill: #1c2330;
+    -fx-font-size: 13px;
+}
+
+.checkBoxControl .box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+}
+
+.checkBoxControl:selected .box {
+    -fx-background-color: #005691;
+    -fx-border-color: #005691;
+}
+
+.checkBoxControl:selected .mark {
+    -fx-background-color: #ffffff;
+}
+
+.radioButtonControl {
+    -fx-text-fill: #1c2330;
+    -fx-font-size: 13px;
+}
+
+.radioButtonControl .radio {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #bcc4cd;
+    -fx-border-radius: 50;
+    -fx-background-radius: 50;
+    -fx-border-width: 1;
+}
+
+.radioButtonControl:selected .radio {
+    -fx-border-color: #005691;
+}
+
+.radioButtonControl:selected .dot {
+    -fx-background-color: #005691;
+}
+
+.helperLinkButton {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: #005691;
+    -fx-font-size: 12px;
+    -fx-underline: true;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+}
+
+.helperLinkButton:hover {
+    -fx-text-fill: #1976b8;
+}
