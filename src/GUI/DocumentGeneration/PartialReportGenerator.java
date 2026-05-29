@@ -1,8 +1,7 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
 import Logic.DTOs.PartialAndFinalReport;
 import Logic.DTOs.ReportActivity;
-import Logic.DTOs.ReportDeliverable;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
@@ -28,28 +27,30 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class FinalReportGenerator {
+public class PartialReportGenerator {
 
-    private static final Logger LOGGER = Logger.getLogger(FinalReportGenerator.class.getName());
-    private static final String TEMPLATE = "/GUI/Utils/basedocuments/reporteFinal.docx";
+    private static final Logger LOGGER = Logger.getLogger(PartialReportGenerator.class.getName());
+    private static final String TEMPLATE = "/GUI/DocumentGeneration/basedocuments/reporteParcial.docx";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final int WEEKS_COUNT = 8;
+    private static final int ROWS_PER_ACTIVITY = 2;
     private static final Pattern MARKER     = Pattern.compile("\\{\\{([^}]+)}}");
     private static final Pattern TEXT_IN_RUN = Pattern.compile("<w:t[^>]*>([^<]*)</w:t>");
 
-    private FinalReportGenerator() {
+    private PartialReportGenerator() {
     }
 
-    public static String generate(PartialAndFinalReport report, ReportGenerationContext context, ReportContent content) throws IOException {
-        List<ReportActivity>    activities   = content.getActivities();
-        List<ReportDeliverable> deliverables = content.getDeliverables();
+    public static String generate(PartialAndFinalReport report, ReportGenerationContext context,
+                                   ReportContent content) throws IOException {
+        List<ReportActivity> activities = content.getActivities();
         Map<String, String> values = buildValues(report, context);
-        byte[] docxBytes = fillTemplate(values, content);
+        byte[] docxBytes = fillTemplate(values, activities);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
 
         String storagePath = buildStoragePath(report, context.getMatricula());
         saveFile(pdfBytes, storagePath);
 
-        String fileName = "Reporte_Final_" + report.getReportNumber() + ".pdf";
+        String fileName = "Reporte_Parcial_" + report.getReportNumber() + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;
@@ -58,16 +59,20 @@ public class FinalReportGenerator {
     private static Map<String, String> buildValues(PartialAndFinalReport report,
                                                     ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
-        values.put("nrc", String.valueOf(report.getIdProyect()));
+        values.put("nrc", context.getNrc());
         values.put("school_term", safe(report.getPeriod()));
-        values.put("name", context.getInternFullName());
-        values.put("organization", context.getOrganizationName());
+        values.put("intern", context.getInternFullName());
+        values.put("linked_organization", context.getOrganizationName());
         values.put("project", context.getProjectName());
+        values.put("report_term", safe(report.getPeriod()));
         values.put("hours", String.valueOf(report.getCoveredHours()));
-        values.put("date", LocalDate.now().format(DATE_FORMAT));
-        values.put("project_objective", safe(report.getGeneralObjective()));
+        values.put("report_date", LocalDate.now().format(DATE_FORMAT));
+        values.put("report_number", String.valueOf(report.getReportNumber()));
+        values.put("Project_objective", safe(report.getGeneralObjective()));
         values.put("metodology", safe(report.getMethodology()));
+        values.put("result", safe(report.getObtainedResults()));
         values.put("observations", safe(report.getObservations()));
+        values.put("name", context.getInternFullName());
         values.put("technician", context.getTechnicianName());
         values.put("technician_position", context.getTechnicianPosition());
         values.put("profesor", context.getProfessorName());
@@ -75,8 +80,8 @@ public class FinalReportGenerator {
     }
 
     private static byte[] fillTemplate(Map<String, String> values,
-                                        ReportContent content) throws IOException {
-        InputStream templateStream = FinalReportGenerator.class.getResourceAsStream(TEMPLATE);
+                                        List<ReportActivity> activities) throws IOException {
+        InputStream templateStream = PartialReportGenerator.class.getResourceAsStream(TEMPLATE);
         if (templateStream == null) {
             throw new IOException("Plantilla no encontrada: " + TEMPLATE);
         }
@@ -91,8 +96,7 @@ public class FinalReportGenerator {
                 if ("word/document.xml".equals(entry.getName())) {
                     String xml = new String(data, StandardCharsets.UTF_8);
                     xml = normalizeMarkers(xml);
-                    xml = expandActivityRows(xml, content.getActivities());
-                    xml = expandDeliverableRows(xml, content.getDeliverables());
+                    xml = expandActivityRows(xml, activities);
                     xml = replaceMarkers(xml, values);
                     data = xml.getBytes(StandardCharsets.UTF_8);
                 }
@@ -119,20 +123,37 @@ public class FinalReportGenerator {
         }
         int blockEnd = -1;
         if (rowStart >= 0) {
-            int rowEnd = xml.indexOf("</w:tr>", rowStart);
-            if (rowEnd >= 0) {
-                blockEnd = rowEnd + "</w:tr>".length();
-            }
+            blockEnd = findBlockEnd(xml, rowStart);
         }
         String result = xml;
         if (blockEnd >= 0) {
-            result = buildExpandedActivityXml(xml, activities, rowStart, blockEnd);
+            result = buildExpandedXml(xml, activities, rowStart, blockEnd);
         }
         return result;
     }
 
-    private static String buildExpandedActivityXml(String xml, List<ReportActivity> activities,
-                                                     int rowStart, int blockEnd) {
+    private static int findBlockEnd(String xml, int rowStart) {
+        int blockEnd = rowStart;
+        boolean allRowsFound = true;
+        for (int rowIndex = 0; rowIndex < ROWS_PER_ACTIVITY; rowIndex++) {
+            if (allRowsFound) {
+                int end = xml.indexOf("</w:tr>", blockEnd);
+                if (end < 0) {
+                    allRowsFound = false;
+                } else {
+                    blockEnd = end + "</w:tr>".length();
+                }
+            }
+        }
+        int result = -1;
+        if (allRowsFound) {
+            result = blockEnd;
+        }
+        return result;
+    }
+
+    private static String buildExpandedXml(String xml, List<ReportActivity> activities,
+                                             int rowStart, int blockEnd) {
         String templateBlock = xml.substring(rowStart, blockEnd);
         StringBuilder expanded = new StringBuilder();
         for (int i = 0; i < activities.size(); i++) {
@@ -143,7 +164,7 @@ public class FinalReportGenerator {
                 block = block.replace("activity_01", "activity_" + newIdx);
                 block = block.replace("a1_", "a" + (i + 1) + "_");
             }
-            Map<String, String> rowValues = buildActivityRowValues(activities.get(i), i + 1);
+            Map<String, String> rowValues = buildRowValues(activities.get(i), i + 1);
             block = replaceMarkers(block, rowValues);
             expanded.append(block);
         }
@@ -153,71 +174,14 @@ public class FinalReportGenerator {
         return result;
     }
 
-    private static Map<String, String> buildActivityRowValues(ReportActivity activity, int index) {
+    private static Map<String, String> buildRowValues(ReportActivity activity, int index) {
         String key = String.format("%02d", index);
         Map<String, String> row = new HashMap<>();
         row.put("activity_" + key, safe(activity.getActivityName()));
-        row.put("a" + index + "_advance", activity.getPorcentajeAvance() + "%");
-        row.put("a" + index + "_observations", safe(activity.getObservaciones()));
-        return row;
-    }
-
-    private static String expandDeliverableRows(String xml, List<ReportDeliverable> deliverables) {
-        boolean hasDeliverables = deliverables != null && !deliverables.isEmpty();
-        int markerPos = -1;
-        if (hasDeliverables) {
-            markerPos = xml.indexOf("{{deliverable_result_01}}");
+        for (int week = 1; week <= WEEKS_COUNT; week++) {
+            row.put("a" + index + "_plan_s" + week, safe(activity.planCell(week)));
+            row.put("a" + index + "_real_s" + week, safe(activity.realCell(week)));
         }
-        int rowStart = -1;
-        if (markerPos >= 0) {
-            rowStart = xml.lastIndexOf("<w:tr ", markerPos);
-            if (rowStart < 0) {
-                rowStart = xml.lastIndexOf("<w:tr>", markerPos);
-            }
-        }
-        int blockEnd = -1;
-        if (rowStart >= 0) {
-            int rowEnd = xml.indexOf("</w:tr>", rowStart);
-            if (rowEnd >= 0) {
-                blockEnd = rowEnd + "</w:tr>".length();
-            }
-        }
-        String result = xml;
-        if (blockEnd >= 0) {
-            result = buildExpandedDeliverableXml(xml, deliverables, rowStart, blockEnd);
-        }
-        return result;
-    }
-
-    private static String buildExpandedDeliverableXml(String xml, List<ReportDeliverable> deliverables,
-                                                        int rowStart, int blockEnd) {
-        String templateBlock = xml.substring(rowStart, blockEnd);
-        StringBuilder expanded = new StringBuilder();
-        for (int i = 0; i < deliverables.size(); i++) {
-            String newIdx = String.format("%02d", i + 1);
-            String block = templateBlock;
-            boolean notFirstRow = i > 0;
-            if (notFirstRow) {
-                block = block.replace("deliverable_result_01", "deliverable_result_" + newIdx);
-                block = block.replace("dr01_", "dr" + newIdx + "_");
-            }
-            Map<String, String> rowValues = buildDeliverableRowValues(deliverables.get(i), i + 1);
-            block = replaceMarkers(block, rowValues);
-            expanded.append(block);
-        }
-        String prefix = xml.substring(0, rowStart);
-        String suffix = xml.substring(blockEnd);
-        String result = prefix + expanded.toString() + suffix;
-        return result;
-    }
-
-    private static Map<String, String> buildDeliverableRowValues(ReportDeliverable deliverable,
-                                                                   int index) {
-        String key = String.format("%02d", index);
-        Map<String, String> row = new HashMap<>();
-        row.put("deliverable_result_" + key, safe(deliverable.getResultado()));
-        row.put("dr" + key + "_advance", deliverable.getPorcentajeAvance() + "%");
-        row.put("dr" + key + "_observations", safe(deliverable.getObservaciones()));
         return row;
     }
 
@@ -273,7 +237,7 @@ public class FinalReportGenerator {
     private static String buildStoragePath(PartialAndFinalReport report, String matricula) {
         String path = "storage/intern_" + matricula
                 + "/proyecto_" + report.getIdProyect()
-                + "/reports/final_" + report.getIdReport() + ".pdf";
+                + "/reports/partial_" + report.getIdReport() + ".pdf";
         return path;
     }
 
@@ -319,8 +283,10 @@ public class FinalReportGenerator {
 
     private static String escapeXml(String value) {
         String escaped = (value != null) ? value : "";
-        escaped = escaped.replace("&", "&amp;").replace("<", "&lt;")
-                         .replace(">", "&gt;").replace("\"", "&quot;")
+        escaped = escaped.replace("&", "&amp;")
+                         .replace("<", "&lt;")
+                         .replace(">", "&gt;")
+                         .replace("\"", "&quot;")
                          .replace("'", "&apos;");
         return escaped;
     }

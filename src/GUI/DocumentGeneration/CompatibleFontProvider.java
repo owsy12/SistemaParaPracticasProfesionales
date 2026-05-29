@@ -1,4 +1,4 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;

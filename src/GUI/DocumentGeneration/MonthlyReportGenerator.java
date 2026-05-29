@@ -1,6 +1,6 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
-import Logic.DTOs.PartialAndFinalReport;
+import Logic.DTOs.MonthlyReport;
 import Logic.DTOs.ReportActivity;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -14,8 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,20 +25,18 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class PartialReportGenerator {
+public class MonthlyReportGenerator {
 
-    private static final Logger LOGGER = Logger.getLogger(PartialReportGenerator.class.getName());
-    private static final String TEMPLATE = "/GUI/Utils/basedocuments/reporteParcial.docx";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final int WEEKS_COUNT = 8;
-    private static final int ROWS_PER_ACTIVITY = 2;
+    private static final Logger LOGGER = Logger.getLogger(MonthlyReportGenerator.class.getName());
+    private static final String TEMPLATE = "/GUI/DocumentGeneration/basedocuments/reporteMensual.docx";
     private static final Pattern MARKER     = Pattern.compile("\\{\\{([^}]+)}}");
     private static final Pattern TEXT_IN_RUN = Pattern.compile("<w:t[^>]*>([^<]*)</w:t>");
 
-    private PartialReportGenerator() {
+    private MonthlyReportGenerator() {
     }
 
-    public static String generate(PartialAndFinalReport report, ReportGenerationContext context,
+    public static String generate(MonthlyReport report,
+                                   ReportGenerationContext context,
                                    ReportContent content) throws IOException {
         List<ReportActivity> activities = content.getActivities();
         Map<String, String> values = buildValues(report, context);
@@ -50,38 +46,30 @@ public class PartialReportGenerator {
         String storagePath = buildStoragePath(report, context.getMatricula());
         saveFile(pdfBytes, storagePath);
 
-        String fileName = "Reporte_Parcial_" + report.getReportNumber() + ".pdf";
+        String monthLabel = safe(report.getMonth()) + "_" + report.getYear();
+        String fileName = "Reporte_Mensual_" + monthLabel + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;
     }
 
-    private static Map<String, String> buildValues(PartialAndFinalReport report,
-                                                    ReportGenerationContext context) {
+    private static Map<String, String> buildValues(MonthlyReport report, ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
-        values.put("nrc", context.getNrc());
-        values.put("school_term", safe(report.getPeriod()));
+        values.put("reportnumber", String.valueOf(report.getReportNumber()));
+        values.put("month", safe(report.getMonth()) + " " + report.getYear());
+        values.put("report_hours", String.valueOf(report.getMonthlyHours()));
+        values.put("total_hours", String.valueOf(context.getTotalApprovedHours()));
         values.put("intern", context.getInternFullName());
-        values.put("linked_organization", context.getOrganizationName());
-        values.put("project", context.getProjectName());
-        values.put("report_term", safe(report.getPeriod()));
-        values.put("hours", String.valueOf(report.getCoveredHours()));
-        values.put("report_date", LocalDate.now().format(DATE_FORMAT));
-        values.put("report_number", String.valueOf(report.getReportNumber()));
-        values.put("Project_objective", safe(report.getGeneralObjective()));
-        values.put("metodology", safe(report.getMethodology()));
-        values.put("result", safe(report.getObtainedResults()));
-        values.put("observations", safe(report.getObservations()));
-        values.put("name", context.getInternFullName());
+        values.put("block", safe(report.getBlock()));
+        values.put("section", safe(report.getSection()));
         values.put("technician", context.getTechnicianName());
-        values.put("technician_position", context.getTechnicianPosition());
         values.put("profesor", context.getProfessorName());
         return values;
     }
 
     private static byte[] fillTemplate(Map<String, String> values,
                                         List<ReportActivity> activities) throws IOException {
-        InputStream templateStream = PartialReportGenerator.class.getResourceAsStream(TEMPLATE);
+        InputStream templateStream = MonthlyReportGenerator.class.getResourceAsStream(TEMPLATE);
         if (templateStream == null) {
             throw new IOException("Plantilla no encontrada: " + TEMPLATE);
         }
@@ -123,31 +111,14 @@ public class PartialReportGenerator {
         }
         int blockEnd = -1;
         if (rowStart >= 0) {
-            blockEnd = findBlockEnd(xml, rowStart);
+            int rowEnd = xml.indexOf("</w:tr>", rowStart);
+            if (rowEnd >= 0) {
+                blockEnd = rowEnd + "</w:tr>".length();
+            }
         }
         String result = xml;
         if (blockEnd >= 0) {
             result = buildExpandedXml(xml, activities, rowStart, blockEnd);
-        }
-        return result;
-    }
-
-    private static int findBlockEnd(String xml, int rowStart) {
-        int blockEnd = rowStart;
-        boolean allRowsFound = true;
-        for (int rowIndex = 0; rowIndex < ROWS_PER_ACTIVITY; rowIndex++) {
-            if (allRowsFound) {
-                int end = xml.indexOf("</w:tr>", blockEnd);
-                if (end < 0) {
-                    allRowsFound = false;
-                } else {
-                    blockEnd = end + "</w:tr>".length();
-                }
-            }
-        }
-        int result = -1;
-        if (allRowsFound) {
-            result = blockEnd;
         }
         return result;
     }
@@ -162,7 +133,6 @@ public class PartialReportGenerator {
             boolean notFirstRow = i > 0;
             if (notFirstRow) {
                 block = block.replace("activity_01", "activity_" + newIdx);
-                block = block.replace("a1_", "a" + (i + 1) + "_");
             }
             Map<String, String> rowValues = buildRowValues(activities.get(i), i + 1);
             block = replaceMarkers(block, rowValues);
@@ -178,10 +148,8 @@ public class PartialReportGenerator {
         String key = String.format("%02d", index);
         Map<String, String> row = new HashMap<>();
         row.put("activity_" + key, safe(activity.getActivityName()));
-        for (int week = 1; week <= WEEKS_COUNT; week++) {
-            row.put("a" + index + "_plan_s" + week, safe(activity.planCell(week)));
-            row.put("a" + index + "_real_s" + week, safe(activity.realCell(week)));
-        }
+        row.put("activity_" + key + "_period", safe(activity.getPeriodo()));
+        row.put("activity_" + key + "_observations", safe(activity.getObservaciones()));
         return row;
     }
 
@@ -234,10 +202,10 @@ public class PartialReportGenerator {
         return result;
     }
 
-    private static String buildStoragePath(PartialAndFinalReport report, String matricula) {
+    private static String buildStoragePath(MonthlyReport report, String matricula) {
         String path = "storage/intern_" + matricula
                 + "/proyecto_" + report.getIdProyect()
-                + "/reports/partial_" + report.getIdReport() + ".pdf";
+                + "/reports/monthly_" + report.getIdReport() + ".pdf";
         return path;
     }
 

@@ -1,7 +1,8 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
-import Logic.DTOs.MonthlyReport;
+import Logic.DTOs.PartialAndFinalReport;
 import Logic.DTOs.ReportActivity;
+import Logic.DTOs.ReportDeliverable;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
@@ -14,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,51 +28,55 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-public class MonthlyReportGenerator {
+public class FinalReportGenerator {
 
-    private static final Logger LOGGER = Logger.getLogger(MonthlyReportGenerator.class.getName());
-    private static final String TEMPLATE = "/GUI/Utils/basedocuments/reporteMensual.docx";
+    private static final Logger LOGGER = Logger.getLogger(FinalReportGenerator.class.getName());
+    private static final String TEMPLATE = "/GUI/DocumentGeneration/basedocuments/reporteFinal.docx";
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final Pattern MARKER     = Pattern.compile("\\{\\{([^}]+)}}");
     private static final Pattern TEXT_IN_RUN = Pattern.compile("<w:t[^>]*>([^<]*)</w:t>");
 
-    private MonthlyReportGenerator() {
+    private FinalReportGenerator() {
     }
 
-    public static String generate(MonthlyReport report,
-                                   ReportGenerationContext context,
-                                   ReportContent content) throws IOException {
-        List<ReportActivity> activities = content.getActivities();
+    public static String generate(PartialAndFinalReport report, ReportGenerationContext context, ReportContent content) throws IOException {
+        List<ReportActivity>    activities   = content.getActivities();
+        List<ReportDeliverable> deliverables = content.getDeliverables();
         Map<String, String> values = buildValues(report, context);
-        byte[] docxBytes = fillTemplate(values, activities);
+        byte[] docxBytes = fillTemplate(values, content);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
 
         String storagePath = buildStoragePath(report, context.getMatricula());
         saveFile(pdfBytes, storagePath);
 
-        String monthLabel = safe(report.getMonth()) + "_" + report.getYear();
-        String fileName = "Reporte_Mensual_" + monthLabel + ".pdf";
+        String fileName = "Reporte_Final_" + report.getReportNumber() + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;
     }
 
-    private static Map<String, String> buildValues(MonthlyReport report, ReportGenerationContext context) {
+    private static Map<String, String> buildValues(PartialAndFinalReport report,
+                                                    ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
-        values.put("reportnumber", String.valueOf(report.getReportNumber()));
-        values.put("month", safe(report.getMonth()) + " " + report.getYear());
-        values.put("report_hours", String.valueOf(report.getMonthlyHours()));
-        values.put("total_hours", String.valueOf(context.getTotalApprovedHours()));
-        values.put("intern", context.getInternFullName());
-        values.put("block", safe(report.getBlock()));
-        values.put("section", safe(report.getSection()));
+        values.put("nrc", String.valueOf(report.getIdProyect()));
+        values.put("school_term", safe(report.getPeriod()));
+        values.put("name", context.getInternFullName());
+        values.put("organization", context.getOrganizationName());
+        values.put("project", context.getProjectName());
+        values.put("hours", String.valueOf(report.getCoveredHours()));
+        values.put("date", LocalDate.now().format(DATE_FORMAT));
+        values.put("project_objective", safe(report.getGeneralObjective()));
+        values.put("metodology", safe(report.getMethodology()));
+        values.put("observations", safe(report.getObservations()));
         values.put("technician", context.getTechnicianName());
+        values.put("technician_position", context.getTechnicianPosition());
         values.put("profesor", context.getProfessorName());
         return values;
     }
 
     private static byte[] fillTemplate(Map<String, String> values,
-                                        List<ReportActivity> activities) throws IOException {
-        InputStream templateStream = MonthlyReportGenerator.class.getResourceAsStream(TEMPLATE);
+                                        ReportContent content) throws IOException {
+        InputStream templateStream = FinalReportGenerator.class.getResourceAsStream(TEMPLATE);
         if (templateStream == null) {
             throw new IOException("Plantilla no encontrada: " + TEMPLATE);
         }
@@ -84,7 +91,8 @@ public class MonthlyReportGenerator {
                 if ("word/document.xml".equals(entry.getName())) {
                     String xml = new String(data, StandardCharsets.UTF_8);
                     xml = normalizeMarkers(xml);
-                    xml = expandActivityRows(xml, activities);
+                    xml = expandActivityRows(xml, content.getActivities());
+                    xml = expandDeliverableRows(xml, content.getDeliverables());
                     xml = replaceMarkers(xml, values);
                     data = xml.getBytes(StandardCharsets.UTF_8);
                 }
@@ -118,13 +126,13 @@ public class MonthlyReportGenerator {
         }
         String result = xml;
         if (blockEnd >= 0) {
-            result = buildExpandedXml(xml, activities, rowStart, blockEnd);
+            result = buildExpandedActivityXml(xml, activities, rowStart, blockEnd);
         }
         return result;
     }
 
-    private static String buildExpandedXml(String xml, List<ReportActivity> activities,
-                                             int rowStart, int blockEnd) {
+    private static String buildExpandedActivityXml(String xml, List<ReportActivity> activities,
+                                                     int rowStart, int blockEnd) {
         String templateBlock = xml.substring(rowStart, blockEnd);
         StringBuilder expanded = new StringBuilder();
         for (int i = 0; i < activities.size(); i++) {
@@ -133,8 +141,9 @@ public class MonthlyReportGenerator {
             boolean notFirstRow = i > 0;
             if (notFirstRow) {
                 block = block.replace("activity_01", "activity_" + newIdx);
+                block = block.replace("a1_", "a" + (i + 1) + "_");
             }
-            Map<String, String> rowValues = buildRowValues(activities.get(i), i + 1);
+            Map<String, String> rowValues = buildActivityRowValues(activities.get(i), i + 1);
             block = replaceMarkers(block, rowValues);
             expanded.append(block);
         }
@@ -144,12 +153,71 @@ public class MonthlyReportGenerator {
         return result;
     }
 
-    private static Map<String, String> buildRowValues(ReportActivity activity, int index) {
+    private static Map<String, String> buildActivityRowValues(ReportActivity activity, int index) {
         String key = String.format("%02d", index);
         Map<String, String> row = new HashMap<>();
         row.put("activity_" + key, safe(activity.getActivityName()));
-        row.put("activity_" + key + "_period", safe(activity.getPeriodo()));
-        row.put("activity_" + key + "_observations", safe(activity.getObservaciones()));
+        row.put("a" + index + "_advance", activity.getPorcentajeAvance() + "%");
+        row.put("a" + index + "_observations", safe(activity.getObservaciones()));
+        return row;
+    }
+
+    private static String expandDeliverableRows(String xml, List<ReportDeliverable> deliverables) {
+        boolean hasDeliverables = deliverables != null && !deliverables.isEmpty();
+        int markerPos = -1;
+        if (hasDeliverables) {
+            markerPos = xml.indexOf("{{deliverable_result_01}}");
+        }
+        int rowStart = -1;
+        if (markerPos >= 0) {
+            rowStart = xml.lastIndexOf("<w:tr ", markerPos);
+            if (rowStart < 0) {
+                rowStart = xml.lastIndexOf("<w:tr>", markerPos);
+            }
+        }
+        int blockEnd = -1;
+        if (rowStart >= 0) {
+            int rowEnd = xml.indexOf("</w:tr>", rowStart);
+            if (rowEnd >= 0) {
+                blockEnd = rowEnd + "</w:tr>".length();
+            }
+        }
+        String result = xml;
+        if (blockEnd >= 0) {
+            result = buildExpandedDeliverableXml(xml, deliverables, rowStart, blockEnd);
+        }
+        return result;
+    }
+
+    private static String buildExpandedDeliverableXml(String xml, List<ReportDeliverable> deliverables,
+                                                        int rowStart, int blockEnd) {
+        String templateBlock = xml.substring(rowStart, blockEnd);
+        StringBuilder expanded = new StringBuilder();
+        for (int i = 0; i < deliverables.size(); i++) {
+            String newIdx = String.format("%02d", i + 1);
+            String block = templateBlock;
+            boolean notFirstRow = i > 0;
+            if (notFirstRow) {
+                block = block.replace("deliverable_result_01", "deliverable_result_" + newIdx);
+                block = block.replace("dr01_", "dr" + newIdx + "_");
+            }
+            Map<String, String> rowValues = buildDeliverableRowValues(deliverables.get(i), i + 1);
+            block = replaceMarkers(block, rowValues);
+            expanded.append(block);
+        }
+        String prefix = xml.substring(0, rowStart);
+        String suffix = xml.substring(blockEnd);
+        String result = prefix + expanded.toString() + suffix;
+        return result;
+    }
+
+    private static Map<String, String> buildDeliverableRowValues(ReportDeliverable deliverable,
+                                                                   int index) {
+        String key = String.format("%02d", index);
+        Map<String, String> row = new HashMap<>();
+        row.put("deliverable_result_" + key, safe(deliverable.getResultado()));
+        row.put("dr" + key + "_advance", deliverable.getPorcentajeAvance() + "%");
+        row.put("dr" + key + "_observations", safe(deliverable.getObservaciones()));
         return row;
     }
 
@@ -202,10 +270,10 @@ public class MonthlyReportGenerator {
         return result;
     }
 
-    private static String buildStoragePath(MonthlyReport report, String matricula) {
+    private static String buildStoragePath(PartialAndFinalReport report, String matricula) {
         String path = "storage/intern_" + matricula
                 + "/proyecto_" + report.getIdProyect()
-                + "/reports/monthly_" + report.getIdReport() + ".pdf";
+                + "/reports/final_" + report.getIdReport() + ".pdf";
         return path;
     }
 
@@ -251,10 +319,8 @@ public class MonthlyReportGenerator {
 
     private static String escapeXml(String value) {
         String escaped = (value != null) ? value : "";
-        escaped = escaped.replace("&", "&amp;")
-                         .replace("<", "&lt;")
-                         .replace(">", "&gt;")
-                         .replace("\"", "&quot;")
+        escaped = escaped.replace("&", "&amp;").replace("<", "&lt;")
+                         .replace(">", "&gt;").replace("\"", "&quot;")
                          .replace("'", "&apos;");
         return escaped;
     }

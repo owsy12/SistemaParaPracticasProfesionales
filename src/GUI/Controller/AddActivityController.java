@@ -50,7 +50,7 @@ public class AddActivityController {
 
     @FXML
     private void initialize() {
-        setTypeAndLength(nameTextField, "Text");
+        setTypeAndLength(nameTextField, "Name");
         limitTextArea(descriptionTextArea, 255);
         loadProjects();
     }

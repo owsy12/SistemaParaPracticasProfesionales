@@ -2,9 +2,9 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import GUI.Utils.EvaluationPrerequisiteChecker;
-import GUI.Utils.SelfEvaluationGenerator;
-import GUI.Utils.ReportGenerationContext;
-import GUI.Utils.ReportGenerationContextBuilder;
+import GUI.DocumentGeneration.SelfEvaluationGenerator;
+import GUI.DocumentGeneration.ReportGenerationContext;
+import GUI.DocumentGeneration.ReportGenerationContextBuilder;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InternDAO;
 import Logic.DAO.LinkedOrganizationDAO;

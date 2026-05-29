@@ -1,4 +1,4 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;

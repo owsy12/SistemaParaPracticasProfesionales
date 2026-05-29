@@ -1,4 +1,4 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
 import Logic.DTOs.SelfEvaluation;
 import javafx.stage.FileChooser;
@@ -28,7 +28,7 @@ import java.util.zip.ZipOutputStream;
 public class SelfEvaluationGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(SelfEvaluationGenerator.class.getName());
-    private static final String TEMPLATE = "/GUI/Utils/basedocuments/autoevaluacion.docx";
+    private static final String TEMPLATE = "/GUI/DocumentGeneration/basedocuments/autoevaluacion.docx";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final int LIKERT_QUESTIONS = 10;
     private static final int LIKERT_COLUMNS = 5;

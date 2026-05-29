@@ -1,4 +1,4 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
 import Logic.DTOs.ReportActivity;
 import Logic.DTOs.ReportDeliverable;

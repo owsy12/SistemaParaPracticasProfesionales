@@ -1,14 +1,14 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.FinalReportGenerator;
-import GUI.Utils.InternContext;
-import GUI.Utils.InternContextLoader;
-import GUI.Utils.MonthlyReportGenerator;
-import GUI.Utils.PartialReportGenerator;
-import GUI.Utils.ReportContent;
-import GUI.Utils.ReportGenerationContext;
-import GUI.Utils.ReportGenerationContextBuilder;
+import GUI.DocumentGeneration.FinalReportGenerator;
+import GUI.DocumentGeneration.InternContext;
+import GUI.DocumentGeneration.InternContextLoader;
+import GUI.DocumentGeneration.MonthlyReportGenerator;
+import GUI.DocumentGeneration.PartialReportGenerator;
+import GUI.DocumentGeneration.ReportContent;
+import GUI.DocumentGeneration.ReportGenerationContext;
+import GUI.DocumentGeneration.ReportGenerationContextBuilder;
 import Logic.DAO.MonthlyReportDAO;
 import Logic.DAO.PartialAndFinalReportDAO;
 import Logic.DAO.ReportActivityDAO;
