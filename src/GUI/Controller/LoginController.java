@@ -66,14 +66,14 @@ public class LoginController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/GUI/View/GUIAddAdministrator.fxml"));
             Parent root = loader.load();
-            Stage adminStage = new Stage();
-            adminStage.setScene(new Scene(root));
-            adminStage.setTitle("Registrar Administrador");
-            adminStage.initModality(Modality.APPLICATION_MODAL);
-            adminStage.showAndWait();
-        } catch (Exception exception) {
-            showAlert("Error", "Error al abrir el registro de administrador, intente más tarde.",
-                    Alert.AlertType.ERROR);
+            Stage mainStage = new Stage();
+            mainStage.setScene(new Scene(root));
+            mainStage.setTitle("Registrar Administrador");
+            mainStage.show();
+            Stage loginStage = (Stage) userTextField.getScene().getWindow();
+            loginStage.close();
+        } catch (Exception e) {
+            showAlert("Error", "Error al abrir, intente más tarde.", Alert.AlertType.ERROR);
         }
     }
 
