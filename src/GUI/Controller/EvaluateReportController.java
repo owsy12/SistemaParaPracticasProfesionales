@@ -1,12 +1,15 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import Logic.DAO.InternActivityDAO;
+import Logic.DAO.InternDAO;
+import Logic.DAO.ProjectDAO;
+import Logic.DAO.ReportActivityDAO;
 import Logic.DAO.ReportDAO;
-import Logic.DAO.ReportObservationDAO;
-import Logic.DTOs.InternActivity;
+import Logic.DTOs.Intern;
+import Logic.DTOs.Project;
 import Logic.DTOs.Report;
-import Logic.DTOs.ReportObservation;
+import Logic.DTOs.ReportActivity;
+import Logic.DTOs.ReportStatusUpdate;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.value.ChangeListener;
@@ -16,12 +19,22 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,10 +46,16 @@ public class EvaluateReportController {
     private static final Logger LOGGER = Logger.getLogger(EvaluateReportController.class.getName());
 
     @FXML
+    private ComboBox<Project> projectComboBox;
+
+    @FXML
+    private ComboBox<Intern> internComboBox;
+
+    @FXML
     private TableView<Report> reportsTableView;
 
     @FXML
-    private TableColumn<Report, String> internColumn;
+    private TableColumn<Report, String> numColumn;
 
     @FXML
     private TableColumn<Report, String> typeColumn;
@@ -63,68 +82,48 @@ public class EvaluateReportController {
     private Label signedPathLabel;
 
     @FXML
-    private TableView<InternActivity> activitiesTableView;
+    private TableView<ReportActivity> activitiesTableView;
 
     @FXML
-    private TableColumn<InternActivity, String> actNameColumn;
+    private TableColumn<ReportActivity, String> actNameColumn;
 
     @FXML
-    private TableColumn<InternActivity, String> actHoursColumn;
+    private TableColumn<ReportActivity, String> actPeriodColumn;
 
     @FXML
-    private TableColumn<InternActivity, String> actStatusColumn;
-
-    @FXML
-    private TableColumn<InternActivity, String> actObsColumn;
+    private TableColumn<ReportActivity, String> actObsColumn;
 
     @FXML
     private TextArea observationsTextArea;
 
     @FXML
-    private Button approveButton;
-
-    @FXML
     private Button rejectButton;
-
-    @FXML
-    private Button requestCorrectionButton;
 
     @FXML
     private Button markInReviewButton;
 
     private Report selectedReport;
+    private int currentProfessorId;
 
     @FXML
     private void initialize() {
+        currentProfessorId = SessionManager.getInstance().getUsuario().getId();
         configureListeners();
-        loadProfessorReports();
-    }
-
-    @FXML
-    public void approveReport(ActionEvent actionEvent) {
-        boolean isReportMissing = selectedReport == null;
-        boolean isStatusInvalid = selectedReport != null
-                && !"Entregado".equals(selectedReport.getStatus())
-                && !"Pendiente".equals(selectedReport.getStatus());
-
-        if (isReportMissing) {
-            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
-        } else if (isStatusInvalid) {
-            showAlert("Estado inválido",
-                    "Solo puede aprobar reportes en estado Pendiente o Entregado.",
-                    Alert.AlertType.WARNING);
-        } else {
-            updateReportStatus("Aprobado");
-        }
+        loadProjects();
     }
 
     @FXML
     public void rejectReport(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
+        boolean isStatusInvalid = selectedReport != null
+                && !"En revision".equals(selectedReport.getStatus());
         boolean isObservationEmpty = observationsTextArea.getText().isBlank();
 
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
+        } else if (isStatusInvalid) {
+            showAlert("Estado inválido", "Solo puede rechazar reportes en estado En revision.",
+                    Alert.AlertType.WARNING);
         } else if (isObservationEmpty) {
             showAlert("Observación requerida",
                     "Ingrese el motivo del rechazo en el campo de observaciones.",
@@ -135,27 +134,19 @@ public class EvaluateReportController {
     }
 
     @FXML
-    public void requestCorrection(ActionEvent actionEvent) {
+    public void markInReview(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean isObservationEmpty = observationsTextArea.getText().isBlank();
+        boolean isStatusInvalid = selectedReport != null
+                && !"En revision".equals(selectedReport.getStatus());
 
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
-        } else if (isObservationEmpty) {
-            showAlert("Observación requerida",
-                    "Ingrese las correcciones requeridas en el campo de observaciones.",
+        } else if (isStatusInvalid) {
+            showAlert("Estado inválido",
+                    "Solo puede evaluar reportes en estado En revision.",
                     Alert.AlertType.WARNING);
         } else {
-            updateReportStatus("Corrección solicitada");
-        }
-    }
-
-    @FXML
-    public void markInReview(ActionEvent actionEvent) {
-        if (selectedReport == null) {
-            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
-        } else {
-            updateReportStatus("En revisión");
+            updateReportStatus("Evaluado");
         }
     }
 
@@ -164,77 +155,211 @@ public class EvaluateReportController {
         clearForm();
     }
 
-    private void configureListeners() {
-        reportsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ReportSelectionListener());
+    @FXML
+    public void openDocument(ActionEvent actionEvent) {
+        boolean isReportMissing = selectedReport == null;
+        boolean hasNoDocument = selectedReport != null
+                && (selectedReport.getDocumentPath() == null
+                    || selectedReport.getDocumentPath().isBlank());
+
+        if (isReportMissing) {
+            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
+        } else if (hasNoDocument) {
+            showAlert("Sin documento",
+                    "Este reporte no tiene un documento generado.", Alert.AlertType.WARNING);
+        } else {
+            tryOpenFile(selectedReport.getDocumentPath());
+        }
     }
 
-    private final class ReportSelectionListener implements ChangeListener<Report> {
-        @Override
-        public void changed(ObservableValue<? extends Report> observable,
-                            Report oldValue, Report newValue) {
-            if (newValue != null) {
-                selectedReport = newValue;
-                populateReportDetail(newValue);
-                loadActivitiesForReport(newValue);
+    @FXML
+    public void saveDocumentCopy(ActionEvent actionEvent) {
+        boolean isReportMissing = selectedReport == null;
+        boolean hasNoDocument = selectedReport != null
+                && (selectedReport.getDocumentPath() == null
+                    || selectedReport.getDocumentPath().isBlank());
+
+        if (isReportMissing) {
+            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
+        } else if (hasNoDocument) {
+            showAlert("Sin documento",
+                    "Este reporte no tiene un documento generado.", Alert.AlertType.WARNING);
+        } else {
+            trySaveFileCopy(selectedReport.getDocumentPath());
+        }
+    }
+
+    @FXML
+    public void openSignedDocument(ActionEvent actionEvent) {
+        boolean isReportMissing = selectedReport == null;
+        boolean hasNoSigned = selectedReport != null
+                && (selectedReport.getSignedDocumentPath() == null
+                    || selectedReport.getSignedDocumentPath().isBlank());
+
+        if (isReportMissing) {
+            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
+        } else if (hasNoSigned) {
+            showAlert("Sin documento firmado",
+                    "Este reporte no tiene un documento firmado.", Alert.AlertType.WARNING);
+        } else {
+            tryOpenFile(selectedReport.getSignedDocumentPath());
+        }
+    }
+
+    @FXML
+    public void saveSignedCopy(ActionEvent actionEvent) {
+        boolean isReportMissing = selectedReport == null;
+        boolean hasNoSigned = selectedReport != null
+                && (selectedReport.getSignedDocumentPath() == null
+                    || selectedReport.getSignedDocumentPath().isBlank());
+
+        if (isReportMissing) {
+            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
+        } else if (hasNoSigned) {
+            showAlert("Sin documento firmado",
+                    "Este reporte no tiene un documento firmado.", Alert.AlertType.WARNING);
+        } else {
+            trySaveFileCopy(selectedReport.getSignedDocumentPath());
+        }
+    }
+
+    private void tryOpenFile(String filePath) {
+        File file = new File(filePath);
+        boolean fileExists = file.exists();
+        if (!fileExists) {
+            showAlert("Archivo no encontrado", "El documento no fue encontrado en: " + filePath,
+                    Alert.AlertType.WARNING);
+        } else {
+            try {
+                Desktop.getDesktop().open(file);
+            } catch (IOException ioException) {
+                LOGGER.log(Level.SEVERE, "Error al abrir documento: {0}", ioException.getMessage());
+                showAlert("Error al abrir", "No se pudo abrir el documento con el visor predeterminado.",
+                        Alert.AlertType.ERROR);
             }
         }
     }
 
-    private void loadProfessorReports() {
+    private void trySaveFileCopy(String filePath) {
+        File sourceFile = new File(filePath);
+        boolean fileExists = sourceFile.exists();
+        if (!fileExists) {
+            showAlert("Archivo no encontrado",
+                    "El documento no fue encontrado en: " + filePath,
+                    Alert.AlertType.WARNING);
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar copia del reporte");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+        fileChooser.setInitialFileName(sourceFile.getName());
+
+        File destination = fileChooser.showSaveDialog(rejectButton.getScene().getWindow());
+        boolean destinationSelected = destination != null;
+        if (destinationSelected) {
+            try {
+                Files.copy(sourceFile.toPath(), destination.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING);
+                showAlert("Guardado",
+                        "Documento guardado correctamente en: " + destination.getAbsolutePath(),
+                        Alert.AlertType.INFORMATION);
+            } catch (IOException ioException) {
+                LOGGER.log(Level.SEVERE, "Error al guardar copia: {0}", ioException.getMessage());
+                showAlert("Error al guardar",
+                        "No se pudo guardar la copia del documento.", Alert.AlertType.ERROR);
+            }
+        }
+    }
+
+    private void configureListeners() {
+        projectComboBox.getSelectionModel().selectedItemProperty()
+                .addListener(new ProjectSelectionListener());
+        internComboBox.getSelectionModel().selectedItemProperty()
+                .addListener(new InternSelectionListener());
+        reportsTableView.getSelectionModel().selectedItemProperty()
+                .addListener(new ReportSelectionListener());
+        internComboBox.setConverter(new InternStringConverter());
+    }
+
+    private void loadProjects() {
         try {
-            int professorId = SessionManager.getInstance().getUsuario().getId();
-            ReportDAO reportDAO = new ReportDAO();
-            List<Report> reports = reportDAO.getByIdProfessor(professorId);
-            reportsTableView.setItems(FXCollections.observableArrayList(reports));
+            ProjectDAO projectDAO = new ProjectDAO();
+            List<Project> allProjects = projectDAO.findAll();
+            List<Project> professorProjects = new ArrayList<>();
+
+            for (Project project : allProjects) {
+                if (project.getIdProfessor() == currentProfessorId) {
+                    professorProjects.add(project);
+                }
+            }
+
+            projectComboBox.setItems(FXCollections.observableArrayList(professorProjects));
+            internComboBox.setDisable(true);
+
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar proyectos del profesor {0}: {1}",
+                    new Object[]{currentProfessorId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los proyectos. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private void loadInternsForProject(Project project) {
+        try {
+            InternDAO internDAO = new InternDAO();
+            List<Intern> interns = internDAO.findByProject(project.getIdProyect());
+            internComboBox.setItems(FXCollections.observableArrayList(interns));
+            internComboBox.setDisable(false);
+            reportsTableView.getItems().clear();
+            clearForm();
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar reportes del profesor: {0}",
-                    serviceException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error al cargar practicantes del proyecto {0}: {1}",
+                    new Object[]{project.getIdProyect(), serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudieron cargar los practicantes. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private void loadReportsForIntern(Intern intern) {
+        try {
+            ReportDAO reportDAO = new ReportDAO();
+            List<Report> allReports = reportDAO.getByInternAndProfessor(
+                    intern.getId(), currentProfessorId);
+
+            List<Report> evaluableReports = new ArrayList<>();
+            for (Report report : allReports) {
+                boolean isInReview = "En revision".equals(report.getStatus());
+                if (isInReview) {
+                    evaluableReports.add(report);
+                }
+            }
+
+            reportsTableView.setItems(FXCollections.observableArrayList(evaluableReports));
+            clearForm();
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    validationException.getMessage(), Alert.AlertType.ERROR);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar reportes del practicante {0}: {1}",
+                    new Object[]{intern.getId(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los reportes. Intente más tarde.",
                     Alert.AlertType.ERROR);
         }
     }
 
-    private void populateReportDetail(Report report) {
-        String tardyIndicator = "";
-        if (report.isEntregaTardia()) {
-            tardyIndicator = "  ENTREGA TARDÍA";
-        }
-
-        reportDetailLabel.setText(
-                "Tipo: " + report.getReportType()
-                + "  |  Período: " + report.getPeriod()
-                + "  |  Horas: " + report.getReportedHours()
-                + "  |  Estado: " + report.getStatus()
-                + tardyIndicator);
-
-        String documentPathText = "—";
-        if (report.getDocumentPath() != null) {
-            documentPathText = report.getDocumentPath();
-        }
-        documentPathLabel.setText(documentPathText);
-
-        String signedPathText = "—";
-        if (report.getSignedDocumentPath() != null) {
-            signedPathText = report.getSignedDocumentPath();
-        }
-        signedPathLabel.setText(signedPathText);
-
-        if (report.getProfessorObservations() != null) {
-            observationsTextArea.setText(report.getProfessorObservations());
-        }
-    }
-
     private void loadActivitiesForReport(Report report) {
         try {
-            InternActivityDAO internActivityDAO = new InternActivityDAO();
-            List<InternActivity> activities =
-                    internActivityDAO.findByInternAndProject(
-                            report.getIdIntern(), report.getIdProyect());
+            ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
+            List<ReportActivity> activities =
+                    reportActivityDAO.findByReport(report.getIdReport());
             activitiesTableView.setItems(FXCollections.observableArrayList(activities));
         } catch (ValidationException validationException) {
             LOGGER.log(Level.SEVERE, "Error de validación al cargar actividades: {0}",
@@ -250,23 +375,24 @@ public class EvaluateReportController {
         try {
             ReportDAO reportDAO = new ReportDAO();
             String observations = observationsTextArea.getText().trim();
-            java.sql.Date reviewDate = java.sql.Date.valueOf(LocalDate.now());
+            Date reviewDate = Date.valueOf(LocalDate.now());
 
             String observationsToSave = null;
-            if (!observations.isEmpty()) {
+            boolean hasObservations = !observations.isEmpty();
+            if (hasObservations) {
                 observationsToSave = observations;
             }
 
-            boolean updated = reportDAO.updateStatus(
-                    selectedReport.getIdReport(), newStatus, observationsToSave, reviewDate);
+            ReportStatusUpdate statusUpdate = new ReportStatusUpdate(newStatus, observationsToSave, reviewDate);
+            boolean updated = reportDAO.updateStatus(selectedReport.getIdReport(), statusUpdate);
 
             if (updated) {
-                if (!observations.isEmpty()) {
-                    saveObservationRecord(observations);
-                }
                 String message = buildStatusMessage(newStatus);
                 showAlert("Estado actualizado", message, Alert.AlertType.INFORMATION);
-                loadProfessorReports();
+                Intern currentIntern = internComboBox.getValue();
+                if (currentIntern != null) {
+                    loadReportsForIntern(currentIntern);
+                }
                 clearForm();
             } else {
                 showAlert("Error", "No se pudo actualizar el estado del reporte.",
@@ -286,9 +412,44 @@ public class EvaluateReportController {
         }
     }
 
+    private void populateReportDetail(Report report) {
+        String tardyIndicator = "";
+        boolean isTardy = report.isEntregaTardia();
+        if (isTardy) {
+            tardyIndicator = "  ENTREGA TARDÍA";
+        }
+
+        String detailText = "Tipo: " + report.getReportType()
+                + "  |  Período: " + report.getPeriod()
+                + "  |  Horas: " + report.getReportedHours()
+                + "  |  Estado: " + report.getStatus()
+                + tardyIndicator;
+        reportDetailLabel.setText(detailText);
+
+        String documentPathText = "—";
+        boolean hasDocumentPath = report.getDocumentPath() != null
+                && !report.getDocumentPath().isBlank();
+        if (hasDocumentPath) {
+            documentPathText = report.getDocumentPath();
+        }
+        documentPathLabel.setText(documentPathText);
+
+        String signedPathText = "—";
+        boolean hasSignedPath = report.getSignedDocumentPath() != null
+                && !report.getSignedDocumentPath().isBlank();
+        if (hasSignedPath) {
+            signedPathText = report.getSignedDocumentPath();
+        }
+        signedPathLabel.setText(signedPathText);
+
+        boolean hasProfessorObservations = report.getProfessorObservations() != null;
+        if (hasProfessorObservations) {
+            observationsTextArea.setText(report.getProfessorObservations());
+        }
+    }
+
     private String buildStatusMessage(String status) {
         String message;
-
         switch (status) {
             case "Aprobado":
                 message = "Reporte aprobado. Las horas han sido validadas.";
@@ -296,43 +457,73 @@ public class EvaluateReportController {
             case "Rechazado":
                 message = "Reporte rechazado.";
                 break;
-            case "Corrección solicitada":
-                message = "Se ha solicitado corrección al practicante.";
-                break;
-            case "En revisión":
-                message = "El reporte ha sido marcado como en revisión.";
+            case "Evaluado":
+                message = "Reporte evaluado. Las horas han sido contabilizadas.";
                 break;
             default:
                 message = "Estado actualizado a: " + status;
         }
-
         return message;
-    }
-
-    private void saveObservationRecord(String comment) {
-        try {
-            int professorId = SessionManager.getInstance().getUsuario().getId();
-            ReportObservation observation = new ReportObservation();
-            observation.setIdReport(selectedReport.getIdReport());
-            observation.setIdProfessor(professorId);
-            observation.setComment(comment);
-
-            ReportObservationDAO observationDAO = new ReportObservationDAO();
-            observationDAO.save(observation);
-        } catch (ValidationException | ServiceException observationException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar observación del reporte: {0}",
-                    observationException.getMessage());
-        }
     }
 
     private void clearForm() {
         selectedReport = null;
         reportDetailLabel.setText("");
-        documentPathLabel.setText("");
-        signedPathLabel.setText("");
+        documentPathLabel.setText("—");
+        signedPathLabel.setText("—");
         observationsTextArea.clear();
         activitiesTableView.getItems().clear();
         reportsTableView.getSelectionModel().clearSelection();
+    }
+
+    private final class ProjectSelectionListener implements ChangeListener<Project> {
+        @Override
+        public void changed(ObservableValue<? extends Project> observable,
+                            Project oldValue, Project newValue) {
+            if (newValue != null) {
+                loadInternsForProject(newValue);
+            }
+        }
+    }
+
+    private final class InternSelectionListener implements ChangeListener<Intern> {
+        @Override
+        public void changed(ObservableValue<? extends Intern> observable,
+                            Intern oldValue, Intern newValue) {
+            if (newValue != null) {
+                loadReportsForIntern(newValue);
+            }
+        }
+    }
+
+    private final class ReportSelectionListener implements ChangeListener<Report> {
+        @Override
+        public void changed(ObservableValue<? extends Report> observable,
+                            Report oldValue, Report newValue) {
+            if (newValue != null) {
+                selectedReport = newValue;
+                populateReportDetail(newValue);
+                loadActivitiesForReport(newValue);
+            }
+        }
+    }
+
+    private final class InternStringConverter extends StringConverter<Intern> {
+        @Override
+        public String toString(Intern intern) {
+            String result = "";
+            boolean hasIntern = intern != null;
+            if (hasIntern) {
+                result = intern.getFirstName() + " " + intern.getLastName() + " " + intern.getSecondLastName();
+            }
+            return result;
+        }
+
+        @Override
+        public Intern fromString(String string) {
+            Intern result = null;
+            return result;
+        }
     }
 
 }

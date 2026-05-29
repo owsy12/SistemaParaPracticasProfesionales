@@ -1,5 +1,6 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.ActivityDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Activity;
@@ -14,15 +15,16 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
+import javafx.scene.control.ButtonType;
+import java.util.Optional;
 
 public class AddActivityController {
 
@@ -53,13 +55,21 @@ public class AddActivityController {
 
     @FXML
     public void saveActivity(ActionEvent actionEvent) {
-        if (isInputInvalid()) {
+        boolean isInvalid = isInputInvalid();
+        boolean areDatesWrong = areDatesInvalid();
+        boolean areDatesOutsideProject = areDatesOutsideProjectRange();
+
+        if (isInvalid) {
             showAlert("Campos incompletos",
                     "Complete todos los campos requeridos antes de guardar.",
                     Alert.AlertType.WARNING);
-        } else if (areDatesInvalid()) {
+        } else if (areDatesWrong) {
             showAlert("Fechas inválidas",
                     "La fecha de entrega debe ser posterior a la fecha de inicio.",
+                    Alert.AlertType.WARNING);
+        } else if (areDatesOutsideProject) {
+            showAlert("Fechas fuera del rango del proyecto",
+                    "Las fechas de la actividad deben estar dentro del período del proyecto.",
                     Alert.AlertType.WARNING);
         } else {
             saveProcess();
@@ -68,7 +78,15 @@ public class AddActivityController {
 
     @FXML
     public void cancelAction(ActionEvent actionEvent) {
-        openWelcomePage(anchorPane);
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los datos ingresados no se guardarán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            clearForm();
+            openWelcomePage(anchorPane);
+        }
     }
 
     public void setProject(Project project) {
@@ -123,13 +141,16 @@ public class AddActivityController {
 
     private void loadProjects() {
         try {
+            int professorId = SessionManager.getInstance().getUsuario().getId();
             ProjectDAO projectDAO = new ProjectDAO();
-            List<Project> projects = projectDAO.findAll();
-
+            List<Project> projects = projectDAO.findByProfessorAvailable(professorId);
             projectComboBox.getItems().setAll(projects);
 
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
+                    Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar proyectos: {0}",
+            LOGGER.log(Level.SEVERE, "Error al cargar proyectos del profesor: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los proyectos. Intente más tarde.",
@@ -150,6 +171,23 @@ public class AddActivityController {
         boolean bothProvided = inicio != null && fin != null;
         boolean invalid = bothProvided && !fin.isAfter(inicio);
         return invalid;
+    }
+
+    private boolean areDatesOutsideProjectRange() {
+        Project project = projectComboBox.getValue();
+        LocalDate inicio = fechaInicioPicker.getValue();
+        LocalDate fin = fechaFinPicker.getValue();
+
+        boolean hasProjectStart = project != null && project.getStartDate() != null;
+        boolean hasProjectEnd = project != null && project.getEndDate() != null;
+
+        boolean startBeforeProject = hasProjectStart && inicio != null
+                && inicio.isBefore(project.getStartDate());
+        boolean endAfterProject = hasProjectEnd && fin != null
+                && fin.isAfter(project.getEndDate());
+
+        boolean isOutOfRange = startBeforeProject || endAfterProject;
+        return isOutOfRange;
     }
 
     private void clearForm() {

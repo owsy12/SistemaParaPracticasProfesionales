@@ -2,28 +2,27 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.ApplicationDAO;
-import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InternDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Application;
-import Logic.DTOs.Assignment;
 import Logic.DTOs.Intern;
+import Logic.DTOs.Practice;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static GUI.Utils.Alert.showAlert;
@@ -38,49 +37,74 @@ public class RequestProjectController {
     public AnchorPane anchorPane;
 
     @FXML
-    private TableColumn<Project, String> endDateColumn;
+    private TableView<Project> availableTableView;
 
     @FXML
-    private TableColumn<Project, String> nameColumn;
+    private TableView<Project> selectedTableView;
 
     @FXML
-    private TableColumn<Project, String> startDateColumn;
+    private Label selectedCountLabel;
 
-    @FXML
-    private TableColumn<Project, String> placesColumn;
-
-    @FXML
-    private TableColumn<Project, String> organizationColumn;
-
-    @FXML
-    private TableColumn<Project, String> descriptionColumn;
-
-    @FXML
-    private TableView<Project> projectsTableView;
-
-    @FXML
-    private TableColumn<Project, String> nrcColumn;
+    private final ObservableList<Project> availableProjects = FXCollections.observableArrayList();
+    private final ObservableList<Project> selectedProjects = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
+        availableTableView.setItems(availableProjects);
+        selectedTableView.setItems(selectedProjects);
         verifyActiveInternProjectApplication();
     }
 
     @FXML
-    public void projectSelectionListButton(ActionEvent actionEvent) {
-        ObservableList<Project> selectedItems =
-                projectsTableView.getSelectionModel().getSelectedItems();
+    public void addToSelection(ActionEvent actionEvent) {
+        Project project = availableTableView.getSelectionModel().getSelectedItem();
+        boolean isNotSelected = project == null;
+        if (isNotSelected) {
+            showAlert("Sin selección", "Seleccione un proyecto de la lista izquierda para agregar.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+        boolean isLimitReached = selectedProjects.size() >= SELECTION_LIMIT;
+        if (isLimitReached) {
+            showAlert("Límite alcanzado",
+                    "Ya seleccionó 3 proyectos. Quite uno antes de agregar otro.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+        project.setSelectionOrder(selectedProjects.size() + 1);
+        availableProjects.remove(project);
+        selectedProjects.add(project);
+        updateCountLabel();
+    }
 
-        boolean hasRequiredSelections = selectedItems.size() == SELECTION_LIMIT;
+    @FXML
+    public void removeFromSelection(ActionEvent actionEvent) {
+        Project project = selectedTableView.getSelectionModel().getSelectedItem();
+        boolean isNotSelected = project == null;
+        if (isNotSelected) {
+            showAlert("Sin selección", "Seleccione un proyecto de la lista derecha para quitar.",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+        project.setSelectionOrder(0);
+        selectedProjects.remove(project);
+        availableProjects.add(project);
+        reorderSelectionNumbers();
+        updateCountLabel();
+    }
+
+    @FXML
+    public void projectSelectionListButton(ActionEvent actionEvent) {
+        boolean hasRequiredSelections = selectedProjects.size() == SELECTION_LIMIT;
         if (hasRequiredSelections) {
-            viewProjectSelections(new ArrayList<>(selectedItems));
+            viewProjectSelections(selectedProjects);
         } else {
-            showAlert("Advertencia", "Verifique su selección, debe seleccionar 3 proyectos.",
+            showAlert("Advertencia", "Debe seleccionar exactamente 3 proyectos.",
                     Alert.AlertType.WARNING);
         }
     }
 
-    private void viewProjectSelections(List<Project> projectList) {
+    private void viewProjectSelections(ObservableList<Project> projectList) {
         try {
             openViewProjectSelection(projectList);
         } catch (IllegalStateException illegalStateException) {
@@ -89,29 +113,58 @@ public class RequestProjectController {
         }
     }
 
+    private void updateCountLabel() {
+        selectedCountLabel.setText("Mis selecciones (" + selectedProjects.size() + " / " + SELECTION_LIMIT + "):");
+    }
+
+    private void reorderSelectionNumbers() {
+        for (int i = 0; i < selectedProjects.size(); i++) {
+            selectedProjects.get(i).setSelectionOrder(i + 1);
+        }
+        selectedTableView.refresh();
+    }
+
     private void verifyActiveInternProjectApplication() {
         try {
-            InternDAO internDAO = new InternDAO();
-            AssignmentDAO assignmentDAO = new AssignmentDAO();
-            ApplicationDAO applicationDAO = new ApplicationDAO();
             int currentUserId = SessionManager.getInstance().getUsuario().getId();
 
-            Application application = applicationDAO.findActiveApplicationByIntern(currentUserId);
-            Assignment assignment = assignmentDAO.getActiveByIdIntern(currentUserId);
+            PracticeDAO practiceDAO = new PracticeDAO();
+            boolean hasConcluded = practiceDAO.hasConcludedPractice(currentUserId);
+            Practice activePractice = practiceDAO.findActiveByIntern(currentUserId);
+
+            ApplicationDAO applicationDAO = new ApplicationDAO();
+            Application pendingApplication = applicationDAO.findActiveApplicationByIntern(currentUserId);
+
+            InternDAO internDAO = new InternDAO();
             Intern intern = internDAO.findById(currentUserId);
-
             boolean hasEnoughCredits = intern.getCredits() > MINIMUM_NUMBER_OF_CREDITS_REQUIRED;
-            boolean hasNoAssignment = assignment == null;
-            boolean hasNoApplication = application == null;
-            boolean canRequest = hasEnoughCredits && hasNoAssignment && hasNoApplication;
 
-            if (canRequest) {
-                allowRequest();
-            } else {
-                showAlert("Advertencia",
-                        "No cumple con los requisitos para poder crear una solicitud.",
+            boolean hasConcludedPractice = hasConcluded;
+            boolean hasActivePractice = activePractice != null;
+            boolean hasPendingApplication = pendingApplication != null;
+
+            if (hasConcludedPractice) {
+                showAlert("Práctica concluida",
+                        "Ya concluyó una práctica profesional y no puede volver a solicitar.",
+                        Alert.AlertType.INFORMATION);
+                openWelcomePage(anchorPane);
+            } else if (hasActivePractice) {
+                showAlert("Práctica activa",
+                        "Ya cuenta con una práctica activa.",
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
+            } else if (hasPendingApplication) {
+                showAlert("Solicitud pendiente",
+                        "Ya cuenta con una solicitud pendiente.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else if (!hasEnoughCredits) {
+                showAlert("Créditos insuficientes",
+                        "No cuenta con los créditos suficientes para solicitar una práctica profesional.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else {
+                loadProjects();
             }
 
         } catch (ServiceException serviceException) {
@@ -120,23 +173,6 @@ public class RequestProjectController {
         } catch (ValidationException validationException) {
             showAlert("Error", "No se logró encontrar su usuario.",
                     Alert.AlertType.ERROR);
-        }
-    }
-
-    private void allowRequest() throws ServiceException {
-        ApplicationDAO applicationDAO = new ApplicationDAO();
-        int currentUserId = SessionManager.getInstance().getUsuario().getId();
-        Application application = applicationDAO.findByIntern(currentUserId);
-
-        boolean hasPendingApplication =
-                application != null && "Pendiente".equals(application.getStatus());
-
-        if (!hasPendingApplication) {
-            configureTable();
-        } else {
-            showAlert("Advertencia", "Usted ya tiene una solicitud pendiente.",
-                    Alert.AlertType.WARNING);
-            openWelcomePage(anchorPane);
         }
     }
 
@@ -154,16 +190,11 @@ public class RequestProjectController {
         }
     }
 
-    private void configureTable() {
-        projectsTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        loadProjects();
-    }
-
     private void loadProjects() {
         try {
             ProjectDAO projectDAO = new ProjectDAO();
             List<Project> projectList = projectDAO.findAllAvailable();
-            projectsTableView.getItems().setAll(projectList);
+            availableProjects.setAll(projectList);
         } catch (ServiceException serviceException) {
             showAlert("Error", "No se logró cargar los proyectos.",
                     Alert.AlertType.ERROR);

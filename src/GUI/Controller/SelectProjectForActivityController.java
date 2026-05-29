@@ -1,8 +1,10 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
+import Logic.Exceptions.ValidationException;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -17,7 +19,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -71,31 +72,17 @@ public class SelectProjectForActivityController {
                 .addListener(new ProjectSelectionListener());
     }
 
-    private final class ProjectSelectionListener implements ChangeListener<Project> {
-        @Override
-        public void changed(ObservableValue<? extends Project> observable,
-                            Project oldValue, Project newValue) {
-            boolean hasSelection = newValue != null;
-            addActivityButton.setDisable(!hasSelection);
-            manageActivitiesButton.setDisable(!hasSelection);
-        }
-    }
-
     private void loadProjects() {
         try {
+            int professorId = SessionManager.getInstance().getUsuario().getId();
             ProjectDAO projectDAO = new ProjectDAO();
-            List<Project> allProjects = projectDAO.findAll();
-            List<Project> activeProjects = new ArrayList<>();
-
-            for (Project projectItem : allProjects) {
-                if (!"Cancelado".equals(projectItem.getStatus())) {
-                    activeProjects.add(projectItem);
-                }
-            }
-
-            projectsTable.setItems(FXCollections.observableArrayList(activeProjects));
+            List<Project> projects = projectDAO.findByProfessorAvailable(professorId);
+            projectsTable.setItems(FXCollections.observableArrayList(projects));
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
+                    Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar proyectos: {0}",
+            LOGGER.log(Level.SEVERE, "Error al cargar proyectos del profesor: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los proyectos. Intente más tarde.",
@@ -139,5 +126,14 @@ public class SelectProjectForActivityController {
         }
     }
 
+    private final class ProjectSelectionListener implements ChangeListener<Project> {
+        @Override
+        public void changed(ObservableValue<? extends Project> observable,
+                            Project oldValue, Project newValue) {
+            boolean hasSelection = newValue != null;
+            addActivityButton.setDisable(!hasSelection);
+            manageActivitiesButton.setDisable(!hasSelection);
+        }
+    }
 
 }

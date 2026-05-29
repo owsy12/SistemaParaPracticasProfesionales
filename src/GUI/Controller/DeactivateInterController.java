@@ -63,7 +63,7 @@ public class DeactivateInterController {
                 && confirmationResponse.get() == ButtonType.OK;
         if (isUserConfirmed) {
             inactiveProcess(selectedUser);
-            internsTableView.refresh();
+            loadActiveInterns();
         }
     }
 

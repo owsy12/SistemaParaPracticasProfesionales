@@ -12,5 +12,6 @@ public interface IApplicationDAO {
     List<Application> findAll() throws ServiceException, ValidationException;
     List<Application> findByStatus(String status) throws ServiceException, ValidationException;
     boolean updateStatus(int applicationId, String status) throws ServiceException, ValidationException;
-    Application findActiveApplicationByIntern(int interID) throws ServiceException;
+    Application findActiveApplicationByIntern(int internId) throws ServiceException;
+    boolean cancelAcceptedByIntern(int internId) throws ServiceException, ValidationException;
 }

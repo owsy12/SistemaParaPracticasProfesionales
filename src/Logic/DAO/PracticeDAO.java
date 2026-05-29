@@ -25,11 +25,11 @@ public class PracticeDAO implements IPracticeDAO {
     private static final String DEFAULT_STATUS = "Activa";
 
     private static final String SQL_INSERT =
-            "INSERT INTO practica (nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion, id_proyecto) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "INSERT INTO practica (nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_SELECT_COLUMNS =
-            "SELECT id_practica, nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion, id_proyecto ";
+            "SELECT id_practica, nrc, id_practicante, fecha_inicio, fecha_fin, estado, calificacion ";
 
     private static final String SQL_SELECT_BY_ID =
             SQL_SELECT_COLUMNS + "FROM practica WHERE id_practica = ?";
@@ -40,9 +40,26 @@ public class PracticeDAO implements IPracticeDAO {
     private static final String SQL_SELECT_BY_INTERN =
             SQL_SELECT_COLUMNS + "FROM practica WHERE id_practicante = ?";
 
+    private static final String SQL_SELECT_ACTIVE_BY_INTERN =
+            SQL_SELECT_COLUMNS +
+            "FROM practica WHERE id_practicante = ? AND estado = 'Activa' LIMIT 1";
+
+    private static final String SQL_HAS_CONCLUDED =
+            "SELECT COUNT(*) AS total FROM practica WHERE id_practicante = ? AND estado = 'Concluida'";
+
+    private static final String SQL_CANCEL_BY_INTERN_AND_PROJECT =
+            "UPDATE practica p " +
+            "INNER JOIN proyecto pr ON p.nrc = pr.nrc " +
+            "SET p.estado = 'Cancelada' " +
+            "WHERE p.id_practicante = ? AND pr.id_proyecto = ? AND p.estado = 'Activa'";
+
+    private static final String SQL_REACTIVATE_CANCELLED =
+            "UPDATE practica SET estado = 'Activa', fecha_inicio = ? " +
+            "WHERE id_practicante = ? AND nrc = ? AND estado = 'Cancelada' LIMIT 1";
+
     private static final String SQL_UPDATE =
             "UPDATE practica SET nrc = ?, id_practicante = ?, fecha_inicio = ?, " +
-                    "fecha_fin = ?, estado = ?, calificacion = ?, id_proyecto = ? WHERE id_practica = ?";
+                    "fecha_fin = ?, estado = ?, calificacion = ? WHERE id_practica = ?";
 
     private static final String SQL_DELETE =
             "DELETE FROM practica WHERE id_practica = ?";
@@ -63,11 +80,6 @@ public class PracticeDAO implements IPracticeDAO {
             statement.setString(5, DEFAULT_STATUS);
             statement.setBigDecimal(6, practice.getGrade() != null
                     ? java.math.BigDecimal.valueOf(practice.getGrade()) : null);
-            if (practice.getIdProject() != null) {
-                statement.setInt(7, practice.getIdProject());
-            } else {
-                statement.setNull(7, java.sql.Types.INTEGER);
-            }
 
             if (statement.executeUpdate() > 0) {
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
@@ -198,12 +210,7 @@ public class PracticeDAO implements IPracticeDAO {
             statement.setString(5, practice.getStatus());
             statement.setBigDecimal(6, practice.getGrade() != null
                     ? java.math.BigDecimal.valueOf(practice.getGrade()) : null);
-            if (practice.getIdProject() != null) {
-                statement.setInt(7, practice.getIdProject());
-            } else {
-                statement.setNull(7, java.sql.Types.INTEGER);
-            }
-            statement.setInt(8, practice.getIdPractice());
+            statement.setInt(7, practice.getIdPractice());
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -245,6 +252,130 @@ public class PracticeDAO implements IPracticeDAO {
         return isDeleted;
     }
 
+    public Practice findActiveByIntern(int internId) throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+
+        Practice result = null;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ACTIVE_BY_INTERN)) {
+
+            statement.setInt(1, internId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    result = mapResultSet(resultSet);
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al buscar práctica activa del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al buscar la práctica activa.", sqlException);
+        }
+
+        return result;
+    }
+
+    public boolean hasConcludedPractice(int internId) throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+
+        boolean hasConcluded = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_HAS_CONCLUDED)) {
+
+            statement.setInt(1, internId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    hasConcluded = resultSet.getInt("total") > 0;
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al verificar práctica concluida del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al verificar estado de la práctica.", sqlException);
+        }
+
+        return hasConcluded;
+    }
+
+    public boolean cancelActiveByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        boolean updated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_CANCEL_BY_INTERN_AND_PROJECT)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+            updated = statement.executeUpdate() > 0;
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al cancelar práctica del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
+            throw new ServiceException("Error al cancelar la práctica.", sqlException);
+        }
+
+        return updated;
+    }
+
+    public boolean reactivateOrCreate(int internId, String nrc, java.time.LocalDate startDate)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (nrc == null || nrc.isBlank()) {
+            throw new ValidationException("El NRC del proyecto no puede estar vacío.");
+        }
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement updateStmt = connection.prepareStatement(SQL_REACTIVATE_CANCELLED)) {
+
+            updateStmt.setDate  (1, Date.valueOf(startDate));
+            updateStmt.setInt   (2, internId);
+            updateStmt.setString(3, nrc);
+
+            boolean reactivated = updateStmt.executeUpdate() > 0;
+            if (reactivated) {
+                return true;
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al reactivar práctica del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al reactivar la práctica.", sqlException);
+        }
+
+        Practice practice = new Practice();
+        practice.setNrc(nrc);
+        practice.setIdIntern(internId);
+        practice.setStartDate(startDate);
+        practice.setStatus(DEFAULT_STATUS);
+        return save(practice);
+    }
+
     private void validatePractice(Practice practice) throws ValidationException {
         if (practice.getNrc() == null || practice.getNrc().isBlank()) {
             throw new ValidationException("El NRC no puede estar vacío.");
@@ -275,11 +406,6 @@ public class PracticeDAO implements IPracticeDAO {
         java.math.BigDecimal grade = resultSet.getBigDecimal("calificacion");
         if (grade != null) {
             practice.setGrade(grade.doubleValue());
-        }
-
-        int idProject = resultSet.getInt("id_proyecto");
-        if (!resultSet.wasNull()) {
-            practice.setIdProject(idProject);
         }
 
         return practice;

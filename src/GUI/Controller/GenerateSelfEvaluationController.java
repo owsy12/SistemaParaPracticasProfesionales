@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.EvaluationPrerequisiteChecker;
 import GUI.Utils.SelfEvaluationGenerator;
 import GUI.Utils.ReportGenerationContext;
 import Logic.DAO.AssignmentDAO;
@@ -23,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
@@ -33,6 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class GenerateSelfEvaluationController {
 
@@ -82,6 +85,9 @@ public class GenerateSelfEvaluationController {
     private TextField placeAndDateTextField;
     @FXML
     private Button generateDocumentButton;
+
+    @FXML
+    private AnchorPane rootPane;
 
     private ToggleGroup[] questionToggleGroups;
     private Intern currentIntern;
@@ -186,6 +192,16 @@ public class GenerateSelfEvaluationController {
 
         TechnicalResponsibleDAO supervisorDAO = new TechnicalResponsibleDAO();
         currentSupervisor = supervisorDAO.findById(currentProject.getIdTechnicalSupervisor());
+
+        String prerequisiteMessage = EvaluationPrerequisiteChecker.check(
+                currentIntern.getId(), currentProject);
+
+        if (prerequisiteMessage != null) {
+            showAlert("Requisitos no cumplidos", prerequisiteMessage, AlertType.WARNING);
+            disableGenerationButton();
+            openWelcomePage(rootPane);
+            return;
+        }
 
         populateReadOnlyFields();
     }

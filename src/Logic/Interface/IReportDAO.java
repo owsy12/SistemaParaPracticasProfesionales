@@ -1,10 +1,10 @@
 package Logic.Interface;
 
 import Logic.DTOs.Report;
+import Logic.DTOs.ReportStatusUpdate;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 
-import java.util.Date;
 import java.util.List;
 
 public interface IReportDAO {
@@ -14,8 +14,7 @@ public interface IReportDAO {
     List<Report> getByStatusPending() throws ServiceException;
     List<Report> getByIdIntern(int idIntern) throws ServiceException, ValidationException;
     List<Report> getByIdProfessor(int idProfessor) throws ServiceException, ValidationException;
-    boolean updateStatus(int idReport, String status, String professorObservations,
-                         java.sql.Date reviewDate)
+    boolean updateStatus(int idReport, ReportStatusUpdate update)
             throws ServiceException, ValidationException;
     boolean updateSignedDocumentPath(int idReport, String signedPath)
             throws ServiceException, ValidationException;

@@ -5,24 +5,32 @@ import Logic.DTOs.ReportActivity;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class MonthlyReportGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(MonthlyReportGenerator.class.getName());
     private static final String TEMPLATE = "/GUI/Utils/basedocuments/reporteMensual.docx";
-    private static final int ROWS_PER_ACTIVITY = 1;
+    private static final Pattern MARKER     = Pattern.compile("\\{\\{([^}]+)}}");
+    private static final Pattern TEXT_IN_RUN = Pattern.compile("<w:t[^>]*>([^<]*)</w:t>");
 
     private MonthlyReportGenerator() {
     }
@@ -30,18 +38,16 @@ public class MonthlyReportGenerator {
     public static String generate(MonthlyReport report,
                                    ReportGenerationContext context,
                                    ReportContent content) throws IOException {
+        List<ReportActivity> activities = content.getActivities();
         Map<String, String> values = buildValues(report, context);
-        List<Map<String, String>> activityRows = buildActivityRows(content.getActivities());
-        List<DocxTemplateEngine.RowExpansion> expansions =
-                buildExpansions(activityRows, "activity_01", ROWS_PER_ACTIVITY);
-
-        byte[] docxBytes = DocxTemplateEngine.fill(TEMPLATE, values, expansions);
+        byte[] docxBytes = fillTemplate(values, activities);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
 
         String storagePath = buildStoragePath(report, context.getMatricula());
         saveFile(pdfBytes, storagePath);
 
-        String fileName = "Reporte_Mensual_" + safe(report.getMonth()) + "_" + report.getYear() + ".pdf";
+        String monthLabel = safe(report.getMonth()) + "_" + report.getYear();
+        String fileName = "Reporte_Mensual_" + monthLabel + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;
@@ -50,7 +56,7 @@ public class MonthlyReportGenerator {
     private static Map<String, String> buildValues(MonthlyReport report,
                                                     ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
-        values.put("reportnumber", String.valueOf(report.getIdReport()));
+        values.put("reportnumber", String.valueOf(report.getReportNumber()));
         values.put("month",        safe(report.getMonth()) + " " + report.getYear());
         values.put("report_hours", String.valueOf(report.getMonthlyHours()));
         values.put("total_hours",  String.valueOf(context.getTotalApprovedHours()));
@@ -62,30 +68,140 @@ public class MonthlyReportGenerator {
         return values;
     }
 
-    private static List<Map<String, String>> buildActivityRows(List<ReportActivity> activities) {
-        List<Map<String, String>> rows = new ArrayList<>();
-        if (activities != null) {
-            int index = 1;
-            for (ReportActivity activity : activities) {
-                Map<String, String> row = new HashMap<>();
-                String key = formatIndex(index);
-                row.put("activity_" + key,                    safe(activity.getActivityName()));
-                row.put("activity_" + key + "_period",        safe(activity.getPeriodo()));
-                row.put("activity_" + key + "_observations",  safe(activity.getObservaciones()));
-                rows.add(row);
-                index++;
+    private static byte[] fillTemplate(Map<String, String> values,
+                                        List<ReportActivity> activities) throws IOException {
+        InputStream templateStream = MonthlyReportGenerator.class.getResourceAsStream(TEMPLATE);
+        if (templateStream == null) {
+            throw new IOException("Plantilla no encontrada: " + TEMPLATE);
+        }
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (ZipInputStream zipIn = new ZipInputStream(templateStream);
+             ZipOutputStream zipOut = new ZipOutputStream(out)) {
+
+            ZipEntry entry;
+            while ((entry = zipIn.getNextEntry()) != null) {
+                byte[] data = readAllBytes(zipIn);
+                if ("word/document.xml".equals(entry.getName())) {
+                    String xml = new String(data, StandardCharsets.UTF_8);
+                    xml = normalizeMarkers(xml);
+                    xml = expandActivityRows(xml, activities);
+                    xml = replaceMarkers(xml, values);
+                    data = xml.getBytes(StandardCharsets.UTF_8);
+                }
+                zipOut.putNextEntry(new ZipEntry(entry.getName()));
+                zipOut.write(data);
+                zipOut.closeEntry();
             }
         }
-        return rows;
+        return out.toByteArray();
     }
 
-    private static List<DocxTemplateEngine.RowExpansion> buildExpansions(
-            List<Map<String, String>> rows, String marker, int rowsPerItem) {
-        List<DocxTemplateEngine.RowExpansion> expansions = new ArrayList<>();
-        if (!rows.isEmpty()) {
-            expansions.add(new DocxTemplateEngine.RowExpansion(marker, rows, rowsPerItem));
+    private static String expandActivityRows(String xml, List<ReportActivity> activities) {
+        boolean hasActivities = activities != null && !activities.isEmpty();
+        if (!hasActivities) {
+            return xml;
         }
-        return expansions;
+
+        int markerPos = xml.indexOf("{{activity_01}}");
+        boolean markerMissing = markerPos < 0;
+        if (markerMissing) {
+            return xml;
+        }
+
+        int rowStart = xml.lastIndexOf("<w:tr ", markerPos);
+        boolean noSpaceVariant = rowStart < 0;
+        if (noSpaceVariant) {
+            rowStart = xml.lastIndexOf("<w:tr>", markerPos);
+        }
+        boolean rowNotFound = rowStart < 0;
+        if (rowNotFound) {
+            return xml;
+        }
+
+        int rowEnd = xml.indexOf("</w:tr>", rowStart);
+        boolean rowEndMissing = rowEnd < 0;
+        if (rowEndMissing) {
+            return xml;
+        }
+        int blockEnd = rowEnd + "</w:tr>".length();
+        String templateBlock = xml.substring(rowStart, blockEnd);
+
+        StringBuilder expanded = new StringBuilder();
+        for (int i = 0; i < activities.size(); i++) {
+            String newIdx = String.format("%02d", i + 1);
+            String block = templateBlock;
+            boolean notFirstRow = i > 0;
+            if (notFirstRow) {
+                block = block.replace("activity_01", "activity_" + newIdx);
+            }
+            Map<String, String> rowValues = buildRowValues(activities.get(i), i + 1);
+            block = replaceMarkers(block, rowValues);
+            expanded.append(block);
+        }
+
+        String prefix = xml.substring(0, rowStart);
+        String suffix = xml.substring(blockEnd);
+        String result = prefix + expanded.toString() + suffix;
+        return result;
+    }
+
+    private static Map<String, String> buildRowValues(ReportActivity activity, int index) {
+        String key = String.format("%02d", index);
+        Map<String, String> row = new HashMap<>();
+        row.put("activity_" + key,                   safe(activity.getActivityName()));
+        row.put("activity_" + key + "_period",       safe(activity.getPeriodo()));
+        row.put("activity_" + key + "_observations", safe(activity.getObservaciones()));
+        return row;
+    }
+
+    private static String normalizeMarkers(String xml) {
+        String cleaned = xml.replaceAll("<w:proofErr[^>]*/> *", "");
+        StringBuilder result = new StringBuilder();
+        int position = 0;
+
+        while (position < cleaned.length()) {
+            int openPos = cleaned.indexOf("{{", position);
+            boolean noMore = openPos < 0;
+            if (noMore) {
+                result.append(cleaned, position, cleaned.length());
+                break;
+            }
+            int closePos = cleaned.indexOf("}}", openPos + 2);
+            boolean unclosed = closePos < 0;
+            if (unclosed) {
+                result.append(cleaned, position, cleaned.length());
+                break;
+            }
+            String between = cleaned.substring(openPos + 2, closePos);
+            result.append(cleaned, position, openPos);
+            boolean isPlainText = !between.contains("<");
+            if (isPlainText) {
+                result.append("{{").append(between).append("}}");
+            } else {
+                Matcher textMatcher = TEXT_IN_RUN.matcher(between);
+                StringBuilder markerName = new StringBuilder();
+                while (textMatcher.find()) {
+                    markerName.append(textMatcher.group(1));
+                }
+                result.append("{{").append(markerName.toString().trim()).append("}}");
+            }
+            position = closePos + 2;
+        }
+        return result.toString();
+    }
+
+    private static String replaceMarkers(String xml, Map<String, String> values) {
+        StringBuffer buffer = new StringBuffer();
+        Matcher matcher = MARKER.matcher(xml);
+        while (matcher.find()) {
+            String key = matcher.group(1).trim();
+            String replacement = values.getOrDefault(key, "");
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(escapeXml(replacement)));
+        }
+        matcher.appendTail(buffer);
+        String result = buffer.toString();
+        return result;
     }
 
     private static String buildStoragePath(MonthlyReport report, String matricula) {
@@ -110,20 +226,39 @@ public class MonthlyReportGenerator {
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Archivo PDF (*.pdf)", "*.pdf"));
         File downloads = new File(System.getProperty("user.home"), "Downloads");
-        if (downloads.exists()) {
+        boolean downloadsExists = downloads.exists();
+        if (downloadsExists) {
             fileChooser.setInitialDirectory(downloads);
         }
-        File selected = (window != null) ? fileChooser.showSaveDialog(window) : null;
-        if (selected != null) {
+        boolean hasWindow = window != null;
+        File selected = hasWindow ? fileChooser.showSaveDialog(window) : null;
+        boolean fileSelected = selected != null;
+        if (fileSelected) {
             try (FileOutputStream out = new FileOutputStream(selected)) {
                 out.write(pdfBytes);
             }
         }
     }
 
-    private static String formatIndex(int index) {
-        String formatted = String.format("%02d", index);
-        return formatted;
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] chunk = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(chunk)) != -1) {
+            buffer.write(chunk, 0, bytesRead);
+        }
+        byte[] result = buffer.toByteArray();
+        return result;
+    }
+
+    private static String escapeXml(String value) {
+        String escaped = (value != null) ? value : "";
+        escaped = escaped.replace("&", "&amp;")
+                         .replace("<", "&lt;")
+                         .replace(">", "&gt;")
+                         .replace("\"", "&quot;")
+                         .replace("'", "&apos;");
+        return escaped;
     }
 
     private static String safe(String value) {

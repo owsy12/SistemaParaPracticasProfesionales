@@ -3,12 +3,14 @@ package GUI.Controller;
 import Logic.DAO.ApplicationDAO;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InitialFormatDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectApplicationDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Application;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Project;
+import Logic.DTOs.ProjectApplication;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -16,24 +18,27 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.AnchorPane;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import java.io.IOException;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
@@ -44,6 +49,9 @@ public class ViewInterProjectSelection {
     private static final int INITIAL_DOCUMENTS_COUNT = 4;
     private static final List<String> INITIAL_DOCUMENT_TYPES = List.of(
             "Carta de Asignación", "Horario", "Certificado de Seguro", "Cronograma de Actividades");
+
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     public TableView<Project> projectsTableView;
@@ -66,12 +74,14 @@ public class ViewInterProjectSelection {
     @FXML
     private Label internNameLabel;
 
+    private static final String LABEL_SELECTED = "✓ Seleccionado";
+    private static final String LABEL_NOT_SELECTED = "—";
+
     private User user;
     private int internId;
     private int applicationId;
     private Project selectedProject;
-    private final Set<Integer> originalProjectIds = new HashSet<>();
-    private final Map<Integer, Integer> preferenceOrderMap = new HashMap<>();
+    private final Set<Integer> internSelectedIds = new HashSet<>();
 
     @FXML
     private void initialize() {
@@ -117,37 +127,48 @@ public class ViewInterProjectSelection {
     private void loadProjectList() {
         try {
             ApplicationDAO applicationDAO = new ApplicationDAO();
-            Application application = applicationDAO.findByIntern(user.getId());
-            applicationId = application.getIdApplication();
-            internId = application.getIdIntern();
+            Application application = applicationDAO.findActiveApplicationByIntern(user.getId());
 
-            ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
-            List<Integer> selectedIds = projectApplicationDAO.findProjectIdsByIntern(user.getId());
-            originalProjectIds.addAll(selectedIds);
+            boolean hasNoPendingApplication = application == null;
+            if (hasNoPendingApplication) {
+                showAlert("Sin solicitud pendiente",
+                        "El practicante no cuenta con una solicitud pendiente.",
+                        Alert.AlertType.WARNING);
+            } else {
+                applicationId = application.getIdApplication();
+                internId = application.getIdIntern();
 
-            for (int index = 0; index < selectedIds.size(); index++) {
-                preferenceOrderMap.put(selectedIds.get(index), index + 1);
-            }
+                ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
+                List<ProjectApplication> projectApplications =
+                        projectApplicationDAO.findByApplication(applicationId);
 
-            ProjectDAO projectDAO = new ProjectDAO();
-            List<Project> result = new ArrayList<>();
-
-            for (Integer projectId : selectedIds) {
-                Project project = projectDAO.findById(projectId);
-                if (project != null) {
-                    result.add(project);
+                for (ProjectApplication pa : projectApplications) {
+                    internSelectedIds.add(pa.getIdProyect());
                 }
-            }
 
-            List<Project> allAvailable = projectDAO.findAllAvailable();
-            for (Project project : allAvailable) {
-                boolean isAlreadyIncluded = originalProjectIds.contains(project.getIdProyect());
-                if (!isAlreadyIncluded) {
-                    result.add(project);
+                ProjectDAO projectDAO = new ProjectDAO();
+                List<Project> result = new ArrayList<>();
+
+                for (ProjectApplication pa : projectApplications) {
+                    Project project = projectDAO.findById(pa.getIdProyect());
+                    boolean isAvailable = project != null && project.getAvaliablePlaces() > 0;
+                    if (isAvailable) {
+                        project.setPreferenceLabel(LABEL_SELECTED);
+                        result.add(project);
+                    }
                 }
-            }
 
-            projectsTableView.getItems().setAll(result);
+                List<Project> allAvailable = projectDAO.findAllAvailable();
+                for (Project project : allAvailable) {
+                    boolean isAlreadyIncluded = internSelectedIds.contains(project.getIdProyect());
+                    if (!isAlreadyIncluded) {
+                        project.setPreferenceLabel(LABEL_NOT_SELECTED);
+                        result.add(project);
+                    }
+                }
+
+                projectsTableView.getItems().setAll(result);
+            }
 
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar proyectos para asignación: {0}",
@@ -160,7 +181,7 @@ public class ViewInterProjectSelection {
     }
 
     private void handleAssignAction(Project project) {
-        boolean isOriginalSelection = originalProjectIds.contains(project.getIdProyect());
+        boolean isOriginalSelection = internSelectedIds.contains(project.getIdProyect());
         if (isOriginalSelection) {
             confirmAndAssign(project, null);
         } else {
@@ -202,33 +223,86 @@ public class ViewInterProjectSelection {
     }
 
     private void assignProjectProcess(Project project, String justification) {
+        boolean hasNoCapacity = project.getAvaliablePlaces() <= 0;
+        if (hasNoCapacity) {
+            showAlert("Sin cupo disponible",
+                    "El proyecto seleccionado ya no cuenta con cupos disponibles.",
+                    Alert.AlertType.WARNING);
+        } else {
+            try {
+                Assignment assignment = new Assignment();
+                assignment.setIdApplication(applicationId);
+                assignment.setIdProyect(project.getIdProyect());
+                assignment.setIdIntern(internId);
+                assignment.setAssignmentDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
+                assignment.setRazonAsignacion(justification);
+
+                AssignmentDAO assignmentDAO = new AssignmentDAO();
+                assignmentDAO.save(assignment);
+
+                ProjectDAO projectDAO = new ProjectDAO();
+                boolean cupoDecremented = projectDAO.decrementAvailableSlot(project.getIdProyect());
+                boolean cupoNotDecremented = !cupoDecremented;
+                if (cupoNotDecremented) {
+                    LOGGER.log(Level.WARNING,
+                            "No se pudo decrementar cupo del proyecto {0}: sin cupo disponible",
+                            project.getIdProyect());
+                }
+
+                ApplicationDAO applicationDAO = new ApplicationDAO();
+                applicationDAO.updateStatus(applicationId, "Aceptada");
+
+                createInitialDocuments(project.getIdProyect());
+                createOrReactivatePractice(project);
+
+                showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
+                        Alert.AlertType.INFORMATION);
+                navigateBackToAssignProject();
+
+            } catch (ServiceException serviceException) {
+                LOGGER.log(Level.SEVERE, "Error al asignar proyecto: {0}",
+                        serviceException.getMessage());
+                showAlert("Error", "No se pudo procesar la asignación. Intente más tarde.",
+                        Alert.AlertType.ERROR);
+            } catch (ValidationException validationException) {
+                showAlert("Error de validación", validationException.getMessage(),
+                        Alert.AlertType.ERROR);
+            }
+        }
+    }
+
+    private void navigateBackToAssignProject() {
         try {
-            Assignment assignment = new Assignment();
-            assignment.setIdApplication(applicationId);
-            assignment.setIdProyect(project.getIdProyect());
-            assignment.setIdIntern(internId);
-            assignment.setAssignmentDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
-            assignment.setRazonAsignacion(justification);
-
-            AssignmentDAO assignmentDAO = new AssignmentDAO();
-            assignmentDAO.save(assignment);
-
-            ApplicationDAO applicationDAO = new ApplicationDAO();
-            applicationDAO.updateStatus(applicationId, "Aceptada");
-
-            createInitialDocuments(project.getIdProyect());
-
-            showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
-                    Alert.AlertType.INFORMATION);
-            projectsTableView.getItems().clear();
-            selectedProject = null;
-
-        } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al asignar proyecto: {0}", serviceException.getMessage());
-            showAlert("Error", "No se pudo procesar la asignación. Intente más tarde.",
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/GUI/View/GUIAssignProject.fxml"));
+            Parent vista = loader.load();
+            AnchorPane parentPane = (AnchorPane) anchorPane.getParent();
+            parentPane.getChildren().setAll(vista);
+        } catch (IOException ioException) {
+            showAlert("Error", "No se pudo regresar a la lista de asignación.",
                     Alert.AlertType.ERROR);
+        }
+    }
+
+    private void createOrReactivatePractice(Project project) {
+        String nrc = project.getNrc();
+        boolean hasNrc = nrc != null && !nrc.isBlank();
+        if (!hasNrc) {
+            LOGGER.log(Level.WARNING,
+                    "Proyecto {0} sin NRC: no se puede crear práctica.", project.getIdProyect());
+            return;
+        }
+
+        try {
+            PracticeDAO practiceDAO = new PracticeDAO();
+            practiceDAO.reactivateOrCreate(
+                    user.getId(), nrc, LocalDate.now(ZoneId.of("America/Mexico_City")));
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al gestionar práctica para practicante {0}: {1}",
+                    new Object[]{user.getId(), serviceException.getMessage()});
         } catch (ValidationException validationException) {
-            showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
+            LOGGER.log(Level.WARNING, "Validación al gestionar práctica: {0}",
+                    validationException.getMessage());
         }
     }
 

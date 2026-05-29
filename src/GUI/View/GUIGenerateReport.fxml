@@ -12,11 +12,15 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true"
-            prefHeight="820.0" prefWidth="870.0"
+<AnchorPane fx:id="rootPane" prefHeight="820.0" prefWidth="870.0"
             xmlns="http://javafx.com/javafx/25"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.GenerateReportController">
+   <children>
+   <ScrollPane fitToWidth="true"
+               prefHeight="820.0" prefWidth="870.0"
+               AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
    <content>
       <AnchorPane minHeight="980.0" prefHeight="980.0" prefWidth="850.0">
          <children>
@@ -152,4 +156,6 @@
          </children>
       </AnchorPane>
    </content>
-</ScrollPane>
+   </ScrollPane>
+   </children>
+</AnchorPane>

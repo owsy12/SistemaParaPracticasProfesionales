@@ -10,6 +10,8 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -17,6 +19,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
@@ -38,10 +41,28 @@ public class ViewProjectSelectionController {
 
     @FXML
     public void handleRegresar(ActionEvent actionEvent) {
+        try {
+            AnchorPane parentPane = (AnchorPane) anchorPane.getParent();
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/GUI/view/GUIRequestProject.fxml"));
+            Parent vista = loader.load();
+            parentPane.getChildren().setAll(vista);
+        } catch (IOException ioException) {
+            showAlert("Error", "No se pudo regresar a la selección de proyectos.",
+                    Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
     public void handleCancelar(ActionEvent actionEvent) {
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir? Los datos ingresados no se guardarán.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            openWelcomePage((AnchorPane) anchorPane.getParent());
+        }
     }
 
     @FXML
@@ -63,14 +84,17 @@ public class ViewProjectSelectionController {
             ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
 
             int currentUserId = SessionManager.getInstance().getUsuario().getId();
-            Application application = applicationDAO.findByIntern(currentUserId);
+            Application pendingApplication = applicationDAO.findActiveApplicationByIntern(currentUserId);
 
-            if (application == null) {
+            Application application;
+            if (pendingApplication == null) {
                 application = new Application();
                 application.setIdIntern(currentUserId);
                 application.setApplicationDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
                 application.setStatus("Pendiente");
                 application.setIdApplication(applicationDAO.create(application));
+            } else {
+                application = pendingApplication;
             }
 
             for (Project project : projectList) {

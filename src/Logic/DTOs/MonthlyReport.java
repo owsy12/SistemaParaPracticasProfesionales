@@ -7,6 +7,7 @@ public class MonthlyReport extends Report{
     private int monthlyHours;
     private String block;
     private String section;
+    private int reportNumber;
 
     public MonthlyReport(int idMonthlyReport, String month, int year, String block, String section) {
         this.idMonthlyReport = idMonthlyReport;
@@ -65,5 +66,13 @@ public class MonthlyReport extends Report{
 
     public void setMonthlyHours(int monthlyHours) {
         this.monthlyHours = monthlyHours;
+    }
+
+    public int getReportNumber() {
+        return reportNumber;
+    }
+
+    public void setReportNumber(int reportNumber) {
+        this.reportNumber = reportNumber;
     }
 }

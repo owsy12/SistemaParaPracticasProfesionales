@@ -1,14 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="GUI.Controller.AddOVEvaluationController"
-            prefHeight="400.0" prefWidth="600.0">
+<AnchorPane fx:id="anchorPane" prefHeight="350.0" prefWidth="520.0"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.AddOVEvaluationController">
+    <children>
+        <Label layoutX="29.0" layoutY="14.0" text="Entregar Evaluación OV">
+            <font>
+                <Font size="18.0" />
+            </font>
+        </Label>
 
+        <Label layoutX="29.0" layoutY="55.0" text="Seleccione el PDF de la evaluación firmada por el responsable técnico:" />
+
+        <Pane fx:id="dropZone"
+              layoutX="29.0" layoutY="80.0"
+              prefHeight="100.0" prefWidth="460.0"
+              onMouseClicked="#openFileChooser"
+              style="-fx-border-color: #aaaaaa; -fx-border-style: dashed; -fx-background-color: #f9f9f9; -fx-cursor: hand;" />
+
+        <Label layoutX="29.0" layoutY="188.0" prefWidth="460.0"
+               text="Arrastre un PDF aquí o haga clic en el área gris para seleccionar" />
+
+        <Label fx:id="labelFileName" layoutX="29.0" layoutY="213.0" prefWidth="460.0"
+               text="Ningún archivo seleccionado" />
+
+        <Label fx:id="statusLabel" layoutX="29.0" layoutY="238.0" prefWidth="460.0" text="" />
+
+        <Button layoutX="29.0" layoutY="283.0"
+                mnemonicParsing="false"
+                onAction="#uploadOVEvaluation"
+                prefHeight="26.0" prefWidth="200.0"
+                text="Entregar evaluación OV" />
+
+        <Button layoutX="239.0" layoutY="283.0"
+                mnemonicParsing="false"
+                onAction="#cancelAction"
+                prefHeight="26.0" prefWidth="100.0"
+                text="Limpiar" />
+    </children>
 </AnchorPane>

@@ -272,4 +272,39 @@ public class InternActivityDAO implements IInternActivityDAO {
 
         return internActivity;
     }
+
+    public boolean deleteByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        String sql =
+                "DELETE FROM actividad_practicante " +
+                "WHERE id_practicante = ? " +
+                "  AND id_actividad IN (SELECT id_actividad FROM actividad WHERE id_proyecto = ?)";
+        int rowsAffected = 0;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+            rowsAffected = statement.executeUpdate();
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al eliminar actividades del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al eliminar actividades del practicante.", sqlException);
+        }
+
+        return rowsAffected >= 0;
+    }
 }

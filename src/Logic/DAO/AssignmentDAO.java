@@ -43,6 +43,9 @@ public class AssignmentDAO implements IAssignmentDAO {
                     "fecha_asignacion, estado, razon_asignacion " +
                     "FROM asignacion WHERE id_practicante = ? AND estado = 'Activa'";
 
+    private static final String SQL_DELETE_BY_INTERN_AND_PROJECT =
+            "DELETE FROM asignacion WHERE id_practicante = ? AND id_proyecto = ?";
+
     @Override
     public int save(Assignment assignment) throws ServiceException, ValidationException {
         if (assignment.getIdIntern() <= 0) {
@@ -239,6 +242,44 @@ public class AssignmentDAO implements IAssignmentDAO {
         }
 
         return assignment;
+    }
+
+    public boolean deleteByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        boolean isDeleted = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(
+                     SQL_DELETE_BY_INTERN_AND_PROJECT)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+
+            if (statement.executeUpdate() > 0) {
+                isDeleted = true;
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al eliminar asignación del practicante {0} del proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
+            if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
+                throw new DuplicateEntryException(
+                        "Ya existe un registro con esa clave en la base de datos.", sqlException);
+            }
+            throw new ServiceException("Error al eliminar la asignación.", sqlException);
+        }
+
+        return isDeleted;
     }
 
     private Assignment mapResultSet(ResultSet resultSet) throws SQLException {

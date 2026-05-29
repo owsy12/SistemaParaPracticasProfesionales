@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -43,7 +44,8 @@
       <Label fx:id="statusLabel" layoutX="20.0" layoutY="566.0" text="" />
 
       <Button layoutX="20.0" layoutY="598.0" mnemonicParsing="false" onAction="#updateActivity" prefHeight="26.0" prefWidth="120.0" text="Actualizar" />
-      <Button layoutX="280.0" layoutY="598.0" mnemonicParsing="false" onAction="#deleteActivity" prefHeight="26.0" prefWidth="120.0" text="Eliminar" />
+      <Button layoutX="150.0" layoutY="598.0" mnemonicParsing="false" onAction="#grantProrroga" prefHeight="26.0" prefWidth="140.0" text="Otorgar Prórroga" />
+      <Button layoutX="300.0" layoutY="598.0" mnemonicParsing="false" onAction="#deleteActivity" prefHeight="26.0" prefWidth="120.0" text="Eliminar" />
       <Button layoutX="560.0" layoutY="598.0" mnemonicParsing="false" onAction="#clearSelection" prefHeight="26.0" prefWidth="100.0" text="Limpiar" />
    </children>
 </AnchorPane>

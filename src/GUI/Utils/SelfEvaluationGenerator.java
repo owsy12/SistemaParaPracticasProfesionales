@@ -4,9 +4,12 @@ import Logic.DTOs.SelfEvaluation;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class SelfEvaluationGenerator {
 
@@ -24,14 +32,16 @@ public class SelfEvaluationGenerator {
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final int LIKERT_QUESTIONS = 10;
     private static final int LIKERT_COLUMNS = 5;
+    private static final Pattern MARKER = Pattern.compile("\\{\\{([^}]+)}}");
+    private static final Pattern TEXT_IN_RUN = Pattern.compile("<w:t[^>]*>([^<]*)</w:t>");
 
     private SelfEvaluationGenerator() {
     }
 
-    public static String generate(SelfEvaluation evaluation, ReportGenerationContext context) throws IOException {
+    public static String generate(SelfEvaluation evaluation,
+                                   ReportGenerationContext context) throws IOException {
         Map<String, String> values = buildValues(evaluation, context);
-
-        byte[] docxBytes = DocxTemplateEngine.fill(TEMPLATE, values);
+        byte[] docxBytes = fillTemplate(values);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
 
         String storagePath = buildStoragePath(evaluation, context.getMatricula());
@@ -81,6 +91,79 @@ public class SelfEvaluationGenerator {
         return answers;
     }
 
+    private static byte[] fillTemplate(Map<String, String> values) throws IOException {
+        InputStream templateStream = SelfEvaluationGenerator.class.getResourceAsStream(TEMPLATE);
+        if (templateStream == null) {
+            throw new IOException("Template not found: " + TEMPLATE);
+        }
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (ZipInputStream zipIn = new ZipInputStream(templateStream);
+             ZipOutputStream zipOut = new ZipOutputStream(out)) {
+
+            ZipEntry entry;
+            while ((entry = zipIn.getNextEntry()) != null) {
+                byte[] data = readAllBytes(zipIn);
+                if ("word/document.xml".equals(entry.getName())) {
+                    String xml = new String(data, StandardCharsets.UTF_8);
+                    xml = reconstructSplitMarkers(xml);
+                    xml = replaceMarkers(xml, values);
+                    data = xml.getBytes(StandardCharsets.UTF_8);
+                }
+                zipOut.putNextEntry(new ZipEntry(entry.getName()));
+                zipOut.write(data);
+                zipOut.closeEntry();
+            }
+        }
+        return out.toByteArray();
+    }
+
+    private static String reconstructSplitMarkers(String xml) {
+        String cleaned = xml.replaceAll("<w:proofErr[^>]*/> *", "");
+
+        StringBuilder result = new StringBuilder();
+        int position = 0;
+
+        while (position < cleaned.length()) {
+            int openPos = cleaned.indexOf("{{", position);
+            if (openPos < 0) {
+                result.append(cleaned, position, cleaned.length());
+                break;
+            }
+            int closePos = cleaned.indexOf("}}", openPos + 2);
+            if (closePos < 0) {
+                result.append(cleaned, position, cleaned.length());
+                break;
+            }
+            String between = cleaned.substring(openPos + 2, closePos);
+            result.append(cleaned, position, openPos);
+            if (!between.contains("<")) {
+                result.append("{{").append(between).append("}}");
+            } else {
+                Matcher textMatcher = TEXT_IN_RUN.matcher(between);
+                StringBuilder markerName = new StringBuilder();
+                while (textMatcher.find()) {
+                    markerName.append(textMatcher.group(1));
+                }
+                result.append("{{").append(markerName.toString().trim()).append("}}");
+            }
+            position = closePos + 2;
+        }
+        return result.toString();
+    }
+
+    private static String replaceMarkers(String xml, Map<String, String> values) {
+        StringBuffer buffer = new StringBuffer();
+        Matcher matcher = MARKER.matcher(xml);
+        while (matcher.find()) {
+            String key = matcher.group(1).trim();
+            String replacement = values.getOrDefault(key, "");
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(escapeXml(replacement)));
+        }
+        matcher.appendTail(buffer);
+        return buffer.toString();
+    }
+
     private static String buildStoragePath(SelfEvaluation evaluation, String matricula) {
         String path = "storage/intern_" + matricula
                 + "/proyecto_" + evaluation.getIdProyect()
@@ -95,8 +178,7 @@ public class SelfEvaluationGenerator {
         LOGGER.log(Level.INFO, "PDF guardado en: {0}", path.toAbsolutePath());
     }
 
-    private static void showSaveDialog(byte[] pdfBytes, String fileName,
-                                        Window window) throws IOException {
+    private static void showSaveDialog(byte[] pdfBytes, String fileName, Window window) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Guardar PDF como...");
         fileChooser.setInitialFileName(fileName);
@@ -108,10 +190,30 @@ public class SelfEvaluationGenerator {
         }
         File selected = (window != null) ? fileChooser.showSaveDialog(window) : null;
         if (selected != null) {
-            try (FileOutputStream out = new FileOutputStream(selected)) {
-                out.write(pdfBytes);
+            try (FileOutputStream fileOut = new FileOutputStream(selected)) {
+                fileOut.write(pdfBytes);
             }
         }
+    }
+
+    private static byte[] readAllBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] chunk = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = inputStream.read(chunk)) != -1) {
+            buffer.write(chunk, 0, bytesRead);
+        }
+        return buffer.toByteArray();
+    }
+
+    private static String escapeXml(String value) {
+        String escaped = (value != null) ? value : "";
+        escaped = escaped.replace("&", "&amp;")
+                         .replace("<", "&lt;")
+                         .replace(">", "&gt;")
+                         .replace("\"", "&quot;")
+                         .replace("'", "&apos;");
+        return escaped;
     }
 
     private static String safe(String value) {

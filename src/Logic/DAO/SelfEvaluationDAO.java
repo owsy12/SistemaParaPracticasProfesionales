@@ -39,6 +39,16 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                     "       puntuacion_final, lugar_fecha, ruta_documento, estado, fecha_entrega " +
                     "FROM autoevaluacion";
 
+    private static final String SQL_SELECT_BY_INTERN =
+            "SELECT id_autoevaluacion, id_practicante, id_proyecto, periodo, " +
+                    "       afirmacion_01, afirmacion_02, afirmacion_03, afirmacion_04, afirmacion_05, " +
+                    "       afirmacion_06, afirmacion_07, afirmacion_08, afirmacion_09, afirmacion_10, " +
+                    "       puntuacion_final, lugar_fecha, ruta_documento, estado, fecha_entrega " +
+                    "FROM autoevaluacion WHERE id_practicante = ? ORDER BY id_autoevaluacion DESC";
+
+    private static final String SQL_UPDATE_STATUS =
+            "UPDATE autoevaluacion SET estado = ? WHERE id_autoevaluacion = ?";
+
     @Override
     public int save(SelfEvaluation selfEvaluation) throws ServiceException, ValidationException {
         if (selfEvaluation.getIdIntern() <= 0) {
@@ -183,6 +193,67 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
         return isUpdated;
     }
 
+    public SelfEvaluation findByIdIntern(int internId) throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        SelfEvaluation selfEvaluation = null;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_INTERN)) {
+
+            statement.setInt(1, internId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    selfEvaluation = mapResultSet(resultSet);
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al recuperar autoevaluación del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar la autoevaluación del practicante.", sqlException);
+        }
+
+        return selfEvaluation;
+    }
+
+    public boolean updateStatus(int idSelfEvaluation, String status)
+            throws ServiceException, ValidationException {
+        if (idSelfEvaluation <= 0) {
+            throw new ValidationException(
+                    "El ID de la autoevaluación debe ser mayor a cero. ID recibido: "
+                            + idSelfEvaluation);
+        }
+        if (status == null || status.isBlank()) {
+            throw new ValidationException("El estado no puede estar vacío.");
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_STATUS)) {
+
+            statement.setString(1, status);
+            statement.setInt(2, idSelfEvaluation);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al actualizar estado de autoevaluación {0}: {1}",
+                    new Object[]{idSelfEvaluation, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al actualizar el estado de la autoevaluación.", sqlException);
+        }
+
+        return isUpdated;
+    }
+
     private SelfEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
         selfEvaluation.setIdSelfEvalation(resultSet.getInt   ("id_autoevaluacion"));
@@ -204,5 +275,37 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
         selfEvaluation.setDocumentPath   (resultSet.getString("ruta_documento"));
         selfEvaluation.setStatus         (resultSet.getString("estado"));
         return selfEvaluation;
+    }
+
+    public boolean deleteByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        String sql = "DELETE FROM autoevaluacion WHERE id_practicante = ? AND id_proyecto = ?";
+        int rowsAffected = 0;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+            rowsAffected = statement.executeUpdate();
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al eliminar autoevaluaciones del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al eliminar autoevaluaciones del practicante.", sqlException);
+        }
+
+        return rowsAffected >= 0;
     }
 }

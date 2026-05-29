@@ -20,9 +20,12 @@ import javafx.scene.layout.AnchorPane;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
+import javafx.scene.control.ButtonType;
 
 public class AssignProjectController {
 
@@ -60,7 +63,14 @@ public class AssignProjectController {
 
     @FXML
     public void cancelAction(ActionEvent actionEvent) {
-        openWelcomePage(anchorPane);
+        Optional<ButtonType> response = showAlertAndWait(
+                "Confirmar cancelación",
+                "¿Desea salir sin asignar proyecto?",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            openWelcomePage(anchorPane);
+        }
     }
 
     private void configureListeners() {

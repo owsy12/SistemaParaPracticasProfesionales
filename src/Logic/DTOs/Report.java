@@ -175,6 +175,11 @@ public class Report {
         return dateText;
     }
 
+    public String getIdReportDisplay() {
+        String display = String.valueOf(idReport);
+        return display;
+    }
+
     public String getIdInternDisplay() {
         String display = String.valueOf(idIntern);
         return display;

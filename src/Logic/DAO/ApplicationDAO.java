@@ -40,7 +40,12 @@ public class ApplicationDAO implements IApplicationDAO {
             "UPDATE solicitud SET estado = ? WHERE id_solicitud = ?";
 
     private static final String FIND_USER_PENDING_APPLICATION =
-            "SELECT * FROM solicitud WHERE id_practicante = ? AND estado = 'Activa'";
+            "SELECT id_solicitud, id_practicante, estado, fecha_solicitud " +
+            "FROM solicitud WHERE id_practicante = ? AND estado = 'Pendiente'";
+
+    private static final String CANCEL_ACCEPTED_BY_INTERN_SQL =
+            "UPDATE solicitud SET estado = 'Cancelada' " +
+            "WHERE id_practicante = ? AND estado = 'Aceptada'";
 
     @Override
     public int create(Application application) throws ServiceException, ValidationException {
@@ -221,25 +226,53 @@ public class ApplicationDAO implements IApplicationDAO {
     }
 
     @Override
-    public Application findActiveApplicationByIntern(int interID) throws ServiceException {
+    public Application findActiveApplicationByIntern(int internId) throws ServiceException {
         Application application = null;
-        try(Connection connection = DataBaseConnection.connectDatabase();
-            PreparedStatement preparedStatement = connection.prepareStatement(FIND_USER_PENDING_APPLICATION)) {
-            preparedStatement.setInt(1, interID);
 
-            try (ResultSet resulset = preparedStatement.executeQuery()) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(FIND_USER_PENDING_APPLICATION)) {
 
-                if (resulset.next()) {
-                    application = mapApplication(resulset);
+            preparedStatement.setInt(1, internId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    application = mapApplication(resultSet);
                 }
-
             }
 
         } catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
+            LOGGER.log(Level.SEVERE, "Error al buscar solicitud pendiente del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al buscar la solicitud pendiente.", sqlException);
         }
 
         return application;
+    }
+
+    public boolean cancelAcceptedByIntern(int internId) throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+
+        boolean isCancelled = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(CANCEL_ACCEPTED_BY_INTERN_SQL)) {
+
+            preparedStatement.setInt(1, internId);
+
+            if (preparedStatement.executeUpdate() > 0) {
+                isCancelled = true;
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al cancelar solicitud aceptada del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al cancelar la solicitud del practicante.", sqlException);
+        }
+
+        return isCancelled;
     }
 
     private Application mapApplication(ResultSet resultSet) throws SQLException {
