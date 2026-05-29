@@ -6,8 +6,7 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
@@ -44,23 +43,23 @@
                       prefHeight="26.0" prefWidth="160.0" visible="false" />
 
             <Label layoutX="420.0" layoutY="112.0" text="Horas del período:" />
-            <TextField fx:id="reportedHoursTextField" layoutX="420.0" layoutY="130.0"
+            <RestrictedTextField fx:id="reportedHoursTextField" layoutX="420.0" layoutY="130.0"
                        prefHeight="26.0" prefWidth="120.0" visible="false" />
 
             <Label layoutX="560.0" layoutY="112.0" text="No. de informe:" />
-            <TextField fx:id="reportNumberTextField" layoutX="560.0" layoutY="130.0"
+            <RestrictedTextField fx:id="reportNumberTextField" layoutX="560.0" layoutY="130.0"
                        prefHeight="26.0" prefWidth="120.0" visible="false" />
 
             <Label layoutX="20.0" layoutY="170.0" text="Metodología:" />
-            <TextArea fx:id="methodologyTextArea" layoutX="20.0" layoutY="188.0"
+            <RestrictedTextArea fx:id="methodologyTextArea" layoutX="20.0" layoutY="188.0"
                       prefHeight="70.0" prefWidth="810.0" wrapText="true" visible="false" />
 
             <Label layoutX="20.0" layoutY="272.0" text="Resultados obtenidos:" />
-            <TextArea fx:id="resultsTextArea" layoutX="20.0" layoutY="290.0"
+            <RestrictedTextArea fx:id="resultsTextArea" layoutX="20.0" layoutY="290.0"
                       prefHeight="60.0" prefWidth="810.0" wrapText="true" visible="false" />
 
             <Label layoutX="20.0" layoutY="364.0" text="Observaciones generales:" />
-            <TextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="382.0"
+            <RestrictedTextArea fx:id="observationsTextArea" layoutX="20.0" layoutY="382.0"
                       prefHeight="50.0" prefWidth="810.0" wrapText="true" visible="false" />
 
             <!-- Project activities section -->

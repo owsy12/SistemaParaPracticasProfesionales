@@ -12,8 +12,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextArea;
+import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
+import static GUI.Utils.ValidationUtils.limitTextArea;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 import javafx.scene.control.ButtonType;
@@ -36,10 +37,10 @@ public class AddActivityController {
     private ComboBox<Project> projectComboBox;
 
     @FXML
-    private TextField nameTextField;
+    private RestrictedTextField nameTextField;
 
     @FXML
-    private TextArea descriptionTextArea;
+    private RestrictedTextArea descriptionTextArea;
 
     @FXML
     private DatePicker fechaInicioPicker;
@@ -49,7 +50,8 @@ public class AddActivityController {
 
     @FXML
     private void initialize() {
-        setTypeAndLength(nameTextField, "Text");
+        setTypeAndLength(nameTextField, "Name");
+        limitTextArea(descriptionTextArea, 255);
         loadProjects();
     }
 

@@ -22,7 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextField;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -73,7 +73,7 @@ public class InternProgressController {
     private ComboBox<Activity> activityComboBox;
 
     @FXML
-    private TextField hoursTextField;
+    private RestrictedTextField hoursTextField;
 
     @FXML
     private ComboBox<String> statusComboBox;

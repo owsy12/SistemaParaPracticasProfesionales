@@ -19,6 +19,7 @@ public class Report {
     private Date sumissionDate;
     private LocalDate fechaLimite;
     private boolean entregaTardia;
+    private String monthName;
 
     public Report(int idReport, int idIntern, int idProyect, int idProfessor, String reportType, String period, String documentPath, String status, int grade, String feedback, Date sumissionDate, Date evaluationDate, int reportNumber, int coveredHours, String methodology, String obtainedResults, String observations, String month, int year, String block, String section) {
         this.idReport = idReport;
@@ -188,5 +189,24 @@ public class Report {
     public String getReportedHoursDisplay() {
         String display = String.valueOf(reportedHours);
         return display;
+    }
+
+    public String getMonthName() {
+        return monthName;
+    }
+
+    public void setMonthName(String monthName) {
+        this.monthName = monthName;
+    }
+
+    public String getTypeWithMonth() {
+        String typeDisplay = reportType != null ? reportType : "";
+        boolean isMonthly = "Mensual".equals(reportType);
+        boolean hasMonthName = monthName != null && !monthName.isBlank();
+        boolean shouldAppendMonth = isMonthly && hasMonthName;
+        if (shouldAppendMonth) {
+            typeDisplay = typeDisplay + " - " + monthName;
+        }
+        return typeDisplay;
     }
 }

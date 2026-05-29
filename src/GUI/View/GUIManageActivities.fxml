@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
@@ -30,7 +31,7 @@
       </TableView>
 
       <Label layoutX="20.0" layoutY="344.0" text="Nombre:" />
-      <TextField fx:id="nameTextField" layoutX="20.0" layoutY="362.0" prefHeight="26.0" prefWidth="660.0" />
+      <RestrictedTextField fx:id="nameTextField" layoutX="20.0" layoutY="362.0" prefHeight="26.0" prefWidth="660.0" />
 
       <Label layoutX="20.0" layoutY="396.0" text="Descripción:" />
       <TextArea fx:id="descriptionTextArea" layoutX="20.0" layoutY="414.0" prefHeight="80.0" prefWidth="660.0" wrapText="true" />

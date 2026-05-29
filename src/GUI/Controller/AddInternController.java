@@ -8,8 +8,8 @@ import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedPasswordField;
+import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -28,21 +28,21 @@ public class AddInternController {
     private AnchorPane anchorPane;
 
     @FXML
-    private TextField idTextField;
+    private RestrictedTextField idTextField;
     @FXML
-    private TextField lastNameTextField;
+    private RestrictedTextField lastNameTextField;
     @FXML
-    private TextField secondLastNameTextField;
+    private RestrictedTextField secondLastNameTextField;
     @FXML
-    private TextField emailTextField;
+    private RestrictedTextField emailTextField;
     @FXML
-    private TextField firstNameTextField;
+    private RestrictedTextField firstNameTextField;
     @FXML
-    private PasswordField passwordField;
+    private RestrictedPasswordField passwordField;
     @FXML
-    private PasswordField confirmPasswordField;
+    private RestrictedPasswordField confirmPasswordField;
     @FXML
-    private TextField creditTextField;
+    private RestrictedTextField creditTextField;
 
     @FXML
     private void initialize() {

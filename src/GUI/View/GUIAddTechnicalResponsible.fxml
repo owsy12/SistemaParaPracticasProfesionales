@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import GUI.Utils.*?>
 <?import javafx.scene.layout.*?>
 
 <AnchorPane fx:id="anchorPane"
@@ -33,27 +34,27 @@
 
               <VBox spacing="5">
                 <Label text="Nombre"/>
-                <TextField fx:id="nameField"/>
+                <RestrictedTextField fx:id="nameField"/>
               </VBox>
 
               <VBox spacing="5">
                 <Label text="Apellido Paterno"/>
-                <TextField fx:id="lastNameField"/>
+                <RestrictedTextField fx:id="lastNameField"/>
               </VBox>
 
               <VBox spacing="5">
                 <Label text="Apellido Materno"/>
-                <TextField fx:id="lastNameMaterField"/>
+                <RestrictedTextField fx:id="lastNameMaterField"/>
               </VBox>
 
               <VBox spacing="5">
                 <Label text="Correo"/>
-                <TextField fx:id="emailField"/>
+                <RestrictedTextField fx:id="emailField"/>
               </VBox>
 
               <VBox spacing="5">
                 <Label text="Cargo"/>
-                <TextField fx:id="cargoField"/>
+                <RestrictedTextField fx:id="cargoField"/>
               </VBox>
 
               <VBox spacing="5">

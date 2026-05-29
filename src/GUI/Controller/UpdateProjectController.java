@@ -33,6 +33,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextField;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class UpdateProjectController {
     private Intern selectedIntern;
 
     @FXML
-    private TextField capacityTextField;
+    private RestrictedTextField capacityTextField;
 
     @FXML
     private ComboBox<Professor> professorComboBox;
@@ -67,13 +68,13 @@ public class UpdateProjectController {
     private ComboBox organizationComboBox;
 
     @FXML
-    private TextField nameTextField;
+    private RestrictedTextField nameTextField;
 
     @FXML
     private ComboBox<TechnicalSupervisor> technicalComboBox;
 
     @FXML
-    private TextField descriptionTextField;
+    private RestrictedTextField descriptionTextField;
 
     @FXML
     private DatePicker startDate;

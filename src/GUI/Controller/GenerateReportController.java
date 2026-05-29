@@ -1,23 +1,37 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.FinalReportGenerator;
-import GUI.Utils.MonthlyReportGenerator;
-import GUI.Utils.PartialReportGenerator;
-import GUI.Utils.ReportContent;
-import GUI.Utils.ReportGenerationContext;
-import Logic.DAO.*;
-import Logic.DTOs.*;
+import GUI.DocumentGeneration.FinalReportGenerator;
+import GUI.DocumentGeneration.InternContext;
+import GUI.DocumentGeneration.InternContextLoader;
+import GUI.DocumentGeneration.MonthlyReportGenerator;
+import GUI.DocumentGeneration.PartialReportGenerator;
+import GUI.DocumentGeneration.ReportContent;
+import GUI.DocumentGeneration.ReportGenerationContext;
+import GUI.DocumentGeneration.ReportGenerationContextBuilder;
+import Logic.DAO.MonthlyReportDAO;
+import Logic.DAO.PartialAndFinalReportDAO;
+import Logic.DAO.ReportActivityDAO;
+import Logic.DAO.ReportDAO;
+import Logic.DTOs.Activity;
+import Logic.DTOs.Intern;
+import Logic.DTOs.LinkedOrganization;
+import Logic.DTOs.MonthlyReport;
+import Logic.DTOs.PartialAndFinalReport;
+import Logic.DTOs.Professor;
+import Logic.DTOs.Project;
+import Logic.DTOs.ReportActivity;
+import Logic.DTOs.ReportDeliverable;
+import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
-import javafx.util.Callback;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
@@ -26,8 +40,8 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextArea;
+import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import java.io.IOException;
@@ -43,6 +57,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
+import static GUI.Utils.ValidationUtils.applyTextFieldRestriction;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
@@ -84,19 +100,19 @@ public class GenerateReportController {
     private ComboBox<String> monthComboBox;
 
     @FXML
-    private TextField reportedHoursTextField;
+    private RestrictedTextField reportedHoursTextField;
 
     @FXML
-    private TextField reportNumberTextField;
+    private RestrictedTextField reportNumberTextField;
 
     @FXML
-    private TextArea methodologyTextArea;
+    private RestrictedTextArea methodologyTextArea;
 
     @FXML
-    private TextArea resultsTextArea;
+    private RestrictedTextArea resultsTextArea;
 
     @FXML
-    private TextArea observationsTextArea;
+    private RestrictedTextArea observationsTextArea;
 
     @FXML
     private Button generateButton;
@@ -168,6 +184,9 @@ public class GenerateReportController {
     private void initialize() {
         setTypeAndLength(reportedHoursTextField, "Number");
         setTypeAndLength(reportNumberTextField, "Number");
+        applyTextAreaRestriction(methodologyTextArea, 300);
+        applyTextAreaRestriction(resultsTextArea, 300);
+        applyTextAreaRestriction(observationsTextArea, 200);
 
         reportTypeComboBox.getItems().setAll(REPORT_TYPE_MONTHLY, REPORT_TYPE_PARTIAL, REPORT_TYPE_FINAL);
 
@@ -176,6 +195,36 @@ public class GenerateReportController {
         reportDeliverablesTable.setItems(reportDeliverables);
 
         loadInternContext();
+    }
+
+    private void handleContextLoaded(InternContext context) {
+        boolean hasAssignment = context.hasAssignment();
+        if (hasAssignment) {
+            currentIntern = context.getIntern();
+            currentProject = context.getProject();
+            currentOrganization = context.getOrganization();
+            currentSupervisor = context.getSupervisor();
+            currentProfessor = context.getProfessor();
+            approvedHours = context.getApprovedHours();
+            allProjectActivities = context.getActivities();
+            populateReadOnlyInfo();
+            filterMonthsToProjectPeriod();
+            applyActivityFilter();
+        } else {
+            showAlert("Sin proyecto asignado",
+                    "No tiene un proyecto activo. No puede generar reportes.",
+                    Alert.AlertType.WARNING);
+            disableGeneration();
+        }
+    }
+
+    private void handleContextLoadFailed(Exception loadException) {
+        LOGGER.log(Level.SEVERE, "Error al cargar contexto del practicante: {0}",
+                loadException.getMessage());
+        showAlert("Servicio no disponible",
+                "No se pudo cargar su información. Intente más tarde.",
+                Alert.AlertType.ERROR);
+        disableGeneration();
     }
 
     @FXML
@@ -199,7 +248,7 @@ public class GenerateReportController {
 
     @FXML
     public void addDeliverableToReport(ActionEvent actionEvent) {
-        Optional<ReportDeliverable> result = showNewDeliverableDialog();
+        Optional<ReportDeliverable> result = showDeliverableDialog();
         if (result.isPresent()) {
             reportDeliverables.add(result.get());
         }
@@ -244,6 +293,24 @@ public class GenerateReportController {
     @FXML
     private void handleMonthChange(ActionEvent actionEvent) {
         applyActivityFilter();
+    }
+
+    private void loadInternContext() {
+        if (SessionManager.getInstance().getUsuario() == null) {
+            disableGeneration();
+        } else {
+            tryLoadInternData();
+        }
+    }
+
+    private void tryLoadInternData() {
+        int internId = SessionManager.getInstance().getUsuario().getId();
+        try {
+            InternContext context = InternContextLoader.load(internId);
+            handleContextLoaded(context);
+        } catch (ValidationException | ServiceException loadException) {
+            handleContextLoadFailed(loadException);
+        }
     }
 
     private void tryAddActivity(Activity selected) {
@@ -328,102 +395,26 @@ public class GenerateReportController {
         }
     }
 
-    private void loadInternContext() {
-        if (SessionManager.getInstance().getUsuario() == null) {
-            disableGeneration();
-        } else {
-            tryLoadInternData();
-        }
-    }
-
-    private void tryLoadInternData() {
-        int internId = SessionManager.getInstance().getUsuario().getId();
-        try {
-            fetchInternData(internId);
-        } catch (ValidationException validationException) {
-            showAlert("Error de validación",
-                    "Los datos del practicante no son válidos.", Alert.AlertType.ERROR);
-            disableGeneration();
-        } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar contexto del practicante {0}: {1}",
-                    new Object[]{internId, serviceException.getMessage()});
-            showAlert("Servicio no disponible",
-                    "No se pudo cargar su información. Intente más tarde.",
-                    Alert.AlertType.ERROR);
-            disableGeneration();
-        }
-    }
-
-    private void fetchInternData(int internId) throws ValidationException, ServiceException {
-        InternDAO internDAO = new InternDAO();
-        currentIntern = internDAO.findById(internId);
-
-        AssignmentDAO assignmentDAO = new AssignmentDAO();
-        Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
-
-        if (assignment == null) {
-            showAlert("Sin proyecto asignado",
-                    "No tiene un proyecto activo. No puede generar reportes.",
-                    Alert.AlertType.WARNING);
-            disableGeneration();
-        } else {
-            fetchProjectData(assignment, internId);
-        }
-    }
-
-    private void fetchProjectData(Assignment assignment, int internId) throws ValidationException, ServiceException {
-        ProjectDAO projectDAO = new ProjectDAO();
-        currentProject = projectDAO.findById(assignment.getIdProyect());
-
-        LinkedOrganizationDAO organizationDAO = new LinkedOrganizationDAO();
-        currentOrganization = organizationDAO.findById(currentProject.getIdOrganization());
-
-        TechnicalResponsibleDAO techDAO = new TechnicalResponsibleDAO();
-        currentSupervisor = techDAO.findById(currentProject.getIdTechnicalSupervisor());
-
-        ProfessorDAO professorDAO = new ProfessorDAO();
-        currentProfessor = professorDAO.findById(currentProject.getIdProfessor());
-
-        ReportDAO reportDAO = new ReportDAO();
-        approvedHours = reportDAO.getTotalApprovedHoursByIntern(internId);
-
-        populateReadOnlyInfo();
-        filterMonthsToProjectPeriod();
-        loadProjectActivities();
-    }
-
     private void filterMonthsToProjectPeriod() {
         LocalDate projectStart = currentProject.getStartDate();
         LocalDate projectEnd = currentProject.getEndDate();
         boolean hasValidRange = projectStart != null && projectEnd != null;
         if (hasValidRange) {
             List<String> validMonths = new ArrayList<>();
-            YearMonth startYM = YearMonth.from(projectStart);
-            YearMonth endYM = YearMonth.from(projectEnd);
-            YearMonth current = startYM;
-            while (!current.isAfter(endYM)) {
-                String monthName = MONTHS.get(current.getMonthValue() - 1);
+            YearMonth startYearMonth = YearMonth.from(projectStart);
+            YearMonth endYearMonth = YearMonth.from(projectEnd);
+            YearMonth currentYearMonth = startYearMonth;
+            while (!currentYearMonth.isAfter(endYearMonth)) {
+                String monthName = MONTHS.get(currentYearMonth.getMonthValue() - 1);
                 boolean isNotDuplicate = !validMonths.contains(monthName);
                 if (isNotDuplicate) {
                     validMonths.add(monthName);
                 }
-                current = current.plusMonths(1);
+                currentYearMonth = currentYearMonth.plusMonths(1);
             }
             monthComboBox.getItems().setAll(validMonths);
         } else {
             monthComboBox.getItems().setAll(MONTHS);
-        }
-    }
-
-    private void loadProjectActivities() {
-        try {
-            ActivityDAO activityDAO = new ActivityDAO();
-            List<Activity> activities = activityDAO.findByProject(currentProject.getIdProyect());
-            allProjectActivities = activities;
-            applyActivityFilter();
-        } catch (ValidationException | ServiceException persistenceException) {
-            LOGGER.log(Level.WARNING, "No se pudieron cargar las actividades del proyecto: {0}",
-                    persistenceException.getMessage());
         }
     }
 
@@ -454,7 +445,7 @@ public class GenerateReportController {
             LocalDate firstDayOfMonth = yearMonth.atDay(1);
             LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
 
-            List<Activity> filteredActivities = new ArrayList<>();
+            List<Activity> dateFiltered = new ArrayList<>();
             for (Activity activity : allProjectActivities) {
                 boolean isStartBeforeMonthEnd = activity.getFechaInicio() == null
                         || !activity.getFechaInicio().isAfter(lastDayOfMonth);
@@ -462,43 +453,70 @@ public class GenerateReportController {
                         || !activity.getFechaFin().isBefore(firstDayOfMonth);
                 boolean isInRange = isStartBeforeMonthEnd && isEndAfterMonthStart;
                 if (isInRange) {
-                    filteredActivities.add(activity);
+                    dateFiltered.add(activity);
                 }
             }
-            projectActivities.setAll(filteredActivities);
+
+            List<Activity> notYetUsed = filterOutUsedActivities(dateFiltered);
+            projectActivities.setAll(notYetUsed);
         }
+    }
+
+    private List<Activity> filterOutUsedActivities(List<Activity> candidates) {
+        List<Activity> result = new ArrayList<>(candidates);
+        boolean hasIntern = currentIntern != null;
+        if (hasIntern) {
+            try {
+                ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
+                List<Integer> usedIds =
+                        reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(
+                                currentIntern.getId());
+                List<Activity> unused = new ArrayList<>();
+                for (Activity activity : candidates) {
+                    boolean isAlreadyUsed = usedIds.contains(activity.getIdActivity());
+                    if (!isAlreadyUsed) {
+                        unused.add(activity);
+                    }
+                }
+                result = unused;
+            } catch (ValidationException | ServiceException persistenceException) {
+                LOGGER.log(Level.WARNING,
+                        "No se pudieron filtrar actividades ya usadas en reportes mensuales: {0}",
+                        persistenceException.getMessage());
+            }
+        }
+        return result;
     }
 
     private void applyPartialFilter() {
         if (currentIntern == null) {
             projectActivities.setAll(allProjectActivities);
-            return;
-        }
+        } else {
+            try {
+                ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
+                List<Integer> usedActivityIds =
+                        reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(
+                                currentIntern.getId());
 
-        try {
-            ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
-            List<Integer> usedActivityIds =
-                    reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(
-                            currentIntern.getId());
-
-            boolean hasMonthlyReports = !usedActivityIds.isEmpty();
-            if (!hasMonthlyReports) {
-                projectActivities.clear();
-            } else {
-                List<Activity> filteredActivities = new ArrayList<>();
-                for (Activity activity : allProjectActivities) {
-                    boolean isUsedInMonthly = usedActivityIds.contains(activity.getIdActivity());
-                    if (isUsedInMonthly) {
-                        filteredActivities.add(activity);
+                boolean hasMonthlyReports = !usedActivityIds.isEmpty();
+                if (!hasMonthlyReports) {
+                    projectActivities.clear();
+                } else {
+                    List<Activity> filteredActivities = new ArrayList<>();
+                    for (Activity activity : allProjectActivities) {
+                        boolean isUsedInMonthly = usedActivityIds.contains(activity.getIdActivity());
+                        if (isUsedInMonthly) {
+                            filteredActivities.add(activity);
+                        }
                     }
+                    projectActivities.setAll(filteredActivities);
                 }
-                projectActivities.setAll(filteredActivities);
+            } catch (ValidationException | ServiceException persistenceException) {
+                LOGGER.log(Level.WARNING,
+                        "No se pudieron cargar las actividades de reportes mensuales: {0}",
+                        persistenceException.getMessage());
+                projectActivities.setAll(allProjectActivities);
             }
-        } catch (ValidationException | ServiceException persistenceException) {
-            LOGGER.log(Level.WARNING,
-                    "No se pudieron cargar las actividades de reportes mensuales: {0}",
-                    persistenceException.getMessage());
-            projectActivities.setAll(allProjectActivities);
         }
     }
 
@@ -513,29 +531,30 @@ public class GenerateReportController {
 
     private Optional<ReportActivity> showActivityProgressDialog(Activity activity,
                                                                  String reportType) {
-        Dialog<ReportActivity> dialog;
+        Optional<ReportActivity> dialogResult;
         if (REPORT_TYPE_MONTHLY.equals(reportType)) {
-            dialog = buildMonthlyActivityDialog(activity);
+            dialogResult = showMonthlyActivityDialog(activity);
         } else if (REPORT_TYPE_PARTIAL.equals(reportType)) {
-            dialog = buildPartialActivityDialog(activity);
+            dialogResult = showPartialActivityDialog(activity);
         } else {
-            dialog = buildFinalActivityDialog(activity);
+            dialogResult = showFinalActivityDialog(activity);
         }
-        Optional<ReportActivity> dialogResult = dialog.showAndWait();
         return dialogResult;
     }
 
-    private Dialog<ReportActivity> buildMonthlyActivityDialog(Activity activity) {
-        Dialog<ReportActivity> dialog = createActivityDialog(activity.getName());
+    private Optional<ReportActivity> showMonthlyActivityDialog(Activity activity) {
+        Dialog<ButtonType> dialog = createActivityDialog(activity.getName());
         ButtonType confirmType = new ButtonType("Confirmar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(confirmType, ButtonType.CANCEL);
 
         GridPane grid = buildDialogGrid();
-        TextField periodField = new TextField();
+        RestrictedTextField periodField = new RestrictedTextField();
         periodField.setPromptText("Ej: Semana 1-3");
-        TextArea observationsField = new TextArea();
+        applyTextFieldRestriction(periodField, 50);
+        RestrictedTextArea observationsField = new RestrictedTextArea();
         observationsField.setPromptText("Observaciones de la actividad");
         observationsField.setPrefRowCount(3);
+        applyTextAreaRestriction(observationsField, 150);
 
         grid.add(new Label("Período de ejecución:"), 0, 0);
         grid.add(periodField, 1, 0);
@@ -543,81 +562,125 @@ public class GenerateReportController {
         grid.add(observationsField, 1, 1);
         dialog.getDialogPane().setContent(grid);
 
-        final ReportActivity reportActivity = createReportActivity(activity);
+        Optional<ButtonType> dialogResult = dialog.showAndWait();
+        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
 
-        dialog.setResultConverter(
-                new MonthlyActivityConverter(confirmType, reportActivity,
-                        new MonthlyActivityInput(periodField, observationsField)));
-
-        return dialog;
+        Optional<ReportActivity> result = Optional.empty();
+        if (isConfirmed) {
+            result = Optional.of(
+                    buildMonthlyActivity(activity,
+                            periodField.getText().trim(),
+                            observationsField.getText().trim()));
+        }
+        return result;
     }
 
-    private Dialog<ReportActivity> buildPartialActivityDialog(Activity activity) {
-        Dialog<ReportActivity> dialog = createActivityDialog(activity.getName());
+    private ReportActivity buildMonthlyActivity(Activity activity, String periodo, String observaciones) {
+        ReportActivity reportActivity = createReportActivity(activity);
+        reportActivity.setPeriodo(periodo);
+        reportActivity.setObservaciones(observaciones);
+        return reportActivity;
+    }
+
+    private Optional<ReportActivity> showPartialActivityDialog(Activity activity) {
+        Dialog<ButtonType> dialog = createActivityDialog(activity.getName());
         ButtonType confirmType = new ButtonType("Confirmar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(confirmType, ButtonType.CANCEL);
 
-        String fechaInicioText = activity.getFechaInicio() != null
-                ? activity.getFechaInicio().toString() : "—";
-        String fechaFinText = activity.getFechaFin() != null
-                ? activity.getFechaFin().toString() : "—";
+        String fechaInicioText = "—";
+        if (activity.getFechaInicio() != null) {
+            fechaInicioText = activity.getFechaInicio().toString();
+        }
+        String fechaFinText = "—";
+        if (activity.getFechaFin() != null) {
+            fechaFinText = activity.getFechaFin().toString();
+        }
 
         GridPane grid = buildDialogGrid();
-        TextField realFromField = new TextField("1");
-        TextField realToField = new TextField("8");
-        TextArea observationsField = new TextArea();
+        RestrictedTextField realStartWeekField = new RestrictedTextField("1");
+        setTypeAndLength(realStartWeekField, "Number");
+        RestrictedTextField realEndWeekField = new RestrictedTextField("8");
+        setTypeAndLength(realEndWeekField, "Number");
+        RestrictedTextArea observationsField = new RestrictedTextArea();
         observationsField.setPromptText("Observaciones");
         observationsField.setPrefRowCount(2);
+        applyTextAreaRestriction(observationsField, 150);
 
         grid.add(new Label("Fecha inicio planificada:"), 0, 0);
         grid.add(new Label(fechaInicioText), 1, 0);
         grid.add(new Label("Fecha fin planificada:"), 0, 1);
         grid.add(new Label(fechaFinText), 1, 1);
         grid.add(new Label("Real desde semana:"), 0, 2);
-        grid.add(realFromField, 1, 2);
+        grid.add(realStartWeekField, 1, 2);
         grid.add(new Label("Real hasta semana:"), 0, 3);
-        grid.add(realToField, 1, 3);
+        grid.add(realEndWeekField, 1, 3);
         grid.add(new Label("Observaciones:"), 0, 4);
         grid.add(observationsField, 1, 4);
         dialog.getDialogPane().setContent(grid);
 
-        final ReportActivity reportActivity = createReportActivity(activity);
+        Optional<ButtonType> dialogResult = dialog.showAndWait();
+        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
 
-        dialog.setResultConverter(
-                new PartialActivityConverter(confirmType, reportActivity,
-                        realFromField, realToField, observationsField));
-
-        return dialog;
+        Optional<ReportActivity> result = Optional.empty();
+        if (isConfirmed) {
+            String realWeeks = realStartWeekField.getText().trim()
+                    + ":" + realEndWeekField.getText().trim();
+            result = Optional.of(buildPartialActivity(activity, realWeeks, observationsField.getText().trim()));
+        }
+        return result;
     }
 
-    private Dialog<ReportActivity> buildFinalActivityDialog(Activity activity) {
-        Dialog<ReportActivity> dialog = createActivityDialog(activity.getName());
+    private ReportActivity buildPartialActivity(Activity activity, String realWeeks,
+                                                 String observaciones) {
+        ReportActivity reportActivity = createReportActivity(activity);
+        reportActivity.setPlanSemanas("1:8");
+        reportActivity.setRealSemanas(realWeeks);
+        reportActivity.setObservaciones(observaciones);
+        return reportActivity;
+    }
+
+    private Optional<ReportActivity> showFinalActivityDialog(Activity activity) {
+        Dialog<ButtonType> dialog = createActivityDialog(activity.getName());
         ButtonType confirmType = new ButtonType("Confirmar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(confirmType, ButtonType.CANCEL);
 
         GridPane grid = buildDialogGrid();
-        TextField advanceField = new TextField("0");
-        advanceField.setPromptText("Porcentaje 0-100");
-        TextArea observationsField = new TextArea();
+        RestrictedTextField advancePercentField = new RestrictedTextField("0");
+        advancePercentField.setPromptText("Porcentaje 0-100");
+        setTypeAndLength(advancePercentField, "Number");
+        RestrictedTextArea observationsField = new RestrictedTextArea();
         observationsField.setPromptText("Observaciones");
         observationsField.setPrefRowCount(3);
+        applyTextAreaRestriction(observationsField, 150);
 
         grid.add(new Label("% de avance:"), 0, 0);
-        grid.add(advanceField, 1, 0);
+        grid.add(advancePercentField, 1, 0);
         grid.add(new Label("Observaciones:"), 0, 1);
         grid.add(observationsField, 1, 1);
         dialog.getDialogPane().setContent(grid);
 
-        final ReportActivity reportActivity = createReportActivity(activity);
+        Optional<ButtonType> dialogResult = dialog.showAndWait();
+        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
 
-        dialog.setResultConverter(
-                new FinalActivityConverter(confirmType, reportActivity, advanceField, observationsField));
-
-        return dialog;
+        Optional<ReportActivity> result = Optional.empty();
+        if (isConfirmed) {
+            int advance = parseIntSafe(advancePercentField.getText().trim());
+            result = Optional.of(
+                    buildFinalActivity(activity, advance, observationsField.getText().trim()));
+        }
+        return result;
     }
 
-    private Dialog<ReportActivity> createActivityDialog(String activityName) {
-        Dialog<ReportActivity> dialog = new Dialog<>();
+    private ReportActivity buildFinalActivity(Activity activity, int advance,
+                                               String observaciones) {
+        ReportActivity reportActivity = createReportActivity(activity);
+        reportActivity.setPorcentajeAvance(advance);
+        reportActivity.setObservaciones(observaciones);
+        return reportActivity;
+    }
+
+    private Dialog<ButtonType> createActivityDialog(String activityName) {
+        Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Progreso de actividad");
         dialog.setHeaderText("Actividad: " + activityName);
         return dialog;
@@ -638,18 +701,8 @@ public class GenerateReportController {
         return grid;
     }
 
-    private int parseIntSafe(String text) {
-        int parsedValue = 0;
-        try {
-            parsedValue = Integer.parseInt(text);
-        } catch (NumberFormatException ignored) {
-            parsedValue = 0;
-        }
-        return parsedValue;
-    }
-
-    private Optional<ReportDeliverable> showNewDeliverableDialog() {
-        Dialog<ReportDeliverable> dialog = new Dialog<>();
+    private Optional<ReportDeliverable> showDeliverableDialog() {
+        Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Agregar entregable");
         dialog.setHeaderText("Nuevo entregable del reporte final");
 
@@ -658,34 +711,46 @@ public class GenerateReportController {
 
         GridPane grid = buildDialogGrid();
 
-        TextField resultTextField = new TextField();
-        resultTextField.setPromptText("Resultado entregable");
-        TextArea descriptionField = new TextArea();
-        descriptionField.setPromptText("Descripción");
-        descriptionField.setPrefRowCount(2);
-        TextField advanceField = new TextField("0");
-        advanceField.setPromptText("Porcentaje 0-100");
-        TextArea observationsField = new TextArea();
+        RestrictedTextField resultadoField = new RestrictedTextField();
+        resultadoField.setPromptText("Resultado entregable");
+        applyTextFieldRestriction(resultadoField, 100);
+        RestrictedTextArea descripcionField = new RestrictedTextArea();
+        descripcionField.setPromptText("Descripción");
+        descripcionField.setPrefRowCount(2);
+        applyTextAreaRestriction(descripcionField, 150);
+        RestrictedTextField advancePercentField = new RestrictedTextField("0");
+        advancePercentField.setPromptText("Porcentaje 0-100");
+        setTypeAndLength(advancePercentField, "Number");
+        RestrictedTextArea observationsField = new RestrictedTextArea();
         observationsField.setPromptText("Observaciones");
         observationsField.setPrefRowCount(2);
+        applyTextAreaRestriction(observationsField, 150);
 
         grid.add(new Label("Resultado entregable:"), 0, 0);
-        grid.add(resultTextField, 1, 0);
+        grid.add(resultadoField, 1, 0);
         grid.add(new Label("Descripción:"), 0, 1);
-        grid.add(descriptionField, 1, 1);
+        grid.add(descripcionField, 1, 1);
         grid.add(new Label("% de avance:"), 0, 2);
-        grid.add(advanceField, 1, 2);
+        grid.add(advancePercentField, 1, 2);
         grid.add(new Label("Observaciones:"), 0, 3);
         grid.add(observationsField, 1, 3);
 
         dialog.getDialogPane().setContent(grid);
 
-        dialog.setResultConverter(
-                new DeliverableConverter(confirmType, resultTextField,
-                        descriptionField, advanceField, observationsField));
+        Optional<ButtonType> dialogResult = dialog.showAndWait();
+        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
+        boolean isResultadoNotBlank = !resultadoField.getText().isBlank();
 
-        Optional<ReportDeliverable> deliverableResult = dialog.showAndWait();
-        return deliverableResult;
+        Optional<ReportDeliverable> result = Optional.empty();
+        if (isConfirmed && isResultadoNotBlank) {
+            ReportDeliverable deliverable = new ReportDeliverable();
+            deliverable.setResultado(resultadoField.getText().trim());
+            deliverable.setDescripcion(descripcionField.getText().trim());
+            deliverable.setPorcentajeAvance(parseIntSafe(advancePercentField.getText().trim()));
+            deliverable.setObservaciones(observationsField.getText().trim());
+            result = Optional.of(deliverable);
+        }
+        return result;
     }
 
     private boolean validateBusinessRules(String reportType) throws ServiceException {
@@ -783,8 +848,7 @@ public class GenerateReportController {
         }
     }
 
-    private void generateMonthlyProcess()
-            throws ValidationException, ServiceException, IOException {
+    private void generateMonthlyProcess() throws ValidationException, ServiceException, IOException {
         if (isMonthlyInputValid()) {
             executeMonthlyGeneration();
         }
@@ -838,11 +902,9 @@ public class GenerateReportController {
             persistReportActivities(report.getIdReport());
 
             ReportGenerationContext generationContext = buildCurrentContext(totalHours);
-            ReportContent reportContent = new ReportContent(
-                    Collections.unmodifiableList(reportActivities), null);
+            ReportContent reportContent = new ReportContent(Collections.unmodifiableList(reportActivities), null);
 
-            String internalPath = MonthlyReportGenerator.generate(
-                    report, generationContext, reportContent);
+            String internalPath = MonthlyReportGenerator.generate(report, generationContext, reportContent);
 
             monthlyReportDAO.updateDocumentPath(report.getIdReport(), internalPath);
 
@@ -856,20 +918,27 @@ public class GenerateReportController {
 
     private void generatePartialFinalProcess(String reportType)
             throws ValidationException, ServiceException, IOException {
-        if (isPartialFinalInputValid()) {
+        if (isPartialFinalInputValid(reportType)) {
             executePartialFinalGeneration(reportType);
         }
     }
 
-    private boolean isPartialFinalInputValid() {
+    private boolean isPartialFinalInputValid(String reportType) {
         boolean isReportNumberBlank = reportNumberTextField.getText().isBlank();
         boolean isMethodologyBlank = methodologyTextArea.getText().isBlank();
+        boolean isFinal = REPORT_TYPE_FINAL.equals(reportType);
+        boolean isObservationsBlank = isFinal && observationsTextArea.getText().isBlank();
         boolean isValid = true;
 
-        boolean hasMissingFields = isReportNumberBlank || isMethodologyBlank;
-        if (hasMissingFields) {
+        boolean hasMissingBasicFields = isReportNumberBlank || isMethodologyBlank;
+        if (hasMissingBasicFields) {
             showAlert("Campos requeridos",
                     "Complete el número de informe y la metodología.",
+                    Alert.AlertType.WARNING);
+            isValid = false;
+        } else if (isObservationsBlank) {
+            showAlert("Campos requeridos",
+                    "Las observaciones son obligatorias para el reporte final.",
                     Alert.AlertType.WARNING);
             isValid = false;
         }
@@ -942,10 +1011,8 @@ public class GenerateReportController {
         String internalPath;
 
         if (REPORT_TYPE_PARTIAL.equals(reportType)) {
-            ReportContent reportContent = new ReportContent(
-                    Collections.unmodifiableList(reportActivities), null);
-            internalPath = PartialReportGenerator.generate(
-                    report, generationContext, reportContent);
+            ReportContent reportContent = new ReportContent(Collections.unmodifiableList(reportActivities), null);
+            internalPath = PartialReportGenerator.generate(report, generationContext, reportContent);
         } else {
             persistReportDeliverables(report.getIdReport());
             ReportContent reportContent = new ReportContent(
@@ -974,9 +1041,15 @@ public class GenerateReportController {
             technicianPosition = currentSupervisor.getPosition();
         }
 
-        ReportGenerationContext generationContext = new ReportGenerationContext.Builder()
+        String projectNrc = "";
+        if (currentProject.getNrc() != null) {
+            projectNrc = currentProject.getNrc();
+        }
+
+        ReportGenerationContext generationContext = new ReportGenerationContextBuilder()
                 .internFullName(buildFullName(currentIntern))
                 .matricula(currentIntern.getMatricula())
+                .nrc(projectNrc)
                 .organizationName(organizationName)
                 .technicianName(buildFullName(currentSupervisor))
                 .technicianPosition(technicianPosition)
@@ -1050,11 +1123,9 @@ public class GenerateReportController {
         if (generateButton != null) {
             generateButton.setDisable(true);
         }
-        Platform.runLater(() -> {
-            if (rootPane != null) {
-                openWelcomePage(rootPane);
-            }
-        });
+        if (rootPane != null) {
+            openWelcomePage(rootPane);
+        }
     }
 
     private void clearForm() {
@@ -1075,137 +1146,13 @@ public class GenerateReportController {
         reportDeliverables.clear();
     }
 
-    private static final class MonthlyActivityInput {
-        private final TextField periodField;
-        private final TextArea observationsField;
-
-        MonthlyActivityInput(TextField periodField, TextArea observationsField) {
-            this.periodField = periodField;
-            this.observationsField = observationsField;
+    private static int parseIntSafe(String text) {
+        int parsedValue;
+        try {
+            parsedValue = Integer.parseInt(text);
+        } catch (NumberFormatException numberFormatException) {
+            parsedValue = 0;
         }
-
-        TextField getPeriodField() {
-            return periodField;
-        }
-
-        TextArea getObservationsField() {
-            return observationsField;
-        }
+        return parsedValue;
     }
-
-    private final class MonthlyActivityConverter implements Callback<ButtonType, ReportActivity> {
-        private final ButtonType confirmType;
-        private final ReportActivity reportActivity;
-        private final MonthlyActivityInput input;
-
-        MonthlyActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
-                                  MonthlyActivityInput input) {
-            this.confirmType = confirmType;
-            this.reportActivity = reportActivity;
-            this.input = input;
-        }
-
-        @Override
-        public ReportActivity call(ButtonType buttonType) {
-            ReportActivity result = null;
-            if (buttonType == confirmType) {
-                reportActivity.setPeriodo(input.getPeriodField().getText().trim());
-                reportActivity.setObservaciones(input.getObservationsField().getText().trim());
-                result = reportActivity;
-            }
-            return result;
-        }
-    }
-
-    private final class PartialActivityConverter implements Callback<ButtonType, ReportActivity> {
-        private final ButtonType confirmType;
-        private final ReportActivity reportActivity;
-        private final TextField realFromField;
-        private final TextField realToField;
-        private final TextArea observationsField;
-
-        PartialActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
-                                  TextField realFromField, TextField realToField,
-                                  TextArea observationsField) {
-            this.confirmType = confirmType;
-            this.reportActivity = reportActivity;
-            this.realFromField = realFromField;
-            this.realToField = realToField;
-            this.observationsField = observationsField;
-        }
-
-        @Override
-        public ReportActivity call(ButtonType buttonType) {
-            ReportActivity result = null;
-            if (buttonType == confirmType) {
-                reportActivity.setPlanSemanas("1:8");
-                reportActivity.setRealSemanas(
-                        realFromField.getText().trim() + ":" + realToField.getText().trim());
-                reportActivity.setObservaciones(observationsField.getText().trim());
-                result = reportActivity;
-            }
-            return result;
-        }
-    }
-
-    private final class FinalActivityConverter implements Callback<ButtonType, ReportActivity> {
-        private final ButtonType confirmType;
-        private final ReportActivity reportActivity;
-        private final TextField advanceField;
-        private final TextArea observationsField;
-
-        FinalActivityConverter(ButtonType confirmType, ReportActivity reportActivity,
-                                TextField advanceField, TextArea observationsField) {
-            this.confirmType = confirmType;
-            this.reportActivity = reportActivity;
-            this.advanceField = advanceField;
-            this.observationsField = observationsField;
-        }
-
-        @Override
-        public ReportActivity call(ButtonType buttonType) {
-            ReportActivity result = null;
-            if (buttonType == confirmType) {
-                reportActivity.setPorcentajeAvance(parseIntSafe(advanceField.getText().trim()));
-                reportActivity.setObservaciones(observationsField.getText().trim());
-                result = reportActivity;
-            }
-            return result;
-        }
-    }
-
-    private final class DeliverableConverter implements Callback<ButtonType, ReportDeliverable> {
-        private final ButtonType confirmType;
-        private final TextField resultTextField;
-        private final TextArea descriptionField;
-        private final TextField advanceField;
-        private final TextArea observationsField;
-
-        DeliverableConverter(ButtonType confirmType, TextField resultTextField,
-                              TextArea descriptionField, TextField advanceField,
-                              TextArea observationsField) {
-            this.confirmType = confirmType;
-            this.resultTextField = resultTextField;
-            this.descriptionField = descriptionField;
-            this.advanceField = advanceField;
-            this.observationsField = observationsField;
-        }
-
-        @Override
-        public ReportDeliverable call(ButtonType buttonType) {
-            ReportDeliverable deliverable = null;
-            boolean isConfirm = buttonType == confirmType;
-            boolean isResultNotBlank = !resultTextField.getText().isBlank();
-
-            if (isConfirm && isResultNotBlank) {
-                deliverable = new ReportDeliverable();
-                deliverable.setResultado(resultTextField.getText().trim());
-                deliverable.setDescripcion(descriptionField.getText().trim());
-                deliverable.setPorcentajeAvance(parseIntSafe(advanceField.getText().trim()));
-                deliverable.setObservaciones(observationsField.getText().trim());
-            }
-            return deliverable;
-        }
-    }
-
 }

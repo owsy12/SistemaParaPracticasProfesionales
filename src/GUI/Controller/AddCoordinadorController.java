@@ -10,8 +10,8 @@ import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ChoiceDialog;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedPasswordField;
+import GUI.Utils.RestrictedTextField;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,25 +22,25 @@ import static GUI.Utils.ValidationUtils.setTypeAndLength;
 public class AddCoordinadorController {
 
     @FXML
-    private TextField idTextField;
+    private RestrictedTextField idTextField;
 
     @FXML
-    private TextField firstNameTextField;
+    private RestrictedTextField firstNameTextField;
 
     @FXML
-    private TextField lastNameTextField;
+    private RestrictedTextField lastNameTextField;
 
     @FXML
-    private TextField secondLastNameTextField;
+    private RestrictedTextField secondLastNameTextField;
 
     @FXML
-    private PasswordField passwordField;
+    private RestrictedPasswordField passwordField;
 
     @FXML
-    private PasswordField confirmPasswordField;
+    private RestrictedPasswordField confirmPasswordField;
 
     @FXML
-    private TextField emailTextField;
+    private RestrictedTextField emailTextField;
 
     @FXML
     private void initialize() {

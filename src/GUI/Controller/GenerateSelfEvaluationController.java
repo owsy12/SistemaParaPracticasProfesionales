@@ -2,8 +2,9 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import GUI.Utils.EvaluationPrerequisiteChecker;
-import GUI.Utils.SelfEvaluationGenerator;
-import GUI.Utils.ReportGenerationContext;
+import GUI.DocumentGeneration.SelfEvaluationGenerator;
+import GUI.DocumentGeneration.ReportGenerationContext;
+import GUI.DocumentGeneration.ReportGenerationContextBuilder;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InternDAO;
 import Logic.DAO.LinkedOrganizationDAO;
@@ -196,14 +197,14 @@ public class GenerateSelfEvaluationController {
         String prerequisiteMessage = EvaluationPrerequisiteChecker.check(
                 currentIntern.getId(), currentProject);
 
-        if (prerequisiteMessage != null) {
+        boolean hasPrerequisiteIssue = prerequisiteMessage != null;
+        if (hasPrerequisiteIssue) {
             showAlert("Requisitos no cumplidos", prerequisiteMessage, AlertType.WARNING);
             disableGenerationButton();
             openWelcomePage(rootPane);
-            return;
+        } else {
+            populateReadOnlyFields();
         }
-
-        populateReadOnlyFields();
     }
 
     private void populateReadOnlyFields() {
@@ -302,7 +303,7 @@ public class GenerateSelfEvaluationController {
 
     private ReportGenerationContext buildGenerationContext() {
         javafx.stage.Window ownerWindow = resolveOwnerWindow();
-        ReportGenerationContext generationContext = new ReportGenerationContext.Builder()
+        ReportGenerationContext generationContext = new ReportGenerationContextBuilder()
                 .internFullName(buildInternFullName(currentIntern))
                 .matricula(currentIntern.getMatricula())
                 .organizationName(currentOrganization.getName())

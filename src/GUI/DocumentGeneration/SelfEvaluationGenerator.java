@@ -1,4 +1,4 @@
-package GUI.Utils;
+package GUI.DocumentGeneration;
 
 import Logic.DTOs.SelfEvaluation;
 import javafx.stage.FileChooser;
@@ -28,7 +28,7 @@ import java.util.zip.ZipOutputStream;
 public class SelfEvaluationGenerator {
 
     private static final Logger LOGGER = Logger.getLogger(SelfEvaluationGenerator.class.getName());
-    private static final String TEMPLATE = "/GUI/Utils/basedocuments/autoevaluacion.docx";
+    private static final String TEMPLATE = "/GUI/DocumentGeneration/basedocuments/autoevaluacion.docx";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final int LIKERT_QUESTIONS = 10;
     private static final int LIKERT_COLUMNS = 5;
@@ -56,14 +56,14 @@ public class SelfEvaluationGenerator {
     private static Map<String, String> buildValues(SelfEvaluation evaluation,
                                                     ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
-        values.put("name",         context.getInternFullName());
-        values.put("id",           context.getMatricula());
+        values.put("name", context.getInternFullName());
+        values.put("id",   context.getMatricula());
         values.put("organization", context.getOrganizationName());
-        values.put("depart",       safe(context.getOrganizationDepartment()));
-        values.put("technician",   context.getTechnicianName());
-        values.put("project",      context.getProjectName());
-        values.put("place",        safe(evaluation.getPlaceAndDate()));
-        values.put("date",         LocalDate.now().format(DATE_FORMAT));
+        values.put("depart",  safe(context.getOrganizationDepartment()));
+        values.put("technician",  context.getTechnicianName());
+        values.put("project",  context.getProjectName());
+        values.put("place",   safe(evaluation.getPlaceAndDate()));
+        values.put("date",    LocalDate.now().format(DATE_FORMAT));
         values.put("final_score",  String.valueOf(evaluation.getFinalScore()));
         fillLikertValues(values, evaluation);
         return values;

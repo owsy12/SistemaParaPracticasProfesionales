@@ -22,8 +22,8 @@
 
       <TableView fx:id="reportsTableView" layoutX="20.0" layoutY="68.0" prefHeight="200.0" prefWidth="640.0">
          <columns>
-            <TableColumn fx:id="reportTypeColumn" prefWidth="120.0" text="Tipo">
-               <cellValueFactory><PropertyValueFactory property="reportType"/></cellValueFactory>
+            <TableColumn fx:id="reportTypeColumn" prefWidth="160.0" text="Tipo">
+               <cellValueFactory><PropertyValueFactory property="typeWithMonth"/></cellValueFactory>
             </TableColumn>
             <TableColumn fx:id="periodColumn" prefWidth="160.0" text="Período">
                <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>

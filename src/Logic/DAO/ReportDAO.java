@@ -41,6 +41,15 @@ public class ReportDAO implements IReportDAO {
     private static final String SQL_SELECT_BY_INTERN =
             SQL_SELECT_COLUMNS + "FROM reporte WHERE id_practicante = ? ORDER BY fecha_entrega DESC";
 
+    private static final String SQL_SELECT_BY_INTERN_WITH_MONTH =
+            "SELECT r.id_reporte, r.id_practicante, r.id_proyecto, r.id_profesor, r.tipo_reporte, " +
+            "       r.periodo, r.ruta_documento, r.ruta_documento_firmado, r.estado, r.horas_reportadas, " +
+            "       r.observaciones_profesor, r.fecha_revision, r.fecha_entrega, r.fecha_limite, " +
+            "       r.entrega_tardia, rm.mes " +
+            "FROM reporte r " +
+            "LEFT JOIN reporte_mensual rm ON rm.id_reporte_mensual = r.id_reporte " +
+            "WHERE r.id_practicante = ? ORDER BY r.fecha_entrega DESC";
+
     private static final String SQL_SELECT_BY_PROFESSOR =
             SQL_SELECT_COLUMNS +
             "FROM reporte WHERE id_profesor = ? ORDER BY fecha_entrega DESC";
@@ -48,6 +57,11 @@ public class ReportDAO implements IReportDAO {
     private static final String SQL_SELECT_BY_INTERN_AND_PROFESSOR =
             SQL_SELECT_COLUMNS +
             "FROM reporte WHERE id_practicante = ? AND id_profesor = ? " +
+            "ORDER BY fecha_entrega DESC";
+
+    private static final String SQL_SELECT_BY_INTERN_AND_PROJECT =
+            SQL_SELECT_COLUMNS +
+            "FROM reporte WHERE id_practicante = ? AND id_proyecto = ? " +
             "ORDER BY fecha_entrega DESC";
 
     private static final String SQL_UPDATE_STATUS =
@@ -227,6 +241,43 @@ public class ReportDAO implements IReportDAO {
         return reports;
     }
 
+    public List<Report> getByIdInternWithMonth(int idIntern)
+            throws ServiceException, ValidationException {
+        if (idIntern <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
+        }
+
+        List<Report> reports = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(
+                     SQL_SELECT_BY_INTERN_WITH_MONTH)) {
+
+            statement.setInt(1, idIntern);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    reports.add(mapResultSetToReportWithMonth(resultSet));
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar reportes con mes del practicante {0}: {1}",
+                    new Object[]{idIntern, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los reportes del practicante.", sqlException);
+        }
+
+        return reports;
+    }
+
+    private Report mapResultSetToReportWithMonth(ResultSet resultSet) throws SQLException {
+        Report report = mapResultSetToReport(resultSet);
+        String mes = resultSet.getString("mes");
+        report.setMonthName(mes);
+        return report;
+    }
+
     @Override
     public List<Report> getByIdProfessor(int idProfessor)
             throws ServiceException, ValidationException {
@@ -286,6 +337,42 @@ public class ReportDAO implements IReportDAO {
             LOGGER.log(Level.SEVERE,
                     "Error al recuperar reportes del practicante {0} para el profesor {1}: {2}",
                     new Object[]{internId, professorId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los reportes del practicante.", sqlException);
+        }
+
+        return reports;
+    }
+
+    public List<Report> getByInternAndProject(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (projectId <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
+        }
+
+        List<Report> reports = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(
+                     SQL_SELECT_BY_INTERN_AND_PROJECT)) {
+
+            statement.setInt(1, internId);
+            statement.setInt(2, projectId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    reports.add(mapResultSetToReport(resultSet));
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al recuperar reportes del practicante {0} en proyecto {1}: {2}",
+                    new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los reportes del practicante.", sqlException);
         }

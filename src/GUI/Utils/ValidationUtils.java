@@ -1,13 +1,8 @@
 package GUI.Utils;
 
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
-import javafx.util.StringConverter;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 
 public class ValidationUtils {
@@ -24,90 +19,53 @@ public class ValidationUtils {
     private static final Pattern TEXT_PATTERN =
             Pattern.compile("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]*$");
 
-    private static final Pattern NUMBER_PARTTERN =
+    private static final Pattern NUMBER_PATTERN =
             Pattern.compile("^[0-9]*$");
 
     private static final Pattern PASSWORD_PATTERN =
             Pattern.compile("^[a-zA-Z0-9@#$%^&*!?_\\-]*$");
+
+    static final Pattern TEXTAREA_PATTERN =
+            Pattern.compile("^[\\sa-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ.,;:!?()'\"\\-_%]*$");
+
+    static final Pattern TEXTFIELD_PUNCT_PATTERN =
+            Pattern.compile("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ .,;:!?()'\"\\-_%]*$");
+
     private static final int PASSWORD_MIN_LENGTH = 8;
 
+    public static void setTypeAndLength(RestrictedTextField campo, String type) {
+        int maxLength = resolveMaxLength(type);
+        Pattern pattern = resolvePattern(type);
+        campo.setRestriction(maxLength, pattern);
+    }
 
+    public static void setTypeAndLength(RestrictedPasswordField campo, String type) {
+        int maxLength = resolveMaxLength(type);
+        Pattern pattern = resolvePattern(type);
+        campo.setRestriction(maxLength, pattern);
+    }
 
-    public static void setTypeAndLength(TextField campo, String type) {
-        UnaryOperator<TextFormatter.Change> filter =
-                new UnaryOperator<TextFormatter.Change>() {
-            @Override
-            public TextFormatter.Change apply(TextFormatter.Change change) {
-                String nuevoTexto = change.getControlNewText();
-                boolean isValid = false;
+    public static void limitTextField(RestrictedTextField textField, int maxLength) {
+        textField.setRestriction(maxLength, null);
+    }
 
-                switch (type) {
-                    case "ID":
-                        boolean isIdMatch =
-                                nuevoTexto.matches(ID_PATTERN.pattern());
-                        boolean isIdLength =
-                                nuevoTexto.length() <= 10;
-                        if (isIdMatch && isIdLength) {
-                            isValid = true;
-                        }
-                        break;
-                    case "Name":
-                        boolean isNameMatch =
-                                nuevoTexto.matches(TEXT_PATTERN.pattern());
-                        boolean isNameLength =
-                                nuevoTexto.length() <= 30;
-                        if (isNameMatch && isNameLength) {
-                            isValid = true;
-                        }
-                        break;
-                    case "Email":
-                        boolean isEmailMatch =
-                                nuevoTexto.matches(EMAIL_PATTERN.pattern());
-                        boolean isEmailLength =
-                                nuevoTexto.length() <= 50;
-                        if (isEmailMatch && isEmailLength) {
-                            isValid = true;
-                        }
-                        break;
-                    case "Text":
-                        boolean isTextMatch =
-                                nuevoTexto.matches(TEXT_PATTERN.pattern());
-                        boolean isTextLength =
-                                nuevoTexto.length() <= 45;
-                        if (isTextMatch && isTextLength) {
-                            isValid = true;
-                        }
-                        break;
-                    case "Number":
-                        boolean isNumberMatch =
-                                nuevoTexto.matches(NUMBER_PARTTERN.pattern());
-                        boolean isNumberLength =
-                                nuevoTexto.length() <= 8;
-                        if (isNumberMatch && isNumberLength) {
-                            isValid = true;
-                        }
-                        break;
-                    case "Password":
-                        boolean isPasswordMatch =
-                                nuevoTexto.matches(PASSWORD_PATTERN.pattern());
-                        boolean isPasswordLength =
-                                nuevoTexto.length() <= 20;
-                        if (isPasswordMatch && isPasswordLength) {
-                            isValid = true;
-                        }
-                        break;
-                    default:
-                        isValid = false;
-                }
+    public static void limitTextArea(RestrictedTextArea textArea, int maxLength) {
+        textArea.setRestriction(maxLength, null);
+    }
 
-                TextFormatter.Change result = change;
-                if (!isValid) {
-                    result = null;
-                }
-                return result;
-            }
-        };
-        campo.setTextFormatter(new TextFormatter<>(filter));
+    public static void applyTextAreaRestriction(RestrictedTextArea textArea, int maxLength) {
+        textArea.setRestriction(maxLength, TEXTAREA_PATTERN);
+    }
+
+    public static void applyTextFieldRestriction(RestrictedTextField textField, int maxLength) {
+        textField.setRestriction(maxLength, TEXTFIELD_PUNCT_PATTERN);
+    }
+
+    public static boolean isAcceptedInput(String text, int maxLength, Pattern pattern) {
+        boolean withinLength = text.length() <= maxLength;
+        boolean matchesPattern = pattern == null || pattern.matcher(text).matches();
+        boolean accepted = withinLength && matchesPattern;
+        return accepted;
     }
 
     public static boolean isValidEmail(String email) {
@@ -140,46 +98,6 @@ public class ValidationUtils {
             message = "La contraseña debe contener al menos un carácter especial.";
         }
         return message;
-    }
-
-    private static boolean containsUppercase(String password) {
-        boolean found = false;
-        for (int i = 0; i < password.length(); i++) {
-            if (Character.isUpperCase(password.charAt(i))) {
-                found = true;
-            }
-        }
-        return found;
-    }
-
-    private static boolean containsLowercase(String password) {
-        boolean found = false;
-        for (int i = 0; i < password.length(); i++) {
-            if (Character.isLowerCase(password.charAt(i))) {
-                found = true;
-            }
-        }
-        return found;
-    }
-
-    private static boolean containsDigit(String password) {
-        boolean found = false;
-        for (int i = 0; i < password.length(); i++) {
-            if (Character.isDigit(password.charAt(i))) {
-                found = true;
-            }
-        }
-        return found;
-    }
-
-    private static boolean containsSpecialChar(String password) {
-        boolean found = false;
-        for (int i = 0; i < password.length(); i++) {
-            if (!Character.isLetterOrDigit(password.charAt(i))) {
-                found = true;
-            }
-        }
-        return found;
     }
 
     public static boolean isValidPassword(String password) {
@@ -254,4 +172,93 @@ public class ValidationUtils {
         return isValid;
     }
 
+    private static int resolveMaxLength(String type) {
+        int length;
+        switch (type) {
+            case "ID":
+                length = 10;
+                break;
+            case "Name":
+                length = 30;
+                break;
+            case "Email":
+                length = 50;
+                break;
+            case "Text":
+                length = 45;
+                break;
+            case "Number":
+                length = 8;
+                break;
+            case "Password":
+                length = 20;
+                break;
+            default:
+                length = 45;
+        }
+        return length;
+    }
+
+    private static Pattern resolvePattern(String type) {
+        Pattern pattern;
+        switch (type) {
+            case "ID":
+                pattern = ID_PATTERN;
+                break;
+            case "Email":
+                pattern = EMAIL_PATTERN;
+                break;
+            case "Number":
+                pattern = NUMBER_PATTERN;
+                break;
+            case "Password":
+                pattern = PASSWORD_PATTERN;
+                break;
+            case "Name":
+            case "Text":
+            default:
+                pattern = TEXT_PATTERN;
+        }
+        return pattern;
+    }
+
+    private static boolean containsUppercase(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isUpperCase(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private static boolean containsLowercase(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isLowerCase(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private static boolean containsDigit(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (Character.isDigit(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private static boolean containsSpecialChar(String password) {
+        boolean found = false;
+        for (int i = 0; i < password.length(); i++) {
+            if (!Character.isLetterOrDigit(password.charAt(i))) {
+                found = true;
+            }
+        }
+        return found;
+    }
 }

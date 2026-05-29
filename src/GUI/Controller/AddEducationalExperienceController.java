@@ -11,7 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 
 import java.util.List;
@@ -29,10 +29,10 @@ public class AddEducationalExperienceController {
     public AnchorPane anchorPane;
 
     @FXML
-    private TextField nrcTextField;
+    private RestrictedTextField nrcTextField;
 
     @FXML
-    private TextField nameTextField;
+    private RestrictedTextField nameTextField;
 
     @FXML
     private ComboBox<Professor> professorComboBox;

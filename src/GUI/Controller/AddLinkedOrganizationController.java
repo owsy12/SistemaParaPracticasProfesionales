@@ -13,7 +13,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
+import GUI.Utils.RestrictedTextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import java.util.Optional;
@@ -24,16 +24,16 @@ public class AddLinkedOrganizationController {
     private AnchorPane anchorPane;
 
     @FXML
-    public TextField organizationNameTextField;
+    public RestrictedTextField organizationNameTextField;
 
     @FXML
-    public TextField organizationEmailTextField;
+    public RestrictedTextField organizationEmailTextField;
 
     @FXML
-    public TextField organizationAddressTextField;
+    public RestrictedTextField organizationAddressTextField;
 
     @FXML
-    public TextField sectorOrganizacionTextField;
+    public RestrictedTextField sectorOrganizacionTextField;
 
     @FXML
     public void initialize() {
