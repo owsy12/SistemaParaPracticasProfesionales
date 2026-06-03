@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 
 public class MainMenuController {
 
@@ -239,7 +240,9 @@ public class MainMenuController {
         int targetWidth = sidebarCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_EXPANDED_WIDTH;
         String arrowText = sidebarCollapsed ? ARROW_COLLAPSED : ARROW_EXPANDED;
 
+        sidebarContainerVBox.setMinWidth(targetWidth);
         sidebarContainerVBox.setPrefWidth(targetWidth);
+        sidebarContainerVBox.setMaxWidth(targetWidth);
         sidebarLogoTextVBox.setVisible(!sidebarCollapsed);
         sidebarLogoTextVBox.setManaged(!sidebarCollapsed);
         sidebarUserProfileVBox.setVisible(!sidebarCollapsed);
@@ -276,7 +279,7 @@ public class MainMenuController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent vista = loader.load();
-            contentPane.getChildren().setAll(vista);
+            contentPane.getChildren().setAll(wrapInScrollableContent(vista));
         } catch (IOException ioException) {
             showAlert("Error", "Error al cargar la vista.", Alert.AlertType.ERROR);
         }

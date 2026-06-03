@@ -204,7 +204,7 @@ public class MonthlyReportGenerator {
 
     private static String buildStoragePath(MonthlyReport report, String matricula) {
         String path = "storage/intern_" + matricula
-                + "/proyecto_" + report.getIdProyect()
+                + "/project_" + report.getIdProyect()
                 + "/reports/monthly_" + report.getIdReport() + ".pdf";
         return path;
     }

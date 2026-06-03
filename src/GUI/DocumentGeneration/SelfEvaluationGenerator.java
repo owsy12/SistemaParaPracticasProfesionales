@@ -166,7 +166,7 @@ public class SelfEvaluationGenerator {
 
     private static String buildStoragePath(SelfEvaluation evaluation, String matricula) {
         String path = "storage/intern_" + matricula
-                + "/proyecto_" + evaluation.getIdProyect()
+                + "/project_" + evaluation.getIdProyect()
                 + "/reports/selfevaluation_" + evaluation.getIdSelfEvalation() + ".pdf";
         return path;
     }

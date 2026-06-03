@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 
 public class SelectProjectForActivityController {
 
@@ -114,7 +115,7 @@ public class SelectProjectForActivityController {
 
             StackPane contentPane = (StackPane) projectsTable.getScene().lookup("#contentPane");
             if (contentPane != null) {
-                contentPane.getChildren().setAll(view);
+                contentPane.getChildren().setAll(wrapInScrollableContent(view));
             }
 
         } catch (IOException ioException) {

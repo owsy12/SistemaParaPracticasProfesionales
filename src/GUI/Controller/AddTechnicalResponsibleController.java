@@ -4,6 +4,7 @@ import Logic.DAO.LinkedOrganizationDAO;
 import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.LinkedOrganization;
 import Logic.DTOs.TechnicalSupervisor;
+import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import static GUI.Utils.ValidationUtils.isValidEmail;
@@ -112,6 +113,9 @@ public class AddTechnicalResponsibleController {
                         AlertType.ERROR);
             }
 
+        } catch (DuplicateEntryException duplicateEntryException) {
+            showAlert("Registro duplicado", "Ya existe un usuario registrado con ese correo electrónico.",
+                    AlertType.WARNING);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);

@@ -141,6 +141,9 @@ public class LoginController {
             Stage mainStage = new Stage();
             mainStage.setScene(new Scene(root));
             mainStage.setTitle(title);
+            mainStage.setMinWidth(1024.0);
+            mainStage.setMinHeight(720.0);
+            mainStage.setMaximized(true);
             controller.setCurrentUser(currentUser);
             mainStage.show();
             Stage loginStage = (Stage) userTextField.getScene().getWindow();

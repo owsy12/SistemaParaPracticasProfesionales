@@ -17,4 +17,14 @@ public class DuplicateEntryException extends ServiceException {
     public static boolean isDuplicateEntry(SQLException sqlException) {
         return sqlException.getErrorCode() == MYSQL_DUPLICATE_ENTRY;
     }
+
+    public boolean isEmailDuplicated() {
+        boolean emailDuplicated = false;
+        Throwable cause = getCause();
+        if (cause != null && cause.getMessage() != null) {
+            String causeMessage = cause.getMessage().toLowerCase();
+            emailDuplicated = causeMessage.contains("correo");
+        }
+        return emailDuplicated;
+    }
 }

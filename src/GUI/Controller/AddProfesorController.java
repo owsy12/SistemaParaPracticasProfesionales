@@ -3,6 +3,7 @@ package GUI.Controller;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.Professor;
+import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
@@ -155,6 +156,12 @@ public class AddProfesorController {
                         AlertType.ERROR);
             }
 
+        } catch (DuplicateEntryException duplicateEntryException) {
+            String duplicateMessage = "Ya existe un profesor registrado con esa matrícula.";
+            if (duplicateEntryException.isEmailDuplicated()) {
+                duplicateMessage = "Ya existe un usuario registrado con ese correo electrónico.";
+            }
+            showAlert("Registro duplicado", duplicateMessage, AlertType.WARNING);
         } catch (ServiceException serviceException) {
             showAlert("Servicio no disponible", "Error al procesar el registro. Intente más tarde.",
                     AlertType.ERROR);

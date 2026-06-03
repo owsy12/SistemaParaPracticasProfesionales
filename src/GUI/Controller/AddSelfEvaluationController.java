@@ -264,7 +264,7 @@ public class AddSelfEvaluationController {
     }
 
     private String copySignedFile() throws IOException {
-        String folder = "storage/intern_" + internMatricula + "/autoevaluacion";
+        String folder = "storage/intern_" + internMatricula + "/project_" + selfEvaluation.getIdProyect() + "/self_evaluation";
         String fileName = "autoevaluacion_" + selfEvaluation.getIdSelfEvalation() + "_firmada";
         Path folderPath = Paths.get(folder);
         Files.createDirectories(folderPath);

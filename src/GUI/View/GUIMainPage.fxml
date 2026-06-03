@@ -28,7 +28,8 @@
     </stylesheets>
 
     <left>
-        <VBox fx:id="sidebarContainerVBox" prefWidth="280.0" styleClass="sidebarVBox">
+        <VBox fx:id="sidebarContainerVBox" prefWidth="280.0" minWidth="280.0" maxWidth="280.0"
+              styleClass="sidebarVBox">
 
             <HBox styleClass="sidebarLogoHBox" alignment="CENTER_LEFT" spacing="12.0">
                 <padding><Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/></padding>

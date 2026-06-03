@@ -263,7 +263,8 @@ public class AddOVEvaluationController {
     }
 
     private String copyFile() throws IOException {
-        String folder = "storage/intern_" + internMatricula + "/evaluacion_ov";
+        String folder = "storage/intern_" + internMatricula
+                + "/project_" + projectId + "/ov_evaluation";
         String fileName = "evaluacion_ov_" + internId + "_proyecto_" + projectId;
         Path folderPath = Paths.get(folder);
         Files.createDirectories(folderPath);

@@ -266,8 +266,7 @@ public class ControllerAddReportController {
 
     private String copySignedFile() throws IOException {
         String internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
-        String folder = "storage/intern_" + internMatricula
-                + "/proyecto_" + selectedReport.getIdProyect()
+        String folder = "storage/intern_" + internMatricula + "/project_" + selectedReport.getIdProyect()
                 + "/reportes_generados";
         String fileName = "reporte_" + selectedReport.getReportType().toLowerCase()
                 + "_" + selectedReport.getIdReport() + "_firmado";

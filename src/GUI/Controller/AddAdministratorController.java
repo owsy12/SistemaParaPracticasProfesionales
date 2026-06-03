@@ -110,9 +110,11 @@ public class AddAdministratorController {
                 }
             }
         } catch (DuplicateEntryException duplicateEntryException) {
-            showAlert("Matrícula duplicada",
-                    "La matrícula o el correo ya se encuentran registrados.",
-                    Alert.AlertType.WARNING);
+            String duplicateMessage = "Ya existe un usuario registrado con esa matrícula.";
+            if (duplicateEntryException.isEmailDuplicated()) {
+                duplicateMessage = "Ya existe un usuario registrado con ese correo electrónico.";
+            }
+            showAlert("Registro duplicado", duplicateMessage, Alert.AlertType.WARNING);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);

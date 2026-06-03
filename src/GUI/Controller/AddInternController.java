@@ -115,9 +115,11 @@ public class AddInternController {
                         Alert.AlertType.ERROR);
             }
         } catch (DuplicateEntryException duplicateEntryException) {
-            showAlert("Matrícula duplicada",
-                    "La matrícula ya se encuentra registrada.",
-                    Alert.AlertType.WARNING);
+            String duplicateMessage = "Ya existe un practicante registrado con esa matrícula.";
+            if (duplicateEntryException.isEmailDuplicated()) {
+                duplicateMessage = "Ya existe un usuario registrado con ese correo electrónico.";
+            }
+            showAlert("Registro duplicado", duplicateMessage, Alert.AlertType.WARNING);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);

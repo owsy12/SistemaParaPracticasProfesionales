@@ -22,8 +22,8 @@ create table tecnico_responsable
     apellido_materno   varchar(60)  not null,
     correo_responsable varchar(120) not null,
     cargo              varchar(100) not null,
-    constraint uq_tec_correo_org
-        unique (correo_responsable, id_organizacion),
+    constraint uq_tec_correo
+        unique (correo_responsable),
     constraint fk_tecnico_organizacion
         foreign key (id_organizacion) references organizacion_vinculada (id_organizacion)
             on delete cascade
@@ -41,7 +41,9 @@ create table usuario
     contrasenia      varchar(255) not null comment 'Hash bcrypt',
     correo           varchar(120) not null,
     constraint uq_usuario_matricula
-        unique (matricula)
+        unique (matricula),
+    constraint uq_usuario_correo
+        unique (correo)
 )
     comment 'Tabla base de todos los actores del sistema';
 
