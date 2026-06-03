@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.ServiceException;

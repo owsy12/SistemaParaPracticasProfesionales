@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.ReportDAO;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportStatusUpdate;

@@ -1,5 +1,3 @@
-package test.Logic;
-
 import DataAccess.DataBaseConnection;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Project;

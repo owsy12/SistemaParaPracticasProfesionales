@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.AssignmentDAO;
 import Logic.DTOs.Assignment;
 import Logic.Exceptions.ServiceException;

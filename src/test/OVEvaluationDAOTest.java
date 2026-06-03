@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.OVEvaluationDAO;
 import Logic.DTOs.OVEvaluation;
 import Logic.Exceptions.DuplicateEntryException;

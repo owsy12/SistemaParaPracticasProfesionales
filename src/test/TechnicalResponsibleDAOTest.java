@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.DuplicateEntryException;

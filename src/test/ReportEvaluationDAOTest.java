@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.ReportEvaluationDAO;
 import Logic.DTOs.ReportEvaluation;
 import org.junit.jupiter.api.Test;

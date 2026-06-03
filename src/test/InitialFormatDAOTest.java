@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.Exceptions.ServiceException;

@@ -1,8 +1,5 @@
-package test.Logic;
-
 import Logic.DAO.PartialAndFinalReportDAO;
 import Logic.DTOs.PartialAndFinalReport;
-import Logic.Exceptions.ServiceException;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;

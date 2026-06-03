@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.ActivityDAO;
 import Logic.DTOs.Activity;
 import Logic.Exceptions.ValidationException;

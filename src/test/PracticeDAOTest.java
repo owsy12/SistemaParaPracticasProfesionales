@@ -1,5 +1,3 @@
-package test.Logic;
-
 import Logic.DAO.PracticeDAO;
 import Logic.DTOs.Practice;
 import Logic.Exceptions.DuplicateEntryException;

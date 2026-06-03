@@ -1,5 +1,3 @@
-package test.Logic;
-
 import DataAccess.DataBaseConnection;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DTOs.ReportActivity;
