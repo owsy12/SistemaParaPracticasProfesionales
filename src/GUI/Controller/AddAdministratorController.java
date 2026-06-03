@@ -2,6 +2,7 @@ package GUI.Controller;
 
 import GUI.Utils.RestrictedPasswordField;
 import GUI.Utils.RestrictedTextField;
+import GUI.Utils.ViewsUtils;
 import Logic.DAO.UserDAO;
 import Logic.DTOs.User;
 import Logic.Exceptions.DuplicateEntryException;
@@ -9,7 +10,6 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
 
 import static GUI.Utils.Alert.showAlert;
@@ -18,6 +18,11 @@ import static GUI.Utils.ValidationUtils.isValidEmail;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 
 public class AddAdministratorController {
+
+    private static final String LOGIN_FXML_PATH = "/GUI/View/GUILogin.fxml";
+    private static final String LOGIN_WINDOW_TITLE = "Inicio de Sesión — SGPP";
+    private static final String STATUS_ACTIVE = "Activo";
+    private static final String ROLE_ADMINISTRATOR = "Administrador";
 
     @FXML
     private RestrictedTextField idTextField;
@@ -76,7 +81,7 @@ public class AddAdministratorController {
 
     @FXML
     public void cancelRegistration() {
-        closeWindow();
+        ViewsUtils.openWindow(LOGIN_FXML_PATH, LOGIN_WINDOW_TITLE, idTextField);
     }
 
     private void registrationProcess() {
@@ -96,14 +101,14 @@ public class AddAdministratorController {
                 administrator.setSecondLastName(secondLastNameTextField.getText());
                 administrator.setEmail(emailTextField.getText());
                 administrator.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
-                administrator.setStatus("Activo");
-                administrator.setRole("Administrador");
+                administrator.setStatus(STATUS_ACTIVE);
+                administrator.setRole(ROLE_ADMINISTRATOR);
 
                 boolean isRegistered = userDAO.saveUser(administrator) > 0;
                 if (isRegistered) {
                     showAlert("Éxito", "Administrador registrado exitosamente.",
                             Alert.AlertType.INFORMATION);
-                    closeWindow();
+                    ViewsUtils.openWindow(LOGIN_FXML_PATH, LOGIN_WINDOW_TITLE, idTextField);
                 } else {
                     showAlert("Error", "No se pudo registrar el administrador.",
                             Alert.AlertType.ERROR);
@@ -143,8 +148,4 @@ public class AddAdministratorController {
         return isMatching;
     }
 
-    private void closeWindow() {
-        Stage stage = (Stage) idTextField.getScene().getWindow();
-        stage.close();
-    }
 }

@@ -25,7 +25,7 @@ public class UserRoleDAO implements IUserRoleDAO {
     private static final String INSERT_USER_ROLE_SQL =
             "INSERT INTO usuario_rol (id_usuario, rol, estado) VALUES (?, ?, ?)";
     private static final String SELECT_ROLES_BY_USER_ID_SQL =
-            "SELECT id_usuario, rol FROM usuario_rol WHERE id_usuario = ?";
+            "SELECT id_usuario, rol, estado FROM usuario_rol WHERE id_usuario = ?";
     private static final String SELECT_USERS_BY_ROLE_SQL =
             "SELECT id_usuario, rol FROM usuario_rol WHERE rol = ?";
     private static final String DELETE_USER_ROLE_SQL =

@@ -29,7 +29,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/PrincipiosConstrucción/SistemaParaPracticasProfesionales/lib/java-dotenv-5.2.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/java-dotenv-5.2.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -38,13 +38,13 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/PrincipiosConstrucción/SistemaParaPracticasProfesionales/lib/mysql-connector-j-9.5.0.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/mysql-connector-j-9.1.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library" exported="" scope="RUNTIME">
+    <orderEntry type="module-library" exported="">
       <library name="JavaFX">
         <CLASSES>
           <root url="file://$MODULE_DIR$/lib/javafx-21" />
@@ -54,59 +54,31 @@
         <jarDirectory url="file://$MODULE_DIR$/lib/javafx-21" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="java-dotenv-5.2.0" level="project" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="file://$USER_HOME$/Documents/javafx-sdk-26.0.1/lib" />
-        </CLASSES>
-        <JAVADOC />
-        <NATIVE>
-          <root url="file://$USER_HOME$/Documents/javafx-sdk-26.0.1/lib" />
-        </NATIVE>
-        <SOURCES />
-        <jarDirectory url="file://$USER_HOME$/Documents/javafx-sdk-26.0.1/lib" recursive="false" />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" exported="" name="kotlin-stdlib-1.9.10" level="project" />
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$USER_HOME$/Documents/mysql-connector-j-9.5.0/mysql-connector-j-9.5.0.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="library" name="mindrot.jbcrypt" level="project" />
     <orderEntry type="module-library" exported="">
       <library name="ApachePOI-DocxConverter">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/poi/poi-5.2.5.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/poi-ooxml-5.2.5.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/poi-ooxml-full-5.2.5.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/xmlbeans-5.2.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/commons-compress-1.26.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/commons-io-2.15.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/commons-collections4-4.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/commons-lang3-3.14.0.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/commons-math3-3.6.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/curvesapi-1.08.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/log4j-api-2.23.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/log4j-core-2.23.1.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/pdfbox-2.0.29.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/fontbox-2.0.29.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/itext-2.1.7.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/xwpf.converter.core-2.0.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/xwpf.converter.pdf-2.0.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.itext.extension-2.0.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.core-2.0.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.template-2.0.4.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/poi/xdocreport.document-2.0.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi-4.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi-ooxml-4.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/poi-ooxml-schemas-4.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/ooxml-schemas-1.4.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/xmlbeans-3.0.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commons-compress-1.18.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commons-collections4-4.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commons-math3-3.6.1.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/commons-codec-1.11.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/curvesapi-1.05.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/itext-2.1.7.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/fr.opensagres.poi.xwpf.converter.core-2.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/fr.opensagres.poi.xwpf.converter.pdf-2.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/fr.opensagres.xdocreport.itext.extension-2.0.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/xdocreport-itext-extension-1.0.6.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="java-dotenv-5.2.0" level="project" />
+    <orderEntry type="library" exported="" name="kotlin-stdlib-1.9.10" level="project" />
+    <orderEntry type="library" name="mindrot.jbcrypt" level="project" />
   </component>
 </module>

@@ -1,4 +1,4 @@
-package Logic;
+package test.Logic;
 
 import Logic.DAO.ReportEvaluationDAO;
 import Logic.DTOs.ReportEvaluation;
@@ -11,116 +11,99 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReportEvaluationDAOTest extends BaseDAOTest {
 
+    private static final int EVALUATION_GRADE = 9;
+    private static final int EVALUATION_GRADE_MIN = 0;
+    private static final int EVALUATION_GRADE_MAX = 10;
+    private static final String EVALUATION_FEEDBACK = "Buen desempeño, mejorar la documentación.";
+
     private final ReportEvaluationDAO dao = new ReportEvaluationDAO();
 
-    // El reporte con ID_REPORTE=1 ya existe al finalizar BaseDAOTest.setUpDatabase()
     private ReportEvaluation buildValidEvaluation() {
         ReportEvaluation evaluation = new ReportEvaluation();
-        evaluation.setIdReport      (ID_REPORTE);
-        evaluation.setGrade         (9);
-        evaluation.setFeedback      ("Buen desempeño, mejorar la documentación.");
+        evaluation.setIdReport(ID_REPORT);
+        evaluation.setGrade(EVALUATION_GRADE);
+        evaluation.setFeedback(EVALUATION_FEEDBACK);
         evaluation.setEvaluationDate(new Date());
         return evaluation;
     }
 
     @Test
-    void save_withValidData_returnsOneRowAffected() throws Exception {
+    void testSaveValidEvaluationReturnsOneRowAffected() throws Exception {
         int result = dao.save(buildValidEvaluation());
-
         assertEquals(1, result);
     }
 
     @Test
-    void save_withValidData_assignsGeneratedId() throws Exception {
+    void testSaveValidEvaluationAssignsGeneratedId() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
-
         dao.save(evaluation);
-
         assertTrue(evaluation.getIdReportEvaluation() > 0);
     }
 
     @Test
-    void save_thenGetById_returnsNotNull() throws Exception {
+    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
         dao.save(evaluation);
-
         ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
-
         assertNotNull(retrieved);
     }
 
     @Test
-    void save_thenGetById_returnsCorrectGrade() throws Exception {
+    void testGetByIdAfterSaveReturnsCorrectGrade() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
         dao.save(evaluation);
-
         ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
-
-        assertEquals(9, retrieved.getGrade());
+        assertEquals(EVALUATION_GRADE, retrieved.getGrade());
     }
 
     @Test
-    void save_thenGetById_returnsCorrectFeedback() throws Exception {
+    void testGetByIdAfterSaveReturnsCorrectFeedback() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
         dao.save(evaluation);
-
         ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
-
-        assertEquals("Buen desempeño, mejorar la documentación.", retrieved.getFeedback());
+        assertEquals(EVALUATION_FEEDBACK, retrieved.getFeedback());
     }
 
     @Test
-    void save_thenGetByIdReport_returnsNotNull() throws Exception {
+    void testGetByIdReportAfterSaveReturnsNotNull() throws Exception {
         dao.save(buildValidEvaluation());
-
-        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORTE);
-
+        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORT);
         assertNotNull(retrieved);
     }
 
     @Test
-    void save_thenGetByIdReport_returnsCorrectReportId() throws Exception {
+    void testGetByIdReportAfterSaveReturnsCorrectReportId() throws Exception {
         dao.save(buildValidEvaluation());
-
-        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORTE);
-
-        assertEquals(ID_REPORTE, retrieved.getIdReport());
+        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORT);
+        assertEquals(ID_REPORT, retrieved.getIdReport());
     }
 
     @Test
-    void getByIdReport_whenNoEvaluation_returnsNull() throws Exception {
-        // El reporte ID_REPORTE existe pero no tiene evaluación aún
-        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORTE);
-
+    void testGetByIdReportWhenNoEvaluationReturnsNull() throws Exception {
+        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORT);
         assertNull(retrieved);
     }
 
     @Test
-    void save_thenGetAll_returnsOneElement() throws Exception {
+    void testGetAllAfterSaveReturnsOneElement() throws Exception {
         dao.save(buildValidEvaluation());
-
         List<ReportEvaluation> all = dao.getAll();
-
         assertEquals(1, all.size());
     }
 
     @Test
-    void save_withGradeZero_returnsOneRowAffected() throws Exception {
+    void testSaveWithGradeZeroReturnsOneRowAffected() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
-        evaluation.setGrade(0);
-
+        evaluation.setGrade(EVALUATION_GRADE_MIN);
         int result = dao.save(evaluation);
-
         assertEquals(1, result);
     }
 
     @Test
-    void save_withGradeTen_returnsOneRowAffected() throws Exception {
+    void testSaveWithGradeTenReturnsOneRowAffected() throws Exception {
         ReportEvaluation evaluation = buildValidEvaluation();
-        evaluation.setGrade(10);
-
+        evaluation.setGrade(EVALUATION_GRADE_MAX);
         int result = dao.save(evaluation);
-
         assertEquals(1, result);
     }
 }

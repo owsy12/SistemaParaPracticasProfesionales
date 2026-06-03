@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="xdocreport.itext.extension" type="repository">
+    <properties maven-id="fr.opensagres.xdocreport:fr.opensagres.xdocreport.itext.extension:2.0.2" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/fr.opensagres.xdocreport.itext.extension-2.0.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

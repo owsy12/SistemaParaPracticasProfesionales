@@ -3,11 +3,13 @@ package GUI.Utils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -16,6 +18,22 @@ import static GUI.Utils.Alert.showAlert;
 public class ViewsUtils {
 
     public static final String CONTENT_PANE_ID = "contentPane";
+
+    public static void openWindow(String fxmlPath, String windowTitle, Node sourceNode) {
+        try {
+            FXMLLoader loader = new FXMLLoader(ViewsUtils.class.getResource(fxmlPath));
+            Parent root = loader.load();
+            Stage newStage = new Stage();
+            newStage.setScene(new Scene(root));
+            newStage.setTitle(windowTitle);
+            newStage.show();
+            Stage currentStage = (Stage) sourceNode.getScene().getWindow();
+            currentStage.close();
+        } catch (IOException ioException) {
+            showAlert("Error", "No se pudo abrir la ventana solicitada.",
+                    javafx.scene.control.Alert.AlertType.ERROR);
+        }
+    }
 
     public static void openWelcomePage(AnchorPane anchorPane) {
         try {
