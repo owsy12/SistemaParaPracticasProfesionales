@@ -24,7 +24,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     private SelfEvaluation buildValidSelfEvaluation() {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
         selfEvaluation.setIdIntern(ID_INTERN);
-        selfEvaluation.setIdProyect(ID_PROJECT);
+        selfEvaluation.setIdProject(ID_PROJECT);
         selfEvaluation.setPeriod(EVALUATION_PERIOD);
         selfEvaluation.setStatement01(STATEMENT_VALUE_FOUR);
         selfEvaluation.setStatement02(STATEMENT_VALUE_FIVE);

@@ -6,17 +6,17 @@ import java.util.Date;
 public class Assignment {
     private int idAssignment;
     private int idIntern;
-    private int idProyect;
+    private int idProject;
     private int idApplication;
     private LocalDate assignmentDate;
     private String status;
-    private String razonAsignacion;
+    private String assignmentReason;
 
 
-    public Assignment(int idAssignment, int idIntern, int idProyect, int idApplication, LocalDate assignmentDate) {
+    public Assignment(int idAssignment, int idIntern, int idProject, int idApplication, LocalDate assignmentDate) {
         this.idAssignment = idAssignment;
         this.idIntern = idIntern;
-        this.idProyect = idProyect;
+        this.idProject = idProject;
         this.idApplication = idApplication;
         this.assignmentDate = assignmentDate;
     }
@@ -40,12 +40,12 @@ public class Assignment {
         this.idIntern = idIntern;
     }
 
-    public int getIdProyect() {
-        return idProyect;
+    public int getIdProject() {
+        return idProject;
     }
 
-    public void setIdProyect(int idProyect) {
-        this.idProyect = idProyect;
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
     }
 
     public int getIdApplication() {
@@ -72,12 +72,12 @@ public class Assignment {
         this.status = status;
     }
 
-    public String getRazonAsignacion() {
-        return razonAsignacion;
+    public String getAssignmentReason() {
+        return assignmentReason;
     }
 
-    public void setRazonAsignacion(String razonAsignacion) {
-        this.razonAsignacion = razonAsignacion;
+    public void setAssignmentReason(String assignmentReason) {
+        this.assignmentReason = assignmentReason;
     }
 }
 

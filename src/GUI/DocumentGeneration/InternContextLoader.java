@@ -56,7 +56,7 @@ public class InternContextLoader {
     private static InternContext loadWithProject(Intern intern, Assignment assignment, int internId)
             throws ValidationException, ServiceException {
         ProjectDAO projectDAO = new ProjectDAO();
-        Project project = projectDAO.findById(assignment.getIdProyect());
+        Project project = projectDAO.findById(assignment.getIdProject());
 
         LinkedOrganizationDAO orgDAO = new LinkedOrganizationDAO();
         LinkedOrganization organization = orgDAO.findById(project.getIdOrganization());
@@ -70,7 +70,7 @@ public class InternContextLoader {
         ReportDAO reportDAO = new ReportDAO();
         int approvedHours = reportDAO.getTotalApprovedHoursByIntern(internId);
 
-        List<Activity> activities = loadActivities(project.getIdProyect());
+        List<Activity> activities = loadActivities(project.getIdProject());
 
         InternContext context = new InternContext(intern, project, organization, supervisor, professor, approvedHours, activities, true);
         return context;

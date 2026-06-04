@@ -186,7 +186,7 @@ public class GenerateSelfEvaluationController {
     private void loadProjectData(Assignment activeAssignment)
             throws ValidationException, DuplicateEntryException, ServiceException {
         ProjectDAO projectDAO = new ProjectDAO();
-        currentProject = projectDAO.findById(activeAssignment.getIdProyect());
+        currentProject = projectDAO.findById(activeAssignment.getIdProject());
 
         LinkedOrganizationDAO organizationDAO = new LinkedOrganizationDAO();
         currentOrganization = organizationDAO.findById(currentProject.getIdOrganization());
@@ -326,7 +326,7 @@ public class GenerateSelfEvaluationController {
     private SelfEvaluation buildSelfEvaluation() {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
         selfEvaluation.setIdIntern(currentIntern.getId());
-        selfEvaluation.setIdProyect(currentProject.getIdProyect());
+        selfEvaluation.setIdProject(currentProject.getIdProject());
         selfEvaluation.setPeriod(buildAcademicPeriod());
         selfEvaluation.setStatement01(getSelectedValue(question01ToggleGroup));
         selfEvaluation.setStatement02(getSelectedValue(question02ToggleGroup));

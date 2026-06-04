@@ -58,7 +58,7 @@ public class FinalReportGenerator {
     private static Map<String, String> buildValues(PartialAndFinalReport report,
                                                     ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
-        values.put("nrc", String.valueOf(report.getIdProyect()));
+        values.put("nrc", String.valueOf(report.getIdProject()));
         values.put("school_term", safe(report.getPeriod()));
         values.put("name", context.getInternFullName());
         values.put("organization", context.getOrganizationName());
@@ -157,7 +157,7 @@ public class FinalReportGenerator {
         String key = String.format("%02d", index);
         Map<String, String> row = new HashMap<>();
         row.put("activity_" + key, safe(activity.getActivityName()));
-        row.put("a" + index + "_advance", activity.getPorcentajeAvance() + "%");
+        row.put("a" + index + "_advance", activity.getAdvancePercentage() + "%");
         row.put("a" + index + "_observations", safe(activity.getObservaciones()));
         return row;
     }
@@ -216,7 +216,7 @@ public class FinalReportGenerator {
         String key = String.format("%02d", index);
         Map<String, String> row = new HashMap<>();
         row.put("deliverable_result_" + key, safe(deliverable.getResultado()));
-        row.put("dr" + key + "_advance", deliverable.getPorcentajeAvance() + "%");
+        row.put("dr" + key + "_advance", deliverable.getAdvancePercentage() + "%");
         row.put("dr" + key + "_observations", safe(deliverable.getObservaciones()));
         return row;
     }
@@ -272,7 +272,7 @@ public class FinalReportGenerator {
 
     private static String buildStoragePath(PartialAndFinalReport report, String matricula) {
         String path = "storage/intern_" + matricula
-                + "/project_" + report.getIdProyect()
+                + "/project_" + report.getIdProject()
                 + "/reports/final_" + report.getIdReport() + ".pdf";
         return path;
     }

@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Project {
-    private int idProyect;
+    private int idProject;
     private int idOrganization;
     private int idTechnicalSupervisor;
     private int IdProfessor;
@@ -21,8 +21,8 @@ public class Project {
     private String nrc;
 
 
-    public Project(int idProyect, int idOrganization, int idTechnicalSupervisor, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
-        this.idProyect = idProyect;
+    public Project(int idProject, int idOrganization, int idTechnicalSupervisor, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
+        this.idProject = idProject;
         this.idOrganization = idOrganization;
         this.idTechnicalSupervisor = idTechnicalSupervisor;
         this.name = name;
@@ -36,12 +36,12 @@ public class Project {
     public Project() {
     }
 
-    public int getIdProyect() {
-        return idProyect;
+    public int getIdProject() {
+        return idProject;
     }
 
-    public void setIdProyect(int idProyect) {
-        this.idProyect = idProyect;
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
     }
 
     public int getIdOrganization() {
@@ -245,8 +245,8 @@ public class Project {
         return display;
     }
 
-    public String getIdProyectDisplay() {
-        String display = String.valueOf(idProyect);
+    public String getIdProjectDisplay() {
+        String display = String.valueOf(idProject);
         return display;
     }
 

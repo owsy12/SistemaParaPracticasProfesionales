@@ -57,6 +57,10 @@ public class PracticeDAO implements IPracticeDAO {
             "UPDATE practica SET estado = 'Activa', fecha_inicio = ? " +
             "WHERE id_practicante = ? AND nrc = ? AND estado = 'Cancelada' LIMIT 1";
 
+    private static final String SQL_CONCLUDE_ACTIVE_BY_INTERN =
+            "UPDATE practica SET estado = 'Concluida' " +
+            "WHERE id_practicante = ? AND estado = 'Activa'";
+
     private static final String SQL_UPDATE =
             "UPDATE practica SET nrc = ?, id_practicante = ?, fecha_inicio = ?, " +
                     "fecha_fin = ?, estado = ?, calificacion = ? WHERE id_practica = ?";
@@ -307,6 +311,31 @@ public class PracticeDAO implements IPracticeDAO {
         }
 
         return hasConcluded;
+    }
+
+    public boolean concludeActiveByIntern(int internId) throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+
+
+        boolean updated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_CONCLUDE_ACTIVE_BY_INTERN)) {
+
+            statement.setInt(2, internId);
+            updated = statement.executeUpdate() > 0;
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al concluir la práctica del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al concluir la práctica.", sqlException);
+        }
+
+        return updated;
     }
 
     public boolean cancelActiveByInternAndProject(int internId, int projectId)

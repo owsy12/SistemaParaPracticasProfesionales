@@ -53,10 +53,10 @@ public class AssignmentDAO implements IAssignmentDAO {
                     "El ID del practicante debe ser mayor a cero. ID recibido: "
                             + assignment.getIdIntern());
         }
-        if (assignment.getIdProyect() <= 0) {
+        if (assignment.getIdProject() <= 0) {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: "
-                            + assignment.getIdProyect());
+                            + assignment.getIdProject());
         }
         int rowsAffected = 0;
 
@@ -65,10 +65,10 @@ public class AssignmentDAO implements IAssignmentDAO {
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt(1, assignment.getIdIntern());
-            statement.setInt(2, assignment.getIdProyect());
+            statement.setInt(2, assignment.getIdProject());
             statement.setInt(3, assignment.getIdApplication());
             statement.setDate(4, Date.valueOf(assignment.getAssignmentDate()));
-            statement.setString(5, assignment.getRazonAsignacion());
+            statement.setString(5, assignment.getAssignmentReason());
 
             rowsAffected = statement.executeUpdate();
 
@@ -286,11 +286,11 @@ public class AssignmentDAO implements IAssignmentDAO {
         Assignment assignment = new Assignment();
         assignment.setIdAssignment(resultSet.getInt("id_asignacion"));
         assignment.setIdIntern(resultSet.getInt("id_practicante"));
-        assignment.setIdProyect(resultSet.getInt("id_proyecto"));
+        assignment.setIdProject(resultSet.getInt("id_proyecto"));
         assignment.setIdApplication(resultSet.getInt("id_solicitud"));
         assignment.setAssignmentDate(resultSet.getDate("fecha_asignacion").toLocalDate());
         assignment.setStatus(resultSet.getString("estado"));
-        assignment.setRazonAsignacion(resultSet.getString("razon_asignacion"));
+        assignment.setAssignmentReason(resultSet.getString("razon_asignacion"));
         return assignment;
     }
 }

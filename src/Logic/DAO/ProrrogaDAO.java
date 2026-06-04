@@ -26,14 +26,14 @@ public class ProrrogaDAO {
             "UPDATE actividad SET fecha_fin = ? WHERE id_actividad = ?";
 
     public int save(Prorroga prorroga) throws ServiceException, ValidationException {
-        if (prorroga.getIdActividad() <= 0) {
+        if (prorroga.getIdActivity() <= 0) {
             throw new ValidationException(
                     "El ID de la actividad debe ser mayor a cero.");
         }
         if (prorroga.getMotivo() == null || prorroga.getMotivo().isBlank()) {
             throw new ValidationException("El motivo de la prórroga no puede estar vacío.");
         }
-        if (prorroga.getFechaFinNueva() == null) {
+        if (prorroga.getNewEndDate() == null) {
             throw new ValidationException("La nueva fecha de fin es requerida.");
         }
 
@@ -60,7 +60,7 @@ public class ProrrogaDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al guardar prórroga para actividad {0}: {1}",
-                    new Object[]{prorroga.getIdActividad(), sqlException.getMessage()});
+                    new Object[]{prorroga.getIdActivity(), sqlException.getMessage()});
             throw new ServiceException("Error al registrar la prórroga.", sqlException);
         }
 
@@ -73,9 +73,9 @@ public class ProrrogaDAO {
         try (PreparedStatement statement = connection.prepareStatement(
                 SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt(1, prorroga.getIdActividad());
-            statement.setDate(2, Date.valueOf(prorroga.getFechaFinOriginal()));
-            statement.setDate(3, Date.valueOf(prorroga.getFechaFinNueva()));
+            statement.setInt(1, prorroga.getIdActivity());
+            statement.setDate(2, Date.valueOf(prorroga.getOriginalEndDate()));
+            statement.setDate(3, Date.valueOf(prorroga.getNewEndDate()));
             statement.setString(4, prorroga.getMotivo());
 
             statement.executeUpdate();
@@ -93,8 +93,8 @@ public class ProrrogaDAO {
 
     private void updateActivityStatus(Connection connection, Prorroga prorroga) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_ACTIVITY)) {
-            statement.setDate(1, Date.valueOf(prorroga.getFechaFinNueva()));
-            statement.setInt(2, prorroga.getIdActividad());
+            statement.setDate(1, Date.valueOf(prorroga.getNewEndDate()));
+            statement.setInt(2, prorroga.getIdActivity());
             statement.executeUpdate();
         }
     }

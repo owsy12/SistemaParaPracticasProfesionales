@@ -40,22 +40,22 @@ class ReportActivityDAOTest extends BaseDAOTest {
 
     private ReportActivity buildValidReportActivity() {
         ReportActivity ra = new ReportActivity();
-        ra.setIdReporte(ID_REPORT);
-        ra.setIdActividad(SUPPORT_ACTIVITY_ID);
-        ra.setPeriodo(PERIOD);
+        ra.setIdReport(ID_REPORT);
+        ra.setIdActivity(SUPPORT_ACTIVITY_ID);
+        ra.setPeriod(PERIOD);
         ra.setPlanSemanas(PLAN_WEEKS);
         ra.setRealSemanas(REAL_WEEKS);
-        ra.setPorcentajeAvance(ADVANCE_PERCENTAGE);
+        ra.setAdvancePercentage(ADVANCE_PERCENTAGE);
         ra.setObservaciones(OBSERVATIONS);
         return ra;
     }
 
     private ReportDeliverable buildValidDeliverable(String result) {
         ReportDeliverable rd = new ReportDeliverable();
-        rd.setIdReporte(ID_REPORT);
+        rd.setIdReport(ID_REPORT);
         rd.setResultado(result);
         rd.setDescripcion(DELIVERABLE_DESCRIPTION);
-        rd.setPorcentajeAvance(ADVANCE_PERCENTAGE);
+        rd.setAdvancePercentage(ADVANCE_PERCENTAGE);
         rd.setObservaciones(OBSERVATIONS);
         return rd;
     }
@@ -83,7 +83,7 @@ class ReportActivityDAOTest extends BaseDAOTest {
     @Test
     void testSaveReportActivityWithZeroReportIdThrowsValidationException() {
         ReportActivity ra = buildValidReportActivity();
-        ra.setIdReporte(INVALID_ID_ZERO);
+        ra.setIdReport(INVALID_ID_ZERO);
         assertThrows(ValidationException.class, () -> dao.save(ra));
     }
 

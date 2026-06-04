@@ -148,7 +148,7 @@ public class MonthlyReportGenerator {
         String key = String.format("%02d", index);
         Map<String, String> row = new HashMap<>();
         row.put("activity_" + key, safe(activity.getActivityName()));
-        row.put("activity_" + key + "_period", safe(activity.getPeriodo()));
+        row.put("activity_" + key + "_period", safe(activity.getPeriod()));
         row.put("activity_" + key + "_observations", safe(activity.getObservaciones()));
         return row;
     }
@@ -204,7 +204,7 @@ public class MonthlyReportGenerator {
 
     private static String buildStoragePath(MonthlyReport report, String matricula) {
         String path = "storage/intern_" + matricula
-                + "/project_" + report.getIdProyect()
+                + "/project_" + report.getIdProject()
                 + "/reports/monthly_" + report.getIdReport() + ".pdf";
         return path;
     }

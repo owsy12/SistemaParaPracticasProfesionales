@@ -24,20 +24,20 @@ public class CompatibleFontProvider implements IFontProvider {
         fontMap.put("calibri light", FONT_HELVETICA);
         fontMap.put("arial", FONT_HELVETICA);
         fontMap.put("arial narrow", FONT_HELVETICA);
-        fontMap.put("helvetica",         FONT_HELVETICA);
-        fontMap.put("tahoma",            FONT_HELVETICA);
-        fontMap.put("verdana",           FONT_HELVETICA);
-        fontMap.put("trebuchet ms",      FONT_HELVETICA);
-        fontMap.put("times new roman",   FONT_TIMES_ROMAN);
-        fontMap.put("georgia",           FONT_TIMES_ROMAN);
-        fontMap.put("garamond",          FONT_TIMES_ROMAN);
-        fontMap.put("book antiqua",      FONT_TIMES_ROMAN);
-        fontMap.put("courier new",       FONT_COURIER);
-        fontMap.put("courier",           FONT_COURIER);
-        fontMap.put("lucida console",    FONT_COURIER);
-        fontMap.put("consolas",          FONT_COURIER);
-        fontMap.put("symbol",            FONT_SYMBOL);
-        fontMap.put("wingdings",         FONT_SYMBOL);
+        fontMap.put("helvetica", FONT_HELVETICA);
+        fontMap.put("tahoma", FONT_HELVETICA);
+        fontMap.put("verdana", FONT_HELVETICA);
+        fontMap.put("trebuchet ms",FONT_HELVETICA);
+        fontMap.put("times new roman",FONT_TIMES_ROMAN);
+        fontMap.put("georgia",FONT_TIMES_ROMAN);
+        fontMap.put("garamond",FONT_TIMES_ROMAN);
+        fontMap.put("book antiqua", FONT_TIMES_ROMAN);
+        fontMap.put("courier new",FONT_COURIER);
+        fontMap.put("courier", FONT_COURIER);
+        fontMap.put("lucida console", FONT_COURIER);
+        fontMap.put("consolas", FONT_COURIER);
+        fontMap.put("symbol", FONT_SYMBOL);
+        fontMap.put("wingdings", FONT_SYMBOL);
         return fontMap;
     }
 

@@ -18,10 +18,14 @@ import javafx.scene.control.Button;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.mindrot.jbcrypt.BCrypt;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.Alert.showAlert;
 
 public class LoginController {
+
+    private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
     @FXML
     private RestrictedTextField userTextField;
     @FXML
@@ -82,10 +86,8 @@ public class LoginController {
         if (isEmpty()) {
             showAlert("Campos vacíos", "Por favor, completa todos los campos obligatorios.",
                    Alert.AlertType.WARNING);
-        }else if (loginProcess()){
+        } else if (loginProcess()) {
             openWindow("GUIMainPage.fxml", "Menú Principal");
-        }else {
-            showAlert("Error inesperado","Estamos teniendo problemas inten†e mas tarde", Alert.AlertType.WARNING);
         }
     }
 
@@ -98,11 +100,23 @@ public class LoginController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
 
-            if (BCrypt.checkpw(passwordField.getText(), currentUser.getPassword())) {
-                SessionManager.getInstance().login(currentUser);
-                isValidUser = true;
-            } else {
+            boolean isPasswordValid = BCrypt.checkpw(passwordField.getText(), currentUser.getPassword());
+            if (!isPasswordValid) {
                 throw new ValidationException("Contraseña incorrecta");
+            } else {
+                boolean hasActiveRole = currentUser.getRoles() != null
+                        && !currentUser.getRoles().isEmpty();
+                if (!hasActiveRole) {
+                    LOGGER.log(Level.WARNING,
+                            "Acceso denegado: el usuario {0} no tiene ningún rol activo.",
+                            currentUser.getMatricula());
+                    showAlert("Acceso denegado",
+                            "No cuenta con ningún rol activo dentro del sistema. Contacte al administrador.",
+                            Alert.AlertType.WARNING);
+                } else {
+                    SessionManager.getInstance().login(currentUser);
+                    isValidUser = true;
+                }
             }
 
         } catch (ServiceException e) {

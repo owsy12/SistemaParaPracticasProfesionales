@@ -3,7 +3,7 @@ package Logic.DTOs;
 public class SelfEvaluation {
     private int idSelfEvalation;
     private int idIntern;
-    private int idProyect;
+    private int idProject;
     private String period;
     private int statement01;
     private int statement02;
@@ -21,10 +21,10 @@ public class SelfEvaluation {
     private String status;
 
 
-    public SelfEvaluation(int idSelfEvalation, int idIntern, int idProyect, String period, int statement01, int statement02, int statement03, int statement04, int statement05, int statement06, int statement07, int statement08, int statement09, int statement10) {
+    public SelfEvaluation(int idSelfEvalation, int idIntern, int idProject, String period, int statement01, int statement02, int statement03, int statement04, int statement05, int statement06, int statement07, int statement08, int statement09, int statement10) {
         this.idSelfEvalation = idSelfEvalation;
         this.idIntern = idIntern;
-        this.idProyect = idProyect;
+        this.idProject = idProject;
         this.period = period;
         this.statement01 = statement01;
         this.statement02 = statement02;
@@ -57,12 +57,12 @@ public class SelfEvaluation {
         this.idIntern = idIntern;
     }
 
-    public int getIdProyect() {
-        return idProyect;
+    public int getIdProject() {
+        return idProject;
     }
 
-    public void setIdProyect(int idProyect) {
-        this.idProyect = idProyect;
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
     }
 
     public String getPeriod() {

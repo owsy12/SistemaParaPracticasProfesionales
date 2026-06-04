@@ -54,7 +54,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
         if (ra == null) {
             throw new ValidationException("La actividad del reporte no puede ser nula.");
         }
-        if (ra.getIdReporte() <= 0 || ra.getIdActividad() <= 0) {
+        if (ra.getIdReport() <= 0 || ra.getIdActivity() <= 0) {
             throw new ValidationException(
                     "El ID de reporte e ID de actividad deben ser mayores a cero.");
         }
@@ -63,12 +63,12 @@ public class ReportActivityDAO implements IReportActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT_ACTIVITY, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt (1, ra.getIdReporte());
-            statement.setInt (2, ra.getIdActividad());
-            statement.setString(3, ra.getPeriodo());
+            statement.setInt (1, ra.getIdReport());
+            statement.setInt (2, ra.getIdActivity());
+            statement.setString(3, ra.getPeriod());
             statement.setString(4, ra.getPlanSemanas());
             statement.setString(5, ra.getRealSemanas());
-            statement.setInt (6, ra.getPorcentajeAvance());
+            statement.setInt (6, ra.getAdvancePercentage());
             statement.setString(7, ra.getObservaciones());
 
             int rows = statement.executeUpdate();
@@ -82,7 +82,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error al guardar actividad del reporte {0}: {1}",
-                    new Object[]{ra.getIdReporte(), sqlException.getMessage()});
+                    new Object[]{ra.getIdReport(), sqlException.getMessage()});
             throw new ServiceException(
                     "Error al guardar la actividad del reporte.", sqlException);
         }
@@ -125,7 +125,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
         if (rd == null) {
             throw new ValidationException("El entregable del reporte no puede ser nulo.");
         }
-        if (rd.getIdReporte() <= 0) {
+        if (rd.getIdReport() <= 0) {
             throw new ValidationException("El ID de reporte debe ser mayor a cero.");
         }
         if (rd.getResultado() == null || rd.getResultado().isBlank()) {
@@ -136,10 +136,10 @@ public class ReportActivityDAO implements IReportActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT_DELIVERABLE, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt (1, rd.getIdReporte());
+            statement.setInt (1, rd.getIdReport());
             statement.setString(2, rd.getResultado());
             statement.setString(3, rd.getDescripcion());
-            statement.setInt (4, rd.getPorcentajeAvance());
+            statement.setInt (4, rd.getAdvancePercentage());
             statement.setString(5, rd.getObservaciones());
 
             int rows = statement.executeUpdate();
@@ -153,7 +153,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error al guardar entregable del reporte {0}: {1}",
-                    new Object[]{rd.getIdReporte(), sqlException.getMessage()});
+                    new Object[]{rd.getIdReport(), sqlException.getMessage()});
             throw new ServiceException(
                     "Error al guardar el entregable del reporte.", sqlException);
         }
@@ -225,13 +225,13 @@ public class ReportActivityDAO implements IReportActivityDAO {
     private ReportActivity mapActivity(ResultSet rs) throws SQLException {
         ReportActivity ra = new ReportActivity();
         ra.setIdReporteActividad(rs.getInt ("id_reporte_actividad"));
-        ra.setIdReporte (rs.getInt ("id_reporte"));
-        ra.setIdActividad (rs.getInt ("id_actividad"));
+        ra.setIdReport (rs.getInt ("id_reporte"));
+        ra.setIdActivity (rs.getInt ("id_actividad"));
         ra.setActivityName (rs.getString("actividad_nombre"));
-        ra.setPeriodo (rs.getString("periodo"));
+        ra.setPeriod (rs.getString("periodo"));
         ra.setPlanSemanas (rs.getString("plan_semanas"));
         ra.setRealSemanas (rs.getString("real_semanas"));
-        ra.setPorcentajeAvance (rs.getInt ("porcentaje_avance"));
+        ra.setAdvancePercentage (rs.getInt ("porcentaje_avance"));
         ra.setObservaciones (rs.getString("observaciones"));
         return ra;
     }
@@ -239,10 +239,10 @@ public class ReportActivityDAO implements IReportActivityDAO {
     private ReportDeliverable mapDeliverable(ResultSet rs) throws SQLException {
         ReportDeliverable rd = new ReportDeliverable();
         rd.setIdReporteEntregable(rs.getInt ("id_reporte_entregable"));
-        rd.setIdReporte (rs.getInt ("id_reporte"));
+        rd.setIdReport (rs.getInt ("id_reporte"));
         rd.setResultado (rs.getString("resultado"));
         rd.setDescripcion (rs.getString("descripcion"));
-        rd.setPorcentajeAvance (rs.getInt ("porcentaje_avance"));
+        rd.setAdvancePercentage (rs.getInt ("porcentaje_avance"));
         rd.setObservaciones (rs.getString("observaciones"));
         return rd;
     }

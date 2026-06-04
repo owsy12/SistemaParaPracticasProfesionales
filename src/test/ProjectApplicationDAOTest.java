@@ -20,7 +20,7 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     private ProjectApplication buildValidProjectApplication(int preferenceOrder) {
         ProjectApplication projectApplication = new ProjectApplication();
         projectApplication.setIdApplication(ID_APPLICATION);
-        projectApplication.setIdProyect(ID_PROJECT);
+        projectApplication.setIdProject(ID_PROJECT);
         projectApplication.setPreferenceOrder(preferenceOrder);
         return projectApplication;
     }
@@ -41,7 +41,7 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     @Test
     void testCreateWithZeroProjectIdThrowsValidationException() {
         ProjectApplication projectApplication = buildValidProjectApplication(PREFERENCE_ORDER_PRIMARY);
-        projectApplication.setIdProyect(INVALID_ID_ZERO);
+        projectApplication.setIdProject(INVALID_ID_ZERO);
         assertThrows(ValidationException.class, () -> dao.create(projectApplication));
     }
 

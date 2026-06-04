@@ -46,10 +46,10 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
                     "El ID de la solicitud debe ser mayor a cero. ID recibido: "
                             + projectApplication.getIdApplication());
         }
-        if (projectApplication.getIdProyect() <= 0) {
+        if (projectApplication.getIdProject() <= 0) {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: "
-                            + projectApplication.getIdProyect());
+                            + projectApplication.getIdProject());
         }
 
         boolean isCreated = false;
@@ -58,7 +58,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_SQL)) {
 
             preparedStatement.setInt(1, projectApplication.getIdApplication());
-            preparedStatement.setInt(2, projectApplication.getIdProyect());
+            preparedStatement.setInt(2, projectApplication.getIdProject());
             preparedStatement.setInt(3, projectApplication.getPreferenceOrder());
 
             if (preparedStatement.executeUpdate() > 0) {

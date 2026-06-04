@@ -207,6 +207,15 @@
                                     </TableColumn>
                                 </columns>
                             </TableView>
+
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <Button text="Abrir documento inicial"
+                                        onAction="#openInitialDocument" mnemonicParsing="false"/>
+                                <Button text="Ver Autoevaluación"
+                                        onAction="#openSelfEvaluation" mnemonicParsing="false"/>
+                                <Button text="Ver Evaluación OV"
+                                        onAction="#openOVEvaluation" mnemonicParsing="false"/>
+                            </HBox>
                         </VBox>
 
                     </VBox>

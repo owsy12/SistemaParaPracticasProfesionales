@@ -2,10 +2,10 @@ package Logic.DTOs;
 
 public class ReportDeliverable {
     private int idReporteEntregable;
-    private int idReporte;
+    private int idReport;
     private String resultado;
     private String descripcion;
-    private int porcentajeAvance;
+    private int advancePercentage;
     private String observaciones;
 
     public ReportDeliverable() {
@@ -19,12 +19,12 @@ public class ReportDeliverable {
         this.idReporteEntregable = idReporteEntregable;
     }
 
-    public int getIdReporte() {
-        return idReporte;
+    public int getIdReport() {
+        return idReport;
     }
 
-    public void setIdReporte(int idReporte) {
-        this.idReporte = idReporte;
+    public void setIdReport(int idReport) {
+        this.idReport = idReport;
     }
 
     public String getResultado() {
@@ -43,12 +43,12 @@ public class ReportDeliverable {
         this.descripcion = descripcion;
     }
 
-    public int getPorcentajeAvance() {
-        return porcentajeAvance;
+    public int getAdvancePercentage() {
+        return advancePercentage;
     }
 
-    public void setPorcentajeAvance(int porcentajeAvance) {
-        this.porcentajeAvance = porcentajeAvance;
+    public void setAdvancePercentage(int advancePercentage) {
+        this.advancePercentage = advancePercentage;
     }
 
     public String getObservaciones() {
@@ -60,7 +60,7 @@ public class ReportDeliverable {
     }
 
     public String getAdvanceDisplay() {
-        String display = porcentajeAvance + "%";
+        String display = advancePercentage + "%";
         return display;
     }
 

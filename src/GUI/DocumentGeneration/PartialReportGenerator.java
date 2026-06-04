@@ -236,7 +236,7 @@ public class PartialReportGenerator {
 
     private static String buildStoragePath(PartialAndFinalReport report, String matricula) {
         String path = "storage/intern_" + matricula
-                + "/project_" + report.getIdProyect()
+                + "/project_" + report.getIdProject()
                 + "/reports/partial_" + report.getIdReport() + ".pdf";
         return path;
     }

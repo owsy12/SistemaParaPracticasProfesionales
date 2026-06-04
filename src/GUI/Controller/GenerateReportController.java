@@ -339,7 +339,7 @@ public class GenerateReportController {
     private boolean isActivityAlreadyAdded(Activity activity) {
         boolean alreadyAdded = false;
         for (ReportActivity reportActivity : reportActivities) {
-            if (reportActivity.getIdActividad() == activity.getIdActivity()) {
+            if (reportActivity.getIdActivity() == activity.getIdActivity()) {
                 alreadyAdded = true;
             }
         }
@@ -350,10 +350,10 @@ public class GenerateReportController {
         boolean hasProjectStart = currentProject != null && currentProject.getStartDate() != null;
         boolean hasProjectEnd = currentProject != null && currentProject.getEndDate() != null;
 
-        boolean startBeforeProject = hasProjectStart && activity.getFechaInicio() != null
-                && activity.getFechaInicio().isBefore(currentProject.getStartDate());
-        boolean endAfterProject = hasProjectEnd && activity.getFechaFin() != null
-                && activity.getFechaFin().isAfter(currentProject.getEndDate());
+        boolean startBeforeProject = hasProjectStart && activity.getStartDate() != null
+                && activity.getStartDate().isBefore(currentProject.getStartDate());
+        boolean endAfterProject = hasProjectEnd && activity.getEndDate() != null
+                && activity.getEndDate().isAfter(currentProject.getEndDate());
 
         boolean isOutOfRange = startBeforeProject || endAfterProject;
         return isOutOfRange;
@@ -386,6 +386,7 @@ public class GenerateReportController {
             reportNumberTextField.setVisible(true);
             methodologyTextArea.setVisible(isPartialOrFinal);
             resultsTextArea.setVisible(isPartialOrFinal);
+            observationsTextArea.setVisible(isPartialOrFinal);
 
             deliverablesLabel.setVisible(isFinal);
             reportDeliverablesTable.setVisible(isFinal);
@@ -446,10 +447,10 @@ public class GenerateReportController {
 
             List<Activity> dateFiltered = new ArrayList<>();
             for (Activity activity : allProjectActivities) {
-                boolean isStartBeforeMonthEnd = activity.getFechaInicio() == null
-                        || !activity.getFechaInicio().isAfter(lastDayOfMonth);
-                boolean isEndAfterMonthStart = activity.getFechaFin() == null
-                        || !activity.getFechaFin().isBefore(firstDayOfMonth);
+                boolean isStartBeforeMonthEnd = activity.getStartDate() == null
+                        || !activity.getStartDate().isAfter(lastDayOfMonth);
+                boolean isEndAfterMonthStart = activity.getEndDate() == null
+                        || !activity.getEndDate().isBefore(firstDayOfMonth);
                 boolean isInRange = isStartBeforeMonthEnd && isEndAfterMonthStart;
                 if (isInRange) {
                     dateFiltered.add(activity);
@@ -576,7 +577,7 @@ public class GenerateReportController {
 
     private ReportActivity buildMonthlyActivity(Activity activity, String periodo, String observaciones) {
         ReportActivity reportActivity = createReportActivity(activity);
-        reportActivity.setPeriodo(periodo);
+        reportActivity.setPeriod(periodo);
         reportActivity.setObservaciones(observaciones);
         return reportActivity;
     }
@@ -587,12 +588,12 @@ public class GenerateReportController {
         dialog.getDialogPane().getButtonTypes().addAll(confirmType, ButtonType.CANCEL);
 
         String fechaInicioText = "—";
-        if (activity.getFechaInicio() != null) {
-            fechaInicioText = activity.getFechaInicio().toString();
+        if (activity.getStartDate() != null) {
+            fechaInicioText = activity.getStartDate().toString();
         }
         String fechaFinText = "—";
-        if (activity.getFechaFin() != null) {
-            fechaFinText = activity.getFechaFin().toString();
+        if (activity.getEndDate() != null) {
+            fechaFinText = activity.getEndDate().toString();
         }
 
         GridPane grid = buildDialogGrid();
@@ -673,7 +674,7 @@ public class GenerateReportController {
     private ReportActivity buildFinalActivity(Activity activity, int advance,
                                                String observaciones) {
         ReportActivity reportActivity = createReportActivity(activity);
-        reportActivity.setPorcentajeAvance(advance);
+        reportActivity.setAdvancePercentage(advance);
         reportActivity.setObservaciones(observaciones);
         return reportActivity;
     }
@@ -687,7 +688,7 @@ public class GenerateReportController {
 
     private ReportActivity createReportActivity(Activity activity) {
         ReportActivity reportActivity = new ReportActivity();
-        reportActivity.setIdActividad(activity.getIdActivity());
+        reportActivity.setIdActivity(activity.getIdActivity());
         reportActivity.setActivityName(activity.getName());
         return reportActivity;
     }
@@ -745,7 +746,7 @@ public class GenerateReportController {
             ReportDeliverable deliverable = new ReportDeliverable();
             deliverable.setResultado(resultadoField.getText().trim());
             deliverable.setDescripcion(descripcionField.getText().trim());
-            deliverable.setPorcentajeAvance(parseIntSafe(advancePercentField.getText().trim()));
+            deliverable.setAdvancePercentage(parseIntSafe(advancePercentField.getText().trim()));
             deliverable.setObservaciones(observationsField.getText().trim());
             result = Optional.of(deliverable);
         }
@@ -754,7 +755,7 @@ public class GenerateReportController {
 
     private boolean validateBusinessRules(String reportType) throws ServiceException {
         int internId = currentIntern.getId();
-        int projectId = currentProject.getIdProyect();
+        int projectId = currentProject.getIdProject();
         ReportDAO reportDAO = new ReportDAO();
         boolean isValid = true;
 
@@ -881,7 +882,7 @@ public class GenerateReportController {
 
         MonthlyReport report = new MonthlyReport();
         report.setIdIntern(currentIntern.getId());
-        report.setIdProyect(currentProject.getIdProyect());
+        report.setIdProject(currentProject.getIdProject());
         report.setIdProfessor(currentProject.getIdProfessor());
         report.setReportType(REPORT_TYPE_MONTHLY);
         report.setPeriod(period);
@@ -966,7 +967,7 @@ public class GenerateReportController {
     private PartialAndFinalReport buildPartialFinalReport(String reportType, String period) {
         PartialAndFinalReport report = new PartialAndFinalReport();
         report.setIdIntern(currentIntern.getId());
-        report.setIdProyect(currentProject.getIdProyect());
+        report.setIdProject(currentProject.getIdProject());
         report.setIdProfessor(currentProject.getIdProfessor());
         report.setReportType(reportType);
         report.setPeriod(period);
@@ -1063,7 +1064,7 @@ public class GenerateReportController {
     private void persistReportActivities(int idReport) {
         ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
         for (ReportActivity reportActivity : reportActivities) {
-            reportActivity.setIdReporte(idReport);
+            reportActivity.setIdReport(idReport);
             try {
                 reportActivityDAO.save(reportActivity);
             } catch (ValidationException | ServiceException persistenceException) {
@@ -1076,7 +1077,7 @@ public class GenerateReportController {
     private void persistReportDeliverables(int idReport) {
         ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
         for (ReportDeliverable reportDeliverable : reportDeliverables) {
-            reportDeliverable.setIdReporte(idReport);
+            reportDeliverable.setIdReport(idReport);
             try {
                 reportActivityDAO.saveDeliverable(reportDeliverable);
             } catch (ValidationException | ServiceException persistenceException) {

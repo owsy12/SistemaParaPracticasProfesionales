@@ -2,11 +2,15 @@ package GUI.Utils;
 
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternActivityDAO;
+import Logic.DAO.OVEvaluationDAO;
 import Logic.DAO.ReportDAO;
+import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.InternActivity;
+import Logic.DTOs.OVEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
+import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 
@@ -16,6 +20,8 @@ import java.util.List;
 public class EvaluationPrerequisiteChecker {
     private static final String STATUS_COMPLETED = "Completada";
     private static final String STATUS_EVALUATED = "Evaluado";
+    private static final String STATUS_SUBMITTED = "Entregada";
+    private static final String STATUS_SELF_EVALUATION_DELIVERED = "Entregada";
 
 
     private static final int REQUIRED_HOURS = 420;
@@ -23,9 +29,38 @@ public class EvaluationPrerequisiteChecker {
     private EvaluationPrerequisiteChecker() {
     }
 
+    public static boolean isPracticeComplete(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        boolean complete = checkPendingDocuments(internId) == null
+                && checkApprovedHours(internId) == null
+                && checkActivitiesCompleted(internId, projectId) == null
+                && checkReportsEvaluated(internId) == null
+                && isSelfEvaluationDelivered(internId)
+                && isOVEvaluationDelivered(internId, projectId);
+        return complete;
+    }
+
+    private static boolean isSelfEvaluationDelivered(int internId)
+            throws ServiceException, ValidationException {
+        SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
+        SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
+        boolean delivered = selfEvaluation != null
+                && STATUS_SELF_EVALUATION_DELIVERED.equals(selfEvaluation.getStatus());
+        return delivered;
+    }
+
+    private static boolean isOVEvaluationDelivered(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
+        OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+        boolean delivered = ovEvaluation != null
+                && STATUS_SUBMITTED.equals(ovEvaluation.getStatus());
+        return delivered;
+    }
+
     public static String check(int internId, Project project)
             throws ServiceException, ValidationException {
-        int projectId = project.getIdProyect();
+        int projectId = project.getIdProject();
         LocalDate projectStart = project.getStartDate();
         LocalDate projectEnd = project.getEndDate();
 

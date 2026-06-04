@@ -129,15 +129,15 @@ public class ViewInterProjectSelection {
                 List<ProjectApplication> projectApplications =
                         projectApplicationDAO.findByApplication(applicationId);
 
-                for (ProjectApplication pa : projectApplications) {
-                    internSelectedIds.add(pa.getIdProyect());
+                for (ProjectApplication projectApplication : projectApplications) {
+                    internSelectedIds.add(projectApplication.getIdProject());
                 }
 
                 ProjectDAO projectDAO = new ProjectDAO();
                 List<Project> result = new ArrayList<>();
 
-                for (ProjectApplication pa : projectApplications) {
-                    Project project = projectDAO.findById(pa.getIdProyect());
+                for (ProjectApplication projectApplication : projectApplications) {
+                    Project project = projectDAO.findById(projectApplication.getIdProject());
                     boolean isAvailable = project != null && project.getAvaliablePlaces() > 0;
                     if (isAvailable) {
                         project.setPreferenceLabel(LABEL_SELECTED);
@@ -147,7 +147,7 @@ public class ViewInterProjectSelection {
 
                 List<Project> allAvailable = projectDAO.findAllAvailable();
                 for (Project project : allAvailable) {
-                    boolean isAlreadyIncluded = internSelectedIds.contains(project.getIdProyect());
+                    boolean isAlreadyIncluded = internSelectedIds.contains(project.getIdProject());
                     if (!isAlreadyIncluded) {
                         project.setPreferenceLabel(LABEL_NOT_SELECTED);
                         result.add(project);
@@ -168,7 +168,7 @@ public class ViewInterProjectSelection {
     }
 
     private void handleAssignAction(Project project) {
-        boolean isOriginalSelection = internSelectedIds.contains(project.getIdProyect());
+        boolean isOriginalSelection = internSelectedIds.contains(project.getIdProject());
         if (isOriginalSelection) {
             confirmAndAssign(project, null);
         } else {
@@ -219,27 +219,27 @@ public class ViewInterProjectSelection {
             try {
                 Assignment assignment = new Assignment();
                 assignment.setIdApplication(applicationId);
-                assignment.setIdProyect(project.getIdProyect());
+                assignment.setIdProject(project.getIdProject());
                 assignment.setIdIntern(internId);
                 assignment.setAssignmentDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
-                assignment.setRazonAsignacion(justification);
+                assignment.setAssignmentReason(justification);
 
                 AssignmentDAO assignmentDAO = new AssignmentDAO();
                 assignmentDAO.save(assignment);
 
                 ProjectDAO projectDAO = new ProjectDAO();
-                boolean cupoDecremented = projectDAO.decrementAvailableSlot(project.getIdProyect());
+                boolean cupoDecremented = projectDAO.decrementAvailableSlot(project.getIdProject());
                 boolean cupoNotDecremented = !cupoDecremented;
                 if (cupoNotDecremented) {
                     LOGGER.log(Level.WARNING,
                             "No se pudo decrementar cupo del proyecto {0}: sin cupo disponible",
-                            project.getIdProyect());
+                            project.getIdProject());
                 }
 
                 ApplicationDAO applicationDAO = new ApplicationDAO();
                 applicationDAO.updateStatus(applicationId, STATUS_ACCEPTED);
 
-                createInitialDocuments(project.getIdProyect());
+                createInitialDocuments(project.getIdProject());
                 createOrReactivatePractice(project);
 
                 showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
@@ -276,13 +276,12 @@ public class ViewInterProjectSelection {
         boolean hasNrc = nrc != null && !nrc.isBlank();
         if (!hasNrc) {
             LOGGER.log(Level.WARNING,
-                    "Proyecto {0} sin NRC: no se puede crear práctica.", project.getIdProyect());
+                    "Proyecto {0} sin NRC: no se puede crear práctica.", project.getIdProject());
         } else {
 
             try {
                 PracticeDAO practiceDAO = new PracticeDAO();
-                practiceDAO.reactivateOrCreate(
-                        user.getId(), nrc, LocalDate.now(ZoneId.of("America/Mexico_City")));
+                practiceDAO.reactivateOrCreate(user.getId(), nrc, LocalDate.now(ZoneId.of("America/Mexico_City")));
             } catch (ServiceException serviceException) {
                 LOGGER.log(Level.SEVERE, "Error al gestionar práctica para practicante {0}: {1}",
                         new Object[]{user.getId(), serviceException.getMessage()});

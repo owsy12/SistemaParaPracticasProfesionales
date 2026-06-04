@@ -58,7 +58,7 @@ class ProjectDAOTest extends BaseDAOTest {
     void testSaveValidProjectAssignsGeneratedId() throws Exception {
         Project project = buildValidProject(NEW_PROJECT_NAME);
         dao.saveProject(project);
-        assertTrue(project.getIdProyect() > 0);
+        assertTrue(project.getIdProject() > 0);
     }
 
     @Test

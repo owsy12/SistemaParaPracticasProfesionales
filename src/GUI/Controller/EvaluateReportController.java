@@ -3,15 +3,19 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
+import Logic.DAO.OVEvaluationDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DAO.ReportDAO;
+import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
+import Logic.DTOs.OVEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportActivity;
 import Logic.DTOs.ReportStatusUpdate;
+import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.value.ChangeListener;
@@ -27,7 +31,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import GUI.Utils.RestrictedTextArea;
 import javafx.stage.FileChooser;
-import javafx.util.StringConverter;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -239,6 +242,94 @@ public class EvaluateReportController implements ChangeListener<Object> {
         }
     }
 
+    @FXML
+    public void openInitialDocument(ActionEvent actionEvent) {
+        InitialFormat selectedFormat = initialFormatsTableView.getSelectionModel().getSelectedItem();
+        boolean isSelectionMissing = selectedFormat == null;
+        boolean hasNoFile = selectedFormat != null && (selectedFormat.getFilePath() == null
+                || selectedFormat.getFilePath().isBlank());
+
+        if (isSelectionMissing) {
+            showAlert("Sin selección", "Seleccione un documento inicial de la tabla.",
+                    Alert.AlertType.WARNING);
+        } else if (hasNoFile) {
+            showAlert("Sin documento",
+                    "Este documento inicial aún no ha sido entregado por el practicante.",
+                    Alert.AlertType.INFORMATION);
+        } else {
+            tryOpenFile(selectedFormat.getFilePath());
+        }
+    }
+
+    @FXML
+    public void openSelfEvaluation(ActionEvent actionEvent) {
+        Intern selectedIntern = internComboBox.getSelectionModel().getSelectedItem();
+        if (selectedIntern == null) {
+            showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
+        } else {
+            tryOpenSelfEvaluation(selectedIntern.getId());
+        }
+    }
+
+    private void tryOpenSelfEvaluation(int internId) {
+        try {
+            SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
+            SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
+            boolean hasDocument = selfEvaluation != null && selfEvaluation.getDocumentPath() != null
+                    && !selfEvaluation.getDocumentPath().isBlank();
+            if (!hasDocument) {
+                showAlert("Sin autoevaluación",
+                        "El practicante no tiene una autoevaluación entregada.",
+                        Alert.AlertType.INFORMATION);
+            } else {
+                tryOpenFile(selfEvaluation.getDocumentPath());
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar la autoevaluación del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo recuperar la autoevaluación.", Alert.AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void openOVEvaluation(ActionEvent actionEvent) {
+        Intern selectedIntern = internComboBox.getSelectionModel().getSelectedItem();
+        Project selectedProject = projectComboBox.getValue();
+        boolean isSelectionMissing = selectedIntern == null || selectedProject == null;
+        if (isSelectionMissing) {
+            showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
+                    Alert.AlertType.WARNING);
+        } else {
+            tryOpenOVEvaluation(selectedIntern.getId(), selectedProject.getIdProject());
+        }
+    }
+
+    private void tryOpenOVEvaluation(int internId, int projectId) {
+        try {
+            OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
+            OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+            boolean hasDocument = ovEvaluation != null && ovEvaluation.getDocumentPath() != null
+                    && !ovEvaluation.getDocumentPath().isBlank();
+            if (!hasDocument) {
+                showAlert("Sin evaluación OV",
+                        "El practicante no tiene una evaluación OV entregada para este proyecto.",
+                        Alert.AlertType.INFORMATION);
+            } else {
+                tryOpenFile(ovEvaluation.getDocumentPath());
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar la evaluación OV del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo recuperar la evaluación OV.", Alert.AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
     private void tryOpenFile(String filePath) {
         File file = new File(filePath);
         boolean fileExists = file.exists();
@@ -339,7 +430,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private void loadInternsForProject(Project project) {
         try {
             InternDAO internDAO = new InternDAO();
-            List<Intern> interns = internDAO.findByProject(project.getIdProyect());
+            List<Intern> interns = internDAO.findByProject(project.getIdProject());
             internComboBox.setItems(FXCollections.observableArrayList(interns));
             internComboBox.setDisable(false);
             reportsTableView.getItems().clear();
@@ -349,7 +440,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar practicantes del proyecto {0}: {1}",
-                    new Object[]{project.getIdProyect(), serviceException.getMessage()});
+                    new Object[]{project.getIdProject(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los practicantes. Intente más tarde.",
                     Alert.AlertType.ERROR);
@@ -361,7 +452,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
             Project selectedProject = projectComboBox.getValue();
             ReportDAO reportDAO = new ReportDAO();
             List<Report> reports = reportDAO.getByInternAndProject(
-                    intern.getId(), selectedProject.getIdProyect());
+                    intern.getId(), selectedProject.getIdProject());
 
             reportsTableView.setItems(FXCollections.observableArrayList(reports));
             clearForm();
@@ -510,56 +601,4 @@ public class EvaluateReportController implements ChangeListener<Object> {
         initialFormatsTableView.getItems().clear();
         reportsTableView.getSelectionModel().clearSelection();
     }
-
-    private final class ProjectSelectionListener implements ChangeListener<Project> {
-        @Override
-        public void changed(ObservableValue<? extends Project> observable,
-                            Project oldValue, Project newValue) {
-            if (newValue != null) {
-                loadInternsForProject(newValue);
-            }
-        }
-    }
-
-    private final class InternSelectionListener implements ChangeListener<Intern> {
-        @Override
-        public void changed(ObservableValue<? extends Intern> observable,
-                            Intern oldValue, Intern newValue) {
-            if (newValue != null) {
-                loadReportsForIntern(newValue);
-                loadInitialFormatsForIntern(newValue);
-            }
-        }
-    }
-
-    private final class ReportSelectionListener implements ChangeListener<Report> {
-        @Override
-        public void changed(ObservableValue<? extends Report> observable,
-                            Report oldValue, Report newValue) {
-            if (newValue != null) {
-                selectedReport = newValue;
-                populateReportDetail(newValue);
-                loadActivitiesForReport(newValue);
-            }
-        }
-    }
-
-    private final class InternStringConverter extends StringConverter<Intern> {
-        @Override
-        public String toString(Intern intern) {
-            String result = "";
-            boolean hasIntern = intern != null;
-            if (hasIntern) {
-                result = intern.getFirstName() + " " + intern.getLastName() + " " + intern.getSecondLastName();
-            }
-            return result;
-        }
-
-        @Override
-        public Intern fromString(String string) {
-            Intern result = null;
-            return result;
-        }
-    }
-
 }

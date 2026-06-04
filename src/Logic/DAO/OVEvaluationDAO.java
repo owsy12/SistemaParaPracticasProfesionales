@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OVEvaluationDAO {
-    private static final String STATUS_SUBMITTED = "Entregado";
+    private static final String STATUS_SUBMITTED = "Entregada";
 
 
     private static final Logger LOGGER = Logger.getLogger(OVEvaluationDAO.class.getName());

@@ -229,6 +229,7 @@ public class MainMenuController {
         addButton("Generar Autoevaluación", "/GUI/View/GUIGenerateSelfEvaluation.fxml");
         addButton("Añadir Autoevaluación", "/GUI/View/GUIAddSerlEvaluation.fxml");
         addButton("Añadir Evaluación OV", "/GUI/View/GUIAddOVEvaluation.fxml");
+        addButton("Retroalimentación", "/GUI/View/GUIInternFeedback.fxml");
     }
 
     @FXML

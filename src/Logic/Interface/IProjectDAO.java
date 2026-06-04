@@ -11,7 +11,7 @@ public interface IProjectDAO {
     List<Project> findAllAvailable() throws ServiceException,ValidationException;
     List<Project> findByCoordinator(int idCoordinador) throws ServiceException,ValidationException;
     boolean update(Project project) throws ServiceException, ValidationException;
-    boolean cancelProject(int idProyecto) throws ServiceException, ValidationException;
-    boolean decrementAvailableSlot(int idProyecto) throws ServiceException, ValidationException;
-    int deleteProject(int idProyecto) throws ServiceException, ValidationException;
+    boolean cancelProject(int idProject) throws ServiceException, ValidationException;
+    boolean decrementAvailableSlot(int idProject) throws ServiceException, ValidationException;
+    int deleteProject(int idProject) throws ServiceException, ValidationException;
 }

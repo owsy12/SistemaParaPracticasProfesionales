@@ -64,13 +64,13 @@ public class ActivityDAO implements IActivityDAO {
             statement.setInt (1, activity.getIdProject());
             statement.setString(2, activity.getName());
             statement.setString(3, activity.getDescription());
-            if (activity.getFechaInicio() != null) {
-                statement.setDate(4, java.sql.Date.valueOf(activity.getFechaInicio()));
+            if (activity.getStartDate() != null) {
+                statement.setDate(4, java.sql.Date.valueOf(activity.getStartDate()));
             } else {
                 statement.setNull(4, java.sql.Types.DATE);
             }
-            if (activity.getFechaFin() != null) {
-                statement.setDate(5, java.sql.Date.valueOf(activity.getFechaFin()));
+            if (activity.getEndDate() != null) {
+                statement.setDate(5, java.sql.Date.valueOf(activity.getEndDate()));
             } else {
                 statement.setNull(5, java.sql.Types.DATE);
             }
@@ -177,13 +177,13 @@ public class ActivityDAO implements IActivityDAO {
 
             statement.setString(1, activity.getName());
             statement.setString(2, activity.getDescription());
-            if (activity.getFechaInicio() != null) {
-                statement.setDate(3, java.sql.Date.valueOf(activity.getFechaInicio()));
+            if (activity.getStartDate() != null) {
+                statement.setDate(3, java.sql.Date.valueOf(activity.getStartDate()));
             } else {
                 statement.setNull(3, java.sql.Types.DATE);
             }
-            if (activity.getFechaFin() != null) {
-                statement.setDate(4, java.sql.Date.valueOf(activity.getFechaFin()));
+            if (activity.getEndDate() != null) {
+                statement.setDate(4, java.sql.Date.valueOf(activity.getEndDate()));
             } else {
                 statement.setNull(4, java.sql.Types.DATE);
             }
@@ -270,14 +270,14 @@ public class ActivityDAO implements IActivityDAO {
             activity.setCreationDate(creationDate.toLocalDate());
         }
 
-        java.sql.Date fechaInicio = resultSet.getDate("fecha_inicio");
-        if (fechaInicio != null) {
-            activity.setFechaInicio(fechaInicio.toLocalDate());
+        java.sql.Date startDate = resultSet.getDate("fecha_inicio");
+        if (startDate != null) {
+            activity.setStartDate(startDate.toLocalDate());
         }
 
-        java.sql.Date fechaFin = resultSet.getDate("fecha_fin");
-        if (fechaFin != null) {
-            activity.setFechaFin(fechaFin.toLocalDate());
+        java.sql.Date endDate = resultSet.getDate("fecha_fin");
+        if (endDate != null) {
+            activity.setEndDate(endDate.toLocalDate());
         }
 
         return activity;

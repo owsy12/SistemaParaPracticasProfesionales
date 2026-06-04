@@ -63,7 +63,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt (1, selfEvaluation.getIdIntern());
-            statement.setInt (2, selfEvaluation.getIdProyect());
+            statement.setInt (2, selfEvaluation.getIdProject());
             statement.setString(3, selfEvaluation.getPeriod());
             statement.setInt (4, selfEvaluation.getStatement01());
             statement.setInt (5, selfEvaluation.getStatement02());
@@ -221,8 +221,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
         return selfEvaluation;
     }
 
-    public boolean updateStatus(int idSelfEvaluation, String status)
-            throws ServiceException, ValidationException {
+    public boolean updateStatus(int idSelfEvaluation, String status) throws ServiceException, ValidationException {
         if (idSelfEvaluation <= 0) {
             throw new ValidationException(
                     "El ID de la autoevaluación debe ser mayor a cero. ID recibido: "
@@ -258,7 +257,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
         selfEvaluation.setIdSelfEvalation(resultSet.getInt ("id_autoevaluacion"));
         selfEvaluation.setIdIntern (resultSet.getInt ("id_practicante"));
-        selfEvaluation.setIdProyect (resultSet.getInt ("id_proyecto"));
+        selfEvaluation.setIdProject (resultSet.getInt ("id_proyecto"));
         selfEvaluation.setPeriod (resultSet.getString("periodo"));
         selfEvaluation.setStatement01 (resultSet.getInt ("afirmacion_01"));
         selfEvaluation.setStatement02 (resultSet.getInt ("afirmacion_02"));

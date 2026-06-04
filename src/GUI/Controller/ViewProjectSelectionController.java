@@ -102,7 +102,7 @@ public class ViewProjectSelectionController {
             for (Project project : projectList) {
                 ProjectApplication projectApplication = new ProjectApplication();
                 projectApplication.setIdApplication(application.getIdApplication());
-                projectApplication.setIdProyect(project.getIdProyect());
+                projectApplication.setIdProject(project.getIdProject());
                 projectApplicationDAO.create(projectApplication);
             }
 

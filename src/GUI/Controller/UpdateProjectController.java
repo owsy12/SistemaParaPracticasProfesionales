@@ -145,7 +145,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
 
     private void removeInternProcess() {
         int internId = selectedIntern.getId();
-        int projectId = project.getIdProyect();
+        int projectId = project.getIdProject();
 
         try {
             deleteInternData(internId, projectId);
@@ -182,8 +182,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         }
     }
 
-    private void deleteInternData(int internId, int projectId)
-            throws ServiceException, ValidationException {
+    private void deleteInternData(int internId, int projectId) throws ServiceException, ValidationException {
         new ReportDAO().deleteByInternAndProject(internId, projectId);
         new InitialFormatDAO().deleteByInternAndProject(internId, projectId);
         new SelfEvaluationDAO().deleteByInternAndProject(internId, projectId);
@@ -256,8 +255,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     }
 
     @Override
-    public void changed(ObservableValue<? extends Intern> observable,
-                        Intern oldValue, Intern newValue) {
+    public void changed(ObservableValue<? extends Intern> observable, Intern oldValue, Intern newValue) {
         if (newValue != null) {
             selectedIntern = newValue;
             String selectionText = "Practicante seleccionado: " + newValue.getFullName();
@@ -301,7 +299,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     private void loadInternsForProject() {
         try {
             InternDAO internDAO = new InternDAO();
-            List<Intern> interns = internDAO.findByProject(project.getIdProyect());
+            List<Intern> interns = internDAO.findByProject(project.getIdProject());
             internsTableView.setItems(FXCollections.observableArrayList(interns));
             internsStatusLabel.setText("");
             selectedIntern = null;
@@ -310,7 +308,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                     validationException.getMessage());
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar practicantes del proyecto {0}: {1}",
-                    new Object[]{project.getIdProyect(), serviceException.getMessage()});
+                    new Object[]{project.getIdProject(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los practicantes. Intente más tarde.",
                     Alert.AlertType.ERROR);

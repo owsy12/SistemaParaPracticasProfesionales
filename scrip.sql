@@ -220,7 +220,7 @@ create table autoevaluacion
     puntuacion_final  tinyint                                                  null comment 'Suma afirmaciones (10-50)',
     lugar_fecha       varchar(200)                                             null comment 'Campo lugarYFecha (CU-22)',
     ruta_documento    varchar(500)                                             not null comment 'Ruta del PDF firmado (CU-23)',
-    estado            enum ('Pendiente', 'Revisada') default 'Pendiente'       not null,
+    estado            enum ('Pendiente', 'Entregada') default 'Pendiente'       not null,
     fecha_entrega     datetime                       default CURRENT_TIMESTAMP not null,
     constraint uq_autoev_prac_periodo
         unique (id_practicante, periodo),
@@ -260,7 +260,7 @@ create table evaluacion_ov
     id_practicante   int                                                 not null,
     id_proyecto      int                                                 not null,
     ruta_documento   varchar(500)                                        not null comment 'Ruta del archivo en disco',
-    estado           enum ('Pendiente', 'Entregado') default 'Pendiente' not null,
+    estado           enum ('Pendiente', 'Entregada') default 'Pendiente' not null,
     fecha_entrega    datetime                                            null,
     constraint uq_eov_prac_proy
         unique (id_practicante, id_proyecto),

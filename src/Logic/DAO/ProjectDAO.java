@@ -110,7 +110,7 @@ public class ProjectDAO implements IProjectDAO {
             if (preparedStatement.executeUpdate() > 0) {
                 try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        project.setIdProyect(generatedKeys.getInt(1));
+                        project.setIdProject(generatedKeys.getInt(1));
                     }
                 }
                 isSaved = true;
@@ -178,7 +178,7 @@ public class ProjectDAO implements IProjectDAO {
 
                 Project project = new Project();
 
-                project.setIdProyect(resultSet.getInt("id_proyecto"));
+                project.setIdProject(resultSet.getInt("id_proyecto"));
                 project.setIdOrganization(resultSet.getInt("id_organizacion"));
                 project.setIdTechnicalSupervisor(resultSet.getInt("id_tecnico"));
                 project.setIdProfessor(resultSet.getInt("id_profesor"));
@@ -292,7 +292,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setInt (8, project.getMaximumPlaces());
             preparedStatement.setInt (9, project.getAvaliablePlaces());
             preparedStatement.setString(10, STATUS_AVAILABLE);
-            preparedStatement.setInt (11, project.getIdProyect());
+            preparedStatement.setInt (11, project.getIdProject());
 
             if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -300,7 +300,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al actualizar proyecto con ID {0}: {1}",
-                    new Object[]{project.getIdProyect(), sqlException.getMessage()});
+                    new Object[]{project.getIdProject(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -313,10 +313,10 @@ public class ProjectDAO implements IProjectDAO {
     }
 
     @Override
-    public boolean cancelProject(int idProyecto) throws ServiceException, ValidationException {
-        if (idProyecto <= 0) {
+    public boolean cancelProject(int idProject) throws ServiceException, ValidationException {
+        if (idProject <= 0) {
             throw new ValidationException(
-                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
         }
 
         boolean isCanceled = false;
@@ -324,7 +324,7 @@ public class ProjectDAO implements IProjectDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PROJECT_STATUS_SQL)) {
 
-            preparedStatement.setInt(1, idProyecto);
+            preparedStatement.setInt(1, idProject);
 
             if (preparedStatement.executeUpdate() > 0) {
                 isCanceled = true;
@@ -332,7 +332,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al cancelar proyecto con ID {0}: {1}",
-                    new Object[]{idProyecto, sqlException.getMessage()});
+                    new Object[]{idProject, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -345,10 +345,10 @@ public class ProjectDAO implements IProjectDAO {
     }
 
     @Override
-    public boolean decrementAvailableSlot(int idProyecto) throws ServiceException, ValidationException {
-        if (idProyecto <= 0) {
+    public boolean decrementAvailableSlot(int idProject) throws ServiceException, ValidationException {
+        if (idProject <= 0) {
             throw new ValidationException(
-                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
         }
 
         boolean isDecremented = false;
@@ -356,7 +356,7 @@ public class ProjectDAO implements IProjectDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_AVAILABLE_SLOT_SQL)) {
 
-            preparedStatement.setInt(1, idProyecto);
+            preparedStatement.setInt(1, idProject);
 
             if (preparedStatement.executeUpdate() > 0) {
                 isDecremented = true;
@@ -364,7 +364,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al reducir cupo del proyecto {0}: {1}",
-                    new Object[]{idProyecto, sqlException.getMessage()});
+                    new Object[]{idProject, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -412,11 +412,11 @@ public class ProjectDAO implements IProjectDAO {
         return projectList;
     }
 
-    public boolean incrementAvailableSlot(int idProyecto)
+    public boolean incrementAvailableSlot(int idProject)
             throws ServiceException, ValidationException {
-        if (idProyecto <= 0) {
+        if (idProject <= 0) {
             throw new ValidationException(
-                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProyecto);
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
         }
 
         boolean isIncremented = false;
@@ -425,7 +425,7 @@ public class ProjectDAO implements IProjectDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(
                      SQL_INCREMENT_AVAILABLE_SLOT)) {
 
-            preparedStatement.setInt(1, idProyecto);
+            preparedStatement.setInt(1, idProject);
 
             if (preparedStatement.executeUpdate() > 0) {
                 isIncremented = true;
@@ -433,7 +433,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al incrementar cupo del proyecto {0}: {1}",
-                    new Object[]{idProyecto, sqlException.getMessage()});
+                    new Object[]{idProject, sqlException.getMessage()});
             throw new ServiceException("Error al incrementar el cupo del proyecto.", sqlException);
         }
 

@@ -28,7 +28,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -90,7 +89,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         if (selectedProject == null) {
             showAlert("Sin selección", "Seleccione un proyecto.", Alert.AlertType.WARNING);
         } else {
-            refreshActivities(selectedProject.getIdProyect());
+            refreshActivities(selectedProject.getIdProject());
         }
     }
 
@@ -162,7 +161,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     public void grantProrroga(ActionEvent actionEvent) {
         boolean isActivityMissing = selectedActivity == null;
         boolean isProjectMissing = projectComboBox.getValue() == null;
-        boolean isDateMissing = selectedActivity != null && selectedActivity.getFechaFin() == null;
+        boolean isDateMissing = selectedActivity != null && selectedActivity.getEndDate() == null;
 
         if (isActivityMissing) {
             showAlert("Sin selección",
@@ -188,9 +187,9 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     public void setProject(Project project) {
         for (Project projectItem : projectComboBox.getItems()) {
-            if (projectItem.getIdProyect() == project.getIdProyect()) {
+            if (projectItem.getIdProject() == project.getIdProject()) {
                 projectComboBox.getSelectionModel().select(projectItem);
-                refreshActivities(projectItem.getIdProyect());
+                refreshActivities(projectItem.getIdProject());
             }
         }
     }
@@ -204,14 +203,14 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         boolean prorrogaProvided = dialogResult.isPresent();
         if (prorrogaProvided) {
             Prorroga prorroga = dialogResult.get();
-            prorroga.setIdActividad(selectedActivity.getIdActivity());
-            prorroga.setFechaFinOriginal(selectedActivity.getFechaFin());
+            prorroga.setIdActivity(selectedActivity.getIdActivity());
+            prorroga.setOriginalEndDate(selectedActivity.getEndDate());
             saveProrrogaProcess(prorroga);
         }
     }
 
     private Optional<Prorroga> showProrrogaDialog() {
-        Dialog<Prorroga> dialog = new Dialog<>();
+        Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Otorgar Prórroga");
         dialog.setHeaderText("Actividad: " + selectedActivity.getName());
 
@@ -233,22 +232,28 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         grid.add(motivoField, 1, 1);
         dialog.getDialogPane().setContent(grid);
 
-        dialog.setResultConverter(new ProrrogaInputConverter(confirmType, newDatePicker, motivoField));
-
-        Optional<Prorroga> result = dialog.showAndWait();
+        Optional<ButtonType> response = dialog.showAndWait();
+        Optional<Prorroga> result = Optional.empty();
+        boolean isConfirmed = response.isPresent() && response.get() == confirmType;
+        if (isConfirmed) {
+            Prorroga prorroga = new Prorroga();
+            prorroga.setNewEndDate(newDatePicker.getValue());
+            prorroga.setMotivo(motivoField.getText().trim());
+            result = Optional.of(prorroga);
+        }
         return result;
     }
 
     private void saveProrrogaProcess(Prorroga prorroga) {
-        boolean isNewDateNull = prorroga.getFechaFinNueva() == null;
+        boolean isNewDateNull = prorroga.getNewEndDate() == null;
         boolean isMotivoBlank = prorroga.getMotivo() == null || prorroga.getMotivo().isBlank();
 
         Project project = projectComboBox.getValue();
         boolean hasProjectEnd = project != null && project.getEndDate() != null;
-        boolean isNewDateBeyondProject = hasProjectEnd && prorroga.getFechaFinNueva() != null
-                && prorroga.getFechaFinNueva().isAfter(project.getEndDate());
-        boolean isNewDateNotFuture = prorroga.getFechaFinNueva() != null
-                && !prorroga.getFechaFinNueva().isAfter(LocalDate.now());
+        boolean isNewDateBeyondProject = hasProjectEnd && prorroga.getNewEndDate() != null
+                && prorroga.getNewEndDate().isAfter(project.getEndDate());
+        boolean isNewDateNotFuture = prorroga.getNewEndDate() != null
+                && !prorroga.getNewEndDate().isAfter(LocalDate.now());
 
         if (isNewDateNull) {
             showAlert("Fecha requerida",
@@ -278,14 +283,14 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             showAlert("Prórroga guardada",
                     "La prórroga fue otorgada correctamente.",
                     Alert.AlertType.INFORMATION);
-            refreshActivities(projectComboBox.getValue().getIdProyect());
+            refreshActivities(projectComboBox.getValue().getIdProject());
             clearForm();
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al guardar prórroga para actividad {0}: {1}",
-                    new Object[]{prorroga.getIdActividad(), serviceException.getMessage()});
+                    new Object[]{prorroga.getIdActivity(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo guardar la prórroga. Intente más tarde.",
                     Alert.AlertType.ERROR);
@@ -296,8 +301,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         try {
             selectedActivity.setName(nameTextField.getText().trim());
             selectedActivity.setDescription(descriptionTextArea.getText().trim());
-            selectedActivity.setFechaInicio(fechaInicioPicker.getValue());
-            selectedActivity.setFechaFin(fechaFinPicker.getValue());
+            selectedActivity.setStartDate(fechaInicioPicker.getValue());
+            selectedActivity.setEndDate(fechaFinPicker.getValue());
 
             ActivityDAO activityDAO = new ActivityDAO();
 
@@ -305,7 +310,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                 showAlert("Actividad actualizada",
                         "La actividad fue actualizada correctamente.",
                         Alert.AlertType.INFORMATION);
-                refreshActivities(projectComboBox.getValue().getIdProyect());
+                refreshActivities(projectComboBox.getValue().getIdProject());
                 clearForm();
             } else {
                 showAlert("Error",
@@ -332,7 +337,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                 showAlert("Actividad eliminada",
                         "La actividad fue eliminada correctamente.",
                         Alert.AlertType.INFORMATION);
-                refreshActivities(projectComboBox.getValue().getIdProyect());
+                refreshActivities(projectComboBox.getValue().getIdProject());
                 clearForm();
             } else {
                 showAlert("Error",
@@ -352,9 +357,9 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     }
 
     private boolean isActivityExpired() {
-        LocalDate fechaFin = selectedActivity.getFechaFin();
-        boolean hasDeadline = fechaFin != null;
-        boolean isExpired = hasDeadline && fechaFin.isBefore(LocalDate.now());
+        LocalDate endDate = selectedActivity.getEndDate();
+        boolean hasDeadline = endDate != null;
+        boolean isExpired = hasDeadline && endDate.isBefore(LocalDate.now());
         return isExpired;
     }
 
@@ -426,8 +431,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         }
         descriptionTextArea.setText(description);
 
-        fechaInicioPicker.setValue(activity.getFechaInicio());
-        fechaFinPicker.setValue(activity.getFechaFin());
+        fechaInicioPicker.setValue(activity.getStartDate());
+        fechaFinPicker.setValue(activity.getEndDate());
         String statusText = "Estado: " + activity.getStatus();
         statusLabel.setText(statusText);
     }
@@ -448,32 +453,6 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         if (newValue != null) {
             selectedActivity = newValue;
             populateForm(newValue);
-        }
-    }
-
-    private final class ProrrogaInputConverter implements Callback<ButtonType, Prorroga> {
-        private final ButtonType confirmType;
-        private final DatePicker newDatePicker;
-        private final TextField motivoField;
-
-        ProrrogaInputConverter(ButtonType confirmType, DatePicker newDatePicker,
-                               TextField motivoField) {
-            this.confirmType = confirmType;
-            this.newDatePicker = newDatePicker;
-            this.motivoField = motivoField;
-        }
-
-        @Override
-        public Prorroga call(ButtonType buttonType) {
-            Prorroga result = null;
-            boolean isConfirm = buttonType == confirmType;
-            if (isConfirm) {
-                Prorroga prorroga = new Prorroga();
-                prorroga.setFechaFinNueva(newDatePicker.getValue());
-                prorroga.setMotivo(motivoField.getText().trim());
-                result = prorroga;
-            }
-            return result;
         }
     }
 

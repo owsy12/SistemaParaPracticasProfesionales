@@ -5,9 +5,9 @@ import java.time.LocalDate;
 public class Prorroga {
 
     private int idProrroga;
-    private int idActividad;
-    private LocalDate fechaFinOriginal;
-    private LocalDate fechaFinNueva;
+    private int idActivity;
+    private LocalDate originalEndDate;
+    private LocalDate newEndDate;
     private String motivo;
 
     public Prorroga() {
@@ -21,28 +21,28 @@ public class Prorroga {
         this.idProrroga = idProrroga;
     }
 
-    public int getIdActividad() {
-        return idActividad;
+    public int getIdActivity() {
+        return idActivity;
     }
 
-    public void setIdActividad(int idActividad) {
-        this.idActividad = idActividad;
+    public void setIdActivity(int idActivity) {
+        this.idActivity = idActivity;
     }
 
-    public LocalDate getFechaFinOriginal() {
-        return fechaFinOriginal;
+    public LocalDate getOriginalEndDate() {
+        return originalEndDate;
     }
 
-    public void setFechaFinOriginal(LocalDate fechaFinOriginal) {
-        this.fechaFinOriginal = fechaFinOriginal;
+    public void setOriginalEndDate(LocalDate originalEndDate) {
+        this.originalEndDate = originalEndDate;
     }
 
-    public LocalDate getFechaFinNueva() {
-        return fechaFinNueva;
+    public LocalDate getNewEndDate() {
+        return newEndDate;
     }
 
-    public void setFechaFinNueva(LocalDate fechaFinNueva) {
-        this.fechaFinNueva = fechaFinNueva;
+    public void setNewEndDate(LocalDate newEndDate) {
+        this.newEndDate = newEndDate;
     }
 
     public String getMotivo() {

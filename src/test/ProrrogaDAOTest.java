@@ -34,9 +34,9 @@ class ProrrogaDAOTest extends BaseDAOTest {
 
     private Prorroga buildValidProrroga() {
         Prorroga prorroga = new Prorroga();
-        prorroga.setIdActividad(SUPPORT_ACTIVITY_ID);
-        prorroga.setFechaFinOriginal(ORIGINAL_END_DATE);
-        prorroga.setFechaFinNueva(NEW_END_DATE);
+        prorroga.setIdActivity(SUPPORT_ACTIVITY_ID);
+        prorroga.setOriginalEndDate(ORIGINAL_END_DATE);
+        prorroga.setNewEndDate(NEW_END_DATE);
         prorroga.setMotivo(EXTENSION_REASON);
         return prorroga;
     }
@@ -59,7 +59,7 @@ class ProrrogaDAOTest extends BaseDAOTest {
     @Test
     void testSaveProrrogaWithZeroActivityIdThrowsValidationException() {
         Prorroga prorroga = buildValidProrroga();
-        prorroga.setIdActividad(INVALID_ACTIVITY_ID_ZERO);
+        prorroga.setIdActivity(INVALID_ACTIVITY_ID_ZERO);
         assertThrows(ValidationException.class, () -> dao.save(prorroga));
     }
 
@@ -80,7 +80,7 @@ class ProrrogaDAOTest extends BaseDAOTest {
     @Test
     void testSaveProrrogaWithNullNewEndDateThrowsValidationException() {
         Prorroga prorroga = buildValidProrroga();
-        prorroga.setFechaFinNueva(null);
+        prorroga.setNewEndDate(null);
         assertThrows(ValidationException.class, () -> dao.save(prorroga));
     }
 }

@@ -161,7 +161,7 @@ public class WelcomeController {
             internPracticeStatusBadgeLabel.getStyleClass().removeAll("statusPendingLabel");
             internPracticeStatusBadgeLabel.getStyleClass().add("statusActiveLabel");
             internPracticeStatusValueLabel.setText("Práctica Activa");
-            String assignedProjectText = "Proyecto asignado · ID: " + assignment.getIdProyect();
+            String assignedProjectText = "Proyecto asignado · ID: " + assignment.getIdProject();
             internPracticeStatusSubLabel.setText(assignedProjectText);
         }
     }

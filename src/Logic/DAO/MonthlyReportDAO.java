@@ -60,7 +60,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                         Statement.RETURN_GENERATED_KEYS)) {
 
                     preparedStatement.setInt (1, monthlyReport.getIdIntern());
-                    preparedStatement.setInt (2, monthlyReport.getIdProyect());
+                    preparedStatement.setInt (2, monthlyReport.getIdProject());
                     preparedStatement.setInt (3, monthlyReport.getIdProfessor());
                     preparedStatement.setString(4, monthlyReport.getReportType());
                     preparedStatement.setString(5, monthlyReport.getPeriod());
@@ -197,7 +197,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
 
         report.setIdReport (resultSet.getInt ("id_reporte"));
         report.setIdIntern (resultSet.getInt ("id_practicante"));
-        report.setIdProyect (resultSet.getInt ("id_proyecto"));
+        report.setIdProject (resultSet.getInt ("id_proyecto"));
         report.setIdProfessor (resultSet.getInt ("id_profesor"));
         report.setReportType (resultSet.getString("tipo_reporte"));
         report.setPeriod (resultSet.getString("periodo"));

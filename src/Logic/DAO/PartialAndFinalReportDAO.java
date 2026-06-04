@@ -61,7 +61,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                         Statement.RETURN_GENERATED_KEYS)) {
 
                     preparedStatement.setInt (1, partialAndFinalReport.getIdIntern());
-                    preparedStatement.setInt (2, partialAndFinalReport.getIdProyect());
+                    preparedStatement.setInt (2, partialAndFinalReport.getIdProject());
                     preparedStatement.setInt (3, partialAndFinalReport.getIdProfessor());
                     preparedStatement.setString(4, partialAndFinalReport.getReportType());
                     preparedStatement.setString(5, partialAndFinalReport.getPeriod());
@@ -203,7 +203,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
         report.setIdReport (resultSet.getInt ("id_reporte"));
         report.setIdIntern (resultSet.getInt ("id_practicante"));
-        report.setIdProyect (resultSet.getInt ("id_proyecto"));
+        report.setIdProject (resultSet.getInt ("id_proyecto"));
         report.setIdProfessor (resultSet.getInt ("id_profesor"));
         report.setReportType (resultSet.getString("tipo_reporte"));
         report.setPeriod (resultSet.getString("periodo"));

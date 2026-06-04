@@ -10,8 +10,8 @@ public class Activity {
     private LocalDate creationDate;
     private String status;
     private String projectName;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFin;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     public Activity(int idActivity, int idProject, String name, String description,
                     LocalDate creationDate, String status) {
@@ -82,34 +82,34 @@ public class Activity {
         this.projectName = projectName;
     }
 
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
     }
 
-    public LocalDate getFechaFin() {
-        return fechaFin;
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
-    public void setFechaFin(LocalDate fechaFin) {
-        this.fechaFin = fechaFin;
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public String getFechaInicioDisplay() {
         String display = "";
-        if (fechaInicio != null) {
-            display = fechaInicio.toString();
+        if (startDate != null) {
+            display = startDate.toString();
         }
         return display;
     }
 
     public String getFechaFinDisplay() {
         String display = "";
-        if (fechaFin != null) {
-            display = fechaFin.toString();
+        if (endDate != null) {
+            display = endDate.toString();
         }
         return display;
     }

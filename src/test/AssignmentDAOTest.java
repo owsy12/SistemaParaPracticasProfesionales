@@ -15,7 +15,7 @@ class AssignmentDAOTest extends BaseDAOTest {
     private Assignment buildValidAssignment() {
         Assignment assignment = new Assignment();
         assignment.setIdIntern(ID_INTERN);
-        assignment.setIdProyect(ID_PROJECT);
+        assignment.setIdProject(ID_PROJECT);
         assignment.setIdApplication(ID_APPLICATION);
         assignment.setAssignmentDate(LocalDate.now());
         return assignment;
@@ -55,7 +55,7 @@ class AssignmentDAOTest extends BaseDAOTest {
         Assignment assignment = buildValidAssignment();
         dao.save(assignment);
         Assignment retrieved = dao.getById(assignment.getIdAssignment());
-        assertEquals(ID_PROJECT, retrieved.getIdProyect());
+        assertEquals(ID_PROJECT, retrieved.getIdProject());
     }
 
     @Test
@@ -77,7 +77,7 @@ class AssignmentDAOTest extends BaseDAOTest {
     void testGetByIdProjectAfterSaveReturnsCorrectProjectId() throws Exception {
         dao.save(buildValidAssignment());
         List<Assignment> byProject = dao.getByIdProject(ID_PROJECT);
-        assertEquals(ID_PROJECT, byProject.get(0).getIdProyect());
+        assertEquals(ID_PROJECT, byProject.get(0).getIdProject());
     }
 
     @Test

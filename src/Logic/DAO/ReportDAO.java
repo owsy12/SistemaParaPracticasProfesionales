@@ -115,7 +115,7 @@ public class ReportDAO implements IReportDAO {
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt (1, report.getIdIntern());
-            statement.setInt (2, report.getIdProyect());
+            statement.setInt (2, report.getIdProject());
             statement.setInt (3, report.getIdProfessor());
             statement.setString(4, report.getReportType());
             statement.setString(5, report.getPeriod());
@@ -123,8 +123,8 @@ public class ReportDAO implements IReportDAO {
             statement.setString(7, report.getStatus());
             statement.setInt(8, report.getReportedHours());
             statement.setDate(9, new java.sql.Date(report.getSumissionDate().getTime()));
-            statement.setDate(10, report.getFechaLimite() != null
-                    ? java.sql.Date.valueOf(report.getFechaLimite()) : null);
+            statement.setDate(10, report.getDeadline() != null
+                    ? java.sql.Date.valueOf(report.getDeadline()) : null);
             statement.setBoolean(11, report.isEntregaTardia());
 
             rowsAffected = statement.executeUpdate();
@@ -614,7 +614,7 @@ public class ReportDAO implements IReportDAO {
         Report report = new Report();
         report.setIdReport (resultSet.getInt ("id_reporte"));
         report.setIdIntern (resultSet.getInt ("id_practicante"));
-        report.setIdProyect (resultSet.getInt ("id_proyecto"));
+        report.setIdProject (resultSet.getInt ("id_proyecto"));
         report.setIdProfessor(resultSet.getInt ("id_profesor"));
         report.setReportType (resultSet.getString("tipo_reporte"));
         report.setPeriod (resultSet.getString("periodo"));
@@ -630,9 +630,9 @@ public class ReportDAO implements IReportDAO {
             report.setReviewDate(reviewDate.toLocalDate());
         }
 
-        java.sql.Date fechaLimite = resultSet.getDate("fecha_limite");
-        if (fechaLimite != null) {
-            report.setFechaLimite(fechaLimite.toLocalDate());
+        java.sql.Date deadline = resultSet.getDate("fecha_limite");
+        if (deadline != null) {
+            report.setDeadline(deadline.toLocalDate());
         }
         report.setEntregaTardia(resultSet.getBoolean("entrega_tardia"));
 

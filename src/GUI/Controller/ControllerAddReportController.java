@@ -140,8 +140,8 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
     }
 
     private boolean isLateDelivery() {
-        boolean isLate = selectedReport.getFechaLimite() != null
-                && LocalDate.now().isAfter(selectedReport.getFechaLimite());
+        boolean isLate = selectedReport.getDeadline() != null
+                && LocalDate.now().isAfter(selectedReport.getDeadline());
         return isLate;
     }
 
@@ -258,7 +258,7 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
 
     private String copySignedFile() throws IOException {
         String internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
-        String folder = "storage/intern_" + internMatricula + "/project_" + selectedReport.getIdProyect()
+        String folder = "storage/intern_" + internMatricula + "/project_" + selectedReport.getIdProject()
                 + "/reportes_generados";
         String fileName = "reporte_" + selectedReport.getReportType().toLowerCase()
                 + "_" + selectedReport.getIdReport() + "_firmado";

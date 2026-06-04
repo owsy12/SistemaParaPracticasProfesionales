@@ -78,7 +78,7 @@ public class ManegeProjectController {
 
             boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
             if (isUserConfirmed) {
-                deleteProcess(selectedProject.getIdProyect());
+                deleteProcess(selectedProject.getIdProject());
             }
         }
     }

@@ -4,6 +4,7 @@ import GUI.SessionManager.SessionManager;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.OVEvaluation;
@@ -40,7 +41,7 @@ import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class AddOVEvaluationController implements EventHandler<DragEvent> {
-    private static final String STATUS_SUBMITTED = "Entregado";
+    private static final String STATUS_SUBMITTED = "Entregada";
 
 
     private static final Logger LOGGER =
@@ -169,8 +170,8 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     private void loadProjectAndPrerequisites(Assignment activeAssignment)
             throws ValidationException, DuplicateEntryException, ServiceException {
         ProjectDAO projectDAO = new ProjectDAO();
-        Project currentProject = projectDAO.findById(activeAssignment.getIdProyect());
-        projectId = currentProject.getIdProyect();
+        Project currentProject = projectDAO.findById(activeAssignment.getIdProject());
+        projectId = currentProject.getIdProject();
 
         String prerequisiteMessage = EvaluationPrerequisiteChecker.check(internId, currentProject);
 
@@ -215,6 +216,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
                 showAlert("Evaluación OV entregada",
                         "La evaluación OV fue registrada correctamente.",
                         Alert.AlertType.INFORMATION);
+                concludePracticeIfComplete(internId, projectId);
                 openWelcomePage(anchorPane);
             } else {
                 showAlert("Error",
@@ -258,12 +260,32 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     private String copyFile() throws IOException {
         String folder = "storage/intern_" + internMatricula
                 + "/project_" + projectId + "/ov_evaluation";
-        String fileName = "evaluacion_ov_" + internId + "_proyecto_" + projectId;
+        String fileName = "ov_evaluation_" + internId + "_project_" + projectId;
         Path folderPath = Paths.get(folder);
         Files.createDirectories(folderPath);
         Path destination = folderPath.resolve(fileName + ".pdf");
         Files.copy(selectedFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
         return destination.toString();
+    }
+
+    private void concludePracticeIfComplete(int internIdentifier, int projectIdentifier) {
+        try {
+            if (EvaluationPrerequisiteChecker.isPracticeComplete(internIdentifier, projectIdentifier)) {
+                PracticeDAO practiceDAO = new PracticeDAO();
+                boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier);
+                if (concluded) {
+                    showAlert("Práctica concluida",
+                            "El practicante cumplió todos los requisitos; su práctica fue marcada como Concluida.",
+                            Alert.AlertType.INFORMATION);
+                }
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al evaluar el cierre de la práctica del practicante {0}: {1}",
+                    new Object[]{internIdentifier, serviceException.getMessage()});
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.WARNING, "Validación al cerrar la práctica: {0}",
+                    validationException.getMessage());
+        }
     }
 
     private void showStatus(String message, boolean isError) {

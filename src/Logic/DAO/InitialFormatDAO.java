@@ -24,20 +24,20 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                     "(id_practicante, id_proyecto, tipo_formato, ruta_archivo, estado, fecha_entrega) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
     private static final String SQL_SELECT_BY_ID =
-            "SELECT id_formato, id_practicante, tipo_formato, " +
+            "SELECT id_formato, id_practicante, id_proyecto, tipo_formato, " +
                     "       ruta_archivo, estado, fecha_entrega " +
                     "FROM formato_inicial WHERE id_formato = ?";
     private static final String SQL_SELECT_ALL =
-            "SELECT id_formato, id_practicante, tipo_formato, " +
+            "SELECT id_formato, id_practicante, id_proyecto, tipo_formato, " +
                     "       ruta_archivo, estado, fecha_entrega " +
                     "FROM formato_inicial";
     private static final String SQL_SELECT_BY_INTERN =
-            "SELECT id_formato, id_practicante, tipo_formato, " +
+            "SELECT id_formato, id_practicante, id_proyecto, tipo_formato, " +
                     "       ruta_archivo, estado, fecha_entrega " +
                     "FROM formato_inicial WHERE id_practicante = ?";
 
     private static final String SQL_FIND_PENDING_BY_INTERN =
-            "SELECT id_formato, id_practicante, tipo_formato, " +
+            "SELECT id_formato, id_practicante, id_proyecto, tipo_formato, " +
                     "ruta_archivo, estado, fecha_entrega " +
                     "FROM formato_inicial " +
                     "WHERE id_practicante = ? AND estado = 'Pendiente'";
@@ -253,6 +253,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
         InitialFormat initialFormat = new InitialFormat();
         initialFormat.setIdInitialFormat(resultSet.getInt ("id_formato"));
         initialFormat.setIdIntern (resultSet.getInt ("id_practicante"));
+        initialFormat.setIdProject (resultSet.getInt ("id_proyecto"));
         initialFormat.setFormatType (resultSet.getString("tipo_formato"));
         initialFormat.setFilePath (resultSet.getString("ruta_archivo"));
         initialFormat.setStatus (resultSet.getString("estado"));

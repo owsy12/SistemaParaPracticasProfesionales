@@ -30,7 +30,7 @@ class ReportDAOTest extends BaseDAOTest {
     private Report buildValidReport() {
         Report report = new Report();
         report.setIdIntern(ID_INTERN);
-        report.setIdProyect(ID_PROJECT);
+        report.setIdProject(ID_PROJECT);
         report.setIdProfessor(ID_PROFESSOR);
         report.setReportType(REPORT_TYPE_PARTIAL);
         report.setPeriod(REPORT_PERIOD);

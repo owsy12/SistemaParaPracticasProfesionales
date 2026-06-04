@@ -93,7 +93,7 @@ public class AddActivityController {
 
     public void setProject(Project project) {
         for (Project projectItem : projectComboBox.getItems()) {
-            if (projectItem.getIdProyect() == project.getIdProyect()) {
+            if (projectItem.getIdProject() == project.getIdProject()) {
                 projectComboBox.getSelectionModel().select(projectItem);
             }
         }
@@ -131,11 +131,11 @@ public class AddActivityController {
 
     private Activity buildActivity() {
         Activity activity = new Activity();
-        activity.setIdProject(projectComboBox.getValue().getIdProyect());
+        activity.setIdProject(projectComboBox.getValue().getIdProject());
         activity.setName(nameTextField.getText().trim());
         activity.setDescription(descriptionTextArea.getText().trim());
-        activity.setFechaInicio(fechaInicioPicker.getValue());
-        activity.setFechaFin(fechaFinPicker.getValue());
+        activity.setStartDate(fechaInicioPicker.getValue());
+        activity.setEndDate(fechaFinPicker.getValue());
         activity.setCreationDate(LocalDate.now());
         activity.setStatus("Activa");
         return activity;

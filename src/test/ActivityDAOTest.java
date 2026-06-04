@@ -33,8 +33,8 @@ class ActivityDAOTest extends BaseDAOTest {
         activity.setDescription(ACTIVITY_DESCRIPTION);
         activity.setStatus(ACTIVITY_STATUS_ACTIVE);
         activity.setCreationDate(ACTIVITY_START);
-        activity.setFechaInicio(ACTIVITY_START);
-        activity.setFechaFin(ACTIVITY_END);
+        activity.setStartDate(ACTIVITY_START);
+        activity.setEndDate(ACTIVITY_END);
         return activity;
     }
 

@@ -2,13 +2,13 @@ package Logic.DTOs;
 
 public class ReportActivity {
     private int idReporteActividad;
-    private int idReporte;
-    private int idActividad;
+    private int idReport;
+    private int idActivity;
     private String activityName;
     private String periodo;
     private String planSemanas;
     private String realSemanas;
-    private int porcentajeAvance;
+    private int advancePercentage;
     private String observaciones;
 
     public ReportActivity() {
@@ -22,20 +22,20 @@ public class ReportActivity {
         this.idReporteActividad = idReporteActividad;
     }
 
-    public int getIdReporte() {
-        return idReporte;
+    public int getIdReport() {
+        return idReport;
     }
 
-    public void setIdReporte(int idReporte) {
-        this.idReporte = idReporte;
+    public void setIdReport(int idReport) {
+        this.idReport = idReport;
     }
 
-    public int getIdActividad() {
-        return idActividad;
+    public int getIdActivity() {
+        return idActivity;
     }
 
-    public void setIdActividad(int idActividad) {
-        this.idActividad = idActividad;
+    public void setIdActivity(int idActivity) {
+        this.idActivity = idActivity;
     }
 
     public String getActivityName() {
@@ -46,11 +46,11 @@ public class ReportActivity {
         this.activityName = activityName;
     }
 
-    public String getPeriodo() {
+    public String getPeriod() {
         return periodo;
     }
 
-    public void setPeriodo(String periodo) {
+    public void setPeriod(String periodo) {
         this.periodo = periodo;
     }
 
@@ -70,12 +70,12 @@ public class ReportActivity {
         this.realSemanas = realSemanas;
     }
 
-    public int getPorcentajeAvance() {
-        return porcentajeAvance;
+    public int getAdvancePercentage() {
+        return advancePercentage;
     }
 
-    public void setPorcentajeAvance(int porcentajeAvance) {
-        this.porcentajeAvance = porcentajeAvance;
+    public void setAdvancePercentage(int advancePercentage) {
+        this.advancePercentage = advancePercentage;
     }
 
     public String getObservaciones() {
@@ -100,8 +100,8 @@ public class ReportActivity {
 
     public String getDetailDisplay() {
         String detailDisplay;
-        if (porcentajeAvance > 0) {
-            detailDisplay = porcentajeAvance + "%";
+        if (advancePercentage > 0) {
+            detailDisplay = advancePercentage + "%";
         } else if (observaciones != null) {
             detailDisplay = observaciones;
         } else {

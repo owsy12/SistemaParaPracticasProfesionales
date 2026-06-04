@@ -58,7 +58,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         } finally {
             try {
                 connection.setAutoCommit(true);
-            } catch (SQLException sqlException) { }
+            } catch (SQLException sqlException) { LOGGER.log(Level.SEVERE, "Error al restaurar autoCommit: {0}", sqlException.getMessage()); }
         }
         return isSaved;
     }

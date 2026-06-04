@@ -8,7 +8,7 @@ public class Report {
 
     private int idReport;
     private int idIntern;
-    private int idProyect;
+    private int idProject;
     private int idProfessor;
     private String reportType;
     private String period;
@@ -19,14 +19,14 @@ public class Report {
     private String professorObservations;
     private LocalDate reviewDate;
     private Date sumissionDate;
-    private LocalDate fechaLimite;
+    private LocalDate deadline;
     private boolean entregaTardia;
     private String monthName;
 
-    public Report(int idReport, int idIntern, int idProyect, int idProfessor, String reportType, String period, String documentPath, String status, int grade, String feedback, Date sumissionDate, Date evaluationDate, int reportNumber, int coveredHours, String methodology, String obtainedResults, String observations, String month, int year, String block, String section) {
+    public Report(int idReport, int idIntern, int idProject, int idProfessor, String reportType, String period, String documentPath, String status, int grade, String feedback, Date sumissionDate, Date evaluationDate, int reportNumber, int coveredHours, String methodology, String obtainedResults, String observations, String month, int year, String block, String section) {
         this.idReport = idReport;
         this.idIntern = idIntern;
-        this.idProyect = idProyect;
+        this.idProject = idProject;
         this.idProfessor = idProfessor;
         this.reportType = reportType;
         this.period = period;
@@ -55,12 +55,12 @@ public class Report {
         this.idIntern = idIntern;
     }
 
-    public int getIdProyect() {
-        return idProyect;
+    public int getIdProject() {
+        return idProject;
     }
 
-    public void setIdProyect(int idProyect) {
-        this.idProyect = idProyect;
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
     }
 
     public int getIdProfessor() {
@@ -143,12 +143,12 @@ public class Report {
         this.reviewDate = reviewDate;
     }
 
-    public LocalDate getFechaLimite() {
-        return fechaLimite;
+    public LocalDate getDeadline() {
+        return deadline;
     }
 
-    public void setFechaLimite(LocalDate fechaLimite) {
-        this.fechaLimite = fechaLimite;
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = deadline;
     }
 
     public boolean isEntregaTardia() {

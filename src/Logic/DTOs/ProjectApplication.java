@@ -1,28 +1,28 @@
 package Logic.DTOs;
 
 public class ProjectApplication {
-    private int idProyectApplication;
+    private int idProjectApplication;
     private int idApplication;
-    private int idProyect;
+    private int idProject;
     private int preferenceOrder;
 
 
-    public ProjectApplication(int idProyectApplication, int idApplication, int idProyect, int preferenceOrder) {
-        this.idProyectApplication = idProyectApplication;
+    public ProjectApplication(int idProjectApplication, int idApplication, int idProject, int preferenceOrder) {
+        this.idProjectApplication = idProjectApplication;
         this.idApplication = idApplication;
-        this.idProyect = idProyect;
+        this.idProject = idProject;
         this.preferenceOrder = preferenceOrder;
     }
 
     public ProjectApplication() {
     }
 
-    public int getIdProyectApplication() {
-        return idProyectApplication;
+    public int getIdProjectApplication() {
+        return idProjectApplication;
     }
 
-    public void setIdProyectApplication(int idProyectApplication) {
-        this.idProyectApplication = idProyectApplication;
+    public void setIdProjectApplication(int idProjectApplication) {
+        this.idProjectApplication = idProjectApplication;
     }
 
     public int getIdApplication() {
@@ -33,12 +33,12 @@ public class ProjectApplication {
         this.idApplication = idApplication;
     }
 
-    public int getIdProyect() {
-        return idProyect;
+    public int getIdProject() {
+        return idProject;
     }
 
-    public void setIdProyect(int idProyect) {
-        this.idProyect = idProyect;
+    public void setIdProject(int idProject) {
+        this.idProject = idProject;
     }
 
     public int getPreferenceOrder() {
