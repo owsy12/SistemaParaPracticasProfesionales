@@ -72,30 +72,29 @@ public class AddCoordinadorController {
                         "Ya existe un coordinador activo en el sistema. "
                                 + "Solo puede haber un coordinador activo a la vez.",
                         AlertType.WARNING);
-                return;
-            }
-
-            ProfessorDAO professorDAO = new ProfessorDAO();
-            List<Professor> professors = professorDAO.findProfessorsWithoutCoordinatorRole();
-
-            boolean hasProfessorsAvailable = !professors.isEmpty();
-            if (!hasProfessorsAvailable) {
-                showAlert("Sin profesores disponibles",
-                        "No hay profesores disponibles para asignar como coordinador.",
-                        AlertType.INFORMATION);
             } else {
-                ChoiceDialog<Professor> dialog = new ChoiceDialog<>(professors.get(0), professors);
-                dialog.setTitle("Seleccionar Profesor");
-                dialog.setHeaderText("Profesores activos sin rol de coordinador");
-                dialog.setContentText("Seleccione un profesor:");
-                Optional<Professor> selectionResult = dialog.showAndWait();
+                ProfessorDAO professorDAO = new ProfessorDAO();
+                List<Professor> professors = professorDAO.findProfessorsWithoutCoordinatorRole();
 
-                boolean isProfessorSelected = selectionResult.isPresent();
-                if (isProfessorSelected) {
-                    addCoordinatorRoleToProfessor(selectionResult.get());
-                    showAlert("Rol asignado",
-                            "El profesor ha sido asignado como coordinador exitosamente.",
+                boolean hasProfessorsAvailable = !professors.isEmpty();
+                if (!hasProfessorsAvailable) {
+                    showAlert("Sin profesores disponibles",
+                            "No hay profesores disponibles para asignar como coordinador.",
                             AlertType.INFORMATION);
+                } else {
+                    ChoiceDialog<Professor> dialog = new ChoiceDialog<>(professors.get(0), professors);
+                    dialog.setTitle("Seleccionar Profesor");
+                    dialog.setHeaderText("Profesores activos sin rol de coordinador");
+                    dialog.setContentText("Seleccione un profesor:");
+                    Optional<Professor> selectionResult = dialog.showAndWait();
+
+                    boolean isProfessorSelected = selectionResult.isPresent();
+                    if (isProfessorSelected) {
+                        addCoordinatorRoleToProfessor(selectionResult.get());
+                        showAlert("Rol asignado",
+                                "El profesor ha sido asignado como coordinador exitosamente.",
+                                AlertType.INFORMATION);
+                    }
                 }
             }
 

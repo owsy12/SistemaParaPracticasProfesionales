@@ -114,9 +114,9 @@ public class ReportDAO implements IReportDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, report.getIdIntern());
-            statement.setInt   (2, report.getIdProyect());
-            statement.setInt   (3, report.getIdProfessor());
+            statement.setInt (1, report.getIdIntern());
+            statement.setInt (2, report.getIdProyect());
+            statement.setInt (3, report.getIdProfessor());
             statement.setString(4, report.getReportType());
             statement.setString(5, report.getPeriod());
             statement.setString(6, report.getDocumentPath());
@@ -398,8 +398,8 @@ public class ReportDAO implements IReportDAO {
 
             statement.setString(1, update.getStatus());
             statement.setString(2, update.getProfessorObservations());
-            statement.setDate  (3, update.getReviewDate());
-            statement.setInt   (4, idReport);
+            statement.setDate (3, update.getReviewDate());
+            statement.setInt (4, idReport);
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -430,7 +430,7 @@ public class ReportDAO implements IReportDAO {
              PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_SIGNED_PATH)) {
 
             statement.setString(1, signedPath);
-            statement.setInt   (2, idReport);
+            statement.setInt (2, idReport);
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -487,7 +487,7 @@ public class ReportDAO implements IReportDAO {
              PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_DOCUMENT_PATH)) {
 
             statement.setString(1, documentPath);
-            statement.setInt   (2, idReport);
+            statement.setInt (2, idReport);
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -540,9 +540,9 @@ public class ReportDAO implements IReportDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_EXISTS_MONTHLY)) {
 
-            statement.setInt   (1, idIntern);
+            statement.setInt (1, idIntern);
             statement.setString(2, month);
-            statement.setInt   (3, year);
+            statement.setInt (3, year);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -612,15 +612,15 @@ public class ReportDAO implements IReportDAO {
 
     protected Report mapResultSetToReport(ResultSet resultSet) throws SQLException {
         Report report = new Report();
-        report.setIdReport   (resultSet.getInt   ("id_reporte"));
-        report.setIdIntern   (resultSet.getInt   ("id_practicante"));
-        report.setIdProyect  (resultSet.getInt   ("id_proyecto"));
-        report.setIdProfessor(resultSet.getInt   ("id_profesor"));
+        report.setIdReport (resultSet.getInt ("id_reporte"));
+        report.setIdIntern (resultSet.getInt ("id_practicante"));
+        report.setIdProyect (resultSet.getInt ("id_proyecto"));
+        report.setIdProfessor(resultSet.getInt ("id_profesor"));
         report.setReportType (resultSet.getString("tipo_reporte"));
-        report.setPeriod     (resultSet.getString("periodo"));
+        report.setPeriod (resultSet.getString("periodo"));
         report.setDocumentPath(resultSet.getString("ruta_documento"));
         report.setSignedDocumentPath(resultSet.getString("ruta_documento_firmado"));
-        report.setStatus     (resultSet.getString("estado"));
+        report.setStatus (resultSet.getString("estado"));
         report.setReportedHours(resultSet.getInt ("horas_reportadas"));
         report.setProfessorObservations(resultSet.getString("observaciones_profesor"));
         report.setSumissionDate(resultSet.getDate("fecha_entrega"));

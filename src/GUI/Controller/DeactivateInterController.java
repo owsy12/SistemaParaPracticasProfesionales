@@ -5,8 +5,6 @@ import Logic.DTOs.Intern;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -36,53 +34,36 @@ public class DeactivateInterController {
     @FXML
     private AnchorPane anchorPane;
 
-    private User selectedUser;
-
     @FXML
     private void initialize() {
-        configureListeners();
         loadActiveInterns();
     }
 
     @FXML
     public void inactivateIntern(ActionEvent actionEvent) {
+        User selectedUser = internsTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedUser == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un practicante de la tabla para inactivar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
+        } else {
+            Optional<ButtonType> confirmationResponse = showAlertAndWait("Advertencia",
+                    "¿Está seguro que desea inactivar este practicante?",
+                    Alert.AlertType.CONFIRMATION);
 
-        Optional<ButtonType> confirmationResponse = showAlertAndWait(
-                "Advertencia",
-                "¿Está seguro que desea inactivar este practicante?",
-                Alert.AlertType.CONFIRMATION);
-
-        boolean isUserConfirmed = confirmationResponse.isPresent()
-                && confirmationResponse.get() == ButtonType.OK;
-        if (isUserConfirmed) {
-            inactiveProcess(selectedUser);
-            loadActiveInterns();
+            boolean isUserConfirmed = confirmationResponse.isPresent()
+                    && confirmationResponse.get() == ButtonType.OK;
+            if (isUserConfirmed) {
+                inactiveProcess(selectedUser);
+                loadActiveInterns();
+            }
         }
     }
 
     @FXML
     public void cancelOperation(ActionEvent actionEvent) {
         openWelcomePage(anchorPane);
-    }
-
-    private void configureListeners() {
-        internsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new UserSelectionListener());
-    }
-
-    private final class UserSelectionListener implements ChangeListener<User> {
-        @Override
-        public void changed(ObservableValue<? extends User> observable,
-                            User oldValue, User newValue) {
-            selectedUser = newValue;
-        }
     }
 
     private void loadActiveInterns() {
@@ -103,7 +84,6 @@ public class DeactivateInterController {
         try {
             InternDAO internDAO = new InternDAO();
             internDAO.deactivateIntern(user.getId());
-            selectedUser = null;
         } catch (ServiceException serviceException) {
             showAlert("Error", "Servicio no disponible por el momento, intente más tarde.",
                     Alert.AlertType.ERROR);

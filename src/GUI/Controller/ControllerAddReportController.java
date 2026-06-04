@@ -43,7 +43,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
 import java.util.Optional;
 
-public class ControllerAddReportController {
+public class ControllerAddReportController implements EventHandler<DragEvent>, ChangeListener<Report> {
+    private static final String STATUS_PENDING = "Pendiente";
+
 
     private static final Logger LOGGER =
             Logger.getLogger(ControllerAddReportController.class.getName());
@@ -105,7 +107,7 @@ public class ControllerAddReportController {
         boolean isReportMissing = selectedReport == null;
         boolean isFileMissing = selectedFile == null;
         boolean isStatusInvalid = selectedReport != null
-                && !"Pendiente".equals(selectedReport.getStatus());
+                && !STATUS_PENDING.equals(selectedReport.getStatus());
 
         if (isReportMissing) {
             showStatus("Seleccione un reporte de la tabla.", true);
@@ -144,48 +146,38 @@ public class ControllerAddReportController {
     }
 
     private void configureListeners() {
-        reportsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ReportSelectionListener());
-        dropZone.setOnDragOver(new DragOverHandler());
-        dropZone.setOnDragDropped(new DragDroppedHandler());
+        reportsTableView.getSelectionModel().selectedItemProperty().addListener(this);
+        dropZone.setOnDragOver(this);
+        dropZone.setOnDragDropped(this);
     }
 
-    private final class ReportSelectionListener implements ChangeListener<Report> {
-        @Override
-        public void changed(ObservableValue<? extends Report> observable,
-                            Report oldValue, Report newValue) {
-            if (newValue != null) {
-                selectedReport = newValue;
-                String selectionStatusText = "Reporte seleccionado: "
-                        + newValue.getTypeWithMonth() + " - " + newValue.getPeriod();
-                showStatus(selectionStatusText, false);
-            }
+    @Override
+    public void changed(ObservableValue<? extends Report> observable,
+                        Report oldValue, Report newValue) {
+        if (newValue != null) {
+            selectedReport = newValue;
+            String selectionStatusText = "Reporte seleccionado: "
+                    + newValue.getTypeWithMonth() + " - " + newValue.getPeriod();
+            showStatus(selectionStatusText, false);
         }
     }
 
-    private final class DragOverHandler implements EventHandler<DragEvent> {
-        @Override
-        public void handle(DragEvent event) {
+    @Override
+    public void handle(DragEvent event) {
+        if (event.getEventType() == DragEvent.DRAG_OVER) {
             if (event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY);
             }
-            event.consume();
-        }
-    }
-
-    private final class DragDroppedHandler implements EventHandler<DragEvent> {
-        @Override
-        public void handle(DragEvent event) {
+        } else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
             Dragboard dragboard = event.getDragboard();
-            boolean hasFiles = dragboard.hasFiles();
-            if (hasFiles) {
+            if (dragboard.hasFiles()) {
                 processSelectedFile(dragboard.getFiles().get(0));
                 event.setDropCompleted(true);
             } else {
                 event.setDropCompleted(false);
             }
-            event.consume();
         }
+        event.consume();
     }
 
     private void loadPendingReports() {
@@ -196,7 +188,7 @@ public class ControllerAddReportController {
             List<Report> pendingReports = new ArrayList<>();
 
             for (Report report : allReports) {
-                boolean isPending = "Pendiente".equals(report.getStatus());
+                boolean isPending = STATUS_PENDING.equals(report.getStatus());
                 if (isPending) {
                     pendingReports.add(report);
                 }

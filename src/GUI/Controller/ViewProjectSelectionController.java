@@ -30,6 +30,8 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class ViewProjectSelectionController {
+    private static final String STATUS_PENDING = "Pendiente";
+
 
     @FXML
     private AnchorPane anchorPane;
@@ -91,7 +93,7 @@ public class ViewProjectSelectionController {
                 application = new Application();
                 application.setIdIntern(currentUserId);
                 application.setApplicationDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
-                application.setStatus("Pendiente");
+                application.setStatus(STATUS_PENDING);
                 application.setIdApplication(applicationDAO.create(application));
             } else {
                 application = pendingApplication;

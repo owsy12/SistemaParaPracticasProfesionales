@@ -39,7 +39,9 @@ import java.util.logging.Logger;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 
-public class ManageActivitiesController {
+public class ManageActivitiesController implements ChangeListener<Activity> {
+    private static final String STATUS_AVAILABLE = "Disponible";
+
 
     private static final Logger LOGGER = Logger.getLogger(ManageActivitiesController.class.getName());
 
@@ -96,7 +98,7 @@ public class ManageActivitiesController {
     public void updateActivity(ActionEvent actionEvent) {
         boolean isActivityMissing = selectedActivity == null;
         boolean isProjectNotAvailable = projectComboBox.getValue() == null
-                || !"Disponible".equals(projectComboBox.getValue().getStatus());
+                || !STATUS_AVAILABLE.equals(projectComboBox.getValue().getStatus());
         boolean isExpired = selectedActivity != null && isActivityExpired();
         boolean isNameEmpty = nameTextField.getText().isBlank();
         boolean areDatesWrong = areDatesInvalid();
@@ -134,7 +136,7 @@ public class ManageActivitiesController {
     @FXML
     public void deleteActivity(ActionEvent actionEvent) {
         boolean isProjectNotAvailable = projectComboBox.getValue() == null
-                || !"Disponible".equals(projectComboBox.getValue().getStatus());
+                || !STATUS_AVAILABLE.equals(projectComboBox.getValue().getStatus());
         if (selectedActivity == null) {
             showAlert("Sin selección",
                     "Seleccione una actividad para eliminar.",
@@ -144,8 +146,7 @@ public class ManageActivitiesController {
                     "Solo puede eliminar actividades de proyectos en estado Disponible.",
                     Alert.AlertType.WARNING);
         } else {
-            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION,
-                    "¿Eliminar la actividad \"" + selectedActivity.getName() + "\"?",
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar la actividad \"" + selectedActivity.getName() + "\"?",
                     ButtonType.YES, ButtonType.NO);
             Optional<ButtonType> confirmationResult = confirmation.showAndWait();
 
@@ -195,8 +196,7 @@ public class ManageActivitiesController {
     }
 
     private void configureListeners() {
-        activitiesTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ActivitySelectionListener());
+        activitiesTableView.getSelectionModel().selectedItemProperty().addListener(this);
     }
 
     private void processProrrogaDialog() {
@@ -442,14 +442,12 @@ public class ManageActivitiesController {
         activitiesTableView.getSelectionModel().clearSelection();
     }
 
-    private final class ActivitySelectionListener implements ChangeListener<Activity> {
-        @Override
-        public void changed(ObservableValue<? extends Activity> observable,
-                            Activity oldValue, Activity newValue) {
-            if (newValue != null) {
-                selectedActivity = newValue;
-                populateForm(newValue);
-            }
+    @Override
+    public void changed(ObservableValue<? extends Activity> observable,
+                        Activity oldValue, Activity newValue) {
+        if (newValue != null) {
+            selectedActivity = newValue;
+            populateForm(newValue);
         }
     }
 

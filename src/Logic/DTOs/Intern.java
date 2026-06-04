@@ -24,4 +24,14 @@ public class Intern extends User {
     public void setCredits(int credits) {
         this.credits = credits;
     }
+
+    @Override
+    public String toString() {
+        String result = "";
+        boolean hasName = getFirstName() != null;
+        if (hasName) {
+            result = getFirstName() + " " + getLastName() + " " + getSecondLastName();
+        }
+        return result;
+    }
 }

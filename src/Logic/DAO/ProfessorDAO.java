@@ -32,7 +32,7 @@ public class ProfessorDAO implements IProfessorDAO {
     private Connection databaseConnection;
 
     public ProfessorDAO() throws ValidationException, ServiceException {
-     databaseConnection =  createdConnection();
+     databaseConnection = createdConnection();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class ProfessorDAO implements IProfessorDAO {
             try { databaseConnection.rollback(); } catch (SQLException rollbackEx) { /* Ignore */ }
             throw new ServiceException("Error al registrar profesor.", sqlException);
         } finally {
-            try { databaseConnection.setAutoCommit(true); } catch (SQLException ex) { /* Ignore */ }
+            try { databaseConnection.setAutoCommit(true); } catch (SQLException sqlException) { /* Ignore */ }
         }
 
         return isSaved;

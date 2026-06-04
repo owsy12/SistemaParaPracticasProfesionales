@@ -110,7 +110,6 @@ public class ReportActivity {
         return detailDisplay;
     }
 
-    // Returns boolean[8] for S1..S8 parsed from "from:to" format e.g. "2:5"
     public boolean[] getPlanWeeks() {
         return parseRange(planSemanas);
     }

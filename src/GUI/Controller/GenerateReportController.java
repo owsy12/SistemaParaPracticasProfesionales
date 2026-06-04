@@ -63,6 +63,8 @@ import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class GenerateReportController {
+    private static final String STATUS_PENDING = "Pendiente";
+
 
     private static final Logger LOGGER = Logger.getLogger(GenerateReportController.class.getName());
 
@@ -76,9 +78,7 @@ public class GenerateReportController {
     private static final String REPORT_TYPE_MONTHLY = "Mensual";
     private static final String REPORT_TYPE_PARTIAL = "Parcial";
     private static final String REPORT_TYPE_FINAL = "Final";
-
-    private static final List<String> MONTHS = Arrays.asList(
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    private static final List<String> MONTHS = Arrays.asList("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
 
     @FXML
@@ -211,8 +211,7 @@ public class GenerateReportController {
             filterMonthsToProjectPeriod();
             applyActivityFilter();
         } else {
-            showAlert("Sin proyecto asignado",
-                    "No tiene un proyecto activo. No puede generar reportes.",
+            showAlert("Sin proyecto asignado", "No tiene un proyecto activo. No puede generar reportes.",
                     Alert.AlertType.WARNING);
             disableGeneration();
         }
@@ -886,7 +885,7 @@ public class GenerateReportController {
         report.setIdProfessor(currentProject.getIdProfessor());
         report.setReportType(REPORT_TYPE_MONTHLY);
         report.setPeriod(period);
-        report.setStatus("Pendiente");
+        report.setStatus(STATUS_PENDING);
         report.setMonth(month);
         report.setYear(year);
         report.setMonthlyHours(reportedHoursCount);
@@ -971,7 +970,7 @@ public class GenerateReportController {
         report.setIdProfessor(currentProject.getIdProfessor());
         report.setReportType(reportType);
         report.setPeriod(period);
-        report.setStatus("Pendiente");
+        report.setStatus(STATUS_PENDING);
         report.setReportedHours(approvedHours);
         report.setDocumentPath("");
         report.setSumissionDate(new Date());

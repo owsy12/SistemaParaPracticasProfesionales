@@ -5,8 +5,6 @@ import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -22,6 +20,7 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class DeactivateCoordinatorController {
+    private static final String STATUS_INACTIVE = "Inactivo";
 
     @FXML
     private TableColumn<User, String> nameColumn;
@@ -41,35 +40,32 @@ public class DeactivateCoordinatorController {
     @FXML
     private AnchorPane anchorPane;
 
-    private User selectedUser;
-
     @FXML
     private void initialize() {
-        configureListeners();
         loadCoordinators();
     }
 
     @FXML
     public void inactivateCoordinator(ActionEvent actionEvent) {
+        User selectedUser = tableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedUser == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un coordinador de la tabla para inactivar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
+        } else {
+            Optional<ButtonType> response = showAlertAndWait(
+                    "Desea desactivar",
+                    "¿Desea desactivar este coordinador?",
+                    Alert.AlertType.CONFIRMATION);
 
-        Optional<ButtonType> response = showAlertAndWait(
-                "Desea desactivar",
-                "¿Desea desactivar este coordinador?",
-                Alert.AlertType.CONFIRMATION);
-
-        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
-        if (isUserConfirmed) {
-            selectedUser.setStatus("Inactivo");
-            selectedUser.setRole("Coordinador");
-            deactivateProcess(selectedUser);
-            loadCoordinators();
+            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            if (isUserConfirmed) {
+                selectedUser.setStatus(STATUS_INACTIVE);
+                selectedUser.setRole("Coordinador");
+                deactivateProcess(selectedUser);
+                loadCoordinators();
+            }
         }
     }
 
@@ -79,24 +75,10 @@ public class DeactivateCoordinatorController {
         openWelcomePage(anchorPane);
     }
 
-    private void configureListeners() {
-        tableView.getSelectionModel().selectedItemProperty()
-                .addListener(new UserSelectionListener());
-    }
-
-    private final class UserSelectionListener implements ChangeListener<User> {
-        @Override
-        public void changed(ObservableValue<? extends User> observable,
-                            User oldValue, User newValue) {
-            selectedUser = newValue;
-        }
-    }
-
     private void deactivateProcess(User user) {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
-            selectedUser = null;
             showAlert("Coordinador desactivado",
                     "El coordinador ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);

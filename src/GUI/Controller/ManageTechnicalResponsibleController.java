@@ -4,8 +4,6 @@ import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.TechnicalSupervisor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -44,11 +42,8 @@ public class ManageTechnicalResponsibleController {
     @FXML
     private TableColumn<TechnicalSupervisor, String> positionColumn;
 
-    private TechnicalSupervisor selectedTechnical;
-
     @FXML
     private void initialize() {
-        configureListeners();
         loadTechnicalResponsibles();
     }
 
@@ -59,36 +54,24 @@ public class ManageTechnicalResponsibleController {
 
     @FXML
     public void deleteTechnicalResponsible(ActionEvent actionEvent) {
+        TechnicalSupervisor selectedTechnical = technicalResponsibleTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedTechnical == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un técnico responsable de la tabla para eliminar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
+        } else {
 
-        String fullName = selectedTechnical.getName() + " " + selectedTechnical.getLastName();
-        String confirmationMessage = "¿Desea eliminar al técnico responsable «"
-                + fullName + "»? Esta acción es irreversible.";
-        Optional<ButtonType> response = showAlertAndWait(
-                "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
+            String fullName = selectedTechnical.getName() + " " + selectedTechnical.getLastName();
+            String confirmationMessage = "¿Desea eliminar al técnico responsable «"
+                    + fullName + "»? Esta acción es irreversible.";
+            Optional<ButtonType> response = showAlertAndWait(
+                    "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
-        if (isUserConfirmed) {
-            deleteTechnicalResponsibleProcess(selectedTechnical.getIdTechnicalSupervisor());
-        }
-    }
-
-    private void configureListeners() {
-        technicalResponsibleTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new TechnicalSelectionListener());
-    }
-
-    private final class TechnicalSelectionListener implements ChangeListener<TechnicalSupervisor> {
-        @Override
-        public void changed(ObservableValue<? extends TechnicalSupervisor> observable,
-                            TechnicalSupervisor oldValue, TechnicalSupervisor newValue) {
-            selectedTechnical = newValue;
+            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            if (isUserConfirmed) {
+                deleteTechnicalResponsibleProcess(selectedTechnical.getIdTechnicalSupervisor());
+            }
         }
     }
 
@@ -117,7 +100,6 @@ public class ManageTechnicalResponsibleController {
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
             technicalResponsibleDAO.deleteWithOrganizationValidation(idTechnicalSupervisor);
-            selectedTechnical = null;
             showAlert("Eliminación exitosa",
                     "El técnico responsable fue eliminado exitosamente.",
                     Alert.AlertType.INFORMATION);

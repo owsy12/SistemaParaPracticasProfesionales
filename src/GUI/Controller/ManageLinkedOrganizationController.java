@@ -4,8 +4,6 @@ import Logic.DAO.LinkedOrganizationDAO;
 import Logic.DTOs.LinkedOrganization;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -44,11 +42,8 @@ public class ManageLinkedOrganizationController {
     @FXML
     private TableView<LinkedOrganization> organizationTableView;
 
-    private LinkedOrganization selectedOrganization;
-
     @FXML
     private void initialize() {
-        configureListeners();
         loadOrganizations();
     }
 
@@ -59,35 +54,23 @@ public class ManageLinkedOrganizationController {
 
     @FXML
     public void deleteOrganization(ActionEvent actionEvent) {
+        LinkedOrganization selectedOrganization = organizationTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedOrganization == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione una organización de la tabla para eliminar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
+        } else {
 
-        String confirmationMessage = "¿Desea eliminar la organización «" + selectedOrganization.getName()
-                + "»? Se eliminarán también sus técnicos responsables." + " Esta acción es irreversible.";
-        Optional<ButtonType> response = showAlertAndWait(
-                "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
+            String confirmationMessage = "¿Desea eliminar la organización «" + selectedOrganization.getName()
+                    + "»? Se eliminarán también sus técnicos responsables." + " Esta acción es irreversible.";
+            Optional<ButtonType> response = showAlertAndWait(
+                    "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
-        if (isUserConfirmed) {
-            deleteLinkedOrganizationProcess(selectedOrganization.getIdLinkedOrganization());
-        }
-    }
-
-    private void configureListeners() {
-        organizationTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new OrganizationSelectionListener());
-    }
-
-    private final class OrganizationSelectionListener implements ChangeListener<LinkedOrganization> {
-        @Override
-        public void changed(ObservableValue<? extends LinkedOrganization> observable,
-                            LinkedOrganization oldValue, LinkedOrganization newValue) {
-            selectedOrganization = newValue;
+            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            if (isUserConfirmed) {
+                deleteLinkedOrganizationProcess(selectedOrganization.getIdLinkedOrganization());
+            }
         }
     }
 
@@ -116,7 +99,6 @@ public class ManageLinkedOrganizationController {
         try {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
             linkedOrganizationDAO.deleteLinkedOrganization(idLinkedOrganization);
-            selectedOrganization = null;
             showAlert("Eliminación exitosa",
                     "La organización y sus técnicos responsables fueron eliminados.",
                     Alert.AlertType.INFORMATION);
@@ -132,5 +114,4 @@ public class ManageLinkedOrganizationController {
                     Alert.AlertType.ERROR);
         }
     }
-
 }

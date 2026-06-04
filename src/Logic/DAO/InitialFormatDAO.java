@@ -15,6 +15,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InitialFormatDAO implements IInitialFormatDAO {
+    private static final String STATUS_SUBMITTED = "Entregado";
+
 
     private static final Logger LOGGER = Logger.getLogger(InitialFormatDAO.class.getName());
     private static final String SQL_INSERT =
@@ -57,8 +59,8 @@ public class InitialFormatDAO implements IInitialFormatDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, initialFormat.getIdIntern());
-            statement.setInt   (2, initialFormat.getIdProject());
+            statement.setInt (1, initialFormat.getIdIntern());
+            statement.setInt (2, initialFormat.getIdProject());
             statement.setString(3, initialFormat.getFormatType());
             statement.setString(4, initialFormat.getFilePath());
             statement.setString(5, initialFormat.getStatus());
@@ -225,7 +227,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
              PreparedStatement statement =
                      connection.prepareStatement(SQL_UPLOAD_UPDATE_STATUS)) {
 
-            statement.setString(1, "Entregado");
+            statement.setString(1, STATUS_SUBMITTED);
             statement.setString(2, initialFormat.getFilePath());
             statement.setString(3, initialFormat.getFormatType());
             statement.setInt(4, initialFormat.getIdInitialFormat());
@@ -249,11 +251,11 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
     private InitialFormat mapResultSet(ResultSet resultSet) throws SQLException {
         InitialFormat initialFormat = new InitialFormat();
-        initialFormat.setIdInitialFormat(resultSet.getInt   ("id_formato"));
-        initialFormat.setIdIntern       (resultSet.getInt   ("id_practicante"));
-        initialFormat.setFormatType     (resultSet.getString("tipo_formato"));
-        initialFormat.setFilePath       (resultSet.getString("ruta_archivo"));
-        initialFormat.setStatus         (resultSet.getString("estado"));
+        initialFormat.setIdInitialFormat(resultSet.getInt ("id_formato"));
+        initialFormat.setIdIntern (resultSet.getInt ("id_practicante"));
+        initialFormat.setFormatType (resultSet.getString("tipo_formato"));
+        initialFormat.setFilePath (resultSet.getString("ruta_archivo"));
+        initialFormat.setStatus (resultSet.getString("estado"));
         Date submissionDate = resultSet.getDate("fecha_entrega");
 
         if (submissionDate != null) {

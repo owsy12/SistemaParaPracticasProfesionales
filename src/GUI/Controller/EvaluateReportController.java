@@ -44,7 +44,11 @@ import java.util.logging.Logger;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
 
-public class EvaluateReportController {
+public class EvaluateReportController implements ChangeListener<Object> {
+    private static final String STATUS_APPROVED = "Aprobado";
+    private static final String STATUS_EVALUATED = "Evaluado";
+    private static final String STATUS_REJECTED = "Rechazado";
+
 
     private static final Logger LOGGER = Logger.getLogger(EvaluateReportController.class.getName());
 
@@ -141,7 +145,7 @@ public class EvaluateReportController {
                     "Ingrese el motivo del rechazo en el campo de observaciones.",
                     Alert.AlertType.WARNING);
         } else {
-            updateReportStatus("Rechazado");
+            updateReportStatus(STATUS_REJECTED);
         }
     }
 
@@ -162,7 +166,7 @@ public class EvaluateReportController {
                     "Debe ingresar observaciones para evaluar el reporte.",
                     Alert.AlertType.WARNING);
         } else {
-            updateReportStatus("Evaluado");
+            updateReportStatus(STATUS_EVALUATED);
         }
     }
 
@@ -286,10 +290,26 @@ public class EvaluateReportController {
     }
 
     private void configureListeners() {
-        projectComboBox.getSelectionModel().selectedItemProperty().addListener(new ProjectSelectionListener());
-        internComboBox.getSelectionModel().selectedItemProperty().addListener(new InternSelectionListener());
-        reportsTableView.getSelectionModel().selectedItemProperty().addListener(new ReportSelectionListener());
-        internComboBox.setConverter(new InternStringConverter());
+        projectComboBox.getSelectionModel().selectedItemProperty().addListener(this);
+        internComboBox.getSelectionModel().selectedItemProperty().addListener(this);
+        reportsTableView.getSelectionModel().selectedItemProperty().addListener(this);
+    }
+
+    @Override
+    public void changed(ObservableValue<? extends Object> observable,
+                        Object oldValue, Object newValue) {
+        if (newValue != null) {
+            if (observable == projectComboBox.getSelectionModel().selectedItemProperty()) {
+                loadInternsForProject((Project) newValue);
+            } else if (observable == internComboBox.getSelectionModel().selectedItemProperty()) {
+                loadReportsForIntern((Intern) newValue);
+                loadInitialFormatsForIntern((Intern) newValue);
+            } else if (observable == reportsTableView.getSelectionModel().selectedItemProperty()) {
+                selectedReport = (Report) newValue;
+                populateReportDetail((Report) newValue);
+                loadActivitiesForReport((Report) newValue);
+            }
+        }
     }
 
     private void loadProjects() {
@@ -465,13 +485,13 @@ public class EvaluateReportController {
     private String buildStatusMessage(String status) {
         String message;
         switch (status) {
-            case "Aprobado":
+            case STATUS_APPROVED:
                 message = "Reporte aprobado. Las horas han sido validadas.";
                 break;
-            case "Rechazado":
+            case STATUS_REJECTED:
                 message = "Reporte rechazado.";
                 break;
-            case "Evaluado":
+            case STATUS_EVALUATED:
                 message = "Reporte evaluado. Las horas han sido contabilizadas.";
                 break;
             default:

@@ -13,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserDAO implements IUserDAO {
+    private static final String STATUS_ACTIVE = "Activo";
+
 
     private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
     private final Connection connection;
@@ -44,7 +46,7 @@ public class UserDAO implements IUserDAO {
                     if (resultSet.next()) {
                         generatedId = resultSet.getInt(1);
                         user.setId(generatedId);
-                        user.setStatus("Activo");
+                        user.setStatus(STATUS_ACTIVE);
                     }
 
                     UserRoleDAO userRoleDAO = new UserRoleDAO();

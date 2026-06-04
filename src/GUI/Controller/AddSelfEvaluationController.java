@@ -38,7 +38,7 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class AddSelfEvaluationController {
+public class AddSelfEvaluationController implements EventHandler<DragEvent> {
 
     private static final Logger LOGGER =
             Logger.getLogger(AddSelfEvaluationController.class.getName());
@@ -101,33 +101,26 @@ public class AddSelfEvaluationController {
     }
 
     private void configureDropZone() {
-        dropZone.setOnDragOver(new DragOverHandler());
-        dropZone.setOnDragDropped(new DragDroppedHandler());
+        dropZone.setOnDragOver(this);
+        dropZone.setOnDragDropped(this);
     }
 
-    private final class DragOverHandler implements EventHandler<DragEvent> {
-        @Override
-        public void handle(DragEvent event) {
+    @Override
+    public void handle(DragEvent event) {
+        if (event.getEventType() == DragEvent.DRAG_OVER) {
             if (event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY);
             }
-            event.consume();
-        }
-    }
-
-    private final class DragDroppedHandler implements EventHandler<DragEvent> {
-        @Override
-        public void handle(DragEvent event) {
+        } else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
             Dragboard dragboard = event.getDragboard();
-            boolean hasFiles = dragboard.hasFiles();
-            if (hasFiles) {
+            if (dragboard.hasFiles()) {
                 processSelectedFile(dragboard.getFiles().get(0));
                 event.setDropCompleted(true);
             } else {
                 event.setDropCompleted(false);
             }
-            event.consume();
         }
+        event.consume();
     }
 
     private void loadInternContext() {
@@ -135,11 +128,11 @@ public class AddSelfEvaluationController {
         if (!hasSession) {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
-            return;
+        } else {
+            internId = SessionManager.getInstance().getUsuario().getId();
+            internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
+            loadInternData();
         }
-        internId = SessionManager.getInstance().getUsuario().getId();
-        internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
-        loadInternData();
     }
 
     private void loadInternData() {
@@ -152,10 +145,9 @@ public class AddSelfEvaluationController {
                         "No tiene un proyecto activo asignado. No puede entregar la autoevaluación.",
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
-                return;
+            } else {
+                loadProjectAndPrerequisites(activeAssignment);
             }
-
-            loadProjectAndPrerequisites(activeAssignment);
 
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
@@ -185,10 +177,9 @@ public class AddSelfEvaluationController {
         if (prerequisiteMessage != null) {
             showAlert("Requisitos no cumplidos", prerequisiteMessage, Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
-            return;
+        } else {
+            loadSelfEvaluation();
         }
-
-        loadSelfEvaluation();
     }
 
     private void loadSelfEvaluation() throws ServiceException, ValidationException {
@@ -204,12 +195,11 @@ public class AddSelfEvaluationController {
                     : "Su autoevaluación ya fue entregada anteriormente.";
             showAlert("Autoevaluación no disponible", message, Alert.AlertType.INFORMATION);
             openWelcomePage(anchorPane);
-            return;
+        } else {
+            String infoText = "Autoevaluación: " + selfEvaluation.getPeriod()
+                    + "  |  Estado: " + selfEvaluation.getStatus();
+            evaluationInfoLabel.setText(infoText);
         }
-
-        String infoText = "Autoevaluación: " + selfEvaluation.getPeriod()
-                + "  |  Estado: " + selfEvaluation.getStatus();
-        evaluationInfoLabel.setText(infoText);
     }
 
     private void processSelectedFile(File file) {

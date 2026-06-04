@@ -77,35 +77,35 @@ public class WelcomeController {
     private void loadDashboardByRoles(User user) {
         if (user == null || user.getRoles() == null) {
             welcomeSubtitleLabel.setText("No se pudo determinar el rol del usuario.");
-            return;
-        }
+        } else {
 
-        List<String> roles = user.getRoles();
-        boolean sectionLoaded = false;
+            List<String> roles = user.getRoles();
+            boolean sectionLoaded = false;
 
-        for (String role : roles) {
-            switch (role) {
-                case "Practicante":
-                    loadPracticanteDashboard(user);
-                    sectionLoaded = true;
-                    break;
-                case "Profesor":
-                    loadProfesorDashboard(user);
-                    sectionLoaded = true;
-                    break;
-                case "Coordinador":
-                    loadCoordinadorDashboard();
-                    sectionLoaded = true;
-                    break;
-                case "Administrador":
-                    loadAdministradorDashboard();
-                    sectionLoaded = true;
-                    break;
+            for (String role : roles) {
+                switch (role) {
+                    case "Practicante":
+                        loadPracticanteDashboard(user);
+                        sectionLoaded = true;
+                        break;
+                    case "Profesor":
+                        loadProfesorDashboard(user);
+                        sectionLoaded = true;
+                        break;
+                    case "Coordinador":
+                        loadCoordinadorDashboard();
+                        sectionLoaded = true;
+                        break;
+                    case "Administrador":
+                        loadAdministradorDashboard();
+                        sectionLoaded = true;
+                        break;
+                }
             }
-        }
 
-        if (!sectionLoaded) {
-            welcomeSubtitleLabel.setText("Bienvenido al Sistema de Gestión de Prácticas Profesionales.");
+            if (!sectionLoaded) {
+                welcomeSubtitleLabel.setText("Bienvenido al Sistema de Gestión de Prácticas Profesionales.");
+            }
         }
     }
 

@@ -60,14 +60,14 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS)) {
 
-                    preparedStatement.setInt   (1, partialAndFinalReport.getIdIntern());
-                    preparedStatement.setInt   (2, partialAndFinalReport.getIdProyect());
-                    preparedStatement.setInt   (3, partialAndFinalReport.getIdProfessor());
+                    preparedStatement.setInt (1, partialAndFinalReport.getIdIntern());
+                    preparedStatement.setInt (2, partialAndFinalReport.getIdProyect());
+                    preparedStatement.setInt (3, partialAndFinalReport.getIdProfessor());
                     preparedStatement.setString(4, partialAndFinalReport.getReportType());
                     preparedStatement.setString(5, partialAndFinalReport.getPeriod());
                     preparedStatement.setString(6, partialAndFinalReport.getDocumentPath());
                     preparedStatement.setString(7, partialAndFinalReport.getStatus());
-                    preparedStatement.setDate  (8, new java.sql.Date(partialAndFinalReport.getSumissionDate().getTime()));
+                    preparedStatement.setDate (8, new java.sql.Date(partialAndFinalReport.getSumissionDate().getTime()));
 
                     rowsAffected = preparedStatement.executeUpdate();
 
@@ -80,9 +80,9 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                 }
 
                 try (PreparedStatement stmtSpecific = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
-                    stmtSpecific.setInt   (1, partialAndFinalReport.getIdReport());
-                    stmtSpecific.setInt   (2, partialAndFinalReport.getReportNumber());
-                    stmtSpecific.setInt   (3, partialAndFinalReport.getCoveredHours());
+                    stmtSpecific.setInt (1, partialAndFinalReport.getIdReport());
+                    stmtSpecific.setInt (2, partialAndFinalReport.getReportNumber());
+                    stmtSpecific.setInt (3, partialAndFinalReport.getCoveredHours());
                     stmtSpecific.setString(4, partialAndFinalReport.getGeneralObjective());
                     stmtSpecific.setString(5, partialAndFinalReport.getMethodology());
                     stmtSpecific.setString(6, partialAndFinalReport.getObtainedResults());
@@ -201,31 +201,31 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
     private PartialAndFinalReport mapResultSet(ResultSet resultSet) throws SQLException {
         PartialAndFinalReport report = new PartialAndFinalReport();
 
-        report.setIdReport              (resultSet.getInt   ("id_reporte"));
-        report.setIdIntern              (resultSet.getInt   ("id_practicante"));
-        report.setIdProyect             (resultSet.getInt   ("id_proyecto"));
-        report.setIdProfessor           (resultSet.getInt   ("id_profesor"));
-        report.setReportType            (resultSet.getString("tipo_reporte"));
-        report.setPeriod                (resultSet.getString("periodo"));
-        report.setDocumentPath          (resultSet.getString("ruta_documento"));
-        report.setSignedDocumentPath    (resultSet.getString("ruta_documento_firmado"));
-        report.setStatus                (resultSet.getString("estado"));
-        report.setReportedHours         (resultSet.getInt   ("horas_reportadas"));
+        report.setIdReport (resultSet.getInt ("id_reporte"));
+        report.setIdIntern (resultSet.getInt ("id_practicante"));
+        report.setIdProyect (resultSet.getInt ("id_proyecto"));
+        report.setIdProfessor (resultSet.getInt ("id_profesor"));
+        report.setReportType (resultSet.getString("tipo_reporte"));
+        report.setPeriod (resultSet.getString("periodo"));
+        report.setDocumentPath (resultSet.getString("ruta_documento"));
+        report.setSignedDocumentPath (resultSet.getString("ruta_documento_firmado"));
+        report.setStatus (resultSet.getString("estado"));
+        report.setReportedHours (resultSet.getInt ("horas_reportadas"));
         report.setProfessorObservations (resultSet.getString("observaciones_profesor"));
-        report.setSumissionDate         (resultSet.getDate  ("fecha_entrega"));
+        report.setSumissionDate (resultSet.getDate ("fecha_entrega"));
 
         java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
         if (reviewDate != null) {
             report.setReviewDate(reviewDate.toLocalDate());
         }
 
-        report.setIdPartialAndFinalReport(resultSet.getInt   ("id_reporte"));
-        report.setReportNumber           (resultSet.getInt   ("numero_informe"));
-        report.setCoveredHours           (resultSet.getInt   ("horas_cubiertas"));
-        report.setGeneralObjective       (resultSet.getString("objetivo_general"));
-        report.setMethodology            (resultSet.getString("metodologia"));
-        report.setObtainedResults        (resultSet.getString("resultados_obtenidos"));
-        report.setObservations           (resultSet.getString("observaciones"));
+        report.setIdPartialAndFinalReport(resultSet.getInt ("id_reporte"));
+        report.setReportNumber (resultSet.getInt ("numero_informe"));
+        report.setCoveredHours (resultSet.getInt ("horas_cubiertas"));
+        report.setGeneralObjective (resultSet.getString("objetivo_general"));
+        report.setMethodology (resultSet.getString("metodologia"));
+        report.setObtainedResults (resultSet.getString("resultados_obtenidos"));
+        report.setObservations (resultSet.getString("observaciones"));
 
         return report;
     }

@@ -23,6 +23,8 @@ import javafx.scene.control.ButtonType;
 import java.util.Optional;
 
 public class AddInternController {
+    private static final String STATUS_ACTIVE = "Activo";
+
 
     @FXML
     private AnchorPane anchorPane;
@@ -103,7 +105,7 @@ public class AddInternController {
             intern.setEmail(emailTextField.getText());
             intern.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
             intern.setCredits(Integer.parseInt(creditTextField.getText()));
-            intern.setStatus("Activo");
+            intern.setStatus(STATUS_ACTIVE);
             intern.setRole("Practicante");
 
             if (internDAO.saveIntern(intern)) {

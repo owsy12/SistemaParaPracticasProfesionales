@@ -14,6 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ProjectDAO implements IProjectDAO {
+    private static final String STATUS_AVAILABLE = "Disponible";
+
 
     private static final Logger LOGGER = Logger.getLogger(ProjectDAO.class.getName());
 
@@ -102,7 +104,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setDate(8, Date.valueOf(project.getEndDate()));
             preparedStatement.setInt(9, project.getMaximumPlaces());
             preparedStatement.setInt(10, project.getAvaliablePlaces());
-            preparedStatement.setString(11, "Disponible");
+            preparedStatement.setString(11, STATUS_AVAILABLE);
             preparedStatement.setString(12, project.getNrc());
 
             if (preparedStatement.executeUpdate() > 0) {
@@ -280,17 +282,17 @@ public class ProjectDAO implements IProjectDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PROJECT_SQL)) {
 
-            preparedStatement.setInt   (1, project.getIdOrganization());
-            preparedStatement.setInt   (2, project.getIdTechnicalSupervisor());
+            preparedStatement.setInt (1, project.getIdOrganization());
+            preparedStatement.setInt (2, project.getIdTechnicalSupervisor());
             preparedStatement.setString(3, project.getName());
             preparedStatement.setString(4, project.getDescription());
             preparedStatement.setString(5, project.getObjetivo());
-            preparedStatement.setDate  (6, java.sql.Date.valueOf(project.getStartDate()));
-            preparedStatement.setDate  (7, java.sql.Date.valueOf(project.getEndDate()));
-            preparedStatement.setInt   (8, project.getMaximumPlaces());
-            preparedStatement.setInt   (9, project.getAvaliablePlaces());
-            preparedStatement.setString(10, "Disponible");
-            preparedStatement.setInt   (11, project.getIdProyect());
+            preparedStatement.setDate (6, java.sql.Date.valueOf(project.getStartDate()));
+            preparedStatement.setDate (7, java.sql.Date.valueOf(project.getEndDate()));
+            preparedStatement.setInt (8, project.getMaximumPlaces());
+            preparedStatement.setInt (9, project.getAvaliablePlaces());
+            preparedStatement.setString(10, STATUS_AVAILABLE);
+            preparedStatement.setInt (11, project.getIdProyect());
 
             if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -470,10 +472,10 @@ public class ProjectDAO implements IProjectDAO {
     @Override
     public int deleteProject(int idProject) throws ServiceException, ValidationException {
         if (idProject <= 0){
-            throw  new ValidationException("ID no valido debe de ser un valor numerico positivo" + idProject);
+            throw new ValidationException("ID no valido debe de ser un valor numerico positivo" + idProject);
         }
 
-        int  succesfull = 0;
+        int succesfull = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PROYECT)){
@@ -502,30 +504,27 @@ public class ProjectDAO implements IProjectDAO {
 
     private Project mapProject(ResultSet resultSet) throws SQLException {
         Project project = new Project(
-                resultSet.getInt   ("id_proyecto"),
-                resultSet.getInt   ("id_organizacion"),
-                resultSet.getInt   ("id_tecnico"),
+                resultSet.getInt ("id_proyecto"),
+                resultSet.getInt ("id_organizacion"),
+                resultSet.getInt ("id_tecnico"),
                 resultSet.getString("nombre"),
                 resultSet.getString("descripcion"),
-                resultSet.getDate  ("fecha_inicio").toLocalDate(),
-                resultSet.getDate  ("fecha_fin").toLocalDate(),
-                resultSet.getInt   ("cupo_disponible"),
-                resultSet.getInt   ("cupo_maximo")
+                resultSet.getDate ("fecha_inicio").toLocalDate(),
+                resultSet.getDate ("fecha_fin").toLocalDate(),
+                resultSet.getInt ("cupo_disponible"),
+                resultSet.getInt ("cupo_maximo")
         );
         try {
             project.setObjetivo(resultSet.getString("objetivo"));
         } catch (SQLException ignored) {
-            // Column may not exist in all queries
         }
         try {
             project.setNrc(resultSet.getString("nrc"));
         } catch (SQLException ignored) {
-            // Column may not exist in all queries
         }
         try {
             project.setOrganizationName(resultSet.getString("nombre_organizacion"));
         } catch (SQLException ignored) {
-            // Column may not exist in all queries
         }
         return project;
     }

@@ -63,12 +63,12 @@ public class ReportActivityDAO implements IReportActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT_ACTIVITY, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, ra.getIdReporte());
-            statement.setInt   (2, ra.getIdActividad());
+            statement.setInt (1, ra.getIdReporte());
+            statement.setInt (2, ra.getIdActividad());
             statement.setString(3, ra.getPeriodo());
             statement.setString(4, ra.getPlanSemanas());
             statement.setString(5, ra.getRealSemanas());
-            statement.setInt   (6, ra.getPorcentajeAvance());
+            statement.setInt (6, ra.getPorcentajeAvance());
             statement.setString(7, ra.getObservaciones());
 
             int rows = statement.executeUpdate();
@@ -136,10 +136,10 @@ public class ReportActivityDAO implements IReportActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT_DELIVERABLE, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, rd.getIdReporte());
+            statement.setInt (1, rd.getIdReporte());
             statement.setString(2, rd.getResultado());
             statement.setString(3, rd.getDescripcion());
-            statement.setInt   (4, rd.getPorcentajeAvance());
+            statement.setInt (4, rd.getPorcentajeAvance());
             statement.setString(5, rd.getObservaciones());
 
             int rows = statement.executeUpdate();
@@ -224,26 +224,26 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
     private ReportActivity mapActivity(ResultSet rs) throws SQLException {
         ReportActivity ra = new ReportActivity();
-        ra.setIdReporteActividad(rs.getInt   ("id_reporte_actividad"));
-        ra.setIdReporte         (rs.getInt   ("id_reporte"));
-        ra.setIdActividad       (rs.getInt   ("id_actividad"));
-        ra.setActivityName      (rs.getString("actividad_nombre"));
-        ra.setPeriodo           (rs.getString("periodo"));
-        ra.setPlanSemanas       (rs.getString("plan_semanas"));
-        ra.setRealSemanas       (rs.getString("real_semanas"));
-        ra.setPorcentajeAvance  (rs.getInt   ("porcentaje_avance"));
-        ra.setObservaciones     (rs.getString("observaciones"));
+        ra.setIdReporteActividad(rs.getInt ("id_reporte_actividad"));
+        ra.setIdReporte (rs.getInt ("id_reporte"));
+        ra.setIdActividad (rs.getInt ("id_actividad"));
+        ra.setActivityName (rs.getString("actividad_nombre"));
+        ra.setPeriodo (rs.getString("periodo"));
+        ra.setPlanSemanas (rs.getString("plan_semanas"));
+        ra.setRealSemanas (rs.getString("real_semanas"));
+        ra.setPorcentajeAvance (rs.getInt ("porcentaje_avance"));
+        ra.setObservaciones (rs.getString("observaciones"));
         return ra;
     }
 
     private ReportDeliverable mapDeliverable(ResultSet rs) throws SQLException {
         ReportDeliverable rd = new ReportDeliverable();
-        rd.setIdReporteEntregable(rs.getInt   ("id_reporte_entregable"));
-        rd.setIdReporte          (rs.getInt   ("id_reporte"));
-        rd.setResultado          (rs.getString("resultado"));
-        rd.setDescripcion        (rs.getString("descripcion"));
-        rd.setPorcentajeAvance   (rs.getInt   ("porcentaje_avance"));
-        rd.setObservaciones      (rs.getString("observaciones"));
+        rd.setIdReporteEntregable(rs.getInt ("id_reporte_entregable"));
+        rd.setIdReporte (rs.getInt ("id_reporte"));
+        rd.setResultado (rs.getString("resultado"));
+        rd.setDescripcion (rs.getString("descripcion"));
+        rd.setPorcentajeAvance (rs.getInt ("porcentaje_avance"));
+        rd.setObservaciones (rs.getString("observaciones"));
         return rd;
     }
 }

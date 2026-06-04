@@ -58,7 +58,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         } finally {
             try {
                 connection.setAutoCommit(true);
-            } catch (SQLException ex) { }
+            } catch (SQLException sqlException) { }
         }
         return isSaved;
     }

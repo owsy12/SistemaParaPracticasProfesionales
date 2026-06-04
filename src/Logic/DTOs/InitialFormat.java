@@ -7,11 +7,10 @@ public class InitialFormat {
     private int idInitialFormat;
     private int idIntern;
     private int idProject;
-    private String formatType; //support types : Assignment letter, Schedule,
+    private String formatType;
     private String filePath;
     private String status;
     private LocalDate submissionDate;
-
 
     public InitialFormat(int idInitialFormat, int idIntern, String formatType, String filePath, String status, LocalDate submissionDate) {
         this.idInitialFormat = idInitialFormat;

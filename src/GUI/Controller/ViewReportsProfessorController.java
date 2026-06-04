@@ -9,7 +9,6 @@ import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -21,8 +20,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.util.Callback;
-import javafx.util.StringConverter;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,12 @@ import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
 
-public class ViewReportsProfessorController {
+public class ViewReportsProfessorController implements ChangeListener<Object> {
+    private static final String STATUS_APPROVED = "Aprobado";
+    private static final String STATUS_PENDING = "Pendiente";
+    private static final String STATUS_REJECTED = "Rechazado";
+    private static final String STATUS_SUBMITTED = "Entregado";
+
 
     private static final Logger LOGGER =
             Logger.getLogger(ViewReportsProfessorController.class.getName());
@@ -81,7 +84,7 @@ public class ViewReportsProfessorController {
         configureTableColumns();
         configureListeners();
         filterStatusComboBox.getItems().setAll(
-                "Todos", "Pendiente", "Entregado", "Aprobado", "Rechazado",
+                "Todos", STATUS_PENDING, STATUS_SUBMITTED, STATUS_APPROVED, STATUS_REJECTED,
                 "Entrega tardía", "En prórroga");
         filterStatusComboBox.setValue("Todos");
         loadProjects();
@@ -110,22 +113,32 @@ public class ViewReportsProfessorController {
     }
 
     private void configureTableColumns() {
-        idColumn.setCellValueFactory(new ReportIdCellFactory());
-        typeColumn.setCellValueFactory(new ReportTypeCellFactory());
-        periodColumn.setCellValueFactory(new ReportPeriodCellFactory());
-        hoursColumn.setCellValueFactory(new ReportHoursCellFactory());
-        statusColumn.setCellValueFactory(new ReportStatusCellFactory());
-        dateColumn.setCellValueFactory(new ReportDateCellFactory());
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("idReportDisplay"));
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("reportType"));
+        periodColumn.setCellValueFactory(new PropertyValueFactory<>("period"));
+        hoursColumn.setCellValueFactory(new PropertyValueFactory<>("reportedHoursDisplay"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("displayStatus"));
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("dateDisplay"));
     }
 
     private void configureListeners() {
-        projectComboBox.getSelectionModel().selectedItemProperty()
-                .addListener(new ProjectSelectionListener());
-        internComboBox.getSelectionModel().selectedItemProperty()
-                .addListener(new InternSelectionListener());
-        reportsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ReportSelectionListener());
-        internComboBox.setConverter(new InternStringConverter());
+        projectComboBox.getSelectionModel().selectedItemProperty().addListener(this);
+        internComboBox.getSelectionModel().selectedItemProperty().addListener(this);
+        reportsTableView.getSelectionModel().selectedItemProperty().addListener(this);
+    }
+
+    @Override
+    public void changed(ObservableValue<? extends Object> observable,
+                        Object oldValue, Object newValue) {
+        if (newValue != null) {
+            if (observable == projectComboBox.getSelectionModel().selectedItemProperty()) {
+                loadInternsForProject((Project) newValue);
+            } else if (observable == internComboBox.getSelectionModel().selectedItemProperty()) {
+                loadReportsForIntern((Intern) newValue);
+            } else if (observable == reportsTableView.getSelectionModel().selectedItemProperty()) {
+                showDetail((Report) newValue);
+            }
+        }
     }
 
     private void loadProjects() {
@@ -248,122 +261,5 @@ public class ViewReportsProfessorController {
         reportsTableView.getSelectionModel().clearSelection();
     }
 
-    private final class ProjectSelectionListener implements ChangeListener<Project> {
-        @Override
-        public void changed(ObservableValue<? extends Project> observable,
-                            Project oldValue, Project newValue) {
-            if (newValue != null) {
-                loadInternsForProject(newValue);
-            }
-        }
-    }
-
-    private final class InternSelectionListener implements ChangeListener<Intern> {
-        @Override
-        public void changed(ObservableValue<? extends Intern> observable,
-                            Intern oldValue, Intern newValue) {
-            if (newValue != null) {
-                loadReportsForIntern(newValue);
-            }
-        }
-    }
-
-    private final class ReportSelectionListener implements ChangeListener<Report> {
-        @Override
-        public void changed(ObservableValue<? extends Report> observable,
-                            Report oldValue, Report newValue) {
-            if (newValue != null) {
-                showDetail(newValue);
-            }
-        }
-    }
-
-    private final class ReportIdCellFactory
-            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
-        @Override
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-            String id = String.valueOf(data.getValue().getIdReport());
-            ObservableValue<String> result = new SimpleStringProperty(id);
-            return result;
-        }
-    }
-
-    private final class ReportTypeCellFactory
-            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
-        @Override
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-            String type = data.getValue().getReportType();
-            String safeType = type != null ? type : "";
-            ObservableValue<String> result = new SimpleStringProperty(safeType);
-            return result;
-        }
-    }
-
-    private final class ReportPeriodCellFactory
-            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
-        @Override
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-            String period = data.getValue().getPeriod();
-            String safePeriod = period != null ? period : "";
-            ObservableValue<String> result = new SimpleStringProperty(safePeriod);
-            return result;
-        }
-    }
-
-    private final class ReportHoursCellFactory
-            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
-        @Override
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-            String hours = String.valueOf(data.getValue().getReportedHours());
-            ObservableValue<String> result = new SimpleStringProperty(hours);
-            return result;
-        }
-    }
-
-    private final class ReportStatusCellFactory
-            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
-        @Override
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-            String status = data.getValue().getDisplayStatus();
-            String safeStatus = status != null ? status : "";
-            ObservableValue<String> result = new SimpleStringProperty(safeStatus);
-            return result;
-        }
-    }
-
-    private final class ReportDateCellFactory
-            implements Callback<TableColumn.CellDataFeatures<Report, String>, ObservableValue<String>> {
-        @Override
-        public ObservableValue<String> call(TableColumn.CellDataFeatures<Report, String> data) {
-            String dateText = "—";
-            java.util.Date submissionDate = data.getValue().getSumissionDate();
-            boolean hasDate = submissionDate != null;
-            if (hasDate) {
-                dateText = submissionDate.toString();
-            }
-            ObservableValue<String> result = new SimpleStringProperty(dateText);
-            return result;
-        }
-    }
-
-    private final class InternStringConverter extends StringConverter<Intern> {
-        @Override
-        public String toString(Intern intern) {
-            String result = "";
-            boolean hasIntern = intern != null;
-            if (hasIntern) {
-                result = intern.getFirstName() + " "
-                        + intern.getLastName() + " "
-                        + intern.getSecondLastName();
-            }
-            return result;
-        }
-
-        @Override
-        public Intern fromString(String string) {
-            Intern result = null;
-            return result;
-        }
-    }
 
 }

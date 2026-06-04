@@ -19,6 +19,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserRoleDAO implements IUserRoleDAO {
+    private static final String STATUS_ACTIVE = "Activo";
+
 
     private static final Logger LOGGER = Logger.getLogger(UserRoleDAO.class.getName());
 
@@ -48,7 +50,7 @@ public class UserRoleDAO implements IUserRoleDAO {
 
             preparedStatement.setInt(1, user.getId());
             preparedStatement.setString(2, user.getRole());
-            preparedStatement.setString(3, "Activo");
+            preparedStatement.setString(3, STATUS_ACTIVE);
 
             if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;

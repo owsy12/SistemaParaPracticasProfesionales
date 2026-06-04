@@ -15,12 +15,12 @@ public class Activity {
 
     public Activity(int idActivity, int idProject, String name, String description,
                     LocalDate creationDate, String status) {
-        this.idActivity    = idActivity;
-        this.idProject     = idProject;
-        this.name          = name;
-        this.description   = description;
-        this.creationDate  = creationDate;
-        this.status        = status;
+        this.idActivity = idActivity;
+        this.idProject = idProject;
+        this.name = name;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.status = status;
     }
 
     public Activity() {

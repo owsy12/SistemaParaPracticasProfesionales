@@ -61,7 +61,7 @@ public class ActivityDAO implements IActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, activity.getIdProject());
+            statement.setInt (1, activity.getIdProject());
             statement.setString(2, activity.getName());
             statement.setString(3, activity.getDescription());
             if (activity.getFechaInicio() != null) {
@@ -74,7 +74,7 @@ public class ActivityDAO implements IActivityDAO {
             } else {
                 statement.setNull(5, java.sql.Types.DATE);
             }
-            statement.setDate  (6, activity.getCreationDate() != null
+            statement.setDate (6, activity.getCreationDate() != null
                     ? java.sql.Date.valueOf(activity.getCreationDate())
                     : new java.sql.Date(System.currentTimeMillis()));
             statement.setString(7, activity.getStatus() != null ? activity.getStatus() : "Activa");
@@ -188,7 +188,7 @@ public class ActivityDAO implements IActivityDAO {
                 statement.setNull(4, java.sql.Types.DATE);
             }
             statement.setString(5, activity.getStatus());
-            statement.setInt   (6, activity.getIdActivity());
+            statement.setInt (6, activity.getIdActivity());
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -259,11 +259,11 @@ public class ActivityDAO implements IActivityDAO {
 
     private Activity mapResultSet(ResultSet resultSet) throws SQLException {
         Activity activity = new Activity();
-        activity.setIdActivity (resultSet.getInt   ("id_actividad"));
-        activity.setIdProject  (resultSet.getInt   ("id_proyecto"));
-        activity.setName       (resultSet.getString("nombre"));
+        activity.setIdActivity (resultSet.getInt ("id_actividad"));
+        activity.setIdProject (resultSet.getInt ("id_proyecto"));
+        activity.setName (resultSet.getString("nombre"));
         activity.setDescription(resultSet.getString("descripcion"));
-        activity.setStatus     (resultSet.getString("estado"));
+        activity.setStatus (resultSet.getString("estado"));
 
         java.sql.Date creationDate = resultSet.getDate("fecha_creacion");
         if (creationDate != null) {

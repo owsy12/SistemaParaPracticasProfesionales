@@ -59,15 +59,15 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS)) {
 
-                    preparedStatement.setInt   (1, monthlyReport.getIdIntern());
-                    preparedStatement.setInt   (2, monthlyReport.getIdProyect());
-                    preparedStatement.setInt   (3, monthlyReport.getIdProfessor());
+                    preparedStatement.setInt (1, monthlyReport.getIdIntern());
+                    preparedStatement.setInt (2, monthlyReport.getIdProyect());
+                    preparedStatement.setInt (3, monthlyReport.getIdProfessor());
                     preparedStatement.setString(4, monthlyReport.getReportType());
                     preparedStatement.setString(5, monthlyReport.getPeriod());
                     preparedStatement.setString(6, monthlyReport.getDocumentPath());
                     preparedStatement.setString(7, monthlyReport.getStatus());
-                    preparedStatement.setInt   (8, monthlyReport.getMonthlyHours());
-                    preparedStatement.setDate  (9, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
+                    preparedStatement.setInt (8, monthlyReport.getMonthlyHours());
+                    preparedStatement.setDate (9, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
 
                     rowsAffected = preparedStatement.executeUpdate();
 
@@ -80,10 +80,10 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                 }
 
                 try (PreparedStatement preparedStatement = connection.prepareStatement(SQL_INSERT_SPECIFIC)) {
-                    preparedStatement.setInt   (1, monthlyReport.getIdReport());
+                    preparedStatement.setInt (1, monthlyReport.getIdReport());
                     preparedStatement.setString(2, monthlyReport.getMonth());
-                    preparedStatement.setInt   (3, monthlyReport.getYear());
-                    preparedStatement.setInt   (4, monthlyReport.getMonthlyHours());
+                    preparedStatement.setInt (3, monthlyReport.getYear());
+                    preparedStatement.setInt (4, monthlyReport.getMonthlyHours());
                     preparedStatement.setString(5, monthlyReport.getBlock());
                     preparedStatement.setString(6, monthlyReport.getSection());
                     preparedStatement.executeUpdate();
@@ -195,31 +195,31 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
     private MonthlyReport mapResultSet(ResultSet resultSet) throws SQLException {
         MonthlyReport report = new MonthlyReport();
 
-        report.setIdReport              (resultSet.getInt   ("id_reporte"));
-        report.setIdIntern              (resultSet.getInt   ("id_practicante"));
-        report.setIdProyect             (resultSet.getInt   ("id_proyecto"));
-        report.setIdProfessor           (resultSet.getInt   ("id_profesor"));
-        report.setReportType            (resultSet.getString("tipo_reporte"));
-        report.setPeriod                (resultSet.getString("periodo"));
-        report.setDocumentPath          (resultSet.getString("ruta_documento"));
-        report.setSignedDocumentPath    (resultSet.getString("ruta_documento_firmado"));
-        report.setStatus                (resultSet.getString("estado"));
+        report.setIdReport (resultSet.getInt ("id_reporte"));
+        report.setIdIntern (resultSet.getInt ("id_practicante"));
+        report.setIdProyect (resultSet.getInt ("id_proyecto"));
+        report.setIdProfessor (resultSet.getInt ("id_profesor"));
+        report.setReportType (resultSet.getString("tipo_reporte"));
+        report.setPeriod (resultSet.getString("periodo"));
+        report.setDocumentPath (resultSet.getString("ruta_documento"));
+        report.setSignedDocumentPath (resultSet.getString("ruta_documento_firmado"));
+        report.setStatus (resultSet.getString("estado"));
         report.setProfessorObservations (resultSet.getString("observaciones_profesor"));
-        report.setSumissionDate         (resultSet.getDate  ("fecha_entrega"));
+        report.setSumissionDate (resultSet.getDate ("fecha_entrega"));
 
         java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
         if (reviewDate != null) {
             report.setReviewDate(reviewDate.toLocalDate());
         }
 
-        report.setIdMonthlyReport(resultSet.getInt   ("id_reporte"));
-        report.setMonth          (resultSet.getString("mes"));
-        report.setYear           (resultSet.getInt   ("anio"));
+        report.setIdMonthlyReport(resultSet.getInt ("id_reporte"));
+        report.setMonth (resultSet.getString("mes"));
+        report.setYear (resultSet.getInt ("anio"));
         int monthlyHours = resultSet.getInt("horas_mensual");
-        report.setMonthlyHours   (monthlyHours);
-        report.setReportedHours  (monthlyHours);
-        report.setBlock          (resultSet.getString("bloque"));
-        report.setSection        (resultSet.getString("seccion"));
+        report.setMonthlyHours (monthlyHours);
+        report.setReportedHours (monthlyHours);
+        report.setBlock (resultSet.getString("bloque"));
+        report.setSection (resultSet.getString("seccion"));
 
         return report;
     }

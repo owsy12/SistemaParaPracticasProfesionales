@@ -20,10 +20,10 @@ public class CompatibleFontProvider implements IFontProvider {
 
     private static Map<String, String> buildFontMap() {
         Map<String, String> fontMap = new HashMap<>();
-        fontMap.put("calibri",           FONT_HELVETICA);
-        fontMap.put("calibri light",     FONT_HELVETICA);
-        fontMap.put("arial",             FONT_HELVETICA);
-        fontMap.put("arial narrow",      FONT_HELVETICA);
+        fontMap.put("calibri", FONT_HELVETICA);
+        fontMap.put("calibri light", FONT_HELVETICA);
+        fontMap.put("arial", FONT_HELVETICA);
+        fontMap.put("arial narrow", FONT_HELVETICA);
         fontMap.put("helvetica",         FONT_HELVETICA);
         fontMap.put("tahoma",            FONT_HELVETICA);
         fontMap.put("verdana",           FONT_HELVETICA);

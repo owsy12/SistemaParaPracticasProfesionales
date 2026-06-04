@@ -32,7 +32,11 @@ import java.util.logging.Logger;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 
-public class InternProgressController {
+public class InternProgressController implements ChangeListener<InternActivity> {
+    private static final String STATUS_COMPLETED = "Completada";
+    private static final String STATUS_IN_PROGRESS = "En Progreso";
+    private static final String STATUS_PENDING = "Pendiente";
+
 
     private static final Logger LOGGER = Logger.getLogger(InternProgressController.class.getName());
 
@@ -88,7 +92,7 @@ public class InternProgressController {
     @FXML
     private void initialize() {
         setTypeAndLength(hoursTextField, "Number");
-        statusComboBox.getItems().setAll("Pendiente", "En Progreso", "Completada");
+        statusComboBox.getItems().setAll(STATUS_PENDING, STATUS_IN_PROGRESS, STATUS_COMPLETED);
         configureListeners();
         loadInternContext();
     }
@@ -130,18 +134,15 @@ public class InternProgressController {
     }
 
     private void configureListeners() {
-        activitiesTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new InternActivitySelectionListener());
+        activitiesTableView.getSelectionModel().selectedItemProperty().addListener(this);
     }
 
-    private final class InternActivitySelectionListener implements ChangeListener<InternActivity> {
-        @Override
-        public void changed(ObservableValue<? extends InternActivity> observable,
-                            InternActivity oldValue, InternActivity newValue) {
-            if (newValue != null) {
-                selectedInternActivity = newValue;
-                populateForm(newValue);
-            }
+    @Override
+    public void changed(ObservableValue<? extends InternActivity> observable,
+                        InternActivity oldValue, InternActivity newValue) {
+        if (newValue != null) {
+            selectedInternActivity = newValue;
+            populateForm(newValue);
         }
     }
 
@@ -188,7 +189,7 @@ public class InternProgressController {
                 existing.setStatus(statusComboBox.getValue());
                 existing.setObservations(observationsTextArea.getText().trim());
 
-                boolean isCompleted = "Completada".equals(statusComboBox.getValue());
+                boolean isCompleted = STATUS_COMPLETED.equals(statusComboBox.getValue());
                 LocalDate completionDate = null;
                 if (isCompleted) {
                     completionDate = LocalDate.now();
@@ -247,7 +248,7 @@ public class InternProgressController {
             selectedInternActivity.setStatus(statusComboBox.getValue());
             selectedInternActivity.setObservations(observationsTextArea.getText().trim());
 
-            boolean isCompleted = "Completada".equals(statusComboBox.getValue());
+            boolean isCompleted = STATUS_COMPLETED.equals(statusComboBox.getValue());
             if (isCompleted) {
                 selectedInternActivity.setCompletionDate(LocalDate.now());
             }
@@ -365,7 +366,7 @@ public class InternProgressController {
         internActivity.setStatus(statusComboBox.getValue());
         internActivity.setObservations(observationsTextArea.getText().trim());
 
-        boolean isCompleted = "Completada".equals(statusComboBox.getValue());
+        boolean isCompleted = STATUS_COMPLETED.equals(statusComboBox.getValue());
         if (isCompleted) {
             internActivity.setCompletionDate(LocalDate.now());
         }

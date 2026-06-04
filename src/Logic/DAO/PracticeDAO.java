@@ -352,8 +352,8 @@ public class PracticeDAO implements IPracticeDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement updateStmt = connection.prepareStatement(SQL_REACTIVATE_CANCELLED)) {
 
-            updateStmt.setDate  (1, Date.valueOf(startDate));
-            updateStmt.setInt   (2, internId);
+            updateStmt.setDate (1, Date.valueOf(startDate));
+            updateStmt.setInt (2, internId);
             updateStmt.setString(3, nrc);
 
             boolean reactivated = updateStmt.executeUpdate() > 0;

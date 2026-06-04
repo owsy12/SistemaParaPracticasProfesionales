@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Date;
 
 public class Report {
+    private static final String STATUS_SUBMITTED = "Entregado";
+
     private int idReport;
     private int idIntern;
     private int idProyect;
@@ -158,7 +160,7 @@ public class Report {
     }
 
     public String getDisplayStatus() {
-        boolean isLateDelivery = entregaTardia && "Entregado".equals(status);
+        boolean isLateDelivery = entregaTardia && STATUS_SUBMITTED.equals(status);
         String statusLabel;
         if (isLateDelivery) {
             statusLabel = "Entrega tardía";

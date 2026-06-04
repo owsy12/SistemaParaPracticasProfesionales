@@ -26,7 +26,7 @@ import java.util.logging.Logger;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 
-public class SelectProjectForActivityController {
+public class SelectProjectForActivityController implements ChangeListener<Project> {
 
     private static final Logger LOGGER =
             Logger.getLogger(SelectProjectForActivityController.class.getName());
@@ -69,8 +69,7 @@ public class SelectProjectForActivityController {
     }
 
     private void configureListeners() {
-        projectsTable.getSelectionModel().selectedItemProperty()
-                .addListener(new ProjectSelectionListener());
+        projectsTable.getSelectionModel().selectedItemProperty().addListener(this);
     }
 
     private void loadProjects() {
@@ -127,14 +126,12 @@ public class SelectProjectForActivityController {
         }
     }
 
-    private final class ProjectSelectionListener implements ChangeListener<Project> {
-        @Override
-        public void changed(ObservableValue<? extends Project> observable,
-                            Project oldValue, Project newValue) {
-            boolean hasSelection = newValue != null;
-            addActivityButton.setDisable(!hasSelection);
-            manageActivitiesButton.setDisable(!hasSelection);
-        }
+    @Override
+    public void changed(ObservableValue<? extends Project> observable,
+                        Project oldValue, Project newValue) {
+        boolean hasSelection = newValue != null;
+        addActivityButton.setDisable(!hasSelection);
+        manageActivitiesButton.setDisable(!hasSelection);
     }
 
 }

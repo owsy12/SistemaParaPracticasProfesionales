@@ -62,19 +62,19 @@ public class RequestProjectController {
         if (isNotSelected) {
             showAlert("Sin selección", "Seleccione un proyecto de la lista izquierda para agregar.",
                     Alert.AlertType.WARNING);
-            return;
+        } else {
+            boolean isLimitReached = selectedProjects.size() >= SELECTION_LIMIT;
+            if (isLimitReached) {
+                showAlert("Límite alcanzado",
+                        "Ya seleccionó 3 proyectos. Quite uno antes de agregar otro.",
+                        Alert.AlertType.WARNING);
+            } else {
+                project.setSelectionOrder(selectedProjects.size() + 1);
+                availableProjects.remove(project);
+                selectedProjects.add(project);
+                updateCountLabel();
+            }
         }
-        boolean isLimitReached = selectedProjects.size() >= SELECTION_LIMIT;
-        if (isLimitReached) {
-            showAlert("Límite alcanzado",
-                    "Ya seleccionó 3 proyectos. Quite uno antes de agregar otro.",
-                    Alert.AlertType.WARNING);
-            return;
-        }
-        project.setSelectionOrder(selectedProjects.size() + 1);
-        availableProjects.remove(project);
-        selectedProjects.add(project);
-        updateCountLabel();
     }
 
     @FXML
@@ -84,13 +84,13 @@ public class RequestProjectController {
         if (isNotSelected) {
             showAlert("Sin selección", "Seleccione un proyecto de la lista derecha para quitar.",
                     Alert.AlertType.WARNING);
-            return;
+        } else {
+            project.setSelectionOrder(0);
+            selectedProjects.remove(project);
+            availableProjects.add(project);
+            reorderSelectionNumbers();
+            updateCountLabel();
         }
-        project.setSelectionOrder(0);
-        selectedProjects.remove(project);
-        availableProjects.add(project);
-        reorderSelectionNumbers();
-        updateCountLabel();
     }
 
     @FXML

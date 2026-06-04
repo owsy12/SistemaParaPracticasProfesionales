@@ -6,8 +6,6 @@ import Logic.DTOs.Professor;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -23,6 +21,7 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class DeactivateProfessorController {
+    private static final String STATUS_INACTIVE = "Inactivo";
 
     @FXML
     private TableColumn<User, String> nameColumn;
@@ -45,35 +44,32 @@ public class DeactivateProfessorController {
     @FXML
     private AnchorPane anchorPane;
 
-    private User selectedUser;
-
     @FXML
     private void initialize() {
-        configureListeners();
         loadProfessors();
     }
 
     @FXML
     public void inactivateProfessor(ActionEvent actionEvent) {
+        User selectedUser = tableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedUser == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un profesor de la tabla para inactivar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
+        } else {
+            Optional<ButtonType> response = showAlertAndWait(
+                    "Desea desactivar",
+                    "¿Desea desactivar este profesor?",
+                    Alert.AlertType.CONFIRMATION);
 
-        Optional<ButtonType> response = showAlertAndWait(
-                "Desea desactivar",
-                "¿Desea desactivar este profesor?",
-                Alert.AlertType.CONFIRMATION);
-
-        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
-        if (isUserConfirmed) {
-            selectedUser.setStatus("Inactivo");
-            selectedUser.setRole("Profesor");
-            deactivateProcess(selectedUser);
-            loadProfessors();
+            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            if (isUserConfirmed) {
+                selectedUser.setStatus(STATUS_INACTIVE);
+                selectedUser.setRole("Profesor");
+                deactivateProcess(selectedUser);
+                loadProfessors();
+            }
         }
     }
 
@@ -83,24 +79,10 @@ public class DeactivateProfessorController {
         openWelcomePage(anchorPane);
     }
 
-    private void configureListeners() {
-        tableView.getSelectionModel().selectedItemProperty()
-                .addListener(new UserSelectionListener());
-    }
-
-    private final class UserSelectionListener implements ChangeListener<User> {
-        @Override
-        public void changed(ObservableValue<? extends User> observable,
-                            User oldValue, User newValue) {
-            selectedUser = newValue;
-        }
-    }
-
     private void deactivateProcess(User user) {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
-            selectedUser = null;
             showAlert("Profesor desactivado",
                     "El profesor ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);

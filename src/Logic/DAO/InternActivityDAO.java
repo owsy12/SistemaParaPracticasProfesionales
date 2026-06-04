@@ -14,6 +14,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class InternActivityDAO implements IInternActivityDAO {
+    private static final String STATUS_PENDING = "Pendiente";
+
 
     private static final Logger LOGGER = Logger.getLogger(InternActivityDAO.class.getName());
 
@@ -68,11 +70,11 @@ public class InternActivityDAO implements IInternActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, internActivity.getIdActivity());
-            statement.setInt   (2, internActivity.getIdIntern());
-            statement.setInt   (3, internActivity.getDedicatedHours());
+            statement.setInt (1, internActivity.getIdActivity());
+            statement.setInt (2, internActivity.getIdIntern());
+            statement.setInt (3, internActivity.getDedicatedHours());
             statement.setString(4, internActivity.getStatus() != null
-                    ? internActivity.getStatus() : "Pendiente");
+                    ? internActivity.getStatus() : STATUS_PENDING);
 
             if (internActivity.getCompletionDate() != null) {
                 statement.setDate(5, java.sql.Date.valueOf(internActivity.getCompletionDate()));
@@ -229,7 +231,7 @@ public class InternActivityDAO implements IInternActivityDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
 
-            statement.setInt   (1, internActivity.getDedicatedHours());
+            statement.setInt (1, internActivity.getDedicatedHours());
             statement.setString(2, internActivity.getStatus());
 
             if (internActivity.getCompletionDate() != null) {
@@ -239,7 +241,7 @@ public class InternActivityDAO implements IInternActivityDAO {
             }
 
             statement.setString(4, internActivity.getObservations());
-            statement.setInt   (5, internActivity.getIdInternActivity());
+            statement.setInt (5, internActivity.getIdInternActivity());
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -257,13 +259,13 @@ public class InternActivityDAO implements IInternActivityDAO {
 
     private InternActivity mapResultSet(ResultSet resultSet) throws SQLException {
         InternActivity internActivity = new InternActivity();
-        internActivity.setIdInternActivity(resultSet.getInt   ("id_actividad_practicante"));
-        internActivity.setIdActivity      (resultSet.getInt   ("id_actividad"));
-        internActivity.setIdIntern        (resultSet.getInt   ("id_practicante"));
-        internActivity.setDedicatedHours  (resultSet.getInt   ("horas_dedicadas"));
-        internActivity.setStatus          (resultSet.getString("estado"));
-        internActivity.setObservations    (resultSet.getString("observaciones"));
-        internActivity.setActivityName    (resultSet.getString("nombre_actividad"));
+        internActivity.setIdInternActivity(resultSet.getInt ("id_actividad_practicante"));
+        internActivity.setIdActivity (resultSet.getInt ("id_actividad"));
+        internActivity.setIdIntern (resultSet.getInt ("id_practicante"));
+        internActivity.setDedicatedHours (resultSet.getInt ("horas_dedicadas"));
+        internActivity.setStatus (resultSet.getString("estado"));
+        internActivity.setObservations (resultSet.getString("observaciones"));
+        internActivity.setActivityName (resultSet.getString("nombre_actividad"));
 
         java.sql.Date completionDate = resultSet.getDate("fecha_realizacion");
         if (completionDate != null) {

@@ -197,6 +197,8 @@ public class MainMenuController {
     private void loadAdministratorActions() {
         addButton("Registrar coordinador", "/GUI/View/GUIAddCoordinador.fxml");
         addButton("Registrar profesor", "/GUI/View/GUIAddProfesor.fxml");
+        addButton("Inactivar coordinador", "/GUI/View/GUIDeactivateCoordinator.fxml");
+
     }
 
     private void loadProfesorActions() {
@@ -216,7 +218,6 @@ public class MainMenuController {
         addButton("Consultar Organizaciones Vinculadas", "/GUI/view/GUIManageLinkedOrganization.fxml");
         addButton("Consultar técnicos responsables", "/GUI/view/GUIManageTechnicalResponsible.fxml");
         addButton("Registrar profesor", "/GUI/View/GUIAddProfesor.fxml");
-        addButton("Inactivar coordinador", "/GUI/View/GUIDeactivateCoordinator.fxml");
         addButton("Inactivar profesor", "/GUI/View/GUIDeactivateProfessor.fxml");
     }
 

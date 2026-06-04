@@ -4,8 +4,6 @@ import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,11 +51,8 @@ public class ManegeProjectController {
     @FXML
     private TableColumn<Project, String> nrcColumn;
 
-    private Project selectedProject;
-
     @FXML
     private void initialize() {
-        configureListeners();
         loadProjectsOnTableView();
     }
 
@@ -68,47 +63,36 @@ public class ManegeProjectController {
 
     @FXML
     public void deleteProject(ActionEvent actionEvent) {
+        Project selectedProject = tableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedProject == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un proyecto de la tabla para eliminar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
+        } else {
 
-        Optional<ButtonType> response = showAlertAndWait(
-                "Desea Eliminar",
-                "¿Desea eliminar este proyecto? Esta acción es irreversible.",
-                Alert.AlertType.CONFIRMATION);
+            Optional<ButtonType> response = showAlertAndWait(
+                    "Desea Eliminar",
+                    "¿Desea eliminar este proyecto? Esta acción es irreversible.",
+                    Alert.AlertType.CONFIRMATION);
 
-        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
-        if (isUserConfirmed) {
-            deleteProcess(selectedProject.getIdProyect());
+            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            if (isUserConfirmed) {
+                deleteProcess(selectedProject.getIdProyect());
+            }
         }
     }
 
     @FXML
     public void updateProject(ActionEvent actionEvent) {
+        Project selectedProject = tableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedProject == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un proyecto de la tabla para actualizar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
-        openModifyProjectView(selectedProject);
-    }
-
-    private void configureListeners() {
-        tableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ProjectSelectionListener());
-    }
-
-    private final class ProjectSelectionListener implements ChangeListener<Project> {
-        @Override
-        public void changed(ObservableValue<? extends Project> observable,
-                            Project oldValue, Project newValue) {
-            selectedProject = newValue;
+        } else {
+            openModifyProjectView(selectedProject);
         }
     }
 
@@ -150,7 +134,6 @@ public class ManegeProjectController {
         try {
             ProjectDAO projectDAO = new ProjectDAO();
             projectDAO.deleteProject(idProject);
-            selectedProject = null;
             loadProjectsOnTableView();
             showAlert("Éxito", "Proyecto eliminado exitosamente.", Alert.AlertType.INFORMATION);
         } catch (ServiceException serviceException) {

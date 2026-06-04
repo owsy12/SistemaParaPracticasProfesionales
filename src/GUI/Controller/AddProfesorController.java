@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class AddProfesorController {
+    private static final String STATUS_ACTIVE = "Activo";
+
 
     @FXML
     private RestrictedTextField idTextField;
@@ -141,7 +143,7 @@ public class AddProfesorController {
             professor.setLastName(lastNameTextField.getText());
             professor.setSecondLastName(secondLastNameTextField.getText());
             professor.setPassword(BCrypt.hashpw(passwordField.getText(), BCrypt.gensalt()));
-            professor.setStatus("Activo");
+            professor.setStatus(STATUS_ACTIVE);
             professor.setEmail(emailTextField.getText());
             professor.setAcademicArea(academicAreaTextField.getText());
             professor.setRole("Profesor");

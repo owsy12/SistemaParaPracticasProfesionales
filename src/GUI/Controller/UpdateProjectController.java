@@ -45,7 +45,7 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class UpdateProjectController {
+public class UpdateProjectController implements ChangeListener<Intern> {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateProjectController.class.getName());
 
@@ -128,18 +128,18 @@ public class UpdateProjectController {
         if (isInternMissing) {
             internsStatusLabel.setText("Seleccione un practicante de la tabla.");
             internsStatusLabel.setStyle("-fx-text-fill: red;");
-            return;
-        }
+        } else {
 
-        String confirmMessage = "¿Eliminar la asignación de "
-                + selectedIntern.getFullName() + " de este proyecto?";
-        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, confirmMessage,
-                ButtonType.YES, ButtonType.NO);
-        Optional<ButtonType> result = confirmation.showAndWait();
+            String confirmMessage = "¿Eliminar la asignación de "
+                    + selectedIntern.getFullName() + " de este proyecto?";
+            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, confirmMessage,
+                    ButtonType.YES, ButtonType.NO);
+            Optional<ButtonType> result = confirmation.showAndWait();
 
-        boolean isConfirmed = result.isPresent() && result.get() == ButtonType.YES;
-        if (isConfirmed) {
-            removeInternProcess();
+            boolean isConfirmed = result.isPresent() && result.get() == ButtonType.YES;
+            if (isConfirmed) {
+                removeInternProcess();
+            }
         }
     }
 
@@ -252,20 +252,17 @@ public class UpdateProjectController {
     }
 
     private void configureListeners() {
-        internsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new InternSelectionListener());
+        internsTableView.getSelectionModel().selectedItemProperty().addListener(this);
     }
 
-    private final class InternSelectionListener implements ChangeListener<Intern> {
-        @Override
-        public void changed(ObservableValue<? extends Intern> observable,
-                            Intern oldValue, Intern newValue) {
-            if (newValue != null) {
-                selectedIntern = newValue;
-                String selectionText = "Practicante seleccionado: " + newValue.getFullName();
-                internsStatusLabel.setText(selectionText);
-                internsStatusLabel.setStyle("-fx-text-fill: green;");
-            }
+    @Override
+    public void changed(ObservableValue<? extends Intern> observable,
+                        Intern oldValue, Intern newValue) {
+        if (newValue != null) {
+            selectedIntern = newValue;
+            String selectionText = "Practicante seleccionado: " + newValue.getFullName();
+            internsStatusLabel.setText(selectionText);
+            internsStatusLabel.setStyle("-fx-text-fill: green;");
         }
     }
 

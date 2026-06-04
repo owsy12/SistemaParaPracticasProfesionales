@@ -17,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OVEvaluationDAO {
+    private static final String STATUS_SUBMITTED = "Entregado";
+
 
     private static final Logger LOGGER = Logger.getLogger(OVEvaluationDAO.class.getName());
 
@@ -49,11 +51,11 @@ public class OVEvaluationDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, ovEvaluation.getIdIntern());
-            statement.setInt   (2, ovEvaluation.getIdProject());
+            statement.setInt (1, ovEvaluation.getIdIntern());
+            statement.setInt (2, ovEvaluation.getIdProject());
             statement.setString(3, ovEvaluation.getDocumentPath());
             statement.setString(4, ovEvaluation.getStatus() != null
-                    ? ovEvaluation.getStatus() : "Entregado");
+                    ? ovEvaluation.getStatus() : STATUS_SUBMITTED);
             statement.setTimestamp(5, Timestamp.valueOf(
                     ovEvaluation.getDeliveryDate() != null
                     ? ovEvaluation.getDeliveryDate()
@@ -122,11 +124,11 @@ public class OVEvaluationDAO {
 
     private OVEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
         OVEvaluation ovEvaluation = new OVEvaluation();
-        ovEvaluation.setIdOVEvaluation(resultSet.getInt   ("id_evaluacion_ov"));
-        ovEvaluation.setIdIntern      (resultSet.getInt   ("id_practicante"));
-        ovEvaluation.setIdProject     (resultSet.getInt   ("id_proyecto"));
-        ovEvaluation.setDocumentPath  (resultSet.getString("ruta_documento"));
-        ovEvaluation.setStatus        (resultSet.getString("estado"));
+        ovEvaluation.setIdOVEvaluation(resultSet.getInt ("id_evaluacion_ov"));
+        ovEvaluation.setIdIntern (resultSet.getInt ("id_practicante"));
+        ovEvaluation.setIdProject (resultSet.getInt ("id_proyecto"));
+        ovEvaluation.setDocumentPath (resultSet.getString("ruta_documento"));
+        ovEvaluation.setStatus (resultSet.getString("estado"));
 
         Timestamp deliveryDate = resultSet.getTimestamp("fecha_entrega");
         if (deliveryDate != null) {

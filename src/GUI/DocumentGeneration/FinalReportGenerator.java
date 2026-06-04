@@ -33,14 +33,14 @@ public class FinalReportGenerator {
     private static final Logger LOGGER = Logger.getLogger(FinalReportGenerator.class.getName());
     private static final String TEMPLATE = "/GUI/DocumentGeneration/basedocuments/reporteFinal.docx";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private static final Pattern MARKER     = Pattern.compile("\\{\\{([^}]+)}}");
+    private static final Pattern MARKER = Pattern.compile("\\{\\{([^}]+)}}");
     private static final Pattern TEXT_IN_RUN = Pattern.compile("<w:t[^>]*>([^<]*)</w:t>");
 
     private FinalReportGenerator() {
     }
 
     public static String generate(PartialAndFinalReport report, ReportGenerationContext context, ReportContent content) throws IOException {
-        List<ReportActivity>    activities   = content.getActivities();
+        List<ReportActivity> activities = content.getActivities();
         List<ReportDeliverable> deliverables = content.getDeliverables();
         Map<String, String> values = buildValues(report, context);
         byte[] docxBytes = fillTemplate(values, content);

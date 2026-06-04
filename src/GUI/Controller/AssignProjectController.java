@@ -6,8 +6,6 @@ import Logic.DTOs.Application;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,6 +26,7 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 import javafx.scene.control.ButtonType;
 
 public class AssignProjectController {
+    private static final String STATUS_PENDING = "Pendiente";
 
     @FXML
     private TableView<User> internsTableView;
@@ -41,24 +40,22 @@ public class AssignProjectController {
     @FXML
     private TableColumn<User, String> matriculaColumn;
 
-    private User selectedUser;
-
     @FXML
     private void initialize() {
-        configureListeners();
         loadPendingApplicationInterns();
     }
 
     @FXML
     public void assignProject(ActionEvent actionEvent) {
+        User selectedUser = internsTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedUser == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un practicante de la tabla para asignar proyecto.",
                     Alert.AlertType.WARNING);
-            return;
+        } else {
+            openInternProjectSelection(selectedUser);
         }
-        openInternProjectSelection(selectedUser);
     }
 
     @FXML
@@ -73,23 +70,10 @@ public class AssignProjectController {
         }
     }
 
-    private void configureListeners() {
-        internsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new InternSelectionListener());
-    }
-
-    private final class InternSelectionListener implements ChangeListener<User> {
-        @Override
-        public void changed(ObservableValue<? extends User> observable,
-                            User oldValue, User newValue) {
-            selectedUser = newValue;
-        }
-    }
-
     private void loadPendingApplicationInterns() {
         try {
             ApplicationDAO applicationDAO = new ApplicationDAO();
-            List<Application> applicationList = applicationDAO.findByStatus("Pendiente");
+            List<Application> applicationList = applicationDAO.findByStatus(STATUS_PENDING);
 
             if (applicationList.isEmpty()) {
                 showAlert("Advertencia", "En este momento no existen solicitudes.",

@@ -14,8 +14,6 @@ import Logic.DTOs.ProjectApplication;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -44,6 +42,9 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 
 public class ViewInterProjectSelection {
+    private static final String STATUS_ACCEPTED = "Aceptada";
+    private static final String STATUS_PENDING = "Pendiente";
+
 
     private static final Logger LOGGER = Logger.getLogger(ViewInterProjectSelection.class.getName());
     private static final int INITIAL_DOCUMENTS_COUNT = 4;
@@ -80,7 +81,6 @@ public class ViewInterProjectSelection {
     private User user;
     private int internId;
     private int applicationId;
-    private Project selectedProject;
     private final Set<Integer> internSelectedIds = new HashSet<>();
 
     @FXML
@@ -95,32 +95,19 @@ public class ViewInterProjectSelection {
         this.user = user;
         String fullName = user.getFirstName() + " " + user.getLastName() + " " + user.getSecondLastName();
         internNameLabel.setText(fullName);
-        configureListeners();
         loadProjectList();
     }
 
     @FXML
     public void assignProject(ActionEvent actionEvent) {
+        Project selectedProject = projectsTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedProject == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
                     "Seleccione un proyecto de la tabla para asignar.",
                     Alert.AlertType.WARNING);
-            return;
-        }
-        handleAssignAction(selectedProject);
-    }
-
-    private void configureListeners() {
-        projectsTableView.getSelectionModel().selectedItemProperty()
-                .addListener(new ProjectSelectionListener());
-    }
-
-    private final class ProjectSelectionListener implements ChangeListener<Project> {
-        @Override
-        public void changed(ObservableValue<? extends Project> observable,
-                            Project oldValue, Project newValue) {
-            selectedProject = newValue;
+        } else {
+            handleAssignAction(selectedProject);
         }
     }
 
@@ -250,7 +237,7 @@ public class ViewInterProjectSelection {
                 }
 
                 ApplicationDAO applicationDAO = new ApplicationDAO();
-                applicationDAO.updateStatus(applicationId, "Aceptada");
+                applicationDAO.updateStatus(applicationId, STATUS_ACCEPTED);
 
                 createInitialDocuments(project.getIdProyect());
                 createOrReactivatePractice(project);
@@ -290,19 +277,19 @@ public class ViewInterProjectSelection {
         if (!hasNrc) {
             LOGGER.log(Level.WARNING,
                     "Proyecto {0} sin NRC: no se puede crear práctica.", project.getIdProyect());
-            return;
-        }
+        } else {
 
-        try {
-            PracticeDAO practiceDAO = new PracticeDAO();
-            practiceDAO.reactivateOrCreate(
-                    user.getId(), nrc, LocalDate.now(ZoneId.of("America/Mexico_City")));
-        } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al gestionar práctica para practicante {0}: {1}",
-                    new Object[]{user.getId(), serviceException.getMessage()});
-        } catch (ValidationException validationException) {
-            LOGGER.log(Level.WARNING, "Validación al gestionar práctica: {0}",
-                    validationException.getMessage());
+            try {
+                PracticeDAO practiceDAO = new PracticeDAO();
+                practiceDAO.reactivateOrCreate(
+                        user.getId(), nrc, LocalDate.now(ZoneId.of("America/Mexico_City")));
+            } catch (ServiceException serviceException) {
+                LOGGER.log(Level.SEVERE, "Error al gestionar práctica para practicante {0}: {1}",
+                        new Object[]{user.getId(), serviceException.getMessage()});
+            } catch (ValidationException validationException) {
+                LOGGER.log(Level.WARNING, "Validación al gestionar práctica: {0}",
+                        validationException.getMessage());
+            }
         }
     }
 
@@ -313,7 +300,7 @@ public class ViewInterProjectSelection {
             initialFormat.setFormatType(INITIAL_DOCUMENT_TYPES.get(i));
             initialFormat.setIdIntern(user.getId());
             initialFormat.setIdProject(idProject);
-            initialFormat.setStatus("Pendiente");
+            initialFormat.setStatus(STATUS_PENDING);
             initialFormatDAO.save(initialFormat);
         }
     }

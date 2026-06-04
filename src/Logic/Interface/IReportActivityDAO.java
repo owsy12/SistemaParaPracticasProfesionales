@@ -8,9 +8,9 @@ import Logic.Exceptions.ValidationException;
 import java.util.List;
 
 public interface IReportActivityDAO {
-    int  save(ReportActivity reportActivity) throws ServiceException, ValidationException;
+    int save(ReportActivity reportActivity) throws ServiceException, ValidationException;
     List<ReportActivity> findByReport(int idReport) throws ServiceException, ValidationException;
-    int  saveDeliverable(ReportDeliverable rd) throws ServiceException, ValidationException;
+    int saveDeliverable(ReportDeliverable rd) throws ServiceException, ValidationException;
     List<ReportDeliverable> findDeliverablesByReport(int idReport) throws ServiceException, ValidationException;
     List<Integer> findActivityIdsInMonthlyReportsByIntern(int internId)
             throws ServiceException, ValidationException;

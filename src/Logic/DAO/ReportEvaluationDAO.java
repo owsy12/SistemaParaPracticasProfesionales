@@ -51,10 +51,10 @@ public class ReportEvaluationDAO implements IReportEvaluation {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt   (1, reportEvaluation.getIdReport());
-            statement.setInt   (2, reportEvaluation.getGrade());
+            statement.setInt (1, reportEvaluation.getIdReport());
+            statement.setInt (2, reportEvaluation.getGrade());
             statement.setString(3, reportEvaluation.getFeedback());
-            statement.setDate  (4, new java.sql.Date(reportEvaluation.getEvaluationDate().getTime()));
+            statement.setDate (4, new java.sql.Date(reportEvaluation.getEvaluationDate().getTime()));
 
             rowsAffected = statement.executeUpdate();
 
@@ -173,11 +173,11 @@ public class ReportEvaluationDAO implements IReportEvaluation {
 
     private ReportEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
         ReportEvaluation reportEvaluation = new ReportEvaluation();
-        reportEvaluation.setIdReportEvaluation(resultSet.getInt   ("id_evaluacion_reporte"));
-        reportEvaluation.setIdReport          (resultSet.getInt   ("id_reporte"));
-        reportEvaluation.setGrade             (resultSet.getInt   ("calificacion"));
-        reportEvaluation.setFeedback          (resultSet.getString("retroalimentacion"));
-        reportEvaluation.setEvaluationDate    (resultSet.getDate  ("fecha_evaluacion"));
+        reportEvaluation.setIdReportEvaluation(resultSet.getInt ("id_evaluacion_reporte"));
+        reportEvaluation.setIdReport (resultSet.getInt ("id_reporte"));
+        reportEvaluation.setGrade (resultSet.getInt ("calificacion"));
+        reportEvaluation.setFeedback (resultSet.getString("retroalimentacion"));
+        reportEvaluation.setEvaluationDate (resultSet.getDate ("fecha_evaluacion"));
         return reportEvaluation;
     }
 }

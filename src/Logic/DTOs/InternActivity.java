@@ -16,12 +16,12 @@ public class InternActivity {
                           int dedicatedHours, String status,
                           LocalDate completionDate, String observations) {
         this.idInternActivity = idInternActivity;
-        this.idActivity       = idActivity;
-        this.idIntern         = idIntern;
-        this.dedicatedHours   = dedicatedHours;
-        this.status           = status;
-        this.completionDate   = completionDate;
-        this.observations     = observations;
+        this.idActivity = idActivity;
+        this.idIntern = idIntern;
+        this.dedicatedHours = dedicatedHours;
+        this.status = status;
+        this.completionDate = completionDate;
+        this.observations = observations;
     }
 
     public InternActivity() {

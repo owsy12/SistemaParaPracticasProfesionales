@@ -39,7 +39,9 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class AddOVEvaluationController {
+public class AddOVEvaluationController implements EventHandler<DragEvent> {
+    private static final String STATUS_SUBMITTED = "Entregado";
+
 
     private static final Logger LOGGER =
             Logger.getLogger(AddOVEvaluationController.class.getName());
@@ -98,33 +100,26 @@ public class AddOVEvaluationController {
     }
 
     private void configureDropZone() {
-        dropZone.setOnDragOver(new DragOverHandler());
-        dropZone.setOnDragDropped(new DragDroppedHandler());
+        dropZone.setOnDragOver(this);
+        dropZone.setOnDragDropped(this);
     }
 
-    private final class DragOverHandler implements EventHandler<DragEvent> {
-        @Override
-        public void handle(DragEvent event) {
+    @Override
+    public void handle(DragEvent event) {
+        if (event.getEventType() == DragEvent.DRAG_OVER) {
             if (event.getDragboard().hasFiles()) {
                 event.acceptTransferModes(TransferMode.COPY);
             }
-            event.consume();
-        }
-    }
-
-    private final class DragDroppedHandler implements EventHandler<DragEvent> {
-        @Override
-        public void handle(DragEvent event) {
+        } else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
             Dragboard dragboard = event.getDragboard();
-            boolean hasFiles = dragboard.hasFiles();
-            if (hasFiles) {
+            if (dragboard.hasFiles()) {
                 processSelectedFile(dragboard.getFiles().getFirst());
                 event.setDropCompleted(true);
             } else {
                 event.setDropCompleted(false);
             }
-            event.consume();
         }
+        event.consume();
     }
 
     private void loadInternContext() {
@@ -132,11 +127,11 @@ public class AddOVEvaluationController {
         if (!hasSession) {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
-            return;
+        } else {
+            internId = SessionManager.getInstance().getUsuario().getId();
+            internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
+            loadInternData();
         }
-        internId = SessionManager.getInstance().getUsuario().getId();
-        internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
-        loadInternData();
     }
 
     private void loadInternData() {
@@ -149,10 +144,9 @@ public class AddOVEvaluationController {
                         "No tiene un proyecto activo asignado. No puede entregar la evaluación OV.",
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
-                return;
+            } else {
+                loadProjectAndPrerequisites(activeAssignment);
             }
-
-            loadProjectAndPrerequisites(activeAssignment);
 
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
@@ -183,10 +177,9 @@ public class AddOVEvaluationController {
         if (prerequisiteMessage != null) {
             showAlert("Requisitos no cumplidos", prerequisiteMessage, Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
-            return;
+        } else {
+            checkAlreadyDelivered();
         }
-
-        checkAlreadyDelivered();
     }
 
     private void checkAlreadyDelivered() throws ServiceException, ValidationException {
@@ -257,7 +250,7 @@ public class AddOVEvaluationController {
         ovEvaluation.setIdIntern(internId);
         ovEvaluation.setIdProject(projectId);
         ovEvaluation.setDocumentPath(filePath);
-        ovEvaluation.setStatus("Entregado");
+        ovEvaluation.setStatus(STATUS_SUBMITTED);
         ovEvaluation.setDeliveryDate(LocalDateTime.now());
         return ovEvaluation;
     }

@@ -14,6 +14,9 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class EvaluationPrerequisiteChecker {
+    private static final String STATUS_COMPLETED = "Completada";
+    private static final String STATUS_EVALUATED = "Evaluado";
+
 
     private static final int REQUIRED_HOURS = 420;
 
@@ -72,7 +75,7 @@ public class EvaluationPrerequisiteChecker {
         List<InternActivity> activities = internActivityDAO.findByInternAndProject(internId, projectId);
         String message = null;
         for (InternActivity activity : activities) {
-            boolean isNotCompleted = !"Completada".equals(activity.getStatus());
+            boolean isNotCompleted = !STATUS_COMPLETED.equals(activity.getStatus());
             if (isNotCompleted && message == null) {
                 message = "Existen actividades pendientes por completar.";
             }
@@ -86,7 +89,7 @@ public class EvaluationPrerequisiteChecker {
         List<Report> reports = reportDAO.getByIdIntern(internId);
         String message = null;
         for (Report report : reports) {
-            boolean isNotEvaluated = !"Evaluado".equals(report.getStatus());
+            boolean isNotEvaluated = !STATUS_EVALUATED.equals(report.getStatus());
             if (isNotEvaluated && message == null) {
                 message = "El reporte \"" + report.getReportType() + " - " + report.getPeriod()
                         + "\" no está evaluado (estado: " + report.getStatus() + ").";
