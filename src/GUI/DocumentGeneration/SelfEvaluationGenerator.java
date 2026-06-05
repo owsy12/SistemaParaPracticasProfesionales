@@ -38,8 +38,7 @@ public class SelfEvaluationGenerator {
     private SelfEvaluationGenerator() {
     }
 
-    public static String generate(SelfEvaluation evaluation,
-                                   ReportGenerationContext context) throws IOException {
+    public static String generate(SelfEvaluation evaluation, ReportGenerationContext context) throws IOException {
         Map<String, String> values = buildValues(evaluation, context);
         byte[] docxBytes = fillTemplate(values);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
@@ -57,14 +56,14 @@ public class SelfEvaluationGenerator {
                                                     ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
         values.put("name", context.getInternFullName());
-        values.put("id",   context.getMatricula());
+        values.put("id", context.getMatricula());
         values.put("organization", context.getOrganizationName());
-        values.put("depart",  safe(context.getOrganizationDepartment()));
-        values.put("technician",  context.getTechnicianName());
-        values.put("project",  context.getProjectName());
-        values.put("place",   safe(evaluation.getPlaceAndDate()));
-        values.put("date",    LocalDate.now().format(DATE_FORMAT));
-        values.put("final_score",  String.valueOf(evaluation.getFinalScore()));
+        values.put("depart", safe(context.getOrganizationDepartment()));
+        values.put("technician", context.getTechnicianName());
+        values.put("project", context.getProjectName());
+        values.put("place", safe(evaluation.getPlaceAndDate()));
+        values.put("date", LocalDate.now().format(DATE_FORMAT));
+        values.put("final_score", String.valueOf(evaluation.getFinalScore()));
         fillLikertValues(values, evaluation);
         return values;
     }
@@ -125,18 +124,18 @@ public class SelfEvaluationGenerator {
         int position = 0;
 
         while (position < cleaned.length()) {
-            int openPos = cleaned.indexOf("{{", position);
-            if (openPos < 0) {
+            int openPosition = cleaned.indexOf("{{", position);
+            if (openPosition < 0) {
                 result.append(cleaned, position, cleaned.length());
                 break;
             }
-            int closePos = cleaned.indexOf("}}", openPos + 2);
-            if (closePos < 0) {
+            int closePosition = cleaned.indexOf("}}", openPosition + 2);
+            if (closePosition < 0) {
                 result.append(cleaned, position, cleaned.length());
                 break;
             }
-            String between = cleaned.substring(openPos + 2, closePos);
-            result.append(cleaned, position, openPos);
+            String between = cleaned.substring(openPosition + 2, closePosition);
+            result.append(cleaned, position, openPosition);
             if (!between.contains("<")) {
                 result.append("{{").append(between).append("}}");
             } else {
@@ -147,7 +146,7 @@ public class SelfEvaluationGenerator {
                 }
                 result.append("{{").append(markerName.toString().trim()).append("}}");
             }
-            position = closePos + 2;
+            position = closePosition + 2;
         }
         return result.toString();
     }

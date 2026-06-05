@@ -5,6 +5,7 @@ import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
+import Logic.DAO.ReportEvaluationDAO;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.Project;
@@ -115,7 +116,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
         } else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
             Dragboard dragboard = event.getDragboard();
             if (dragboard.hasFiles()) {
-                processSelectedFile(dragboard.getFiles().get(0));
+                processSelectedFile(dragboard.getFiles().getFirst());
                 event.setDropCompleted(true);
             } else {
                 event.setDropCompleted(false);
@@ -151,12 +152,10 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             }
 
         } catch (ValidationException validationException) {
-            showAlert("Error de validación",
-                    "Datos de sesión inválidos.", Alert.AlertType.ERROR);
+            showAlert("Error de validación", "Datos de sesión inválidos.", Alert.AlertType.ERROR);
             openWelcomePage(anchorPane);
         } catch (DuplicateEntryException duplicateEntryException) {
-            showAlert("Conflicto de datos",
-                    "Error al recuperar su información.", Alert.AlertType.ERROR);
+            showAlert("Conflicto de datos", "Error al recuperar su información.", Alert.AlertType.ERROR);
             openWelcomePage(anchorPane);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar datos del practicante {0}: {1}",
@@ -168,8 +167,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
         }
     }
 
-    private void loadProjectAndPrerequisites(Assignment activeAssignment)
-            throws ValidationException, DuplicateEntryException, ServiceException {
+    private void loadProjectAndPrerequisites(Assignment activeAssignment) throws ValidationException, ServiceException {
         ProjectDAO projectDAO = new ProjectDAO();
         Project currentProject = projectDAO.findById(activeAssignment.getIdProject());
 
@@ -219,10 +217,8 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             String filePath = copySignedFile();
             SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
 
-            boolean pathUpdated = selfEvaluationDAO.updateDocumentPath(
-                    selfEvaluation.getIdSelfEvalation(), filePath);
-            boolean statusUpdated = selfEvaluationDAO.updateStatus(
-                    selfEvaluation.getIdSelfEvalation(), DELIVERED_STATUS);
+            boolean pathUpdated = selfEvaluationDAO.updateDocumentPath(selfEvaluation.getIdSelfEvalation(), filePath);
+            boolean statusUpdated = selfEvaluationDAO.updateStatus(selfEvaluation.getIdSelfEvalation(), DELIVERED_STATUS);
 
             if (pathUpdated && statusUpdated) {
                 showAlert("Autoevaluación entregada",
@@ -258,8 +254,10 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     private void concludePracticeIfComplete(int internIdentifier, int projectIdentifier) {
         try {
             if (EvaluationPrerequisiteChecker.isPracticeComplete(internIdentifier, projectIdentifier)) {
+                ReportEvaluationDAO reportEvaluationDAO = new ReportEvaluationDAO();
+                Double practiceGrade = reportEvaluationDAO.getAveragePracticeGrade(internIdentifier);
                 PracticeDAO practiceDAO = new PracticeDAO();
-                boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier);
+                boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier, practiceGrade);
                 if (concluded) {
                     showAlert("Práctica concluida",
                             "El practicante cumplió todos los requisitos; su práctica fue marcada como Concluida.",

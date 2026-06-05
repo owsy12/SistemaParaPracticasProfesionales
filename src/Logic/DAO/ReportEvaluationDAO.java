@@ -32,6 +32,43 @@ public class ReportEvaluationDAO implements IReportEvaluation {
             "SELECT id_evaluacion_reporte, id_reporte, calificacion, " +
                     "       retroalimentacion, porcentaje_avance, fecha_evaluacion " +
                     "FROM evaluacion_reporte";
+    private static final String SQL_AVERAGE_BY_INTERN =
+            "SELECT AVG(er.calificacion) AS average_grade " +
+                    "FROM evaluacion_reporte er " +
+                    "JOIN reporte r ON r.id_reporte = er.id_reporte " +
+                    "WHERE r.id_practicante = ?";
+
+    public Double getAveragePracticeGrade(int internId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+
+        Double averageGrade = null;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_AVERAGE_BY_INTERN)) {
+
+            statement.setInt(1, internId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    double value = resultSet.getDouble("average_grade");
+                    if (!resultSet.wasNull()) {
+                        averageGrade = value;
+                    }
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al calcular la calificación promedio del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al calcular la calificación de la práctica.",
+                    sqlException);
+        }
+
+        return averageGrade;
+    }
 
     @Override
     public int save(ReportEvaluation reportEvaluation) throws ServiceException, ValidationException {

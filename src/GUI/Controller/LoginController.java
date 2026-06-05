@@ -95,10 +95,10 @@ public class LoginController {
         boolean isValidUser = false;
 
         try {
-            UserDAO userDAO = new UserDAO();
-            currentUser = userDAO.findByIdentifier(userTextField.getText());
-            UserRoleDAO userRoleDAO = new UserRoleDAO();
-            currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getId()));
+            UserDAO userDao = new UserDAO();
+            currentUser = userDao.findByIdentifier(userTextField.getText());
+            UserRoleDAO userRoleDao = new UserRoleDAO();
+            currentUser.setRoles(userRoleDao.getActiveRolsByUserId(currentUser.getId()));
 
             boolean isPasswordValid = BCrypt.checkpw(passwordField.getText(), currentUser.getPassword());
             if (!isPasswordValid) {

@@ -480,8 +480,7 @@ public class GenerateReportController {
                 }
                 result = unused;
             } catch (ValidationException | ServiceException persistenceException) {
-                LOGGER.log(Level.WARNING,
-                        "No se pudieron filtrar actividades ya usadas en reportes mensuales: {0}",
+                LOGGER.log(Level.WARNING, "No se pudieron filtrar actividades ya usadas en reportes mensuales: {0}",
                         persistenceException.getMessage());
             }
         }
@@ -495,8 +494,7 @@ public class GenerateReportController {
             try {
                 ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
                 List<Integer> usedActivityIds =
-                        reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(
-                                currentIntern.getId());
+                        reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(currentIntern.getId());
 
                 boolean hasMonthlyReports = !usedActivityIds.isEmpty();
                 if (!hasMonthlyReports) {
@@ -529,8 +527,7 @@ public class GenerateReportController {
         approvedHoursLabel.setText(approvedHoursText);
     }
 
-    private Optional<ReportActivity> showActivityProgressDialog(Activity activity,
-                                                                 String reportType) {
+    private Optional<ReportActivity> showActivityProgressDialog(Activity activity, String reportType) {
         Optional<ReportActivity> dialogResult;
         if (REPORT_TYPE_MONTHLY.equals(reportType)) {
             dialogResult = showMonthlyActivityDialog(activity);
@@ -578,7 +575,7 @@ public class GenerateReportController {
     private ReportActivity buildMonthlyActivity(Activity activity, String periodo, String observaciones) {
         ReportActivity reportActivity = createReportActivity(activity);
         reportActivity.setPeriod(periodo);
-        reportActivity.setObservaciones(observaciones);
+        reportActivity.setObservation(observaciones);
         return reportActivity;
     }
 
@@ -633,9 +630,9 @@ public class GenerateReportController {
     private ReportActivity buildPartialActivity(Activity activity, String realWeeks,
                                                  String observaciones) {
         ReportActivity reportActivity = createReportActivity(activity);
-        reportActivity.setPlanSemanas("1:8");
-        reportActivity.setRealSemanas(realWeeks);
-        reportActivity.setObservaciones(observaciones);
+        reportActivity.setWeeklyPlan("1:8");
+        reportActivity.setRealWeeks(realWeeks);
+        reportActivity.setObservation(observaciones);
         return reportActivity;
     }
 
@@ -675,7 +672,7 @@ public class GenerateReportController {
                                                String observaciones) {
         ReportActivity reportActivity = createReportActivity(activity);
         reportActivity.setAdvancePercentage(advance);
-        reportActivity.setObservaciones(observaciones);
+        reportActivity.setObservation(observaciones);
         return reportActivity;
     }
 
@@ -770,8 +767,7 @@ public class GenerateReportController {
         return isValid;
     }
 
-    private boolean validateMonthlyRules(int internId, ReportDAO reportDAO)
-            throws ServiceException {
+    private boolean validateMonthlyRules(int internId, ReportDAO reportDAO) throws ServiceException {
         boolean isValid = true;
         if (monthComboBox.getValue() == null) {
             showAlert("Mes requerido", "Seleccione el mes para el reporte mensual.",
@@ -791,8 +787,7 @@ public class GenerateReportController {
         return isValid;
     }
 
-    private boolean validatePartialRules(int internId, int projectId, ReportDAO reportDAO)
-            throws ServiceException {
+    private boolean validatePartialRules(int internId, int projectId, ReportDAO reportDAO) throws ServiceException {
         boolean isValid = true;
         if (approvedHours < PARTIAL_MIN_HOURS) {
             showAlert("Horas insuficientes", "Necesita al menos " + PARTIAL_MIN_HOURS
@@ -807,8 +802,7 @@ public class GenerateReportController {
         return isValid;
     }
 
-    private boolean validateFinalRules(int internId, int projectId, ReportDAO reportDAO)
-            throws ServiceException {
+    private boolean validateFinalRules(int internId, int projectId, ReportDAO reportDAO) throws ServiceException {
         boolean isValid = true;
         if (approvedHours < FINAL_MIN_HOURS) {
             showAlert("Horas insuficientes", "Necesita al menos " + FINAL_MIN_HOURS
@@ -1003,10 +997,7 @@ public class GenerateReportController {
         return objective;
     }
 
-    private void savePartialFinalDocument(PartialAndFinalReport report,
-                                          String reportType,
-                                          PartialAndFinalReportDAO partialAndFinalReportDAO)
-            throws ValidationException, ServiceException, IOException {
+    private void savePartialFinalDocument(PartialAndFinalReport report, String reportType, PartialAndFinalReportDAO partialAndFinalReportDAO) throws ValidationException, ServiceException, IOException {
         ReportGenerationContext generationContext = buildCurrentContext(approvedHours);
         String internalPath;
 

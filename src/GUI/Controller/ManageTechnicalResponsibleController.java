@@ -77,8 +77,8 @@ public class ManageTechnicalResponsibleController {
 
     private void loadTechnicalResponsibles() {
         try {
-            TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
-            List<TechnicalSupervisor> technicalList = technicalResponsibleDAO.findAll();
+            TechnicalResponsibleDAO technicalResponsibleDao = new TechnicalResponsibleDAO();
+            List<TechnicalSupervisor> technicalList = technicalResponsibleDao.findAll();
 
             if (technicalList.isEmpty()) {
                 showAlert("Sin registros",
@@ -98,8 +98,8 @@ public class ManageTechnicalResponsibleController {
 
     private void deleteTechnicalResponsibleProcess(int idTechnicalSupervisor) {
         try {
-            TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
-            technicalResponsibleDAO.deleteWithOrganizationValidation(idTechnicalSupervisor);
+            TechnicalResponsibleDAO technicalResponsibleDao = new TechnicalResponsibleDAO();
+            technicalResponsibleDao.deleteWithOrganizationValidation(idTechnicalSupervisor);
             showAlert("Eliminación exitosa",
                     "El técnico responsable fue eliminado exitosamente.",
                     Alert.AlertType.INFORMATION);

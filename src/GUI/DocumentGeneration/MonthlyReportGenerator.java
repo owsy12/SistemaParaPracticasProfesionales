@@ -98,15 +98,15 @@ public class MonthlyReportGenerator {
 
     private static String expandActivityRows(String xml, List<ReportActivity> activities) {
         boolean hasActivities = activities != null && !activities.isEmpty();
-        int markerPos = -1;
+        int markerPosition = -1;
         if (hasActivities) {
-            markerPos = xml.indexOf("{{activity_01}}");
+            markerPosition = xml.indexOf("{{activity_01}}");
         }
         int rowStart = -1;
-        if (markerPos >= 0) {
-            rowStart = xml.lastIndexOf("<w:tr ", markerPos);
+        if (markerPosition >= 0) {
+            rowStart = xml.lastIndexOf("<w:tr ", markerPosition);
             if (rowStart < 0) {
-                rowStart = xml.lastIndexOf("<w:tr>", markerPos);
+                rowStart = xml.lastIndexOf("<w:tr>", markerPosition);
             }
         }
         int blockEnd = -1;
@@ -159,20 +159,20 @@ public class MonthlyReportGenerator {
         int position = 0;
 
         while (position < cleaned.length()) {
-            int openPos = cleaned.indexOf("{{", position);
-            boolean noMore = openPos < 0;
+            int openPosition = cleaned.indexOf("{{", position);
+            boolean noMore = openPosition < 0;
             if (noMore) {
                 result.append(cleaned, position, cleaned.length());
                 break;
             }
-            int closePos = cleaned.indexOf("}}", openPos + 2);
-            boolean unclosed = closePos < 0;
+            int closePosition = cleaned.indexOf("}}", openPosition + 2);
+            boolean unclosed = closePosition < 0;
             if (unclosed) {
                 result.append(cleaned, position, cleaned.length());
                 break;
             }
-            String between = cleaned.substring(openPos + 2, closePos);
-            result.append(cleaned, position, openPos);
+            String between = cleaned.substring(openPosition + 2, closePosition);
+            result.append(cleaned, position, openPosition);
             boolean isPlainText = !between.contains("<");
             if (isPlainText) {
                 result.append("{{").append(between).append("}}");
@@ -184,7 +184,7 @@ public class MonthlyReportGenerator {
                 }
                 result.append("{{").append(markerName.toString().trim()).append("}}");
             }
-            position = closePos + 2;
+            position = closePosition + 2;
         }
         return result.toString();
     }

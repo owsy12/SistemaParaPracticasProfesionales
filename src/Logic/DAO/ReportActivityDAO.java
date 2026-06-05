@@ -229,10 +229,10 @@ public class ReportActivityDAO implements IReportActivityDAO {
         ra.setIdActivity (rs.getInt ("id_actividad"));
         ra.setActivityName (rs.getString("actividad_nombre"));
         ra.setPeriod (rs.getString("periodo"));
-        ra.setPlanSemanas (rs.getString("plan_semanas"));
-        ra.setRealSemanas (rs.getString("real_semanas"));
+        ra.setWeeklyPlan(rs.getString("plan_semanas"));
+        ra.setRealWeeks(rs.getString("real_semanas"));
         ra.setAdvancePercentage (rs.getInt ("porcentaje_avance"));
-        ra.setObservaciones (rs.getString("observaciones"));
+        ra.setObservation(rs.getString("observaciones"));
         return ra;
     }
 

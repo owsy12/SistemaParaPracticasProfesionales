@@ -43,10 +43,10 @@ class ReportActivityDAOTest extends BaseDAOTest {
         ra.setIdReport(ID_REPORT);
         ra.setIdActivity(SUPPORT_ACTIVITY_ID);
         ra.setPeriod(PERIOD);
-        ra.setPlanSemanas(PLAN_WEEKS);
-        ra.setRealSemanas(REAL_WEEKS);
+        ra.setWeeklyPlan(PLAN_WEEKS);
+        ra.setRealWeeks(REAL_WEEKS);
         ra.setAdvancePercentage(ADVANCE_PERCENTAGE);
-        ra.setObservaciones(OBSERVATIONS);
+        ra.setObservation(OBSERVATIONS);
         return ra;
     }
 

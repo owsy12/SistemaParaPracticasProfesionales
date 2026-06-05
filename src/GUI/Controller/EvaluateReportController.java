@@ -1,12 +1,15 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
 import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DAO.ReportDAO;
+import Logic.DAO.ReportEvaluationDAO;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
@@ -14,6 +17,7 @@ import Logic.DTOs.OVEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportActivity;
+import Logic.DTOs.ReportEvaluation;
 import Logic.DTOs.ReportStatusUpdate;
 import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.ServiceException;
@@ -30,6 +34,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import GUI.Utils.RestrictedTextArea;
+import GUI.Utils.RestrictedTextField;
 import javafx.stage.FileChooser;
 
 import java.awt.Desktop;
@@ -65,7 +70,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private TableView<Report> reportsTableView;
 
     @FXML
-    private TableColumn<Report, String> numColumn;
+    private TableColumn<Report, String> numberColumn;
 
     @FXML
     private TableColumn<Report, String> typeColumn;
@@ -95,13 +100,13 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private TableView<ReportActivity> activitiesTableView;
 
     @FXML
-    private TableColumn<ReportActivity, String> actNameColumn;
+    private TableColumn<ReportActivity, String> activityNameColumn;
 
     @FXML
-    private TableColumn<ReportActivity, String> actPeriodColumn;
+    private TableColumn<ReportActivity, String> activityPeriodColumn;
 
     @FXML
-    private TableColumn<ReportActivity, String> actObsColumn;
+    private TableColumn<ReportActivity, String> activityObservationColumn;
 
     @FXML
     private TableView<InitialFormat> initialFormatsTableView;
@@ -114,6 +119,9 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
     @FXML
     private RestrictedTextArea observationsTextArea;
+
+    @FXML
+    private RestrictedTextField gradeTextField;
 
     @FXML
     private Button rejectButton;
@@ -157,6 +165,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
         boolean isReportMissing = selectedReport == null;
         boolean isStatusInvalid = selectedReport != null && !"En revision".equals(selectedReport.getStatus());
         boolean isObservationEmpty = observationsTextArea.getText().isBlank();
+        boolean isGradeInvalid = parseGrade(gradeTextField.getText().trim()) == null;
 
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
@@ -167,6 +176,10 @@ public class EvaluateReportController implements ChangeListener<Object> {
         } else if (isObservationEmpty) {
             showAlert("Observación requerida",
                     "Debe ingresar observaciones para evaluar el reporte.",
+                    Alert.AlertType.WARNING);
+        } else if (isGradeInvalid) {
+            showAlert("Calificación requerida",
+                    "Ingrese la calificación del reporte (un número entre 0 y 10).",
                     Alert.AlertType.WARNING);
         } else {
             updateReportStatus(STATUS_EVALUATED);
@@ -357,8 +370,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
         } else {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Guardar copia del reporte");
-            fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
             fileChooser.setInitialFileName(sourceFile.getName());
 
             File destination = fileChooser.showSaveDialog(rejectButton.getScene().getWindow());
@@ -387,8 +399,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
     }
 
     @Override
-    public void changed(ObservableValue<? extends Object> observable,
-                        Object oldValue, Object newValue) {
+    public void changed(ObservableValue<? extends Object> observable, Object oldValue, Object newValue) {
         if (newValue != null) {
             if (observable == projectComboBox.getSelectionModel().selectedItemProperty()) {
                 loadInternsForProject((Project) newValue);
@@ -451,10 +462,9 @@ public class EvaluateReportController implements ChangeListener<Object> {
         try {
             Project selectedProject = projectComboBox.getValue();
             ReportDAO reportDAO = new ReportDAO();
-            List<Report> reports = reportDAO.getByInternAndProject(
-                    intern.getId(), selectedProject.getIdProject());
+            List<Report> reportList = reportDAO.getByInternAndProject(intern.getId(), selectedProject.getIdProject());
 
-            reportsTableView.setItems(FXCollections.observableArrayList(reports));
+            reportsTableView.setItems(FXCollections.observableArrayList(reportList));
             clearForm();
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
@@ -516,11 +526,22 @@ public class EvaluateReportController implements ChangeListener<Object> {
             if (updated) {
                 String message = buildStatusMessage(newStatus);
                 showAlert("Estado actualizado", message, Alert.AlertType.INFORMATION);
+                int evaluatedReportId = selectedReport.getIdReport();
+                Double reportGrade = parseGrade(gradeTextField.getText().trim());
                 Intern currentIntern = internComboBox.getValue();
+                Project currentProject = projectComboBox.getValue();
                 if (currentIntern != null) {
                     loadReportsForIntern(currentIntern);
                 }
                 clearForm();
+                boolean isEvaluated = STATUS_EVALUATED.equals(newStatus);
+                if (isEvaluated && reportGrade != null) {
+                    saveReportGrade(evaluatedReportId, reportGrade, observationsToSave);
+                }
+                boolean hasContext = currentIntern != null && currentProject != null;
+                if (isEvaluated && hasContext) {
+                    tryConcludePractice(currentIntern.getId(), currentProject.getIdProject());
+                }
             } else {
                 showAlert("Error", "No se pudo actualizar el estado del reporte.",
                         Alert.AlertType.ERROR);
@@ -537,6 +558,55 @@ public class EvaluateReportController implements ChangeListener<Object> {
                     "No se pudo actualizar el reporte. Intente más tarde.",
                     Alert.AlertType.ERROR);
         }
+    }
+
+    private void tryConcludePractice(int internId, int projectId)
+            throws ServiceException, ValidationException {
+        if (EvaluationPrerequisiteChecker.isPracticeComplete(internId, projectId)) {
+            ReportEvaluationDAO reportEvaluationDAO = new ReportEvaluationDAO();
+            Double practiceGrade = reportEvaluationDAO.getAveragePracticeGrade(internId);
+            PracticeDAO practiceDAO = new PracticeDAO();
+            boolean concluded = practiceDAO.concludeActiveByIntern(internId, practiceGrade);
+            if (concluded) {
+                showAlert("Práctica concluida",
+                        "El practicante cumplió todos los requisitos. La práctica fue concluida "
+                        + "con calificación " + formatGrade(practiceGrade) + ".",
+                        Alert.AlertType.INFORMATION);
+            }
+        }
+    }
+
+    private void saveReportGrade(int reportId, Double grade, String feedback)
+            throws ServiceException, ValidationException {
+        ReportEvaluation reportEvaluation = new ReportEvaluation();
+        reportEvaluation.setIdReport(reportId);
+        reportEvaluation.setGrade(grade.intValue());
+        reportEvaluation.setFeedback(feedback);
+        reportEvaluation.setEvaluationDate(Date.valueOf(LocalDate.now()));
+        ReportEvaluationDAO reportEvaluationDAO = new ReportEvaluationDAO();
+        reportEvaluationDAO.save(reportEvaluation);
+    }
+
+    private String formatGrade(Double grade) {
+        String text = "no disponible";
+        if (grade != null) {
+            text = String.format("%.2f", grade);
+        }
+        return text;
+    }
+
+    private Double parseGrade(String gradeText) {
+        Double grade = null;
+        try {
+            double value = Double.parseDouble(gradeText);
+            boolean isInRange = value >= 0 && value <= 10;
+            if (isInRange) {
+                grade = value;
+            }
+        } catch (NumberFormatException numberFormatException) {
+            grade = null;
+        }
+        return grade;
     }
 
     private void populateReportDetail(Report report) {
@@ -560,8 +630,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
         documentPathLabel.setText(documentPathText);
 
         String signedPathText = "—";
-        boolean hasSignedPath = report.getSignedDocumentPath() != null
-                && !report.getSignedDocumentPath().isBlank();
+        boolean hasSignedPath = report.getSignedDocumentPath() != null && !report.getSignedDocumentPath().isBlank();
         if (hasSignedPath) {
             signedPathText = "Documento disponible";
         }
@@ -597,6 +666,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
         documentPathLabel.setText("—");
         signedPathLabel.setText("—");
         observationsTextArea.clear();
+        gradeTextField.clear();
         activitiesTableView.getItems().clear();
         initialFormatsTableView.getItems().clear();
         reportsTableView.getSelectionModel().clearSelection();

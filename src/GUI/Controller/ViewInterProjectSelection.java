@@ -134,14 +134,14 @@ public class ViewInterProjectSelection {
                 }
 
                 ProjectDAO projectDAO = new ProjectDAO();
-                List<Project> result = new ArrayList<>();
+                List<Project> projectList = new ArrayList<>();
 
                 for (ProjectApplication projectApplication : projectApplications) {
                     Project project = projectDAO.findById(projectApplication.getIdProject());
                     boolean isAvailable = project != null && project.getAvaliablePlaces() > 0;
                     if (isAvailable) {
                         project.setPreferenceLabel(LABEL_SELECTED);
-                        result.add(project);
+                        projectList.add(project);
                     }
                 }
 
@@ -150,11 +150,11 @@ public class ViewInterProjectSelection {
                     boolean isAlreadyIncluded = internSelectedIds.contains(project.getIdProject());
                     if (!isAlreadyIncluded) {
                         project.setPreferenceLabel(LABEL_NOT_SELECTED);
-                        result.add(project);
+                        projectList.add(project);
                     }
                 }
 
-                projectsTableView.getItems().setAll(result);
+                projectsTableView.getItems().setAll(projectList);
             }
 
         } catch (ServiceException serviceException) {
@@ -200,8 +200,7 @@ public class ViewInterProjectSelection {
     private void confirmAndAssign(Project project, String justification) {
         String confirmationMessage = "¿Seguro que desea asignar el proyecto \""
                 + project.getName() + "\" a este practicante?";
-        Optional<ButtonType> response = showAlertAndWait(
-                "Confirmación", confirmationMessage, Alert.AlertType.CONFIRMATION);
+        Optional<ButtonType> response = showAlertAndWait("Confirmación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
         boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
         if (isUserConfirmed) {

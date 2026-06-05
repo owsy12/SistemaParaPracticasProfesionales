@@ -58,7 +58,7 @@ public class ReportActivity {
         return planSemanas;
     }
 
-    public void setPlanSemanas(String planSemanas) {
+    public void setWeeklyPlan(String planSemanas) {
         this.planSemanas = planSemanas;
     }
 
@@ -66,7 +66,7 @@ public class ReportActivity {
         return realSemanas;
     }
 
-    public void setRealSemanas(String realSemanas) {
+    public void setRealWeeks(String realSemanas) {
         this.realSemanas = realSemanas;
     }
 
@@ -82,7 +82,7 @@ public class ReportActivity {
         return observaciones;
     }
 
-    public void setObservaciones(String observaciones) {
+    public void setObservation(String observaciones) {
         this.observaciones = observaciones;
     }
 

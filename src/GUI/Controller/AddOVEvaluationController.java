@@ -6,6 +6,7 @@ import Logic.DAO.AssignmentDAO;
 import Logic.DAO.OVEvaluationDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
+import Logic.DAO.ReportEvaluationDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.OVEvaluation;
 import Logic.DTOs.Project;
@@ -167,8 +168,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
         }
     }
 
-    private void loadProjectAndPrerequisites(Assignment activeAssignment)
-            throws ValidationException, DuplicateEntryException, ServiceException {
+    private void loadProjectAndPrerequisites(Assignment activeAssignment) throws ValidationException, DuplicateEntryException, ServiceException {
         ProjectDAO projectDAO = new ProjectDAO();
         Project currentProject = projectDAO.findById(activeAssignment.getIdProject());
         projectId = currentProject.getIdProject();
@@ -271,8 +271,10 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     private void concludePracticeIfComplete(int internIdentifier, int projectIdentifier) {
         try {
             if (EvaluationPrerequisiteChecker.isPracticeComplete(internIdentifier, projectIdentifier)) {
+                ReportEvaluationDAO reportEvaluationDAO = new ReportEvaluationDAO();
+                Double practiceGrade = reportEvaluationDAO.getAveragePracticeGrade(internIdentifier);
                 PracticeDAO practiceDAO = new PracticeDAO();
-                boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier);
+                boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier, practiceGrade);
                 if (concluded) {
                     showAlert("Práctica concluida",
                             "El practicante cumplió todos los requisitos; su práctica fue marcada como Concluida.",

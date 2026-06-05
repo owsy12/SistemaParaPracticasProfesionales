@@ -58,8 +58,7 @@ public class AddTechnicalResponsibleController {
     @FXML
     public void cancel(ActionEvent actionEvent) {
         Optional<ButtonType> response = showAlertAndWait(
-                "Confirmar cancelación",
-                "¿Desea salir? Los datos ingresados no se guardarán.",
+                "Confirmar cancelación", "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
         boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
         if (isConfirmed) {
