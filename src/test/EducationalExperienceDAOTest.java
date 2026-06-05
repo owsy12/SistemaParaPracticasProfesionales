@@ -60,6 +60,15 @@ class EducationalExperienceDAOTest extends BaseDAOTest {
     }
 
     @Test
+    void testFindByNrcAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
+        int idProfessor = persistProfessor();
+        EducationalExperience experience = buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor);
+        dao.save(experience);
+        EducationalExperience retrieved = dao.findByNrc(TestConstants.DEFAULT_NRC);
+        assertEquals(experience, retrieved);
+    }
+
+    @Test
     void testFindByNrcWithBlankNrcThrowsValidationException() {
         assertThrows(ValidationException.class, new Executable() {
             @Override

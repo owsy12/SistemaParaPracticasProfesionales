@@ -43,10 +43,10 @@ public class SelfEvaluationGenerator {
         byte[] docxBytes = fillTemplate(values);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
 
-        String storagePath = buildStoragePath(evaluation, context.getMatricula());
+        String storagePath = buildStoragePath(evaluation, context.getRegistrationNumber());
         saveFile(pdfBytes, storagePath);
 
-        String fileName = "Autoevaluacion_" + context.getMatricula() + ".pdf";
+        String fileName = "Autoevaluacion_" + context.getRegistrationNumber() + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;
@@ -56,7 +56,7 @@ public class SelfEvaluationGenerator {
                                                     ReportGenerationContext context) {
         Map<String, String> values = new HashMap<>();
         values.put("name", context.getInternFullName());
-        values.put("id", context.getMatricula());
+        values.put("id", context.getRegistrationNumber());
         values.put("organization", context.getOrganizationName());
         values.put("depart", safe(context.getOrganizationDepartment()));
         values.put("technician", context.getTechnicianName());

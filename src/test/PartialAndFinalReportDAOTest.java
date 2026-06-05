@@ -72,6 +72,15 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
     }
 
     @Test
+    void testGetByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
+        ReportSceneContext context = persistContext();
+        PartialAndFinalReport report = buildPartialReport(context);
+        dao.save(report);
+        PartialAndFinalReport retrieved = dao.getById(report.getIdReport());
+        assertEquals(report, retrieved);
+    }
+
+    @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class, new Executable() {
             @Override

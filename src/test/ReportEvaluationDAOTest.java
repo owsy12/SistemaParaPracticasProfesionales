@@ -57,6 +57,15 @@ class ReportEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
+    void testGetByIdReportAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
+        int idReport = persistReport();
+        ReportEvaluation evaluation = buildEvaluation(idReport);
+        dao.save(evaluation);
+        ReportEvaluation retrieved = dao.getByIdReport(idReport);
+        assertEquals(evaluation, retrieved);
+    }
+
+    @Test
     void testGetByIdReportWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class, new Executable() {
             @Override

@@ -69,6 +69,15 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
+    void testGetByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
+        AssignmentContext context = persistAssignmentDependencies();
+        Assignment assignment = buildAssignment(context);
+        dao.save(assignment);
+        Assignment retrieved = dao.getById(assignment.getIdAssignment());
+        assertEquals(assignment, retrieved);
+    }
+
+    @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class, new Executable() {
             @Override

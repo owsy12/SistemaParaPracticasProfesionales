@@ -259,19 +259,28 @@ public class Project {
             return false;
         }
         Project otherProject = (Project) other;
-        boolean isEqual = Objects.equals(name, otherProject.name)
-                && Objects.equals(description, otherProject.description)
-                && Objects.equals(objetivo, otherProject.objetivo)
-                && maximumPlaces == otherProject.maximumPlaces
+        boolean isEqual = idProject == otherProject.idProject
+                && idOrganization == otherProject.idOrganization
+                && idTechnicalSupervisor == otherProject.idTechnicalSupervisor
                 && IdProfessor == otherProject.IdProfessor
-                && idTechnicalSupervisor == otherProject.idTechnicalSupervisor;
+                && avaliablePlaces == otherProject.avaliablePlaces
+                && maximumPlaces == otherProject.maximumPlaces
+                && Objects.equals(name, otherProject.name)
+                && Objects.equals(description, otherProject.description)
+                && Objects.equals(startDate, otherProject.startDate)
+                && Objects.equals(endDate, otherProject.endDate)
+                && Objects.equals(organizationName, otherProject.organizationName)
+                && Objects.equals(status, otherProject.status)
+                && Objects.equals(objetivo, otherProject.objetivo)
+                && Objects.equals(nrc, otherProject.nrc);
         return isEqual;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, objetivo, maximumPlaces,
-                IdProfessor, idTechnicalSupervisor);
+        return Objects.hash(idProject, idOrganization, idTechnicalSupervisor,
+                IdProfessor, avaliablePlaces, maximumPlaces, name, description,
+                startDate, endDate, organizationName, status, objetivo, nrc);
     }
 
     @Override

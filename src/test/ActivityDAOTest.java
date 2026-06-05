@@ -99,6 +99,15 @@ class ActivityDAOTest extends BaseDAOTest {
     }
 
     @Test
+    void testFindByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
+        dao.save(activity);
+        Activity retrieved = dao.findById(activity.getIdActivity());
+        assertEquals(activity, retrieved);
+    }
+
+    @Test
     void testFindByIdAfterSaveReturnsCorrectName() throws ServiceException, ValidationException {
         int idProject = persistProject();
         Activity activity = buildActivity(idProject, ACTIVITY_NAME);

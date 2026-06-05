@@ -1039,7 +1039,7 @@ public class GenerateReportController {
 
         ReportGenerationContext generationContext = new ReportGenerationContextBuilder()
                 .internFullName(buildFullName(currentIntern))
-                .matricula(currentIntern.getMatricula())
+                .registrationNumber(currentIntern.getRegistrationNumber())
                 .nrc(projectNrc)
                 .organizationName(organizationName)
                 .technicianName(buildFullName(currentSupervisor))

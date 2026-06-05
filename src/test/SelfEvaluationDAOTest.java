@@ -71,6 +71,15 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
+    void testGetByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
+        SelfEvalContext context = persistContext();
+        SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
+        dao.save(selfEvaluation);
+        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvalation());
+        assertEquals(selfEvaluation, retrieved);
+    }
+
+    @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class, new Executable() {
             @Override
