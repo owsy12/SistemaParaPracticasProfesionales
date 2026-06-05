@@ -342,7 +342,8 @@ create table reporte
 
 create table evaluacion_reporte
 (
-    id_evaluacion_reporte int           not null,
+    id_evaluacion_reporte int auto_increment
+        primary key,
     id_reporte            int           not null,
     calificacion          decimal(4, 2) null comment '0.00 – 10.00',
     retroalimentacion     text          null,

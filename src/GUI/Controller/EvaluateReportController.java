@@ -509,6 +509,10 @@ public class EvaluateReportController implements ChangeListener<Object> {
     }
 
     private void updateReportStatus(String newStatus) {
+        int reportId = selectedReport.getIdReport();
+        Double reportGrade = parseGrade(gradeTextField.getText().trim());
+        Intern currentIntern = internComboBox.getValue();
+        Project currentProject = projectComboBox.getValue();
         try {
             ReportDAO reportDAO = new ReportDAO();
             String observations = observationsTextArea.getText().trim();
@@ -520,24 +524,21 @@ public class EvaluateReportController implements ChangeListener<Object> {
                 observationsToSave = observations;
             }
 
+            boolean isEvaluated = STATUS_EVALUATED.equals(newStatus);
+            if (isEvaluated && reportGrade != null) {
+                saveReportGrade(reportId, reportGrade, observationsToSave);
+            }
+
             ReportStatusUpdate statusUpdate = new ReportStatusUpdate(newStatus, observationsToSave, reviewDate);
-            boolean updated = reportDAO.updateStatus(selectedReport.getIdReport(), statusUpdate);
+            boolean updated = reportDAO.updateStatus(reportId, statusUpdate);
 
             if (updated) {
                 String message = buildStatusMessage(newStatus);
                 showAlert("Estado actualizado", message, Alert.AlertType.INFORMATION);
-                int evaluatedReportId = selectedReport.getIdReport();
-                Double reportGrade = parseGrade(gradeTextField.getText().trim());
-                Intern currentIntern = internComboBox.getValue();
-                Project currentProject = projectComboBox.getValue();
                 if (currentIntern != null) {
                     loadReportsForIntern(currentIntern);
                 }
                 clearForm();
-                boolean isEvaluated = STATUS_EVALUATED.equals(newStatus);
-                if (isEvaluated && reportGrade != null) {
-                    saveReportGrade(evaluatedReportId, reportGrade, observationsToSave);
-                }
                 boolean hasContext = currentIntern != null && currentProject != null;
                 if (isEvaluated && hasContext) {
                     tryConcludePractice(currentIntern.getId(), currentProject.getIdProject());
@@ -553,7 +554,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
                     "Error al actualizar estado del reporte {0}: {1}",
-                    new Object[]{selectedReport.getIdReport(), serviceException.getMessage()});
+                    new Object[]{reportId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo actualizar el reporte. Intente más tarde.",
                     Alert.AlertType.ERROR);
