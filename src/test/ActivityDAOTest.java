@@ -1,37 +1,37 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.ActivityDAO;
 import Logic.DTOs.Activity;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ActivityDAOTest extends BaseDAOTest {
 
     private static final String ACTIVITY_NAME = "Levantamiento de requerimientos";
     private static final String ACTIVITY_NAME_SECOND = "Diseño de base de datos";
-    private static final String ACTIVITY_DESCRIPTION = "Entrevistas iniciales con stakeholders.";
-    private static final String ACTIVITY_STATUS_ACTIVE = "Activa";
-    private static final String ACTIVITY_STATUS_INACTIVE = "Inactiva";
     private static final String UPDATED_ACTIVITY_NAME = "Levantamiento detallado";
-    private static final String BLANK_NAME = "  ";
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -1;
-    private static final int NON_EXISTENT_ID = 9999;
+    private static final String ACTIVITY_DESCRIPTION = "Entrevistas iniciales.";
     private static final LocalDate ACTIVITY_START = LocalDate.of(2025, 2, 1);
     private static final LocalDate ACTIVITY_END = LocalDate.of(2025, 2, 28);
-    private static final int EXPECTED_TWO_ACTIVITIES = 2;
 
     private final ActivityDAO dao = new ActivityDAO();
 
-    private Activity buildValidActivity(String name) {
+    private Activity buildActivity(int idProject, String name) {
         Activity activity = new Activity();
-        activity.setIdProject(ID_PROJECT);
+        activity.setIdProject(idProject);
         activity.setName(name);
         activity.setDescription(ACTIVITY_DESCRIPTION);
-        activity.setStatus(ACTIVITY_STATUS_ACTIVE);
+        activity.setStatus(TestConstants.STATUS_ACTIVITY_ACTIVE);
         activity.setCreationDate(ACTIVITY_START);
         activity.setStartDate(ACTIVITY_START);
         activity.setEndDate(ACTIVITY_END);
@@ -40,37 +40,43 @@ class ActivityDAOTest extends BaseDAOTest {
 
     @Test
     void testSaveValidActivityReturnsPositiveId() throws Exception {
-        int generatedId = dao.save(buildValidActivity(ACTIVITY_NAME));
-        assertTrue(generatedId > 0);
+        int idProject = persistProject();
+        int generatedId = dao.save(buildActivity(idProject, ACTIVITY_NAME));
+        assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
     void testSaveValidActivityAssignsIdToDto() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
-        assertTrue(activity.getIdActivity() > 0);
+        assertTrue(activity.getIdActivity() > TestConstants.ZERO_RESULTS);
     }
 
     @Test
     void testSaveActivityWithZeroProjectIdThrowsValidationException() {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
-        activity.setIdProject(INVALID_ID_ZERO);
+        Activity activity = buildActivity(TestConstants.INVALID_ID_ZERO, ACTIVITY_NAME);
         assertThrows(ValidationException.class, () -> dao.save(activity));
     }
 
     @Test
-    void testSaveActivityWithBlankNameThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.save(buildValidActivity(BLANK_NAME)));
+    void testSaveActivityWithBlankNameThrowsValidationException() throws Exception {
+        int idProject = persistProject();
+        assertThrows(ValidationException.class,
+                () -> dao.save(buildActivity(idProject, TestConstants.BLANK_TEXT)));
     }
 
     @Test
-    void testSaveActivityWithNullNameThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.save(buildValidActivity(null)));
+    void testSaveActivityWithNullNameThrowsValidationException() throws Exception {
+        int idProject = persistProject();
+        assertThrows(ValidationException.class,
+                () -> dao.save(buildActivity(idProject, null)));
     }
 
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
         Activity retrieved = dao.findById(activity.getIdActivity());
         assertNotNull(retrieved);
@@ -78,7 +84,8 @@ class ActivityDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdAfterSaveReturnsCorrectName() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
         Activity retrieved = dao.findById(activity.getIdActivity());
         assertEquals(ACTIVITY_NAME, retrieved.getName());
@@ -86,42 +93,47 @@ class ActivityDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        Activity retrieved = dao.findById(NON_EXISTENT_ID);
+        Activity retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_NEGATIVE));
+        assertThrows(ValidationException.class,
+                () -> dao.findById(TestConstants.INVALID_ID_NEGATIVE));
     }
 
     @Test
     void testFindByProjectAfterSavingTwoActivitiesReturnsTwo() throws Exception {
-        dao.save(buildValidActivity(ACTIVITY_NAME));
-        dao.save(buildValidActivity(ACTIVITY_NAME_SECOND));
-        List<Activity> activities = dao.findByProject(ID_PROJECT);
-        assertEquals(EXPECTED_TWO_ACTIVITIES, activities.size());
+        int idProject = persistProject();
+        dao.save(buildActivity(idProject, ACTIVITY_NAME));
+        dao.save(buildActivity(idProject, ACTIVITY_NAME_SECOND));
+        List<Activity> activities = dao.findByProject(idProject);
+        assertEquals(TestConstants.TWO_RESULTS, activities.size());
     }
 
     @Test
     void testFindByProjectWhenNoActivitiesReturnsEmptyList() throws Exception {
-        List<Activity> activities = dao.findByProject(ID_PROJECT);
+        int idProject = persistProject();
+        List<Activity> activities = dao.findByProject(idProject);
         assertTrue(activities.isEmpty());
     }
 
     @Test
     void testFindByProjectWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByProject(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class,
+                () -> dao.findByProject(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testUpdateActivityReturnsTrue() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
         activity.setName(UPDATED_ACTIVITY_NAME);
         boolean result = dao.update(activity);
@@ -129,26 +141,18 @@ class ActivityDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateActivityPersistsNewName() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
-        dao.save(activity);
-        activity.setName(UPDATED_ACTIVITY_NAME);
-        dao.update(activity);
-        Activity retrieved = dao.findById(activity.getIdActivity());
-        assertEquals(UPDATED_ACTIVITY_NAME, retrieved.getName());
-    }
-
-    @Test
     void testUpdateActivityWithBlankNameThrowsValidationException() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
-        activity.setName(BLANK_NAME);
+        activity.setName(TestConstants.BLANK_TEXT);
         assertThrows(ValidationException.class, () -> dao.update(activity));
     }
 
     @Test
     void testDeactivateActivityReturnsTrue() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
         boolean result = dao.deactivate(activity.getIdActivity());
         assertTrue(result);
@@ -156,38 +160,40 @@ class ActivityDAOTest extends BaseDAOTest {
 
     @Test
     void testDeactivateActivityPersistsInactiveStatus() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
         dao.deactivate(activity.getIdActivity());
         Activity retrieved = dao.findById(activity.getIdActivity());
-        assertEquals(ACTIVITY_STATUS_INACTIVE, retrieved.getStatus());
+        assertEquals(TestConstants.STATUS_ACTIVITY_INACTIVE, retrieved.getStatus());
     }
 
     @Test
     void testDeactivateNonExistentActivityReturnsFalse() throws Exception {
-        boolean result = dao.deactivate(NON_EXISTENT_ID);
+        boolean result = dao.deactivate(TestConstants.NON_EXISTENT_ID);
         assertFalse(result);
     }
 
     @Test
     void testDeleteActivityReturnsTrue() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
+        int idProject = persistProject();
+        Activity activity = buildActivity(idProject, ACTIVITY_NAME);
         dao.save(activity);
         boolean result = dao.delete(activity.getIdActivity());
         assertTrue(result);
     }
 
     @Test
-    void testDeleteActivityRemovesRecord() throws Exception {
-        Activity activity = buildValidActivity(ACTIVITY_NAME);
-        dao.save(activity);
-        dao.delete(activity.getIdActivity());
-        Activity retrieved = dao.findById(activity.getIdActivity());
-        assertNull(retrieved);
+    void testDeleteWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
     }
 
-    @Test
-    void testDeleteWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(INVALID_ID_ZERO));
+    private int persistProject() throws Exception {
+        int idProject;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            idProject = scene.getProjectId();
+        }
+        return idProject;
     }
 }

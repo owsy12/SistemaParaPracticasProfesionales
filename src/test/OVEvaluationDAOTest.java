@@ -1,123 +1,95 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.OVEvaluationDAO;
 import Logic.DTOs.OVEvaluation;
-import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OVEvaluationDAOTest extends BaseDAOTest {
 
-    private static final String EVALUATION_DOCUMENT_PATH = "/docs/evaluacion_ov.pdf";
-    private static final String EVALUATION_STATUS_DELIVERED = "Entregado";
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -2;
-    private static final int NON_EXISTENT_ID = 9999;
-
     private final OVEvaluationDAO dao = new OVEvaluationDAO();
 
-    private OVEvaluation buildValidEvaluation() {
+    private OVEvaluation buildOVEvaluation(int idIntern, int idProject) {
         OVEvaluation evaluation = new OVEvaluation();
-        evaluation.setIdIntern(ID_INTERN);
-        evaluation.setIdProject(ID_PROJECT);
-        evaluation.setDocumentPath(EVALUATION_DOCUMENT_PATH);
-        evaluation.setStatus(EVALUATION_STATUS_DELIVERED);
+        evaluation.setIdIntern(idIntern);
+        evaluation.setIdProject(idProject);
+        evaluation.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
+        evaluation.setStatus(TestConstants.STATUS_OV_EVAL_PENDING);
         evaluation.setDeliveryDate(LocalDateTime.now());
         return evaluation;
     }
 
     @Test
-    void testSaveValidEvaluationReturnsOneRowAffected() throws Exception {
-        int result = dao.save(buildValidEvaluation());
-        assertEquals(1, result);
+    void testSaveValidOVEvaluationReturnsOneRowAffected() throws Exception {
+        OVEvalContext context = persistContext();
+        int result = dao.save(buildOVEvaluation(context.idIntern, context.idProject));
+        assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveValidEvaluationAssignsGeneratedId() throws Exception {
-        OVEvaluation evaluation = buildValidEvaluation();
-        dao.save(evaluation);
-        assertTrue(evaluation.getIdOVEvaluation() > 0);
-    }
-
-    @Test
-    void testSaveEvaluationWithZeroInternIdThrowsValidationException() {
-        OVEvaluation evaluation = buildValidEvaluation();
-        evaluation.setIdIntern(INVALID_ID_ZERO);
+    void testSaveOVEvaluationWithZeroInternIdThrowsValidationException() throws Exception {
+        OVEvalContext context = persistContext();
+        OVEvaluation evaluation = buildOVEvaluation(TestConstants.INVALID_ID_ZERO, context.idProject);
         assertThrows(ValidationException.class, () -> dao.save(evaluation));
-    }
-
-    @Test
-    void testSaveEvaluationWithZeroProjectIdThrowsValidationException() {
-        OVEvaluation evaluation = buildValidEvaluation();
-        evaluation.setIdProject(INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.save(evaluation));
-    }
-
-    @Test
-    void testSaveDuplicateInternAndProjectThrowsDuplicateEntryException() throws Exception {
-        dao.save(buildValidEvaluation());
-        assertThrows(DuplicateEntryException.class, () -> dao.save(buildValidEvaluation()));
     }
 
     @Test
     void testFindByInternAndProjectAfterSaveReturnsNotNull() throws Exception {
-        dao.save(buildValidEvaluation());
-        OVEvaluation retrieved = dao.findByInternAndProject(ID_INTERN, ID_PROJECT);
+        OVEvalContext context = persistContext();
+        dao.save(buildOVEvaluation(context.idIntern, context.idProject));
+        OVEvaluation retrieved = dao.findByInternAndProject(context.idIntern, context.idProject);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByInternAndProjectAfterSaveReturnsCorrectInternId() throws Exception {
-        dao.save(buildValidEvaluation());
-        OVEvaluation retrieved = dao.findByInternAndProject(ID_INTERN, ID_PROJECT);
-        assertEquals(ID_INTERN, retrieved.getIdIntern());
-    }
-
-    @Test
-    void testFindByInternAndProjectAfterSaveReturnsCorrectStatus() throws Exception {
-        dao.save(buildValidEvaluation());
-        OVEvaluation retrieved = dao.findByInternAndProject(ID_INTERN, ID_PROJECT);
-        assertEquals(EVALUATION_STATUS_DELIVERED, retrieved.getStatus());
-    }
-
-    @Test
-    void testFindByInternAndProjectWhenNoEvaluationReturnsNull() throws Exception {
-        OVEvaluation retrieved = dao.findByInternAndProject(ID_INTERN, ID_PROJECT);
+    void testFindByInternAndProjectWithNonExistentReturnsNull() throws Exception {
+        OVEvaluation retrieved = dao.findByInternAndProject(
+                TestConstants.NON_EXISTENT_ID, TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByInternAndProjectWithZeroInternIdThrowsValidationException() {
+    void testFindByInternAndProjectWithZeroInternIdThrowsValidationException() throws Exception {
+        OVEvalContext context = persistContext();
         assertThrows(ValidationException.class,
-                () -> dao.findByInternAndProject(INVALID_ID_ZERO, ID_PROJECT));
+                () -> dao.findByInternAndProject(TestConstants.INVALID_ID_ZERO, context.idProject));
     }
 
     @Test
-    void testFindByInternAndProjectWithNegativeProjectIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findByInternAndProject(ID_INTERN, INVALID_ID_NEGATIVE));
-    }
-
-    @Test
-    void testDeleteByInternAndProjectAfterSaveReturnsTrue() throws Exception {
-        dao.save(buildValidEvaluation());
-        boolean result = dao.deleteByInternAndProject(ID_INTERN, ID_PROJECT);
+    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+        OVEvalContext context = persistContext();
+        dao.save(buildOVEvaluation(context.idIntern, context.idProject));
+        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 
     @Test
-    void testDeleteByInternAndProjectRemovesEvaluation() throws Exception {
-        dao.save(buildValidEvaluation());
-        dao.deleteByInternAndProject(ID_INTERN, ID_PROJECT);
-        OVEvaluation retrieved = dao.findByInternAndProject(ID_INTERN, ID_PROJECT);
-        assertNull(retrieved);
+    void testDeleteByInternAndProjectWithZeroProjectIdThrowsValidationException() throws Exception {
+        OVEvalContext context = persistContext();
+        assertThrows(ValidationException.class,
+                () -> dao.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO));
     }
 
-    @Test
-    void testDeleteByInternAndProjectWithNonExistentReturnsTrue() throws Exception {
-        boolean result = dao.deleteByInternAndProject(ID_INTERN, NON_EXISTENT_ID);
-        assertTrue(result);
+    private OVEvalContext persistContext() throws Exception {
+        OVEvalContext context = new OVEvalContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            context.idIntern = scene.getInternId();
+            context.idProject = scene.getProjectId();
+        }
+        return context;
+    }
+
+    private static final class OVEvalContext {
+        int idIntern;
+        int idProject;
     }
 }

@@ -5,10 +5,10 @@ public class Administrator extends User {
     private int idAdmin;
 
     public Administrator(int idAdmin, int idUser, String name, String firstLastName,
-                         String secondLastName, String matricula, String password,
+                         String secondLastName, String registrationNumber, String password,
                          String state) {
 
-        super(idUser, matricula, name, firstLastName, secondLastName, password, state);
+        super(idUser, registrationNumber, name, firstLastName, secondLastName, password, state);
         this.idAdmin = idAdmin;
     }
 
@@ -16,8 +16,8 @@ public class Administrator extends User {
         super();
     }
 
-    public Administrator(int idUsuario, String matricula, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, String estado) {
-        super(idUsuario, matricula, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado);
+    public Administrator(int idUsuario, String registrationNumber, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, String estado) {
+        super(idUsuario, registrationNumber, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado);
     }
 
     public int getIdAdmin() {

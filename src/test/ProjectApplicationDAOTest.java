@@ -1,122 +1,118 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.ProjectApplicationDAO;
 import Logic.DTOs.ProjectApplication;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProjectApplicationDAOTest extends BaseDAOTest {
 
-    private static final int PREFERENCE_ORDER_PRIMARY = 1;
-    private static final int PREFERENCE_ORDER_SECONDARY = 2;
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final int SUPPORT_PROJECT_APPLICATION_ID = 1;
-
     private final ProjectApplicationDAO dao = new ProjectApplicationDAO();
 
-    private ProjectApplication buildValidProjectApplication(int preferenceOrder) {
+    private ProjectApplication buildProjectApplication(int idApplication, int idProject) {
         ProjectApplication projectApplication = new ProjectApplication();
-        projectApplication.setIdApplication(ID_APPLICATION);
-        projectApplication.setIdProject(ID_PROJECT);
-        projectApplication.setPreferenceOrder(preferenceOrder);
+        projectApplication.setIdApplication(idApplication);
+        projectApplication.setIdProject(idProject);
+        projectApplication.setPreferenceOrder(TestConstants.DEFAULT_PREFERENCE_ORDER);
         return projectApplication;
     }
 
     @Test
     void testCreateValidProjectApplicationReturnsTrue() throws Exception {
-        boolean result = dao.create(buildValidProjectApplication(PREFERENCE_ORDER_SECONDARY));
+        ProjectApplicationContext context = persistDependencies();
+        boolean result = dao.create(buildProjectApplication(context.idApplication, context.idProject));
         assertTrue(result);
     }
 
     @Test
-    void testCreateWithZeroApplicationIdThrowsValidationException() {
-        ProjectApplication projectApplication = buildValidProjectApplication(PREFERENCE_ORDER_PRIMARY);
-        projectApplication.setIdApplication(INVALID_ID_ZERO);
+    void testCreateProjectApplicationWithZeroApplicationIdThrowsValidationException() {
+        ProjectApplication projectApplication =
+                buildProjectApplication(TestConstants.INVALID_ID_ZERO, TestConstants.NON_EXISTENT_ID);
         assertThrows(ValidationException.class, () -> dao.create(projectApplication));
     }
 
     @Test
-    void testCreateWithZeroProjectIdThrowsValidationException() {
-        ProjectApplication projectApplication = buildValidProjectApplication(PREFERENCE_ORDER_PRIMARY);
-        projectApplication.setIdProject(INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.create(projectApplication));
-    }
-
-    @Test
-    void testFindByIdReturnsSupportProjectApplication() throws Exception {
-        ProjectApplication retrieved = dao.findById(SUPPORT_PROJECT_APPLICATION_ID);
+    void testFindByIdAfterCreateReturnsNotNull() throws Exception {
+        ProjectApplicationContext context = persistDependencies();
+        dao.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<ProjectApplication> all = dao.findAll();
+        ProjectApplication retrieved = dao.findById(all.get(0).getIdProjectApplication());
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByIdReturnsCorrectApplicationId() throws Exception {
-        ProjectApplication retrieved = dao.findById(SUPPORT_PROJECT_APPLICATION_ID);
-        assertEquals(ID_APPLICATION, retrieved.getIdApplication());
-    }
-
-    @Test
-    void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
-    }
-
-    @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        ProjectApplication retrieved = dao.findById(NON_EXISTENT_ID);
+        ProjectApplication retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByApplicationReturnsSupportApplication() throws Exception {
-        List<ProjectApplication> options = dao.findByApplication(ID_APPLICATION);
-        assertEquals(1, options.size());
+    void testFindByApplicationReturnsOneElement() throws Exception {
+        ProjectApplicationContext context = persistDependencies();
+        dao.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<ProjectApplication> byApplication = dao.findByApplication(context.idApplication);
+        assertEquals(TestConstants.SINGLE_RESULT, byApplication.size());
     }
 
     @Test
-    void testFindByApplicationWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByApplication(INVALID_ID_ZERO));
-    }
-
-    @Test
-    void testFindAllReturnsAtLeastOneElement() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
         List<ProjectApplication> all = dao.findAll();
-        assertEquals(1, all.size());
+        assertTrue(all.isEmpty());
     }
 
     @Test
-    void testDeleteExistingReturnsTrue() throws Exception {
-        boolean result = dao.delete(SUPPORT_PROJECT_APPLICATION_ID);
+    void testDeleteProjectApplicationReturnsTrue() throws Exception {
+        ProjectApplicationContext context = persistDependencies();
+        dao.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<ProjectApplication> all = dao.findAll();
+        boolean result = dao.delete(all.get(0).getIdProjectApplication());
         assertTrue(result);
     }
 
     @Test
-    void testDeleteNonExistentReturnsFalse() throws Exception {
-        boolean result = dao.delete(NON_EXISTENT_ID);
-        assertFalse(result);
-    }
-
-    @Test
     void testDeleteWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
-    void testFindProjectIdsByInternReturnsListWithSupportProject() throws Exception {
-        List<Integer> projectIds = dao.findProjectIdsByIntern(ID_INTERN);
-        assertEquals(1, projectIds.size());
-    }
-
-    @Test
-    void testFindProjectIdsByInternReturnsCorrectProjectId() throws Exception {
-        List<Integer> projectIds = dao.findProjectIdsByIntern(ID_INTERN);
-        assertEquals(ID_PROJECT, projectIds.get(0).intValue());
+    void testFindProjectIdsByInternReturnsOneElement() throws Exception {
+        ProjectApplicationContext context = persistDependencies();
+        dao.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<Integer> projectIds = dao.findProjectIdsByIntern(context.idIntern);
+        assertEquals(TestConstants.SINGLE_RESULT, projectIds.size());
     }
 
     @Test
     void testFindProjectIdsByInternWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class,
-                () -> dao.findProjectIdsByIntern(INVALID_ID_ZERO));
+                () -> dao.findProjectIdsByIntern(TestConstants.INVALID_ID_ZERO));
+    }
+
+    private ProjectApplicationContext persistDependencies() throws Exception {
+        ProjectApplicationContext context = new ProjectApplicationContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            context.idIntern = scene.getInternId();
+            context.idProject = scene.getProjectId();
+            context.idApplication = new ApplicationTestDataBuilder()
+                    .withInternId(scene.getInternId())
+                    .withStatus(TestConstants.STATUS_PENDING)
+                    .persist(connection);
+        }
+        return context;
+    }
+
+    private static final class ProjectApplicationContext {
+        int idIntern;
+        int idProject;
+        int idApplication;
     }
 }

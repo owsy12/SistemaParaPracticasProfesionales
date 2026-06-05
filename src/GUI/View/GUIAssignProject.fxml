@@ -65,8 +65,8 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="320.0">
                                 <columns>
-                                    <TableColumn fx:id="matriculaColumn" prefWidth="180.0" text="Matrícula">
-                                        <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
+                                    <TableColumn fx:id="registrationNumberColumn" prefWidth="180.0" text="Matrícula">
+                                        <cellValueFactory><PropertyValueFactory property="registrationNumber"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="fullNameColumn" prefWidth="500.0" text="Nombre Completo">
                                         <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>

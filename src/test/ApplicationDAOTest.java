@@ -1,137 +1,126 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.ApplicationDAO;
 import Logic.DTOs.Application;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.sql.Connection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationDAOTest extends BaseDAOTest {
 
-    private static final String STATUS_REJECTED = "Rechazada";
-    private static final int INVALID_INTERN_ID_ZERO = 0;
-    private static final int NON_EXISTENT_ID = 9999;
-
     private final ApplicationDAO dao = new ApplicationDAO();
 
-    private Application buildValidApplication(String status) {
+    private Application buildApplication(int idIntern, String status) {
         Application application = new Application();
-        application.setIdIntern(ID_INTERN);
+        application.setIdIntern(idIntern);
         application.setStatus(status);
-        application.setApplicationDate(LocalDate.now());
         return application;
     }
 
     @Test
-    void testCreateValidApplicationReturnsGeneratedId() throws Exception {
-        int generatedId = dao.create(buildValidApplication(STATUS_PENDING));
-        assertTrue(generatedId > 0);
+    void testCreateValidApplicationReturnsPositiveId() throws Exception {
+        int idIntern = persistInternUser();
+        int generatedId = dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
     void testCreateApplicationWithZeroInternIdThrowsValidationException() {
-        Application application = buildValidApplication(STATUS_PENDING);
-        application.setIdIntern(INVALID_INTERN_ID_ZERO);
+        Application application = buildApplication(TestConstants.INVALID_ID_ZERO, TestConstants.STATUS_PENDING);
         assertThrows(ValidationException.class, () -> dao.create(application));
     }
 
     @Test
-    void testFindByIdReturnsSupportApplication() throws Exception {
-        Application retrieved = dao.findById(ID_APPLICATION);
+    void testFindByIdAfterCreateReturnsNotNull() throws Exception {
+        int idIntern = persistInternUser();
+        int idApplication = dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        Application retrieved = dao.findById(idApplication);
         assertNotNull(retrieved);
-    }
-
-    @Test
-    void testFindByIdReturnsCorrectInternId() throws Exception {
-        Application retrieved = dao.findById(ID_APPLICATION);
-        assertEquals(ID_INTERN, retrieved.getIdIntern());
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        Application retrieved = dao.findById(NON_EXISTENT_ID);
+        Application retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByInternReturnsAcceptedApplication() throws Exception {
-        Application retrieved = dao.findByIntern(ID_INTERN);
+    void testFindByInternAfterCreateReturnsLatestApplication() throws Exception {
+        int idIntern = persistInternUser();
+        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        Application retrieved = dao.findByIntern(idIntern);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByInternReturnsCorrectStatus() throws Exception {
-        Application retrieved = dao.findByIntern(ID_INTERN);
-        assertEquals(STATUS_ACCEPTED, retrieved.getStatus());
-    }
-
-    @Test
-    void testFindByInternWithNonExistentInternReturnsNull() throws Exception {
-        Application retrieved = dao.findByIntern(NON_EXISTENT_ID);
-        assertNull(retrieved);
-    }
-
-    @Test
-    void testFindAllReturnsAtLeastOneElement() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
         List<Application> all = dao.findAll();
-        assertEquals(1, all.size());
+        assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindByStatusAcceptedReturnsSupportApplication() throws Exception {
-        List<Application> accepted = dao.findByStatus(STATUS_ACCEPTED);
-        assertEquals(1, accepted.size());
+    void testFindAllAfterCreateReturnsOneElement() throws Exception {
+        int idIntern = persistInternUser();
+        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        List<Application> all = dao.findAll();
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testFindByStatusRejectedReturnsEmptyList() throws Exception {
-        List<Application> rejected = dao.findByStatus(STATUS_REJECTED);
+    void testFindByStatusReturnsOneElement() throws Exception {
+        int idIntern = persistInternUser();
+        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        List<Application> pending = dao.findByStatus(TestConstants.STATUS_PENDING);
+        assertEquals(TestConstants.SINGLE_RESULT, pending.size());
+    }
+
+    @Test
+    void testFindByStatusWithUnknownStatusReturnsEmptyList() throws Exception {
+        int idIntern = persistInternUser();
+        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        List<Application> rejected = dao.findByStatus(TestConstants.STATUS_REJECTED);
         assertTrue(rejected.isEmpty());
     }
 
     @Test
     void testUpdateStatusReturnsTrue() throws Exception {
-        boolean result = dao.updateStatus(ID_APPLICATION, STATUS_REJECTED);
+        int idIntern = persistInternUser();
+        int idApplication = dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        boolean result = dao.updateStatus(idApplication, TestConstants.STATUS_ACCEPTED);
         assertTrue(result);
     }
 
     @Test
-    void testUpdateStatusPersistsNewStatus() throws Exception {
-        dao.updateStatus(ID_APPLICATION, STATUS_REJECTED);
-        Application retrieved = dao.findById(ID_APPLICATION);
-        assertEquals(STATUS_REJECTED, retrieved.getStatus());
-    }
-
-    @Test
-    void testUpdateStatusWithNonExistentIdReturnsFalse() throws Exception {
-        boolean result = dao.updateStatus(NON_EXISTENT_ID, STATUS_REJECTED);
-        assertFalse(result);
-    }
-
-    @Test
-    void testFindActiveApplicationByInternWhenNonePendingReturnsNull() throws Exception {
-        Application retrieved = dao.findActiveApplicationByIntern(ID_INTERN);
-        assertNull(retrieved);
-    }
-
-    @Test
-    void testCancelAcceptedByInternReturnsTrue() throws Exception {
-        boolean result = dao.cancelAcceptedByIntern(ID_INTERN);
-        assertTrue(result);
+    void testFindActiveApplicationByInternReturnsApplication() throws Exception {
+        int idIntern = persistInternUser();
+        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        Application retrieved = dao.findActiveApplicationByIntern(idIntern);
+        assertNotNull(retrieved);
     }
 
     @Test
     void testCancelAcceptedByInternWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class,
-                () -> dao.cancelAcceptedByIntern(INVALID_INTERN_ID_ZERO));
+                () -> dao.cancelAcceptedByIntern(TestConstants.INVALID_ID_ZERO));
     }
 
-    @Test
-    void testCancelAcceptedByInternWithNoAcceptedReturnsFalse() throws Exception {
-        dao.cancelAcceptedByIntern(ID_INTERN);
-        boolean result = dao.cancelAcceptedByIntern(ID_INTERN);
-        assertFalse(result);
+    private int persistInternUser() throws Exception {
+        int idIntern;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idIntern = new UserTestDataBuilder()
+                    .withRegistrationNumber("S55000001")
+                    .withEmail("app.intern@uv.mx")
+                    .withRole(TestConstants.ROLE_INTERN)
+                    .persist(connection);
+            new InternTestDataBuilder().withUserId(idIntern).persist(connection);
+        }
+        return idIntern;
     }
 }

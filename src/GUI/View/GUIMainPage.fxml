@@ -54,8 +54,8 @@
                 </StackPane>
                 <Label fx:id="userFullNameLabel" text="NOMBRE DE USUARIO"
                        styleClass="userFullNameLabel" wrapText="true"/>
-                <Label fx:id="userMatriculaLabel" text="S00000000"
-                       styleClass="userMatriculaLabel"/>
+                <Label fx:id="userRegistrationNumberLabel" text="S00000000"
+                       styleClass="userRegistrationNumberLabel"/>
                 <HBox alignment="CENTER">
                     <HBox styleClass="userRoleBadgeHBox" alignment="CENTER">
                         <padding><Insets top="4.0" right="10.0" bottom="4.0" left="10.0"/></padding>

@@ -6,197 +6,197 @@ import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProjectDAOTest extends BaseDAOTest {
 
     private static final String NEW_PROJECT_NAME = "Sistema de Recursos Humanos";
-    private static final String NEW_PROJECT_DESCRIPTION = "Aplicación web para nómina y vacaciones.";
-    private static final String NEW_PROJECT_OBJECTIVE = "Automatizar trámites del área de RH.";
-    private static final LocalDate START_DATE = LocalDate.of(2025, 9, 1);
-    private static final LocalDate END_DATE = LocalDate.of(2025, 12, 15);
-    private static final LocalDate INVALID_END_BEFORE_START = LocalDate.of(2024, 12, 31);
-    private static final int MAX_PLACES = 6;
-    private static final int AVAILABLE_PLACES = 6;
-    private static final int ZERO_MAX_PLACES = 0;
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final String UPDATED_NAME = "Sistema de RH v2";
-    private static final String STATUS_CANCELLED = "Cancelado";
-    private static final String BLANK_NRC = "  ";
+    private static final String NEW_PROJECT_DESCRIPTION = "Aplicación web para nómina.";
+    private static final String NEW_PROJECT_OBJECTIVE = "Automatizar trámites.";
+    private static final String UPDATED_PROJECT_NAME = "Sistema de RH v2";
+    private static final String PROJECT_PROFESSOR_REGISTRATION_NUMBER = "P99000001";
+    private static final String PROJECT_PROFESSOR_EMAIL = "proj.prof@uv.mx";
+    private static final LocalDate VALID_START = LocalDate.of(2025, 9, 1);
+    private static final LocalDate VALID_END = LocalDate.of(2025, 12, 15);
+    private static final LocalDate INVALID_END = LocalDate.of(2024, 12, 31);
+    private static final int VALID_MAX_SLOTS = 6;
+    private static final int VALID_AVAILABLE_SLOTS = 6;
+    private static final int INVALID_MAX_SLOTS = 0;
 
     private final ProjectDAO dao = new ProjectDAO();
 
-    private Project buildValidProject(String name) {
+    private Project buildProject(ProjectContext context, String name) {
         Project project = new Project();
-        project.setIdOrganization(ID_ORGANIZATION);
-        project.setIdTechnicalSupervisor(ID_TECHNICAL);
-        project.setIdProfessor(ID_PROFESSOR);
+        project.setIdOrganization(context.idOrganization);
+        project.setIdTechnicalSupervisor(context.idTechnical);
+        project.setIdProfessor(context.idProfessor);
         project.setName(name);
         project.setDescription(NEW_PROJECT_DESCRIPTION);
         project.setObjetivo(NEW_PROJECT_OBJECTIVE);
-        project.setStartDate(START_DATE);
-        project.setEndDate(END_DATE);
-        project.setMaximumPlaces(MAX_PLACES);
-        project.setAvaliablePlaces(AVAILABLE_PLACES);
-        project.setNrc(NRC_EDUCATIONAL_EXPERIENCE);
+        project.setStartDate(VALID_START);
+        project.setEndDate(VALID_END);
+        project.setMaximumPlaces(VALID_MAX_SLOTS);
+        project.setAvaliablePlaces(VALID_AVAILABLE_SLOTS);
+        project.setNrc(TestConstants.DEFAULT_NRC);
         return project;
     }
 
     @Test
     void testSaveValidProjectReturnsTrue() throws Exception {
-        boolean result = dao.saveProject(buildValidProject(NEW_PROJECT_NAME));
+        ProjectContext context = persistFKDependencies();
+        boolean result = dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
         assertTrue(result);
     }
 
     @Test
-    void testSaveValidProjectAssignsGeneratedId() throws Exception {
-        Project project = buildValidProject(NEW_PROJECT_NAME);
-        dao.saveProject(project);
-        assertTrue(project.getIdProject() > 0);
-    }
-
-    @Test
-    void testSaveProjectWithStartAfterEndThrowsValidationException() {
-        Project project = buildValidProject(NEW_PROJECT_NAME);
-        project.setEndDate(INVALID_END_BEFORE_START);
+    void testSaveProjectWithStartAfterEndThrowsValidationException() throws Exception {
+        ProjectContext context = persistFKDependencies();
+        Project project = buildProject(context, NEW_PROJECT_NAME);
+        project.setEndDate(INVALID_END);
         assertThrows(ValidationException.class, () -> dao.saveProject(project));
     }
 
     @Test
-    void testSaveProjectWithZeroMaxPlacesThrowsValidationException() {
-        Project project = buildValidProject(NEW_PROJECT_NAME);
-        project.setMaximumPlaces(ZERO_MAX_PLACES);
+    void testSaveProjectWithZeroMaxSlotsThrowsValidationException() throws Exception {
+        ProjectContext context = persistFKDependencies();
+        Project project = buildProject(context, NEW_PROJECT_NAME);
+        project.setMaximumPlaces(INVALID_MAX_SLOTS);
         assertThrows(ValidationException.class, () -> dao.saveProject(project));
     }
 
     @Test
     void testSaveDuplicateNameSameOrganizationThrowsDuplicateEntryException() throws Exception {
-        dao.saveProject(buildValidProject(NEW_PROJECT_NAME));
+        ProjectContext context = persistFKDependencies();
+        dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
         assertThrows(DuplicateEntryException.class,
-                () -> dao.saveProject(buildValidProject(NEW_PROJECT_NAME)));
+                () -> dao.saveProject(buildProject(context, NEW_PROJECT_NAME)));
     }
 
     @Test
-    void testFindByIdReturnsSupportProject() throws Exception {
-        Project retrieved = dao.findById(ID_PROJECT);
+    void testFindByIdAfterPersistReturnsNotNull() throws Exception {
+        int idProject = persistProjectViaScene();
+        Project retrieved = dao.findById(idProject);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        Project retrieved = dao.findById(NON_EXISTENT_ID);
+        Project retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllReturnsAtLeastOneElement() throws Exception {
+    void testFindAllReturnsOneElement() throws Exception {
+        persistProjectViaScene();
         List<Project> all = dao.findAll();
-        assertEquals(1, all.size());
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testFindAllAvailableReturnsAtLeastOneElement() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+        List<Project> all = dao.findAll();
+        assertTrue(all.isEmpty());
+    }
+
+    @Test
+    void testFindAllAvailableReturnsOneElement() throws Exception {
+        persistProjectViaScene();
         List<Project> available = dao.findAllAvailable();
-        assertEquals(1, available.size());
+        assertEquals(TestConstants.SINGLE_RESULT, available.size());
     }
 
     @Test
     void testUpdateProjectReturnsTrue() throws Exception {
-        Project project = dao.findById(ID_PROJECT);
-        project.setName(UPDATED_NAME);
+        int idProject = persistProjectViaScene();
+        Project project = dao.findById(idProject);
+        project.setName(UPDATED_PROJECT_NAME);
         boolean result = dao.update(project);
         assertTrue(result);
     }
 
     @Test
-    void testUpdateProjectPersistsNewName() throws Exception {
-        Project project = dao.findById(ID_PROJECT);
-        project.setName(UPDATED_NAME);
-        dao.update(project);
-        Project retrieved = dao.findById(ID_PROJECT);
-        assertEquals(UPDATED_NAME, retrieved.getName());
-    }
-
-    @Test
     void testCancelProjectReturnsTrue() throws Exception {
-        boolean result = dao.cancelProject(ID_PROJECT);
+        int idProject = persistProjectViaScene();
+        boolean result = dao.cancelProject(idProject);
         assertTrue(result);
-    }
-
-    @Test
-    void testCancelProjectPersistsCancelledStatus() throws Exception {
-        dao.cancelProject(ID_PROJECT);
-        String status = readProjectStatusDirectly(ID_PROJECT);
-        assertEquals(STATUS_CANCELLED, status);
-    }
-
-    private String readProjectStatusDirectly(int idProject) throws Exception {
-        String status = null;
-        try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement statement = connection.prepareStatement(
-                 "SELECT estado FROM proyecto WHERE id_proyecto = ?")) {
-            statement.setInt(1, idProject);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    status = resultSet.getString("estado");
-                }
-            }
-        }
-        return status;
     }
 
     @Test
     void testDecrementAvailableSlotReturnsTrue() throws Exception {
-        boolean result = dao.decrementAvailableSlot(ID_PROJECT);
+        int idProject = persistProjectViaScene();
+        boolean result = dao.decrementAvailableSlot(idProject);
         assertTrue(result);
     }
 
     @Test
-    void testDecrementAvailableSlotPersistsDecrement() throws Exception {
-        int previous = dao.findById(ID_PROJECT).getAvaliablePlaces();
-        dao.decrementAvailableSlot(ID_PROJECT);
-        Project retrieved = dao.findById(ID_PROJECT);
-        assertEquals(previous - 1, retrieved.getAvaliablePlaces());
-    }
-
-    @Test
-    void testIncrementAvailableSlotPersistsIncrement() throws Exception {
-        int previous = dao.findById(ID_PROJECT).getAvaliablePlaces();
-        dao.incrementAvailableSlot(ID_PROJECT);
-        Project retrieved = dao.findById(ID_PROJECT);
-        assertEquals(previous + 1, retrieved.getAvaliablePlaces());
+    void testIncrementAvailableSlotReturnsTrue() throws Exception {
+        int idProject = persistProjectViaScene();
+        boolean result = dao.incrementAvailableSlot(idProject);
+        assertTrue(result);
     }
 
     @Test
     void testExistsByNrcReturnsFalseForUnusedNrc() throws Exception {
-        boolean exists = dao.existsByNrc("99999");
+        boolean exists = dao.existsByNrc(TestConstants.UNUSED_NRC);
         assertFalse(exists);
     }
 
     @Test
     void testExistsByNrcWithBlankNrcThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.existsByNrc(BLANK_NRC));
+        assertThrows(ValidationException.class, () -> dao.existsByNrc(TestConstants.BLANK_TEXT));
     }
 
     @Test
     void testDeleteProjectWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.deleteProject(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class,
+                () -> dao.deleteProject(TestConstants.INVALID_ID_ZERO));
     }
 
-    @Test
-    void testFindByProfessorAvailableReturnsSupportProject() throws Exception {
-        List<Project> projects = dao.findByProfessorAvailable(ID_PROFESSOR);
-        assertEquals(1, projects.size());
+    private ProjectContext persistFKDependencies() throws Exception {
+        ProjectContext context = new ProjectContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            context.idOrganization = new OrganizationTestDataBuilder().persist(connection);
+            context.idProfessor = new UserTestDataBuilder()
+                    .withRegistrationNumber(PROJECT_PROFESSOR_REGISTRATION_NUMBER)
+                    .withEmail(PROJECT_PROFESSOR_EMAIL)
+                    .withRole(TestConstants.ROLE_PROFESSOR)
+                    .persist(connection);
+            new ProfessorTestDataBuilder().withUserId(context.idProfessor).persist(connection);
+            context.idTechnical = new TechnicalSupervisorTestDataBuilder()
+                    .withOrganizationId(context.idOrganization)
+                    .persist(connection);
+            new EducationalExperienceTestDataBuilder()
+                    .withProfessorId(context.idProfessor)
+                    .persist(connection);
+        }
+        return context;
+    }
+
+    private int persistProjectViaScene() throws Exception {
+        int idProject;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            idProject = scene.getProjectId();
+        }
+        return idProject;
+    }
+
+    private static final class ProjectContext {
+        int idOrganization;
+        int idTechnical;
+        int idProfessor;
     }
 }

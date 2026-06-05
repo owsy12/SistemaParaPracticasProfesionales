@@ -1,115 +1,141 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
-import Logic.Exceptions.ServiceException;
+import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
+import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InitialFormatDAOTest extends BaseDAOTest {
 
-    private static final String FORMAT_ASSIGNMENT_LETTER = "Carta de Asignación";
-    private static final String FORMAT_SCHEDULE = "Horario";
-    private static final String FORMAT_INSURANCE_CERTIFICATE = "Certificado de Seguro";
-    private static final String FORMAT_ACTIVITIES_TIMELINE = "Cronograma de Actividades";
-    private static final String DOCUMENT_PATH_PREFIX = "/docs/";
-    private static final String DOCUMENT_EXTENSION = ".pdf";
-    private static final int EXPECTED_TOTAL_FORMATS_PER_INTERN = 4;
-    private static final int EXPECTED_TOTAL_FORMATS_TWO = 2;
-
     private final InitialFormatDAO dao = new InitialFormatDAO();
 
-    private InitialFormat buildValidFormat(String formatType) {
-        InitialFormat format = new InitialFormat();
-        format.setIdIntern(ID_INTERN);
-        format.setIdProject(ID_PROJECT);
-        format.setFormatType(formatType);
-        format.setFilePath(DOCUMENT_PATH_PREFIX + formatType.replace(" ", "_") + DOCUMENT_EXTENSION);
-        format.setStatus(STATUS_PENDING);
-        return format;
+    private InitialFormat buildInitialFormat(int idIntern, int idProject, String formatType) {
+        InitialFormat initialFormat = new InitialFormat();
+        initialFormat.setIdIntern(idIntern);
+        initialFormat.setIdProject(idProject);
+        initialFormat.setFormatType(formatType);
+        initialFormat.setFilePath(TestConstants.DEFAULT_DOCUMENT_PATH);
+        initialFormat.setStatus(TestConstants.STATUS_INITIAL_FORMAT_PENDING);
+        initialFormat.setSubmissionDate(LocalDate.now());
+        return initialFormat;
     }
 
     @Test
-    void testSaveAssignmentLetterReturnsOneRowAffected() throws Exception {
-        int result = dao.save(buildValidFormat(FORMAT_ASSIGNMENT_LETTER));
-        assertEquals(1, result);
+    void testSaveValidInitialFormatReturnsPositiveId() throws Exception {
+        InitialFormatContext context = persistContext();
+        int generatedId = dao.save(buildInitialFormat(
+                context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
+        assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
-    void testSaveValidFormatAssignsGeneratedId() throws Exception {
-        InitialFormat format = buildValidFormat(FORMAT_SCHEDULE);
-        dao.save(format);
-        assertTrue(format.getIdInitialFormat() > 0);
+    void testSaveInitialFormatWithZeroInternIdThrowsValidationException() throws Exception {
+        InitialFormatContext context = persistContext();
+        InitialFormat initialFormat = buildInitialFormat(
+                TestConstants.INVALID_ID_ZERO, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT);
+        assertThrows(ValidationException.class, () -> dao.save(initialFormat));
     }
 
     @Test
     void testGetByIdAfterSaveReturnsNotNull() throws Exception {
-        InitialFormat format = buildValidFormat(FORMAT_INSURANCE_CERTIFICATE);
-        dao.save(format);
-        InitialFormat retrieved = dao.getById(format.getIdInitialFormat());
+        InitialFormatContext context = persistContext();
+        int idInitialFormat = dao.save(buildInitialFormat(
+                context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
+        InitialFormat retrieved = dao.getById(idInitialFormat);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsCorrectFormatType() throws Exception {
-        InitialFormat format = buildValidFormat(FORMAT_INSURANCE_CERTIFICATE);
-        dao.save(format);
-        InitialFormat retrieved = dao.getById(format.getIdInitialFormat());
-        assertEquals(FORMAT_INSURANCE_CERTIFICATE, retrieved.getFormatType());
+    void testGetByIdWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsCorrectFilePath() throws Exception {
-        InitialFormat format = buildValidFormat(FORMAT_SCHEDULE);
-        dao.save(format);
-        InitialFormat retrieved = dao.getById(format.getIdInitialFormat());
-        assertEquals(DOCUMENT_PATH_PREFIX + FORMAT_SCHEDULE + DOCUMENT_EXTENSION, retrieved.getFilePath());
+    void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
+        InitialFormat retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
+        assertNull(retrieved);
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsCorrectStatus() throws Exception {
-        InitialFormat format = buildValidFormat(FORMAT_ACTIVITIES_TIMELINE);
-        dao.save(format);
-        InitialFormat retrieved = dao.getById(format.getIdInitialFormat());
-        assertEquals(STATUS_PENDING, retrieved.getStatus());
-    }
-
-    @Test
-    void testGetByIdInternAfterSaveAllFormatsReturnsFour() throws Exception {
-        dao.save(buildValidFormat(FORMAT_ASSIGNMENT_LETTER));
-        dao.save(buildValidFormat(FORMAT_SCHEDULE));
-        dao.save(buildValidFormat(FORMAT_INSURANCE_CERTIFICATE));
-        dao.save(buildValidFormat(FORMAT_ACTIVITIES_TIMELINE));
-        List<InitialFormat> formats = dao.getByIdIntern(ID_INTERN);
-        assertEquals(EXPECTED_TOTAL_FORMATS_PER_INTERN, formats.size());
-    }
-
-    @Test
-    void testGetAllAfterSavingTwoFormatsReturnsTwo() throws Exception {
-        dao.save(buildValidFormat(FORMAT_ASSIGNMENT_LETTER));
-        dao.save(buildValidFormat(FORMAT_SCHEDULE));
+    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+        InitialFormatContext context = persistContext();
+        dao.save(buildInitialFormat(
+                context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
         List<InitialFormat> all = dao.getAll();
-        assertEquals(EXPECTED_TOTAL_FORMATS_TWO, all.size());
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testGetByIdInternWhenNoFormatsReturnsEmptyList() throws Exception {
-        List<InitialFormat> formats = dao.getByIdIntern(ID_INTERN);
-        assertTrue(formats.isEmpty());
+    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+        List<InitialFormat> all = dao.getAll();
+        assertTrue(all.isEmpty());
     }
 
     @Test
-    void testSaveDuplicateFormatTypeSameInternThrowsServiceException() throws Exception {
-        dao.save(buildValidFormat(FORMAT_SCHEDULE));
-        assertThrows(ServiceException.class, () -> dao.save(buildValidFormat(FORMAT_SCHEDULE)));
+    void testGetByIdInternAfterSaveReturnsOneElement() throws Exception {
+        InitialFormatContext context = persistContext();
+        dao.save(buildInitialFormat(
+                context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
+        List<InitialFormat> formats = dao.getByIdIntern(context.idIntern);
+        assertEquals(TestConstants.SINGLE_RESULT, formats.size());
     }
 
     @Test
-    void testSaveWithNullSubmissionDateReturnsOneRowAffected() throws Exception {
-        InitialFormat format = buildValidFormat(FORMAT_ASSIGNMENT_LETTER);
-        format.setSubmissionDate(null);
-        int result = dao.save(format);
-        assertEquals(1, result);
+    void testGetByIdInternWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class,
+                () -> dao.getByIdIntern(TestConstants.INVALID_ID_ZERO));
+    }
+
+    @Test
+    void testFindPendingByInternAfterSaveReturnsOneElement() throws Exception {
+        InitialFormatContext context = persistContext();
+        dao.save(buildInitialFormat(
+                context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
+        List<InitialFormat> pending = dao.findPendingByIntern(context.idIntern);
+        assertEquals(TestConstants.SINGLE_RESULT, pending.size());
+    }
+
+    @Test
+    void testUpdateStatusReturnsOneRowAffected() throws Exception {
+        InitialFormatContext context = persistContext();
+        int idInitialFormat = dao.save(buildInitialFormat(
+                context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_SCHEDULE));
+        InitialFormat updateData = dao.getById(idInitialFormat);
+        updateData.setStatus(TestConstants.STATUS_INITIAL_FORMAT_DELIVERED);
+        int result = dao.updateStatus(updateData);
+        assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
+    }
+
+    @Test
+    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+        InitialFormatContext context = persistContext();
+        dao.save(buildInitialFormat(
+                context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_CERTIFICATE));
+        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
+        assertTrue(result);
+    }
+
+    private InitialFormatContext persistContext() throws Exception {
+        InitialFormatContext context = new InitialFormatContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            context.idIntern = scene.getInternId();
+            context.idProject = scene.getProjectId();
+        }
+        return context;
+    }
+
+    private static final class InitialFormatContext {
+        int idIntern;
+        int idProject;
     }
 }

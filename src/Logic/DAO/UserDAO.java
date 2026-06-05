@@ -34,7 +34,7 @@ public class UserDAO implements IUserDAO {
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            preparedStatement.setString(1, user.getMatricula());
+            preparedStatement.setString(1, user.getRegistrationNumber());
             preparedStatement.setString(2, user.getFirstName());
             preparedStatement.setString(3, user.getLastName());
             preparedStatement.setString(4, user.getSecondLastName());
@@ -56,7 +56,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al guardar usuario con matrícula {0}: {1}",
-                    new Object[]{user.getMatricula(), sqlException.getMessage()});
+                    new Object[]{user.getRegistrationNumber(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -196,15 +196,15 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public User findByIdentifier(String matricula) throws ServiceException, ValidationException {
+    public User findByIdentifier(String registrationNumber) throws ServiceException, ValidationException {
 
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE matricula=? OR correo = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, matricula);
-            preparedStatement.setString(2,matricula);
+            preparedStatement.setString(1, registrationNumber);
+            preparedStatement.setString(2, registrationNumber);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -214,7 +214,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error al buscar usuario por matrícula {0}: {1}",
-                    new Object[]{matricula, sqlException.getMessage()});
+                    new Object[]{registrationNumber, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -257,7 +257,7 @@ public class UserDAO implements IUserDAO {
     private User mapUser(ResultSet resultSet) throws SQLException {
         User user = new User();
         user.setId           (resultSet.getInt   ("id_usuario"));
-        user.setMatricula    (resultSet.getString("matricula"));
+        user.setRegistrationNumber    (resultSet.getString("matricula"));
         user.setFirstName    (resultSet.getString("nombre"));
         user.setLastName     (resultSet.getString("apellido_paterno"));
         user.setSecondLastName(resultSet.getString("apellido_materno"));

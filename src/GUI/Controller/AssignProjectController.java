@@ -38,7 +38,7 @@ public class AssignProjectController {
     private TableColumn<User, String> fullNameColumn;
 
     @FXML
-    private TableColumn<User, String> matriculaColumn;
+    private TableColumn<User, String> registrationNumberColumn;
 
     @FXML
     private void initialize() {

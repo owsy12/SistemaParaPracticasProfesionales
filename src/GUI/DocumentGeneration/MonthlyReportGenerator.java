@@ -43,7 +43,7 @@ public class MonthlyReportGenerator {
         byte[] docxBytes = fillTemplate(values, activities);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
 
-        String storagePath = buildStoragePath(report, context.getMatricula());
+        String storagePath = buildStoragePath(report, context.getRegistrationNumber());
         saveFile(pdfBytes, storagePath);
 
         String monthLabel = safe(report.getMonth()) + "_" + report.getYear();
@@ -202,8 +202,8 @@ public class MonthlyReportGenerator {
         return result;
     }
 
-    private static String buildStoragePath(MonthlyReport report, String matricula) {
-        String path = "storage/intern_" + matricula
+    private static String buildStoragePath(MonthlyReport report, String registrationNumber) {
+        String path = "storage/intern_" + registrationNumber
                 + "/project_" + report.getIdProject()
                 + "/reports/monthly_" + report.getIdReport() + ".pdf";
         return path;

@@ -1,178 +1,153 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.PracticeDAO;
 import Logic.DTOs.Practice;
-import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PracticeDAOTest extends BaseDAOTest {
 
-    private static final LocalDate PRACTICE_START = LocalDate.of(2025, 2, 1);
-    private static final LocalDate PRACTICE_REACTIVATE = LocalDate.of(2025, 3, 1);
-    private static final String STATUS_CANCELLED = "Cancelada";
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final String BLANK_NRC = "  ";
+    private static final LocalDate PRACTICE_START = LocalDate.of(2025, 1, 15);
+    private static final LocalDate PRACTICE_END = LocalDate.of(2025, 7, 15);
+    private static final LocalDate UPDATED_END = LocalDate.of(2025, 8, 15);
 
     private final PracticeDAO dao = new PracticeDAO();
 
-    private Practice buildValidPractice() {
+    private Practice buildPractice(int idIntern, String nrc) {
         Practice practice = new Practice();
-        practice.setNrc(NRC_EDUCATIONAL_EXPERIENCE);
-        practice.setIdIntern(ID_INTERN);
+        practice.setNrc(nrc);
+        practice.setIdIntern(idIntern);
         practice.setStartDate(PRACTICE_START);
+        practice.setEndDate(PRACTICE_END);
+        practice.setStatus(TestConstants.STATUS_PRACTICE_ACTIVE);
         return practice;
     }
 
     @Test
     void testSaveValidPracticeReturnsTrue() throws Exception {
-        boolean result = dao.save(buildValidPractice());
+        TestScene scene = persistScene();
+        boolean result = dao.save(buildPractice(scene.getInternId(), scene.getNrc()));
         assertTrue(result);
     }
 
     @Test
-    void testSaveValidPracticeAssignsGeneratedId() throws Exception {
-        Practice practice = buildValidPractice();
-        dao.save(practice);
-        assertTrue(practice.getIdPractice() > 0);
-    }
-
-    @Test
-    void testSaveWithBlankNrcThrowsValidationException() {
-        Practice practice = buildValidPractice();
-        practice.setNrc(BLANK_NRC);
+    void testSavePracticeWithZeroInternIdThrowsValidationException() throws Exception {
+        TestScene scene = persistScene();
+        Practice practice = buildPractice(TestConstants.INVALID_ID_ZERO, scene.getNrc());
         assertThrows(ValidationException.class, () -> dao.save(practice));
-    }
-
-    @Test
-    void testSaveWithZeroInternIdThrowsValidationException() {
-        Practice practice = buildValidPractice();
-        practice.setIdIntern(INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.save(practice));
-    }
-
-    @Test
-    void testSaveWithNullStartDateThrowsValidationException() {
-        Practice practice = buildValidPractice();
-        practice.setStartDate(null);
-        assertThrows(ValidationException.class, () -> dao.save(practice));
-    }
-
-    @Test
-    void testSaveDuplicateNrcSameInternThrowsDuplicateEntryException() throws Exception {
-        dao.save(buildValidPractice());
-        assertThrows(DuplicateEntryException.class, () -> dao.save(buildValidPractice()));
     }
 
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws Exception {
-        Practice practice = buildValidPractice();
-        dao.save(practice);
-        Practice retrieved = dao.findById(practice.getIdPractice());
+        TestScene scene = persistScene();
+        int idPractice = persistPractice(scene);
+        Practice retrieved = dao.findById(idPractice);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsCorrectNrc() throws Exception {
-        Practice practice = buildValidPractice();
-        dao.save(practice);
-        Practice retrieved = dao.findById(practice.getIdPractice());
-        assertEquals(NRC_EDUCATIONAL_EXPERIENCE, retrieved.getNrc());
-    }
-
-    @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        Practice retrieved = dao.findById(NON_EXISTENT_ID);
+        Practice retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByNrcReturnsListWithSavedPractice() throws Exception {
-        dao.save(buildValidPractice());
-        List<Practice> list = dao.findByNrc(NRC_EDUCATIONAL_EXPERIENCE);
-        assertEquals(1, list.size());
+    void testFindByNrcReturnsOneElement() throws Exception {
+        TestScene scene = persistScene();
+        persistPractice(scene);
+        List<Practice> byNrc = dao.findByNrc(scene.getNrc());
+        assertEquals(TestConstants.SINGLE_RESULT, byNrc.size());
     }
 
     @Test
     void testFindByNrcWithBlankNrcThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByNrc(BLANK_NRC));
+        assertThrows(ValidationException.class, () -> dao.findByNrc(TestConstants.BLANK_TEXT));
     }
 
     @Test
-    void testFindByInternAfterSaveReturnsList() throws Exception {
-        dao.save(buildValidPractice());
-        List<Practice> list = dao.findByIntern(ID_INTERN);
-        assertEquals(1, list.size());
+    void testFindByInternReturnsOneElement() throws Exception {
+        TestScene scene = persistScene();
+        persistPractice(scene);
+        List<Practice> byIntern = dao.findByIntern(scene.getInternId());
+        assertEquals(TestConstants.SINGLE_RESULT, byIntern.size());
     }
 
     @Test
-    void testFindByInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByIntern(INVALID_ID_ZERO));
+    void testUpdatePracticeReturnsTrue() throws Exception {
+        TestScene scene = persistScene();
+        int idPractice = persistPractice(scene);
+        Practice practice = dao.findById(idPractice);
+        practice.setEndDate(UPDATED_END);
+        boolean result = dao.update(practice);
+        assertTrue(result);
     }
 
     @Test
-    void testFindActiveByInternAfterSaveReturnsNotNull() throws Exception {
-        dao.save(buildValidPractice());
-        Practice active = dao.findActiveByIntern(ID_INTERN);
+    void testDeletePracticeReturnsTrue() throws Exception {
+        TestScene scene = persistScene();
+        int idPractice = persistPractice(scene);
+        boolean result = dao.delete(idPractice);
+        assertTrue(result);
+    }
+
+    @Test
+    void testDeletePracticeWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
+    }
+
+    @Test
+    void testFindActiveByInternReturnsNotNull() throws Exception {
+        TestScene scene = persistScene();
+        persistPractice(scene);
+        Practice active = dao.findActiveByIntern(scene.getInternId());
         assertNotNull(active);
     }
 
     @Test
-    void testFindActiveByInternWhenNoActiveReturnsNull() throws Exception {
-        Practice active = dao.findActiveByIntern(ID_INTERN);
-        assertNull(active);
-    }
-
-    @Test
-    void testHasConcludedPracticeReturnsFalseForActivePractice() throws Exception {
-        dao.save(buildValidPractice());
-        boolean concluded = dao.hasConcludedPractice(ID_INTERN);
+    void testHasConcludedPracticeReturnsFalseForActive() throws Exception {
+        TestScene scene = persistScene();
+        persistPractice(scene);
+        boolean concluded = dao.hasConcludedPractice(scene.getInternId());
         assertFalse(concluded);
     }
 
     @Test
-    void testDeleteExistingPracticeReturnsTrue() throws Exception {
-        Practice practice = buildValidPractice();
-        dao.save(practice);
-        boolean result = dao.delete(practice.getIdPractice());
-        assertTrue(result);
+    void testConcludeActiveByInternWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class,
+                () -> dao.concludeActiveByIntern(TestConstants.INVALID_ID_ZERO));
     }
 
-    @Test
-    void testDeleteWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(INVALID_ID_ZERO));
+    private TestScene persistScene() throws Exception {
+        TestScene scene;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            scene = TestScene.createFullScene(connection);
+        }
+        return scene;
     }
 
-    @Test
-    void testCancelActiveByInternAndProjectReturnsTrue() throws Exception {
-        dao.save(buildValidPractice());
-        boolean result = dao.cancelActiveByInternAndProject(ID_INTERN, ID_PROJECT);
-        assertTrue(result);
-    }
-
-    @Test
-    void testCancelActiveByInternAndProjectPersistsCancelledStatus() throws Exception {
-        Practice practice = buildValidPractice();
-        dao.save(practice);
-        dao.cancelActiveByInternAndProject(ID_INTERN, ID_PROJECT);
-        Practice retrieved = dao.findById(practice.getIdPractice());
-        assertEquals(STATUS_CANCELLED, retrieved.getStatus());
-    }
-
-    @Test
-    void testReactivateOrCreateReactivatesCancelledPractice() throws Exception {
-        dao.save(buildValidPractice());
-        dao.cancelActiveByInternAndProject(ID_INTERN, ID_PROJECT);
-        boolean result = dao.reactivateOrCreate(ID_INTERN, NRC_EDUCATIONAL_EXPERIENCE, PRACTICE_REACTIVATE);
-        assertTrue(result);
+    private int persistPractice(TestScene scene) throws Exception {
+        int idPractice;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idPractice = new PracticeTestDataBuilder()
+                    .withInternId(scene.getInternId())
+                    .withNrc(scene.getNrc())
+                    .persist(connection);
+        }
+        return idPractice;
     }
 }

@@ -5,7 +5,7 @@ import java.util.List;
 public class User{
 
     protected int id;
-    protected String matricula;
+    protected String registrationNumber;
     protected String firstName;
     protected String lastName;
     protected String secondLastName;
@@ -17,10 +17,10 @@ public class User{
 
     public User() {}
 
-    public User(int id, String matricula, String firstName, String lastName,
+    public User(int id, String registrationNumber, String firstName, String lastName,
                    String secondLastName, String password, String status) {
         this.id = id;
-        this.matricula = matricula;
+        this.registrationNumber = registrationNumber;
         this.firstName = firstName;
         this.lastName = lastName;
         this.secondLastName = secondLastName;
@@ -47,8 +47,8 @@ public class User{
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public String getMatricula() { return matricula; }
-    public void setMatricula(String matricula) { this.matricula = matricula; }
+    public String getRegistrationNumber() { return registrationNumber; }
+    public void setRegistrationNumber(String registrationNumber) { this.registrationNumber = registrationNumber; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

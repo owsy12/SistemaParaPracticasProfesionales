@@ -66,7 +66,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     private File selectedFile;
     private int internId;
     private int projectId;
-    private String internMatricula;
+    private String internRegistrationNumber;
 
     @FXML
     private void initialize() {
@@ -131,7 +131,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
             openWelcomePage(anchorPane);
         } else {
             internId = SessionManager.getInstance().getUsuario().getId();
-            internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
+            internRegistrationNumber = SessionManager.getInstance().getUsuario().getRegistrationNumber();
             loadInternData();
         }
     }
@@ -258,7 +258,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     }
 
     private String copyFile() throws IOException {
-        String folder = "storage/intern_" + internMatricula
+        String folder = "storage/intern_" + internRegistrationNumber
                 + "/project_" + projectId + "/ov_evaluation";
         String fileName = "ov_evaluation_" + internId + "_project_" + projectId;
         Path folderPath = Paths.get(folder);

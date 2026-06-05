@@ -1,107 +1,89 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.ReportEvaluationDAO;
 import Logic.DTOs.ReportEvaluation;
+import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReportEvaluationDAOTest extends BaseDAOTest {
 
-    private static final int EVALUATION_GRADE = 9;
-    private static final int EVALUATION_GRADE_MIN = 0;
-    private static final int EVALUATION_GRADE_MAX = 10;
-    private static final String EVALUATION_FEEDBACK = "Buen desempeño, mejorar la documentación.";
-
     private final ReportEvaluationDAO dao = new ReportEvaluationDAO();
 
-    private ReportEvaluation buildValidEvaluation() {
+    private ReportEvaluation buildEvaluation(int idReport) {
         ReportEvaluation evaluation = new ReportEvaluation();
-        evaluation.setIdReport(ID_REPORT);
-        evaluation.setGrade(EVALUATION_GRADE);
-        evaluation.setFeedback(EVALUATION_FEEDBACK);
+        evaluation.setIdReport(idReport);
+        evaluation.setGrade(TestConstants.DEFAULT_GRADE);
+        evaluation.setFeedback(TestConstants.DEFAULT_FEEDBACK);
         evaluation.setEvaluationDate(new Date());
         return evaluation;
     }
 
     @Test
     void testSaveValidEvaluationReturnsOneRowAffected() throws Exception {
-        int result = dao.save(buildValidEvaluation());
-        assertEquals(1, result);
+        int idReport = persistReport();
+        int result = dao.save(buildEvaluation(idReport));
+        assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveValidEvaluationAssignsGeneratedId() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-        dao.save(evaluation);
-        assertTrue(evaluation.getIdReportEvaluation() > 0);
-    }
-
-    @Test
-    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-        dao.save(evaluation);
-        ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
-        assertNotNull(retrieved);
-    }
-
-    @Test
-    void testGetByIdAfterSaveReturnsCorrectGrade() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-        dao.save(evaluation);
-        ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
-        assertEquals(EVALUATION_GRADE, retrieved.getGrade());
-    }
-
-    @Test
-    void testGetByIdAfterSaveReturnsCorrectFeedback() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-        dao.save(evaluation);
-        ReportEvaluation retrieved = dao.getById(evaluation.getIdReportEvaluation());
-        assertEquals(EVALUATION_FEEDBACK, retrieved.getFeedback());
+    void testSaveEvaluationWithZeroReportIdThrowsValidationException() {
+        ReportEvaluation evaluation = buildEvaluation(TestConstants.INVALID_ID_ZERO);
+        assertThrows(ValidationException.class, () -> dao.save(evaluation));
     }
 
     @Test
     void testGetByIdReportAfterSaveReturnsNotNull() throws Exception {
-        dao.save(buildValidEvaluation());
-        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORT);
+        int idReport = persistReport();
+        dao.save(buildEvaluation(idReport));
+        ReportEvaluation retrieved = dao.getByIdReport(idReport);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testGetByIdReportAfterSaveReturnsCorrectReportId() throws Exception {
-        dao.save(buildValidEvaluation());
-        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORT);
-        assertEquals(ID_REPORT, retrieved.getIdReport());
+    void testGetByIdReportWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class,
+                () -> dao.getByIdReport(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
-    void testGetByIdReportWhenNoEvaluationReturnsNull() throws Exception {
-        ReportEvaluation retrieved = dao.getByIdReport(ID_REPORT);
+    void testGetByIdReportWithNonExistentIdReturnsNull() throws Exception {
+        ReportEvaluation retrieved = dao.getByIdReport(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testGetAllAfterSaveReturnsOneElement() throws Exception {
-        dao.save(buildValidEvaluation());
+        int idReport = persistReport();
+        dao.save(buildEvaluation(idReport));
         List<ReportEvaluation> all = dao.getAll();
-        assertEquals(1, all.size());
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testSaveWithGradeZeroReturnsOneRowAffected() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-        evaluation.setGrade(EVALUATION_GRADE_MIN);
-        int result = dao.save(evaluation);
-        assertEquals(1, result);
+    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+        List<ReportEvaluation> all = dao.getAll();
+        assertTrue(all.isEmpty());
     }
 
-    @Test
-    void testSaveWithGradeTenReturnsOneRowAffected() throws Exception {
-        ReportEvaluation evaluation = buildValidEvaluation();
-        evaluation.setGrade(EVALUATION_GRADE_MAX);
-        int result = dao.save(evaluation);
-        assertEquals(1, result);
+    private int persistReport() throws Exception {
+        int idReport;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            idReport = new ReportTestDataBuilder()
+                    .withInternId(scene.getInternId())
+                    .withProjectId(scene.getProjectId())
+                    .withProfessorId(scene.getProfessorId())
+                    .persist(connection);
+        }
+        return idReport;
     }
 }

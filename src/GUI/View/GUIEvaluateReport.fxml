@@ -43,7 +43,7 @@
                             <Label text="PROFESOR · EVALUACIÓN DE REPORTES" styleClass="viewBreadcrumbLabel"/>
                         </HBox>
                         <Label text="Evaluar Reportes de Practicantes" styleClass="viewTitleLabel"/>
-                        <Label text="Revisa los reportes entregados por tus practicantes y registra tu evaluación o las observaciones correspondientes."
+                        <Label text="Revisa los reportes entregados por tus practicantes y registra tu evaluación o las observations correspondientes."
                                styleClass="viewSubtitleLabel"/>
                     </VBox>
 

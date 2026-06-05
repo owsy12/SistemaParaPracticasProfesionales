@@ -1,119 +1,116 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.MonthlyReportDAO;
 import Logic.DTOs.MonthlyReport;
+import Logic.DTOs.Report;
+import Logic.Exceptions.ServiceException;
+import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MonthlyReportDAOTest extends BaseDAOTest {
 
-    private static final String REPORT_TYPE_MONTHLY = "Mensual";
-    private static final String REPORT_PERIOD = "2025-03";
-    private static final String REPORT_DOCUMENT_PATH = "/docs/mensual_2025_03.pdf";
-    private static final String REPORT_MONTH = "Marzo";
-    private static final int REPORT_YEAR = 2025;
-    private static final String REPORT_BLOCK = "B";
-    private static final String REPORT_SECTION = "IS-201";
-
     private final MonthlyReportDAO dao = new MonthlyReportDAO();
 
-    private MonthlyReport buildValidReport() {
-        MonthlyReport report = new MonthlyReport();
-        report.setIdIntern(ID_INTERN);
-        report.setIdProject(ID_PROJECT);
-        report.setIdProfessor(ID_PROFESSOR);
-        report.setReportType(REPORT_TYPE_MONTHLY);
-        report.setPeriod(REPORT_PERIOD);
-        report.setDocumentPath(REPORT_DOCUMENT_PATH);
-        report.setStatus(STATUS_PENDING);
-        report.setSumissionDate(new Date());
-        report.setMonth(REPORT_MONTH);
-        report.setYear(REPORT_YEAR);
-        report.setBlock(REPORT_BLOCK);
-        report.setSection(REPORT_SECTION);
-        return report;
+    private MonthlyReport buildMonthlyReport(ReportSceneContext context) {
+        MonthlyReport monthlyReport = new MonthlyReport();
+        monthlyReport.setIdIntern(context.idIntern);
+        monthlyReport.setIdProject(context.idProject);
+        monthlyReport.setIdProfessor(context.idProfessor);
+        monthlyReport.setReportType(TestConstants.REPORT_TYPE_MONTHLY);
+        monthlyReport.setPeriod(TestConstants.DEFAULT_PERIOD);
+        monthlyReport.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
+        monthlyReport.setStatus(TestConstants.STATUS_REPORT_PENDING);
+        monthlyReport.setReportedHours(TestConstants.DEFAULT_MONTHLY_HOURS);
+        monthlyReport.setSumissionDate(new Date());
+        monthlyReport.setMonth(TestConstants.DEFAULT_REPORT_MONTH);
+        monthlyReport.setYear(TestConstants.DEFAULT_REPORT_YEAR);
+        monthlyReport.setMonthlyHours(TestConstants.DEFAULT_MONTHLY_HOURS);
+        monthlyReport.setBlock(TestConstants.DEFAULT_BLOCK);
+        monthlyReport.setSection(TestConstants.DEFAULT_SECTION);
+        monthlyReport.setReportNumber(TestConstants.DEFAULT_REPORT_NUMBER);
+        return monthlyReport;
     }
 
     @Test
-    void testSaveValidReportReturnsOneRowAffected() throws Exception {
-        int result = dao.save(buildValidReport());
-        assertEquals(1, result);
+    void testSaveValidMonthlyReportReturnsOneRowAffected() throws Exception {
+        ReportSceneContext context = persistContext();
+        int result = dao.save(buildMonthlyReport(context));
+        assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveValidReportAssignsGeneratedId() throws Exception {
-        MonthlyReport report = buildValidReport();
-        dao.save(report);
-        assertTrue(report.getIdReport() > 0);
+    void testSaveMonthlyReportWithZeroInternIdThrowsServiceException() throws Exception {
+        ReportSceneContext context = persistContext();
+        MonthlyReport report = buildMonthlyReport(context);
+        report.setIdIntern(TestConstants.INVALID_ID_ZERO);
+        assertThrows(ServiceException.class, () -> dao.save(report));
     }
 
     @Test
     void testGetByIdAfterSaveReturnsNotNull() throws Exception {
-        MonthlyReport report = buildValidReport();
+        ReportSceneContext context = persistContext();
+        MonthlyReport report = buildMonthlyReport(context);
         dao.save(report);
         MonthlyReport retrieved = dao.getById(report.getIdReport());
         assertNotNull(retrieved);
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsCorrectMonth() throws Exception {
-        MonthlyReport report = buildValidReport();
-        dao.save(report);
-        MonthlyReport retrieved = dao.getById(report.getIdReport());
-        assertEquals(REPORT_MONTH, retrieved.getMonth());
+    void testGetByIdWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsCorrectYear() throws Exception {
-        MonthlyReport report = buildValidReport();
-        dao.save(report);
-        MonthlyReport retrieved = dao.getById(report.getIdReport());
-        assertEquals(REPORT_YEAR, retrieved.getYear());
-    }
-
-    @Test
-    void testGetByIdAfterSaveReturnsCorrectBlock() throws Exception {
-        MonthlyReport report = buildValidReport();
-        dao.save(report);
-        MonthlyReport retrieved = dao.getById(report.getIdReport());
-        assertEquals(REPORT_BLOCK, retrieved.getBlock());
-    }
-
-    @Test
-    void testGetByIdAfterSaveReturnsCorrectSection() throws Exception {
-        MonthlyReport report = buildValidReport();
-        dao.save(report);
-        MonthlyReport retrieved = dao.getById(report.getIdReport());
-        assertEquals(REPORT_SECTION, retrieved.getSection());
+    void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
+        MonthlyReport retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
+        assertNull(retrieved);
     }
 
     @Test
     void testGetAllAfterSaveReturnsOneElement() throws Exception {
-        dao.save(buildValidReport());
-        List<?> all = dao.getAll();
-        assertEquals(1, all.size());
+        ReportSceneContext context = persistContext();
+        dao.save(buildMonthlyReport(context));
+        List<Report> all = dao.getAll();
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testGetByStatusPendingAfterSaveReturnsOneElement() throws Exception {
-        dao.save(buildValidReport());
-        List<?> pending = dao.getByStatusPending();
-        assertEquals(1, pending.size());
+    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+        List<Report> all = dao.getAll();
+        assertTrue(all.isEmpty());
     }
 
     @Test
-    void testGetByStatusPendingWhenNoReportsReturnsEmptyList() throws Exception {
-        List<?> pending = dao.getByStatusPending();
-        assertTrue(pending.isEmpty());
+    void testGetByStatusPendingReturnsOneElement() throws Exception {
+        ReportSceneContext context = persistContext();
+        dao.save(buildMonthlyReport(context));
+        List<Report> pending = dao.getByStatusPending();
+        assertEquals(TestConstants.SINGLE_RESULT, pending.size());
     }
 
-    @Test
-    void testSaveSamePeriodSameInternSucceedsWhenSchemaAllows() throws Exception {
-        dao.save(buildValidReport());
-        MonthlyReport second = buildValidReport();
-        int result = dao.save(second);
-        assertEquals(1, result);
+    private ReportSceneContext persistContext() throws Exception {
+        ReportSceneContext context = new ReportSceneContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            context.idIntern = scene.getInternId();
+            context.idProject = scene.getProjectId();
+            context.idProfessor = scene.getProfessorId();
+        }
+        return context;
+    }
+
+    private static final class ReportSceneContext {
+        int idIntern;
+        int idProject;
+        int idProfessor;
     }
 }

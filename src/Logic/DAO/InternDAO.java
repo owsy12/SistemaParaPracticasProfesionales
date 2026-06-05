@@ -261,7 +261,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
     private Intern mapIntern(ResultSet resultSet) throws SQLException {
         Intern intern = new Intern();
         intern.setId(resultSet.getInt("id_usuario"));
-        intern.setMatricula(resultSet.getString("matricula"));
+        intern.setRegistrationNumber(resultSet.getString("matricula"));
         intern.setFirstName(resultSet.getString("nombre"));
         intern.setLastName(resultSet.getString("apellido_paterno"));
         intern.setSecondLastName(resultSet.getString("apellido_materno"));

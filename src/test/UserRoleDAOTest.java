@@ -6,133 +6,149 @@ import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserRoleDAOTest extends BaseDAOTest {
 
-    private static final int NEW_USER_ID = 50;
-    private static final String STATUS_INACTIVE = "Inactivo";
-    private static final String ROLE_ADMINISTRATOR = "Administrador";
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -3;
+    private static final String NEW_USER_REGISTRATION_NUMBER = "X50000001";
+    private static final String NEW_USER_EMAIL = "rol.test@uv.mx";
 
     private final UserRoleDAO dao = new UserRoleDAO();
 
-    private void insertSupportUser() throws Exception {
-        try (Connection connection = DataBaseConnection.connectDatabase();
-             Statement statement = connection.createStatement()) {
-            statement.execute(
-                "INSERT INTO usuario (id_usuario, matricula, nombre, apellido_paterno, " +
-                "apellido_materno, contrasenia, correo) VALUES (" + NEW_USER_ID +
-                ", 'X50000050', 'Iván', 'López', 'Soto', '$2b$10$hashIvan', 'ivan.lopez@uv.mx')"
-            );
-        }
-    }
-
-    private User buildUser(int id, String role) {
+    private User buildUserWithIdAndRole(int idUser, String role) {
         User user = new User();
-        user.setId(id);
+        user.setId(idUser);
         user.setRole(role);
+        user.setStatus(TestConstants.STATUS_ACTIVE_USER);
         return user;
     }
 
     @Test
     void testSaveUserRoleWithZeroIdThrowsValidationException() {
-        User user = buildUser(INVALID_ID_ZERO, ROLE_ADMINISTRATOR);
+        User user = buildUserWithIdAndRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_ADMINISTRATOR);
         assertThrows(ValidationException.class, () -> dao.saveUserRole(user));
     }
 
     @Test
     void testSaveUserRoleValidReturnsTrue() throws Exception {
-        insertSupportUser();
-        boolean result = dao.saveUserRole(buildUser(NEW_USER_ID, ROLE_ADMINISTRATOR));
+        int idUser = persistStandaloneUser();
+        boolean result = dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         assertTrue(result);
     }
 
     @Test
     void testSaveDuplicateUserRoleThrowsDuplicateEntryException() throws Exception {
+        int idUser = persistStandaloneUser();
+        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         assertThrows(DuplicateEntryException.class,
-                () -> dao.saveUserRole(buildUser(ID_INTERN, ROLE_INTERN)));
+                () -> dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR)));
     }
 
     @Test
-    void testFindRolesByUserIdAfterSupportInsertReturnsOne() throws Exception {
-        List<String> roles = dao.findRolesByUserId(ID_INTERN);
-        assertEquals(1, roles.size());
+    void testFindRolesByUserIdAfterSaveReturnsOneRole() throws Exception {
+        int idUser = persistStandaloneUser();
+        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        List<String> roles = dao.findRolesByUserId(idUser);
+        assertEquals(TestConstants.SINGLE_RESULT, roles.size());
     }
 
     @Test
     void testFindRolesByUserIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findRolesByUserId(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class,
+                () -> dao.findRolesByUserId(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testFindRolesByUserIdWithNegativeIdThrowsValidationException() {
         assertThrows(ValidationException.class,
-                () -> dao.findRolesByUserId(INVALID_ID_NEGATIVE));
+                () -> dao.findRolesByUserId(TestConstants.INVALID_ID_NEGATIVE));
     }
 
     @Test
-    void testFindUsersByRoleReturnsSupportIntern() throws Exception {
-        List<Map<String, Object>> users = dao.findUsersByRole(ROLE_INTERN);
-        assertEquals(1, users.size());
+    void testFindUsersByRoleReturnsOneUser() throws Exception {
+        int idUser = persistStandaloneUser();
+        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        List<Map<String, Object>> users = dao.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
+        assertEquals(TestConstants.SINGLE_RESULT, users.size());
     }
 
     @Test
-    void testFindUsersByRoleWithUnknownRoleReturnsEmptyList() throws Exception {
-        List<Map<String, Object>> users = dao.findUsersByRole(ROLE_ADMINISTRATOR);
+    void testFindUsersByRoleWithUnusedRoleReturnsEmptyList() throws Exception {
+        List<Map<String, Object>> users = dao.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
         assertTrue(users.isEmpty());
     }
 
     @Test
     void testDeleteUserRoleReturnsTrue() throws Exception {
-        boolean result = dao.deleteUserRole(ID_INTERN, ROLE_INTERN);
+        int idUser = persistStandaloneUser();
+        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        boolean result = dao.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
         assertTrue(result);
     }
 
     @Test
     void testDeleteUserRoleWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class,
-                () -> dao.deleteUserRole(INVALID_ID_ZERO, ROLE_INTERN));
+                () -> dao.deleteUserRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_INTERN));
     }
 
     @Test
-    void testDeleteUserRoleWithNonExistentReturnsFalse() throws Exception {
-        boolean result = dao.deleteUserRole(ID_INTERN, ROLE_ADMINISTRATOR);
+    void testDeleteNonExistentUserRoleReturnsFalse() throws Exception {
+        int idUser = persistStandaloneUser();
+        boolean result = dao.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
         assertFalse(result);
     }
 
     @Test
     void testUpdateUserRoleStatusReturnsTrue() throws Exception {
-        User user = buildUser(ID_INTERN, ROLE_INTERN);
-        user.setStatus(STATUS_INACTIVE);
+        int idUser = persistStandaloneUser();
+        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        User user = buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
+        user.setStatus(TestConstants.STATUS_INACTIVE_USER);
         boolean result = dao.updateUserRolStatus(user);
         assertTrue(result);
     }
 
     @Test
     void testUpdateUserRoleStatusWithZeroIdThrowsValidationException() {
-        User user = buildUser(INVALID_ID_ZERO, ROLE_INTERN);
-        user.setStatus(STATUS_INACTIVE);
+        User user = buildUserWithIdAndRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_INTERN);
+        user.setStatus(TestConstants.STATUS_INACTIVE_USER);
         assertThrows(ValidationException.class, () -> dao.updateUserRolStatus(user));
     }
 
     @Test
-    void testGetActiveRolsByUserIdReturnsOne() throws Exception {
-        List<String> active = dao.getActiveRolsByUserId(ID_INTERN);
-        assertEquals(1, active.size());
+    void testGetActiveRolesByUserIdReturnsOneActiveRole() throws Exception {
+        int idUser = persistStandaloneUser();
+        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        List<String> active = dao.getActiveRolsByUserId(idUser);
+        assertEquals(TestConstants.SINGLE_RESULT, active.size());
     }
 
     @Test
-    void testGetActiveRolsByUserIdReturnsEmptyForInactivatedRole() throws Exception {
-        User user = buildUser(ID_INTERN, ROLE_INTERN);
-        user.setStatus(STATUS_INACTIVE);
+    void testGetActiveRolesByUserIdReturnsEmptyForInactiveRole() throws Exception {
+        int idUser = persistStandaloneUser();
+        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        User user = buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
+        user.setStatus(TestConstants.STATUS_INACTIVE_USER);
         dao.updateUserRolStatus(user);
-        List<String> active = dao.getActiveRolsByUserId(ID_INTERN);
+        List<String> active = dao.getActiveRolsByUserId(idUser);
         assertTrue(active.isEmpty());
+    }
+
+    private int persistStandaloneUser() throws Exception {
+        int idUser;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idUser = new UserTestDataBuilder()
+                    .withRegistrationNumber(NEW_USER_REGISTRATION_NUMBER)
+                    .withEmail(NEW_USER_EMAIL)
+                    .persist(connection);
+        }
+        return idUser;
     }
 }

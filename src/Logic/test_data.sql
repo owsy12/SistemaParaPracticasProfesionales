@@ -51,5 +51,5 @@ INSERT INTO reporte (id_reporte, id_practicante, id_proyecto, tipo_reporte,
 VALUES (1, 1, 1, 'Parcial', '2025-01', '/docs/reporte_1.pdf', 'Pendiente');
 
 INSERT INTO reporte_parcial_y_final (id_reporte_parcial, numero_informe, horas_cubiertas,
-                                     objetivo_general, metodologia, resultados_obtenidos, observaciones)
-VALUES (1, 1, 40, 'Desarrollar módulo de inventario', 'Scrum', 'Módulo de inventario completado', 'Sin observaciones');
+                                     objetivo_general, metodologia, resultados_obtenidos, observations)
+VALUES (1, 1, 40, 'Desarrollar módulo de inventario', 'Scrum', 'Módulo de inventario completado', 'Sin observations');

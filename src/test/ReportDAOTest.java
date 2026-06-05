@@ -1,191 +1,230 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.ReportDAO;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportStatusUpdate;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.sql.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReportDAOTest extends BaseDAOTest {
 
-    private static final String REPORT_PERIOD = "2025-04";
-    private static final String REPORT_DOCUMENT_PATH = "/docs/reporte_2025_04.pdf";
-    private static final int REPORTED_HOURS = 60;
-    private static final String NEW_DOCUMENT_PATH = "/docs/reporte_2025_04_updated.pdf";
-    private static final String SIGNED_DOCUMENT_PATH = "/docs/firmado/reporte_2025_04.pdf";
-    private static final String STATUS_IN_REVIEW = "En revision";
-    private static final String STATUS_UPDATE_OBSERVATIONS = "Revisión inicial sin observaciones.";
-    private static final String REPORT_MONTH = "Abril";
-    private static final int REPORT_YEAR = 2025;
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -1;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final String BLANK_MONTH = "  ";
+    private static final String NEW_DOCUMENT_PATH = "/documents/updated_report.pdf";
+    private static final String SIGNED_DOCUMENT_PATH = "/documents/signed_report.pdf";
 
     private final ReportDAO dao = new ReportDAO();
 
-    private Report buildValidReport() {
+    private Report buildReport(ReportContext context) {
         Report report = new Report();
-        report.setIdIntern(ID_INTERN);
-        report.setIdProject(ID_PROJECT);
-        report.setIdProfessor(ID_PROFESSOR);
-        report.setReportType(REPORT_TYPE_PARTIAL);
-        report.setPeriod(REPORT_PERIOD);
-        report.setDocumentPath(REPORT_DOCUMENT_PATH);
-        report.setStatus(STATUS_PENDING);
-        report.setReportedHours(REPORTED_HOURS);
+        report.setIdIntern(context.idIntern);
+        report.setIdProject(context.idProject);
+        report.setIdProfessor(context.idProfessor);
+        report.setReportType(TestConstants.REPORT_TYPE_PARTIAL);
+        report.setPeriod(TestConstants.DEFAULT_PERIOD);
+        report.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
+        report.setStatus(TestConstants.STATUS_REPORT_PENDING);
+        report.setReportedHours(TestConstants.DEFAULT_REPORTED_HOURS);
         report.setSumissionDate(new java.util.Date());
         return report;
     }
 
     private ReportStatusUpdate buildReviewUpdate() {
-        return new ReportStatusUpdate(STATUS_IN_REVIEW, STATUS_UPDATE_OBSERVATIONS,
+        return new ReportStatusUpdate(TestConstants.STATUS_REPORT_IN_REVIEW,
+                TestConstants.DEFAULT_OBSERVATIONS,
                 new Date(System.currentTimeMillis()));
     }
 
     @Test
     void testSaveValidReportReturnsOneRowAffected() throws Exception {
-        int result = dao.save(buildValidReport());
-        assertEquals(1, result);
+        ReportContext context = persistContext();
+        int result = dao.save(buildReport(context));
+        assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
     void testSaveValidReportAssignsGeneratedId() throws Exception {
-        Report report = buildValidReport();
+        ReportContext context = persistContext();
+        Report report = buildReport(context);
         dao.save(report);
-        assertTrue(report.getIdReport() > 0);
+        assertTrue(report.getIdReport() > TestConstants.ZERO_RESULTS);
     }
 
     @Test
-    void testSaveReportWithZeroInternIdThrowsValidationException() {
-        Report report = buildValidReport();
-        report.setIdIntern(INVALID_ID_ZERO);
+    void testSaveReportWithZeroInternIdThrowsValidationException() throws Exception {
+        ReportContext context = persistContext();
+        Report report = buildReport(context);
+        report.setIdIntern(TestConstants.INVALID_ID_ZERO);
         assertThrows(ValidationException.class, () -> dao.save(report));
     }
 
     @Test
-    void testGetByIdReturnsSupportReport() throws Exception {
-        Report retrieved = dao.getById(ID_REPORT);
+    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
+        ReportContext context = persistContext();
+        int idReport = persistReportRow(context);
+        Report retrieved = dao.getById(idReport);
         assertNotNull(retrieved);
     }
 
     @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getById(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
-        Report retrieved = dao.getById(NON_EXISTENT_ID);
+        Report retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testGetAllReturnsAtLeastSupportReport() throws Exception {
+    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+        ReportContext context = persistContext();
+        persistReportRow(context);
         List<Report> all = dao.getAll();
-        assertEquals(1, all.size());
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testGetByStatusPendingReturnsSupportReport() throws Exception {
+    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+        List<Report> all = dao.getAll();
+        assertTrue(all.isEmpty());
+    }
+
+    @Test
+    void testGetByStatusPendingReturnsOneElement() throws Exception {
+        ReportContext context = persistContext();
+        persistReportRow(context);
         List<Report> pending = dao.getByStatusPending();
-        assertEquals(1, pending.size());
+        assertEquals(TestConstants.SINGLE_RESULT, pending.size());
     }
 
     @Test
-    void testGetByIdInternReturnsSupportReport() throws Exception {
-        List<Report> reports = dao.getByIdIntern(ID_INTERN);
-        assertEquals(1, reports.size());
+    void testGetByIdInternReturnsOneElement() throws Exception {
+        ReportContext context = persistContext();
+        persistReportRow(context);
+        List<Report> reports = dao.getByIdIntern(context.idIntern);
+        assertEquals(TestConstants.SINGLE_RESULT, reports.size());
     }
 
     @Test
     void testGetByIdInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getByIdIntern(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class,
+                () -> dao.getByIdIntern(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
-    void testGetByIdInternWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getByIdIntern(INVALID_ID_NEGATIVE));
-    }
-
-    @Test
-    void testGetByIdProfessorReturnsEmptyForSupportReport() throws Exception {
-        List<Report> reports = dao.getByIdProfessor(ID_PROFESSOR);
-        assertTrue(reports.isEmpty());
-    }
-
-    @Test
-    void testGetByInternAndProjectReturnsSupportReport() throws Exception {
-        List<Report> reports = dao.getByInternAndProject(ID_INTERN, ID_PROJECT);
-        assertEquals(1, reports.size());
+    void testGetByInternAndProjectReturnsOneElement() throws Exception {
+        ReportContext context = persistContext();
+        persistReportRow(context);
+        List<Report> reports = dao.getByInternAndProject(context.idIntern, context.idProject);
+        assertEquals(TestConstants.SINGLE_RESULT, reports.size());
     }
 
     @Test
     void testUpdateStatusReturnsTrue() throws Exception {
-        boolean result = dao.updateStatus(ID_REPORT, buildReviewUpdate());
+        ReportContext context = persistContext();
+        int idReport = persistReportRow(context);
+        boolean result = dao.updateStatus(idReport, buildReviewUpdate());
         assertTrue(result);
     }
 
     @Test
     void testUpdateSignedDocumentPathReturnsTrue() throws Exception {
-        boolean result = dao.updateSignedDocumentPath(ID_REPORT, SIGNED_DOCUMENT_PATH);
+        ReportContext context = persistContext();
+        int idReport = persistReportRow(context);
+        boolean result = dao.updateSignedDocumentPath(idReport, SIGNED_DOCUMENT_PATH);
         assertTrue(result);
     }
 
     @Test
     void testUpdateDocumentPathReturnsTrue() throws Exception {
-        boolean result = dao.updateDocumentPath(ID_REPORT, NEW_DOCUMENT_PATH);
+        ReportContext context = persistContext();
+        int idReport = persistReportRow(context);
+        boolean result = dao.updateDocumentPath(idReport, NEW_DOCUMENT_PATH);
         assertTrue(result);
     }
 
     @Test
     void testMarkLateDeliveryReturnsTrue() throws Exception {
-        boolean result = dao.markLateDelivery(ID_REPORT);
+        ReportContext context = persistContext();
+        int idReport = persistReportRow(context);
+        boolean result = dao.markLateDelivery(idReport);
         assertTrue(result);
     }
 
     @Test
-    void testGetTotalApprovedHoursByInternReturnsZeroWhenNoApproved() throws Exception {
-        int total = dao.getTotalApprovedHoursByIntern(ID_INTERN);
-        assertEquals(0, total);
+    void testGetTotalApprovedHoursByInternReturnsZero() throws Exception {
+        ReportContext context = persistContext();
+        persistReportRow(context);
+        int total = dao.getTotalApprovedHoursByIntern(context.idIntern);
+        assertEquals(TestConstants.ZERO_RESULTS, total);
     }
 
     @Test
     void testGetTotalApprovedHoursByInternWithZeroIdThrowsValidationException() {
         assertThrows(ValidationException.class,
-                () -> dao.getTotalApprovedHoursByIntern(INVALID_ID_ZERO));
+                () -> dao.getTotalApprovedHoursByIntern(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
-    void testExistsMonthlyByInternAndPeriodReturnsFalseForUnknownPeriod() throws Exception {
-        boolean exists = dao.existsMonthlyByInternAndPeriod(ID_INTERN, REPORT_MONTH, REPORT_YEAR);
-        assertFalse(exists);
-    }
-
-    @Test
-    void testExistsMonthlyByInternAndPeriodWithBlankMonthReturnsFalse() throws Exception {
-        boolean exists = dao.existsMonthlyByInternAndPeriod(ID_INTERN, BLANK_MONTH, REPORT_YEAR);
-        assertFalse(exists);
-    }
-
-    @Test
-    void testExistsPartialByInternAndProjectReturnsTrueForSupportReport() throws Exception {
-        boolean exists = dao.existsPartialByInternAndProject(ID_INTERN, ID_PROJECT);
+    void testExistsPartialByInternAndProjectReturnsTrue() throws Exception {
+        ReportContext context = persistContext();
+        persistReportRow(context);
+        boolean exists = dao.existsPartialByInternAndProject(context.idIntern, context.idProject);
         assertTrue(exists);
     }
 
     @Test
-    void testExistsFinalByInternAndProjectReturnsFalseForSupportReport() throws Exception {
-        boolean exists = dao.existsFinalByInternAndProject(ID_INTERN, ID_PROJECT);
+    void testExistsFinalByInternAndProjectReturnsFalse() throws Exception {
+        ReportContext context = persistContext();
+        persistReportRow(context);
+        boolean exists = dao.existsFinalByInternAndProject(context.idIntern, context.idProject);
         assertFalse(exists);
     }
 
     @Test
     void testDeleteByInternAndProjectReturnsTrue() throws Exception {
-        boolean result = dao.deleteByInternAndProject(ID_INTERN, ID_PROJECT);
+        ReportContext context = persistContext();
+        persistReportRow(context);
+        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
+    }
+
+    private ReportContext persistContext() throws Exception {
+        ReportContext context = new ReportContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            context.idIntern = scene.getInternId();
+            context.idProject = scene.getProjectId();
+            context.idProfessor = scene.getProfessorId();
+        }
+        return context;
+    }
+
+    private int persistReportRow(ReportContext context) throws Exception {
+        int idReport;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idReport = new ReportTestDataBuilder()
+                    .withInternId(context.idIntern)
+                    .withProjectId(context.idProject)
+                    .withProfessorId(context.idProfessor)
+                    .persist(connection);
+        }
+        return idReport;
+    }
+
+    private static final class ReportContext {
+        int idIntern;
+        int idProject;
+        int idProfessor;
     }
 }

@@ -8,12 +8,12 @@ public class Intern extends User {
         super();
     }
 
-    public Intern(int id, String matricula, String firstName,
+    public Intern(int id, String registrationNumber, String firstName,
                      String lastName, String secondLastName,
                      String password, String status,
                      int credits) {
 
-        super(id, matricula, firstName, lastName, secondLastName, password, status);
+        super(id, registrationNumber, firstName, lastName, secondLastName, password, status);
         this.credits = credits;
     }
 

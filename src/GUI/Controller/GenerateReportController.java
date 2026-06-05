@@ -628,11 +628,11 @@ public class GenerateReportController {
     }
 
     private ReportActivity buildPartialActivity(Activity activity, String realWeeks,
-                                                 String observaciones) {
+                                                 String observations) {
         ReportActivity reportActivity = createReportActivity(activity);
         reportActivity.setWeeklyPlan("1:8");
         reportActivity.setRealWeeks(realWeeks);
-        reportActivity.setObservation(observaciones);
+        reportActivity.setObservation(observations);
         return reportActivity;
     }
 
@@ -1039,7 +1039,7 @@ public class GenerateReportController {
 
         ReportGenerationContext generationContext = new ReportGenerationContextBuilder()
                 .internFullName(buildFullName(currentIntern))
-                .matricula(currentIntern.getMatricula())
+                .registrationNumber(currentIntern.getRegistrationNumber())
                 .nrc(projectNrc)
                 .organizationName(organizationName)
                 .technicianName(buildFullName(currentSupervisor))

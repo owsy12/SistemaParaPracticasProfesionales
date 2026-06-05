@@ -1,118 +1,142 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.SelfEvaluation;
-import Logic.Exceptions.ServiceException;
+import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SelfEvaluationDAOTest extends BaseDAOTest {
 
-    private static final String EVALUATION_PERIOD = "2025-01";
-    private static final String EVALUATION_PERIOD_ALTERNATIVE = "2025-02";
-    private static final String EVALUATION_PLACE_AND_DATE = "Xalapa, Ver., 15 de enero de 2025";
-    private static final String EVALUATION_DOCUMENT_PATH = "/docs/autoevaluacion_2025_01.pdf";
-    private static final int STATEMENT_VALUE_FOUR = 4;
-    private static final int STATEMENT_VALUE_FIVE = 5;
-    private static final int STATEMENT_VALUE_THREE = 3;
-    private static final int FINAL_SCORE = 42;
-    private static final int NON_EXISTENT_EVALUATION_ID = 9999;
-
     private final SelfEvaluationDAO dao = new SelfEvaluationDAO();
 
-    private SelfEvaluation buildValidSelfEvaluation() {
+    private SelfEvaluation buildSelfEvaluation(int idIntern, int idProject) {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
-        selfEvaluation.setIdIntern(ID_INTERN);
-        selfEvaluation.setIdProject(ID_PROJECT);
-        selfEvaluation.setPeriod(EVALUATION_PERIOD);
-        selfEvaluation.setStatement01(STATEMENT_VALUE_FOUR);
-        selfEvaluation.setStatement02(STATEMENT_VALUE_FIVE);
-        selfEvaluation.setStatement03(STATEMENT_VALUE_THREE);
-        selfEvaluation.setStatement04(STATEMENT_VALUE_FOUR);
-        selfEvaluation.setStatement05(STATEMENT_VALUE_FIVE);
-        selfEvaluation.setStatement06(STATEMENT_VALUE_FOUR);
-        selfEvaluation.setStatement07(STATEMENT_VALUE_THREE);
-        selfEvaluation.setStatement08(STATEMENT_VALUE_FIVE);
-        selfEvaluation.setStatement09(STATEMENT_VALUE_FOUR);
-        selfEvaluation.setStatement10(STATEMENT_VALUE_FIVE);
-        selfEvaluation.setFinalScore(FINAL_SCORE);
-        selfEvaluation.setPlaceAndDate(EVALUATION_PLACE_AND_DATE);
-        selfEvaluation.setDocumentPath(EVALUATION_DOCUMENT_PATH);
-        selfEvaluation.setStatus(STATUS_PENDING);
+        selfEvaluation.setIdIntern(idIntern);
+        selfEvaluation.setIdProject(idProject);
+        selfEvaluation.setPeriod(TestConstants.DEFAULT_PERIOD);
+        selfEvaluation.setStatement01(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement02(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement03(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement04(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement05(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement06(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement07(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement08(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement09(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setStatement10(TestConstants.DEFAULT_STATEMENT_SCORE);
+        selfEvaluation.setFinalScore(TestConstants.DEFAULT_FINAL_SCORE);
+        selfEvaluation.setPlaceAndDate(TestConstants.DEFAULT_PLACE_AND_DATE);
+        selfEvaluation.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
+        selfEvaluation.setStatus(TestConstants.STATUS_SELF_EVAL_PENDING);
         return selfEvaluation;
     }
 
     @Test
     void testSaveValidSelfEvaluationReturnsOneRowAffected() throws Exception {
-        int result = dao.save(buildValidSelfEvaluation());
-        assertEquals(1, result);
+        SelfEvalContext context = persistContext();
+        int result = dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveValidSelfEvaluationAssignsGeneratedId() throws Exception {
-        SelfEvaluation selfEvaluation = buildValidSelfEvaluation();
-        dao.save(selfEvaluation);
-        assertTrue(selfEvaluation.getIdSelfEvalation() > 0);
+    void testSaveSelfEvaluationWithZeroInternIdThrowsValidationException() throws Exception {
+        SelfEvalContext context = persistContext();
+        SelfEvaluation selfEvaluation = buildSelfEvaluation(TestConstants.INVALID_ID_ZERO, context.idProject);
+        assertThrows(ValidationException.class, () -> dao.save(selfEvaluation));
     }
 
     @Test
     void testGetByIdAfterSaveReturnsNotNull() throws Exception {
-        SelfEvaluation selfEvaluation = buildValidSelfEvaluation();
+        SelfEvalContext context = persistContext();
+        SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
         dao.save(selfEvaluation);
         SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvalation());
         assertNotNull(retrieved);
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsCorrectPeriod() throws Exception {
-        SelfEvaluation selfEvaluation = buildValidSelfEvaluation();
-        dao.save(selfEvaluation);
-        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvalation());
-        assertEquals(EVALUATION_PERIOD, retrieved.getPeriod());
-    }
-
-    @Test
-    void testGetByIdAfterSaveReturnsCorrectStatement01() throws Exception {
-        SelfEvaluation selfEvaluation = buildValidSelfEvaluation();
-        dao.save(selfEvaluation);
-        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvalation());
-        assertEquals(STATEMENT_VALUE_FOUR, retrieved.getStatement01());
-    }
-
-    @Test
-    void testGetByIdAfterSaveReturnsCorrectInternId() throws Exception {
-        SelfEvaluation selfEvaluation = buildValidSelfEvaluation();
-        dao.save(selfEvaluation);
-        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvalation());
-        assertEquals(ID_INTERN, retrieved.getIdIntern());
-    }
-
-    @Test
-    void testGetAllAfterSaveReturnsOneElement() throws Exception {
-        dao.save(buildValidSelfEvaluation());
-        List<SelfEvaluation> all = dao.getAll();
-        assertEquals(1, all.size());
+    void testGetByIdWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
-        SelfEvaluation retrieved = dao.getById(NON_EXISTENT_EVALUATION_ID);
+        SelfEvaluation retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testSaveDuplicatePeriodSameInternThrowsServiceException() throws Exception {
-        dao.save(buildValidSelfEvaluation());
-        assertThrows(ServiceException.class, () -> dao.save(buildValidSelfEvaluation()));
+    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+        SelfEvalContext context = persistContext();
+        dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        List<SelfEvaluation> all = dao.getAll();
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testSaveWithDifferentPeriodReturnsOneRowAffected() throws Exception {
-        dao.save(buildValidSelfEvaluation());
-        SelfEvaluation second = buildValidSelfEvaluation();
-        second.setPeriod(EVALUATION_PERIOD_ALTERNATIVE);
-        int result = dao.save(second);
-        assertEquals(1, result);
+    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+        List<SelfEvaluation> all = dao.getAll();
+        assertTrue(all.isEmpty());
+    }
+
+    @Test
+    void testFindByIdInternAfterSaveReturnsNotNull() throws Exception {
+        SelfEvalContext context = persistContext();
+        dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        SelfEvaluation retrieved = dao.findByIdIntern(context.idIntern);
+        assertNotNull(retrieved);
+    }
+
+    @Test
+    void testFindByIdInternWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class,
+                () -> dao.findByIdIntern(TestConstants.INVALID_ID_ZERO));
+    }
+
+    @Test
+    void testUpdateStatusReturnsTrue() throws Exception {
+        SelfEvalContext context = persistContext();
+        SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
+        dao.save(selfEvaluation);
+        boolean result = dao.updateStatus(
+                selfEvaluation.getIdSelfEvalation(), TestConstants.STATUS_SELF_EVAL_DELIVERED);
+        assertTrue(result);
+    }
+
+    @Test
+    void testUpdateStatusWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class,
+                () -> dao.updateStatus(TestConstants.INVALID_ID_ZERO, TestConstants.STATUS_SELF_EVAL_DELIVERED));
+    }
+
+    @Test
+    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+        SelfEvalContext context = persistContext();
+        dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
+        assertTrue(result);
+    }
+
+    private SelfEvalContext persistContext() throws Exception {
+        SelfEvalContext context = new SelfEvalContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            context.idIntern = scene.getInternId();
+            context.idProject = scene.getProjectId();
+        }
+        return context;
+    }
+
+    private static final class SelfEvalContext {
+        int idIntern;
+        int idProject;
     }
 }

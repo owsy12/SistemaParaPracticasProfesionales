@@ -1,152 +1,188 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.UserDAO;
 import Logic.DTOs.User;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
-import java.sql.Statement;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserDAOTest extends BaseDAOTest {
 
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -7;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final String EXPECTED_INTERN_MATRICULA = "S21013142";
-    private static final String EXPECTED_INTERN_EMAIL = "ana.garcia@uv.mx";
-    private static final String NON_EXISTENT_MATRICULA = "Z99999999";
-    private static final String UPDATED_FIRST_NAME = "Ana María";
-    private static final String STATUS_UPDATED = "Activo";
-    private static final int STANDALONE_USER_ID = 80;
-    private static final String STANDALONE_MATRICULA = "Y80808080";
-    private static final String STANDALONE_EMAIL = "standalone@uv.mx";
+    private static final String NEW_USER_REGISTRATION_NUMBER = "S40000001";
+    private static final String NEW_USER_EMAIL = "nuevo.usuario@uv.mx";
+    private static final String NEW_USER_FIRST_NAME = "Mario";
+    private static final String NEW_USER_LAST_NAME = "Hernández";
+    private static final String UPDATED_FIRST_NAME = "Mario Antonio";
+    private static final String NON_EXISTENT_REGISTRATION_NUMBER = "Z99999999";
 
-    private UserDAO createDao() throws Exception {
+    private User buildUser(String registrationNumber, String email) {
+        User user = new User();
+        user.setRegistrationNumber(registrationNumber);
+        user.setFirstName(NEW_USER_FIRST_NAME);
+        user.setLastName(NEW_USER_LAST_NAME);
+        user.setSecondLastName(NEW_USER_LAST_NAME);
+        user.setPassword(TestConstants.DEFAULT_PASSWORD_HASH);
+        user.setEmail(email);
+        user.setStatus(TestConstants.STATUS_ACTIVE_USER);
+        user.setRole(TestConstants.ROLE_INTERN);
+        return user;
+    }
+
+    private UserDAO buildDao() throws ServiceException {
         return new UserDAO();
     }
 
-    private void insertStandaloneUser() throws Exception {
-        try (Connection connection = DataBaseConnection.connectDatabase();
-             Statement statement = connection.createStatement()) {
-            statement.execute(
-                "INSERT INTO usuario (id_usuario, matricula, nombre, apellido_paterno, " +
-                "apellido_materno, contrasenia, correo) VALUES (" + STANDALONE_USER_ID +
-                ", '" + STANDALONE_MATRICULA + "', 'Solo', 'Sin', 'Deps', '$2b$10$hashSolo'," +
-                " '" + STANDALONE_EMAIL + "')"
-            );
-        }
+    @Test
+    void testSaveValidUserAssignsGeneratedId() throws Exception {
+        UserDAO dao = buildDao();
+        int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
-    void testFindByIdReturnsSupportIntern() throws Exception {
-        UserDAO dao = createDao();
-        User retrieved = dao.findById(ID_INTERN);
-        assertNotNull(retrieved);
-    }
-
-    @Test
-    void testFindByIdReturnsCorrectMatricula() throws Exception {
-        UserDAO dao = createDao();
-        User retrieved = dao.findById(ID_INTERN);
-        assertEquals(EXPECTED_INTERN_MATRICULA, retrieved.getMatricula());
+    void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws Exception {
+        UserDAO dao = buildDao();
+        int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        User retrieved = dao.findById(generatedId);
+        assertEquals(NEW_USER_REGISTRATION_NUMBER, retrieved.getRegistrationNumber());
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() throws Exception {
-        UserDAO dao = createDao();
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
+        UserDAO dao = buildDao();
+        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
     }
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() throws Exception {
-        UserDAO dao = createDao();
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_NEGATIVE));
+        UserDAO dao = buildDao();
+        assertThrows(ValidationException.class,
+                () -> dao.findById(TestConstants.INVALID_ID_NEGATIVE));
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        UserDAO dao = createDao();
-        User retrieved = dao.findById(NON_EXISTENT_ID);
+        UserDAO dao = buildDao();
+        User retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllReturnsThreeSupportUsers() throws Exception {
-        UserDAO dao = createDao();
+    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+        UserDAO dao = buildDao();
         List<User> all = dao.findAll();
-        assertEquals(3, all.size());
+        assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindByIdentifierWithMatriculaReturnsUser() throws Exception {
-        UserDAO dao = createDao();
-        User retrieved = dao.findByIdentifier(EXPECTED_INTERN_MATRICULA);
+    void testFindAllAfterSaveReturnsOneElement() throws Exception {
+        UserDAO dao = buildDao();
+        dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        List<User> all = dao.findAll();
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+    }
+
+    @Test
+    void testFindByIdentifierByRegistrationNumberReturnsUser() throws Exception {
+        UserDAO dao = buildDao();
+        dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        User retrieved = dao.findByIdentifier(NEW_USER_REGISTRATION_NUMBER);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByIdentifierWithEmailReturnsUser() throws Exception {
-        UserDAO dao = createDao();
-        User retrieved = dao.findByIdentifier(EXPECTED_INTERN_EMAIL);
+    void testFindByIdentifierByEmailReturnsUser() throws Exception {
+        UserDAO dao = buildDao();
+        dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        User retrieved = dao.findByIdentifier(NEW_USER_EMAIL);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdentifierWithUnknownReturnsNull() throws Exception {
-        UserDAO dao = createDao();
-        User retrieved = dao.findByIdentifier(NON_EXISTENT_MATRICULA);
+        UserDAO dao = buildDao();
+        User retrieved = dao.findByIdentifier(NON_EXISTENT_REGISTRATION_NUMBER);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByEmailReturnsCorrectMatricula() throws Exception {
-        UserDAO dao = createDao();
-        User retrieved = dao.findByEmail(EXPECTED_INTERN_EMAIL);
-        assertEquals(EXPECTED_INTERN_MATRICULA, retrieved.getMatricula());
+    void testFindByEmailReturnsCorrectRegistrationNumber() throws Exception {
+        UserDAO dao = buildDao();
+        dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        User retrieved = dao.findByEmail(NEW_USER_EMAIL);
+        assertEquals(NEW_USER_REGISTRATION_NUMBER, retrieved.getRegistrationNumber());
     }
 
     @Test
     void testUpdateUserReturnsTrue() throws Exception {
-        UserDAO dao = createDao();
-        User user = dao.findById(ID_INTERN);
+        UserDAO dao = buildDao();
+        int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        User user = dao.findById(generatedId);
         user.setFirstName(UPDATED_FIRST_NAME);
-        user.setStatus(STATUS_UPDATED);
+        user.setStatus(TestConstants.STATUS_ACTIVE_USER);
         boolean result = dao.update(user);
         assertTrue(result);
     }
 
     @Test
     void testUpdateUserPersistsNewFirstName() throws Exception {
-        UserDAO dao = createDao();
-        User user = dao.findById(ID_INTERN);
+        UserDAO dao = buildDao();
+        int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
+        User user = dao.findById(generatedId);
         user.setFirstName(UPDATED_FIRST_NAME);
-        user.setStatus(STATUS_UPDATED);
+        user.setStatus(TestConstants.STATUS_ACTIVE_USER);
         dao.update(user);
-        User retrieved = dao.findById(ID_INTERN);
+        User retrieved = dao.findById(generatedId);
         assertEquals(UPDATED_FIRST_NAME, retrieved.getFirstName());
     }
 
     @Test
-    void testDeleteWithZeroIdThrowsValidationException() throws Exception {
-        UserDAO dao = createDao();
-        assertThrows(ValidationException.class, () -> dao.delete(INVALID_ID_ZERO));
-    }
-
-    @Test
-    void testDeleteStandaloneUserReturnsTrue() throws Exception {
-        insertStandaloneUser();
-        UserDAO dao = createDao();
-        boolean result = dao.delete(STANDALONE_USER_ID);
+    void testDeleteUserReturnsTrue() throws Exception {
+        UserDAO dao = buildDao();
+        int generatedId = persistStandaloneUser();
+        boolean result = dao.delete(generatedId);
         assertTrue(result);
     }
 
     @Test
+    void testDeleteUserRemovesRecord() throws Exception {
+        UserDAO dao = buildDao();
+        int generatedId = persistStandaloneUser();
+        dao.delete(generatedId);
+        User retrieved = dao.findById(generatedId);
+        assertNull(retrieved);
+    }
+
+    @Test
+    void testDeleteUserWithZeroIdThrowsValidationException() throws Exception {
+        UserDAO dao = buildDao();
+        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
+    }
+
+    @Test
     void testDeleteNonExistentUserReturnsFalse() throws Exception {
-        UserDAO dao = createDao();
-        boolean result = dao.delete(NON_EXISTENT_ID);
+        UserDAO dao = buildDao();
+        boolean result = dao.delete(TestConstants.NON_EXISTENT_ID);
         assertFalse(result);
+    }
+
+    private int persistStandaloneUser() throws Exception {
+        int generatedId;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            generatedId = new UserTestDataBuilder()
+                    .withRegistrationNumber(NEW_USER_REGISTRATION_NUMBER)
+                    .withEmail(NEW_USER_EMAIL)
+                    .persist(connection);
+        }
+        return generatedId;
     }
 }
