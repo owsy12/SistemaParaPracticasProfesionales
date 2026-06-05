@@ -80,7 +80,7 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="220.0">
                                 <columns>
-                                    <TableColumn fx:id="numColumn" prefWidth="60.0" text="No.">
+                                    <TableColumn fx:id="numberColumn" prefWidth="60.0" text="No.">
                                         <cellValueFactory><PropertyValueFactory property="idReportDisplay"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="typeColumn" prefWidth="120.0" text="Tipo">
@@ -148,13 +148,13 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="170.0">
                                 <columns>
-                                    <TableColumn fx:id="actNameColumn" prefWidth="340.0" text="Actividad">
+                                    <TableColumn fx:id="activityNameColumn" prefWidth="340.0" text="Actividad">
                                         <cellValueFactory><PropertyValueFactory property="activityName"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="actPeriodColumn" prefWidth="220.0" text="Período">
+                                    <TableColumn fx:id="activityPeriodColumn" prefWidth="220.0" text="Período">
                                         <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="actObsColumn" prefWidth="240.0" text="Observaciones">
+                                    <TableColumn fx:id="activityObservationColumn" prefWidth="240.0" text="Observaciones">
                                         <cellValueFactory><PropertyValueFactory property="observaciones"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>
@@ -164,6 +164,10 @@
                             <RestrictedTextArea fx:id="observationsTextArea"
                                                 styleClass="formTextArea"
                                                 wrapText="true" prefHeight="90.0" maxWidth="Infinity"/>
+
+                            <Label text="Calificación del reporte (0 a 10):" styleClass="fieldLabelText"/>
+                            <RestrictedTextField fx:id="gradeTextField"
+                                                 styleClass="formTextField" maxWidth="120.0"/>
                         </VBox>
 
                         <HBox styleClass="formActionBarHBox" alignment="CENTER_LEFT" spacing="10.0">

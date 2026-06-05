@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -58,7 +59,7 @@ public class PracticeDAO implements IPracticeDAO {
             "WHERE id_practicante = ? AND nrc = ? AND estado = 'Cancelada' LIMIT 1";
 
     private static final String SQL_CONCLUDE_ACTIVE_BY_INTERN =
-            "UPDATE practica SET estado = 'Concluida' " +
+            "UPDATE practica SET estado = 'Concluida', calificacion = ? " +
             "WHERE id_practicante = ? AND estado = 'Activa'";
 
     private static final String SQL_UPDATE =
@@ -313,18 +314,28 @@ public class PracticeDAO implements IPracticeDAO {
         return hasConcluded;
     }
 
-    public boolean concludeActiveByIntern(int internId) throws ServiceException, ValidationException {
+    public boolean concludeActiveByIntern(int internId)
+            throws ServiceException, ValidationException {
+        return concludeActiveByIntern(internId, null);
+    }
+
+    public boolean concludeActiveByIntern(int internId, Double grade)
+            throws ServiceException, ValidationException {
         if (internId <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
         }
-
 
         boolean updated = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(SQL_CONCLUDE_ACTIVE_BY_INTERN)) {
 
+            if (grade == null) {
+                statement.setNull(1, Types.DECIMAL);
+            } else {
+                statement.setDouble(1, grade);
+            }
             statement.setInt(2, internId);
             updated = statement.executeUpdate() > 0;
 

@@ -331,9 +331,9 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     private void deleteProcess() {
         try {
-            ActivityDAO activityDAO = new ActivityDAO();
+            ActivityDAO activityDao = new ActivityDAO();
 
-            if (activityDAO.delete(selectedActivity.getIdActivity())) {
+            if (activityDao.delete(selectedActivity.getIdActivity())) {
                 showAlert("Actividad eliminada",
                         "La actividad fue eliminada correctamente.",
                         Alert.AlertType.INFORMATION);
@@ -391,9 +391,9 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     private void loadProjects() {
         try {
             int professorId = SessionManager.getInstance().getUsuario().getId();
-            ProjectDAO projectDAO = new ProjectDAO();
-            List<Project> projects = projectDAO.findByProfessorAvailable(professorId);
-            projectComboBox.getItems().setAll(projects);
+            ProjectDAO projectDao = new ProjectDAO();
+            List<Project> projectList = projectDao.findByProfessorAvailable(professorId);
+            projectComboBox.getItems().setAll(projectList);
 
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
@@ -408,8 +408,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     private void refreshActivities(int idProject) {
         try {
-            ActivityDAO activityDAO = new ActivityDAO();
-            List<Activity> activities = activityDAO.findByProject(idProject);
+            ActivityDAO activityDao = new ActivityDAO();
+            List<Activity> activities = activityDao.findByProject(idProject);
             activitiesTableView.setItems(FXCollections.observableArrayList(activities));
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
@@ -448,8 +448,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     }
 
     @Override
-    public void changed(ObservableValue<? extends Activity> observable,
-                        Activity oldValue, Activity newValue) {
+    public void changed(ObservableValue<? extends Activity> observable, Activity oldValue, Activity newValue) {
         if (newValue != null) {
             selectedActivity = newValue;
             populateForm(newValue);

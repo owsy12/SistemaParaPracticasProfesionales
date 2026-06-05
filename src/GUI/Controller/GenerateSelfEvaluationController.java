@@ -154,11 +154,11 @@ public class GenerateSelfEvaluationController {
 
     private void loadInternData(int internId) {
         try {
-            InternDAO internDAO = new InternDAO();
-            currentIntern = internDAO.findById(internId);
+            InternDAO internDao = new InternDAO();
+            currentIntern = internDao.findById(internId);
 
-            AssignmentDAO assignmentDAO = new AssignmentDAO();
-            Assignment activeAssignment = assignmentDAO.getActiveByIdIntern(internId);
+            AssignmentDAO assignmentDao = new AssignmentDAO();
+            Assignment activeAssignment = assignmentDao.getActiveByIdIntern(internId);
 
             if (activeAssignment == null) {
                 disableGenerationDueToMissingAssignment();
@@ -185,8 +185,8 @@ public class GenerateSelfEvaluationController {
 
     private void loadProjectData(Assignment activeAssignment)
             throws ValidationException, DuplicateEntryException, ServiceException {
-        ProjectDAO projectDAO = new ProjectDAO();
-        currentProject = projectDAO.findById(activeAssignment.getIdProject());
+        ProjectDAO projectDao = new ProjectDAO();
+        currentProject = projectDao.findById(activeAssignment.getIdProject());
 
         LinkedOrganizationDAO organizationDAO = new LinkedOrganizationDAO();
         currentOrganization = organizationDAO.findById(currentProject.getIdOrganization());
@@ -256,12 +256,12 @@ public class GenerateSelfEvaluationController {
             SelfEvaluation selfEvaluation = buildSelfEvaluation();
             selfEvaluation.setDocumentPath("");
 
-            SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
-            int rowsAffected = selfEvaluationDAO.save(selfEvaluation);
+            SelfEvaluationDAO selfEvaluationDao = new SelfEvaluationDAO();
+            int rowsAffected = selfEvaluationDao.save(selfEvaluation);
 
             if (rowsAffected > 0) {
                 String internalPath = generateAndSavePdf(selfEvaluation);
-                selfEvaluationDAO.updateDocumentPath(
+                selfEvaluationDao.updateDocumentPath(
                         selfEvaluation.getIdSelfEvalation(), internalPath);
 
                 showAlert("Documento generado",

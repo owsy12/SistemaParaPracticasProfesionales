@@ -4,6 +4,7 @@ import DataAccess.DataBaseConnection;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ReferentialIntegrityException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IProjectDAO;
 
@@ -475,20 +476,25 @@ public class ProjectDAO implements IProjectDAO {
             throw new ValidationException("ID no valido debe de ser un valor numerico positivo" + idProject);
         }
 
-        int succesfull = 0;
+        int deletedRows = 0;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
             PreparedStatement preparedStatement = connection.prepareStatement(DELETE_PROYECT)){
             preparedStatement.setInt(1, idProject);
 
-          succesfull = preparedStatement.executeUpdate();
+            deletedRows = preparedStatement.executeUpdate();
 
         }catch (SQLException sqlException){
-            LOGGER.log(Level.SEVERE, "Error al eleimnar el proyecto {0}: {1}", new Object[]{idProject, sqlException.getMessage()});
-            throw new ServiceException("Erro al eliminar proyecto", sqlException);
+            LOGGER.log(Level.SEVERE, "Error al eliminar el proyecto {0}: {1}",
+                    new Object[]{idProject, sqlException.getMessage()});
+            if (ReferentialIntegrityException.isForeignKeyViolation(sqlException)) {
+                throw new ReferentialIntegrityException(
+                        "El proyecto tiene registros asociados.", sqlException);
+            }
+            throw new ServiceException("Error al eliminar proyecto", sqlException);
         }
 
-        return succesfull;
+        return deletedRows;
     }
 
     private void validateProject(Project project) throws ValidationException {

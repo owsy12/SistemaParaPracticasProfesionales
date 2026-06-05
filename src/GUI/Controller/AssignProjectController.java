@@ -50,8 +50,7 @@ public class AssignProjectController {
         User selectedUser = internsTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedUser == null;
         if (isSelectionMissing) {
-            showAlert("Sin selección",
-                    "Seleccione un practicante de la tabla para asignar proyecto.",
+            showAlert("Sin selección", "Seleccione un practicante de la tabla para asignar proyecto.",
                     Alert.AlertType.WARNING);
         } else {
             openInternProjectSelection(selectedUser);

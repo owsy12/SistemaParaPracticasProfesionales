@@ -25,19 +25,36 @@ public class EvaluationPrerequisiteChecker {
 
 
     private static final int REQUIRED_HOURS = 420;
+    private static final String REPORT_TYPE_MONTHLY = "Mensual";
+    private static final String REPORT_TYPE_PARTIAL = "Parcial";
+    private static final String REPORT_TYPE_FINAL = "Final";
 
     private EvaluationPrerequisiteChecker() {
     }
 
     public static boolean isPracticeComplete(int internId, int projectId)
             throws ServiceException, ValidationException {
-        boolean complete = checkPendingDocuments(internId) == null
-                && checkApprovedHours(internId) == null
-                && checkActivitiesCompleted(internId, projectId) == null
-                && checkReportsEvaluated(internId) == null
+        boolean complete = hasEvaluatedReportOfType(internId, REPORT_TYPE_MONTHLY)
+                && hasEvaluatedReportOfType(internId, REPORT_TYPE_PARTIAL)
+                && hasEvaluatedReportOfType(internId, REPORT_TYPE_FINAL)
                 && isSelfEvaluationDelivered(internId)
                 && isOVEvaluationDelivered(internId, projectId);
         return complete;
+    }
+
+    private static boolean hasEvaluatedReportOfType(int internId, String reportType)
+            throws ServiceException, ValidationException {
+        ReportDAO reportDAO = new ReportDAO();
+        List<Report> reports = reportDAO.getByIdIntern(internId);
+        boolean found = false;
+        for (Report report : reports) {
+            boolean matches = reportType.equals(report.getReportType())
+                    && STATUS_EVALUATED.equals(report.getStatus());
+            if (matches) {
+                found = true;
+            }
+        }
+        return found;
     }
 
     private static boolean isSelfEvaluationDelivered(int internId)

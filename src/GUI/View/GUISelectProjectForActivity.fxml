@@ -63,16 +63,16 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="320.0">
                                 <columns>
-                                    <TableColumn fx:id="colName" prefWidth="240.0" text="Nombre del proyecto">
+                                    <TableColumn fx:id="columnName" prefWidth="240.0" text="Nombre del proyecto">
                                         <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colOrganization" prefWidth="220.0" text="Organización">
+                                    <TableColumn fx:id="columnOrganization" prefWidth="220.0" text="Organización">
                                         <cellValueFactory><PropertyValueFactory property="organizationNameDisplay"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colStatus" prefWidth="120.0" text="Estado">
+                                    <TableColumn fx:id="columnStatus" prefWidth="120.0" text="Estado">
                                         <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colPeriod" prefWidth="160.0" text="Período">
+                                    <TableColumn fx:id="columnPeriod" prefWidth="160.0" text="Período">
                                         <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>

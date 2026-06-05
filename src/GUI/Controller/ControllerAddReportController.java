@@ -128,8 +128,7 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
 
     @FXML
     public void cancelAction(ActionEvent actionEvent) {
-        Optional<ButtonType> response = showAlertAndWait(
-                "Confirmar cancelación",
+        Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
         boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
@@ -156,8 +155,7 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
                         Report oldValue, Report newValue) {
         if (newValue != null) {
             selectedReport = newValue;
-            String selectionStatusText = "Reporte seleccionado: "
-                    + newValue.getTypeWithMonth() + " - " + newValue.getPeriod();
+            String selectionStatusText = "Reporte seleccionado: " + newValue.getTypeWithMonth() + " - " + newValue.getPeriod();
             showStatus(selectionStatusText, false);
         }
     }

@@ -195,8 +195,7 @@ public class WelcomeController {
     }
 
     private void loadProfesorDashboard(User user) {
-        showSection(profesorContentVBox,
-                "Revisa los reportes de tus practicantes y registra tus evaluaciones.");
+        showSection(profesorContentVBox, "Revisa los reportes de tus practicantes y registra tus evaluaciones.");
 
         List<Report> allPendingReports = loadAllPendingReports();
         List<Report> myPendingReports = filterByProfessor(allPendingReports, user.getId());
@@ -211,8 +210,8 @@ public class WelcomeController {
     private List<Report> loadAllPendingReports() {
         List<Report> result = new ArrayList<>();
         try {
-            ReportDAO dao = new ReportDAO();
-            result = dao.getByStatusPending();
+            ReportDAO reportDAO = new ReportDAO();
+            result = reportDAO.getByStatusPending();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error loading pending reports");
         }
@@ -222,8 +221,8 @@ public class WelcomeController {
     private List<Report> loadAllReports() {
         List<Report> result = new ArrayList<>();
         try {
-            ReportDAO dao = new ReportDAO();
-            result = dao.getAll();
+            ReportDAO reportDao = new ReportDAO();
+            result = reportDao.getAll();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error loading all reports");
         }
@@ -251,13 +250,13 @@ public class WelcomeController {
     private int countEvaluationsForReports(List<Report> reports) {
         int count = 0;
         try {
-            ReportEvaluationDAO evalDAO = new ReportEvaluationDAO();
-            List<ReportEvaluation> allEvals = evalDAO.getAll();
+            ReportEvaluationDAO evaluationDao = new ReportEvaluationDAO();
+            List<ReportEvaluation> reportEvaluationList = evaluationDao.getAll();
             Set<Integer> reportIds = new HashSet<>();
             for (Report report : reports) {
                 reportIds.add(report.getIdReport());
             }
-            for (ReportEvaluation eval : allEvals) {
+            for (ReportEvaluation eval : reportEvaluationList) {
                 if (reportIds.contains(eval.getIdReport())) {
                     count++;
                 }
@@ -304,8 +303,8 @@ public class WelcomeController {
     private int countProjects() {
         int count = 0;
         try {
-            ProjectDAO dao = new ProjectDAO();
-            count = dao.findAll().size();
+            ProjectDAO projectDao = new ProjectDAO();
+            count = projectDao.findAll().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting projects");
         }
@@ -315,8 +314,8 @@ public class WelcomeController {
     private int countActiveInterns() {
         int count = 0;
         try {
-            InternDAO dao = new InternDAO();
-            count = dao.findAllActiveinterns().size();
+            InternDAO internDao = new InternDAO();
+            count = internDao.findAllActiveinterns().size();
         } catch (ServiceException | ValidationException e) {
             LOGGER.log(Level.SEVERE, "Error counting active interns");
         }
@@ -326,8 +325,8 @@ public class WelcomeController {
     private int countPendingReports() {
         int count = 0;
         try {
-            ReportDAO dao = new ReportDAO();
-            count = dao.getByStatusPending().size();
+            ReportDAO reportDao = new ReportDAO();
+            count = reportDao.getByStatusPending().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting pending reports");
         }
@@ -337,8 +336,8 @@ public class WelcomeController {
     private int countAvailableSlots() {
         int count = 0;
         try {
-            ProjectDAO dao = new ProjectDAO();
-            count = dao.findAllAvailable().size();
+            ProjectDAO projectDao = new ProjectDAO();
+            count = projectDao.findAllAvailable().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting available project slots");
         }
@@ -348,8 +347,8 @@ public class WelcomeController {
     private int countActiveCoordinators() {
         int count = 0;
         try {
-            CoordinatorDAO dao = new CoordinatorDAO();
-            count = dao.findActiveCoordinators().size();
+            CoordinatorDAO coordinatorDao = new CoordinatorDAO();
+            count = coordinatorDao.findActiveCoordinators().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting active coordinators");
         }
@@ -359,8 +358,8 @@ public class WelcomeController {
     private int countActiveProfessors() {
         int count = 0;
         try {
-            ProfessorDAO dao = new ProfessorDAO();
-            count = dao.findActiveProfessors().size();
+            ProfessorDAO professorDao = new ProfessorDAO();
+            count = professorDao.findActiveProfessors().size();
         } catch (ServiceException | ValidationException e) {
             LOGGER.log(Level.SEVERE, "Error counting active professors");
         }

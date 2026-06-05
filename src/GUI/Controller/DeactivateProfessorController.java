@@ -83,8 +83,7 @@ public class DeactivateProfessorController {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
-            showAlert("Profesor desactivado",
-                    "El profesor ha sido desactivado exitosamente.",
+            showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);
         } catch (ValidationException validationException) {
             showAlert("Error", "Servicio no disponible.", Alert.AlertType.ERROR);

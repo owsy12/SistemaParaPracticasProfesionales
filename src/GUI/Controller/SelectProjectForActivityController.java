@@ -35,16 +35,16 @@ public class SelectProjectForActivityController implements ChangeListener<Projec
     private TableView<Project> projectsTable;
 
     @FXML
-    private TableColumn<Project, String> colName;
+    private TableColumn<Project, String> columnName;
 
     @FXML
-    private TableColumn<Project, String> colOrganization;
+    private TableColumn<Project, String> columnOrganization;
 
     @FXML
-    private TableColumn<Project, String> colStatus;
+    private TableColumn<Project, String> columnStatus;
 
     @FXML
-    private TableColumn<Project, String> colPeriod;
+    private TableColumn<Project, String> columnPeriod;
 
     @FXML
     private Button addActivityButton;

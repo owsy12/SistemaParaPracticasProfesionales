@@ -28,7 +28,7 @@ import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 import static GUI.DocumentGeneration.DocumentManngemt.saveFile;
 
-public class UploadInitialDocumentsController {
+public class UploadInitialDocumentsController implements EventHandler<DragEvent> {
 
     public AnchorPane anchorPane;
 
@@ -94,35 +94,26 @@ public class UploadInitialDocumentsController {
     }
 
     private void configureDragAndDrop() {
-        dropZone.setOnDragOver(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                Dragboard dragboard = event.getDragboard();
+        dropZone.setOnDragOver(this);
+        dropZone.setOnDragDropped(this);
+    }
 
-                if (dragboard.hasFiles()) {
-                    event.acceptTransferModes(TransferMode.COPY);
-                }
-
-                event.consume();
+    @Override
+    public void handle(DragEvent event) {
+        if (event.getEventType() == DragEvent.DRAG_OVER) {
+            if (event.getDragboard().hasFiles()) {
+                event.acceptTransferModes(TransferMode.COPY);
             }
-        });
-
-        dropZone.setOnDragDropped(new EventHandler<DragEvent>() {
-            @Override
-            public void handle(DragEvent event) {
-                Dragboard dragboard = event.getDragboard();
-                boolean success = false;
-
-                if (dragboard.hasFiles()) {
-                    File file = dragboard.getFiles().get(0);
-                    processSelectedFile(file);
-                    success = true;
-                }
-
-                event.setDropCompleted(success);
-                event.consume();
+        } else if (event.getEventType() == DragEvent.DRAG_DROPPED) {
+            Dragboard dragboard = event.getDragboard();
+            if (dragboard.hasFiles()) {
+                processSelectedFile(dragboard.getFiles().get(0));
+                event.setDropCompleted(true);
+            } else {
+                event.setDropCompleted(false);
             }
-        });
+        }
+        event.consume();
     }
 
     @FXML

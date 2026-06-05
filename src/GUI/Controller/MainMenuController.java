@@ -21,7 +21,7 @@ import java.time.LocalDate;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 
-public class MainMenuController {
+public class MainMenuController implements EventHandler<ActionEvent> {
 
     private static final int SIDEBAR_EXPANDED_WIDTH = 280;
     private static final int SIDEBAR_COLLAPSED_WIDTH = 64;
@@ -29,12 +29,10 @@ public class MainMenuController {
     private static final String ARROW_COLLAPSED = "›";
 
     private static final String[] DAYS_ES = {
-            "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"
-    };
+            "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
     private static final String[] MONTHS_ES = {
             "Ene", "Feb", "Mar", "Abr", "May", "Jun",
-            "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
-    };
+            "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"};
 
     @FXML
     private VBox menuVBox;
@@ -100,9 +98,9 @@ public class MainMenuController {
     }
 
     private String formatDate(LocalDate date) {
-        String dayAbbr = DAYS_ES[date.getDayOfWeek().getValue() - 1];
-        String monthAbbr = MONTHS_ES[date.getMonthValue() - 1];
-        String formattedDate = dayAbbr + " · " + date.getDayOfMonth() + " " + monthAbbr + " " + date.getYear();
+        String dayAbbreviation = DAYS_ES[date.getDayOfWeek().getValue() - 1];
+        String monthAbbreviation = MONTHS_ES[date.getMonthValue() - 1];
+        String formattedDate = dayAbbreviation + " · " + date.getDayOfMonth() + " " + monthAbbreviation + " " + date.getYear();
         return formattedDate;
     }
 
@@ -182,16 +180,19 @@ public class MainMenuController {
         }
     }
 
-    private void addButton(String text, final String fxmlPath) {
+    private void addButton(String text, String fxmlPath) {
         Button button = new Button(text);
         button.setMaxWidth(Double.MAX_VALUE);
-        button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                loadView(fxmlPath);
-            }
-        });
+        button.setUserData(fxmlPath);
+        button.setOnAction(this);
         menuVBox.getChildren().add(button);
+    }
+
+    @Override
+    public void handle(ActionEvent event) {
+        Button source = (Button) event.getSource();
+        String fxmlPath = (String) source.getUserData();
+        loadView(fxmlPath);
     }
 
     private void loadAdministratorActions() {
