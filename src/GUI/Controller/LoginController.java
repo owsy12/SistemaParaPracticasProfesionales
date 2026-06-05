@@ -109,7 +109,7 @@ public class LoginController {
                 if (!hasActiveRole) {
                     LOGGER.log(Level.WARNING,
                             "Acceso denegado: el usuario {0} no tiene ningún rol activo.",
-                            currentUser.getMatricula());
+                            currentUser.getRegistrationNumber());
                     showAlert("Acceso denegado",
                             "No cuenta con ningún rol activo dentro del sistema. Contacte al administrador.",
                             Alert.AlertType.WARNING);

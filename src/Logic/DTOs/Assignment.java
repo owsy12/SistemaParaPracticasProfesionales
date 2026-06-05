@@ -79,5 +79,28 @@ public class Assignment {
     public void setAssignmentReason(String assignmentReason) {
         this.assignmentReason = assignmentReason;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        Assignment other = (Assignment) object;
+        return idAssignment == other.idAssignment
+                && idIntern == other.idIntern
+                && idProject == other.idProject
+                && idApplication == other.idApplication
+                && java.util.Objects.equals(assignmentDate, other.assignmentDate)
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(assignmentReason, other.assignmentReason);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idAssignment, idIntern, idProject, idApplication, assignmentDate, status, assignmentReason);
+    }
 }
 

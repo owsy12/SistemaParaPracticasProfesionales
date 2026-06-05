@@ -167,11 +167,11 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
 
     private void saveDocumentProcess() {
         try {
-            String matricula = SessionManager.getInstance().getUsuario().getMatricula();
+            String registrationNumber = SessionManager.getInstance().getUsuario().getRegistrationNumber();
             int idProject = pendingDocuments.get(0).getIdProject();
-            String relativeFolder = "storage/intern_" + matricula + "/project_" + idProject + "/initial_formats";
+            String relativeFolder = "storage/intern_" + registrationNumber + "/project_" + idProject + "/initial_formats";
             String documentTypeName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase();
-            String newFileName = documentTypeName + matricula;
+            String newFileName = documentTypeName + registrationNumber;
 
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
             InitialFormat initialFormat = new InitialFormat();

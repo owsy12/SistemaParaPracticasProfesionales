@@ -184,4 +184,38 @@ public class SelfEvaluation {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        SelfEvaluation other = (SelfEvaluation) object;
+        return idSelfEvalation == other.idSelfEvalation
+                && idIntern == other.idIntern
+                && idProject == other.idProject
+                && java.util.Objects.equals(period, other.period)
+                && statement01 == other.statement01
+                && statement02 == other.statement02
+                && statement03 == other.statement03
+                && statement04 == other.statement04
+                && statement05 == other.statement05
+                && statement06 == other.statement06
+                && statement07 == other.statement07
+                && statement08 == other.statement08
+                && statement09 == other.statement09
+                && statement10 == other.statement10
+                && finalScore == other.finalScore
+                && java.util.Objects.equals(placeAndDate, other.placeAndDate)
+                && java.util.Objects.equals(documentPath, other.documentPath)
+                && java.util.Objects.equals(status, other.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idSelfEvalation, idIntern, idProject, period, statement01, statement02, statement03, statement04, statement05, statement06, statement07, statement08, statement09, statement10, finalScore, placeAndDate, documentPath, status);
+    }
 }

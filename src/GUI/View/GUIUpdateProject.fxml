@@ -174,8 +174,8 @@
                                     <TableColumn fx:id="internNameColumn" prefWidth="430.0" text="Nombre">
                                         <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="internMatriculaColumn" prefWidth="220.0" text="Matrícula">
-                                        <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
+                                    <TableColumn fx:id="internRegistrationNumberColumn" prefWidth="220.0" text="Matrícula">
+                                        <cellValueFactory><PropertyValueFactory property="registrationNumber"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>
                             </TableView>

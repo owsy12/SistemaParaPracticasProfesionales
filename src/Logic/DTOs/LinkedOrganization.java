@@ -71,4 +71,26 @@ public class LinkedOrganization {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        LinkedOrganization other = (LinkedOrganization) object;
+        return idLinkedOrganization == other.idLinkedOrganization
+                && java.util.Objects.equals(name, other.name)
+                && java.util.Objects.equals(sector, other.sector)
+                && java.util.Objects.equals(address, other.address)
+                && java.util.Objects.equals(email, other.email)
+                && java.util.Objects.equals(status, other.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idLinkedOrganization, name, sector, address, email, status);
+    }
 }

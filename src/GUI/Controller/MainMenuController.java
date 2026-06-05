@@ -59,7 +59,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
     private Label userFullNameLabel;
 
     @FXML
-    private Label userMatriculaLabel;
+    private Label userRegistrationNumberLabel;
 
     @FXML
     private Label userRoleLabel;
@@ -126,7 +126,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
 
         userInitialsLabel.setText(initials.toUpperCase());
         userFullNameLabel.setText(fullName.toUpperCase());
-        userMatriculaLabel.setText(currentUser.getMatricula());
+        userRegistrationNumberLabel.setText(currentUser.getRegistrationNumber());
         userRoleLabel.setText(activeRole);
     }
 

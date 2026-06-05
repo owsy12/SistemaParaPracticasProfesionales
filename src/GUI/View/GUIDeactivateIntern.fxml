@@ -65,7 +65,7 @@
                                        prefHeight="320.0">
                                 <columns>
                                     <TableColumn fx:id="tagColumn" prefWidth="160.0" text="Matrícula">
-                                        <cellValueFactory><PropertyValueFactory property="matricula"/></cellValueFactory>
+                                        <cellValueFactory><PropertyValueFactory property="registrationNumber"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="interFullNameColumn" prefWidth="520.0" text="Nombre Completo">
                                         <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>

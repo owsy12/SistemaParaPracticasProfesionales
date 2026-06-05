@@ -79,4 +79,26 @@ public class ReportDeliverable {
         }
         return display;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        ReportDeliverable other = (ReportDeliverable) object;
+        return idReporteEntregable == other.idReporteEntregable
+                && idReport == other.idReport
+                && java.util.Objects.equals(resultado, other.resultado)
+                && java.util.Objects.equals(descripcion, other.descripcion)
+                && advancePercentage == other.advancePercentage
+                && java.util.Objects.equals(observaciones, other.observaciones);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idReporteEntregable, idReport, resultado, descripcion, advancePercentage, observaciones);
+    }
 }

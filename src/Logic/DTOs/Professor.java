@@ -8,12 +8,12 @@ public class Professor extends User{
         super();
     }
 
-    public Professor(int id, String matricula, String firstName,
+    public Professor(int id, String registrationNumber, String firstName,
                         String lastName, String secondLastName,
                         String password, String status,
                         String academicArea) {
 
-        super(id, matricula, firstName, lastName, secondLastName, password, status);
+        super(id, registrationNumber, firstName, lastName, secondLastName, password, status);
         this.academicArea = academicArea;
 
     }
@@ -26,7 +26,27 @@ public class Professor extends User{
 
     @Override
     public String toString() {
-        return firstName + " " + lastName + " (" + matricula + ")";
+        return firstName + " " + lastName + " (" + registrationNumber + ")";
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        Professor other = (Professor) object;
+        return java.util.Objects.equals(academicArea, other.academicArea);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(super.hashCode(), academicArea);
+    }
 }

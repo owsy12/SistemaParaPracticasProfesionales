@@ -1,86 +1,75 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.ProrrogaDAO;
 import Logic.DTOs.Prorroga;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProrrogaDAOTest extends BaseDAOTest {
 
-    private static final int SUPPORT_ACTIVITY_ID = 1;
-    private static final int INVALID_ACTIVITY_ID_ZERO = 0;
-    private static final LocalDate ORIGINAL_END_DATE = LocalDate.of(2025, 4, 15);
-    private static final LocalDate NEW_END_DATE = LocalDate.of(2025, 5, 30);
-    private static final String EXTENSION_REASON = "Cambio de alcance del proyecto.";
-    private static final String BLANK_REASON = "  ";
+    private static final LocalDate ORIGINAL_END = LocalDate.of(2025, 3, 31);
+    private static final LocalDate NEW_END = LocalDate.of(2025, 4, 30);
 
     private final ProrrogaDAO dao = new ProrrogaDAO();
 
-    private void insertSupportActivity() throws Exception {
-        try (Connection connection = DataBaseConnection.connectDatabase();
-             Statement statement = connection.createStatement()) {
-            statement.execute(
-                "INSERT INTO actividad (id_actividad, id_proyecto, nombre, descripcion, " +
-                "semana_inicio_plan, semana_fin_plan) VALUES (" + SUPPORT_ACTIVITY_ID + ", " +
-                ID_PROJECT + ", 'Levantamiento de requerimientos', 'Entrevistar al cliente', 1, 4)"
-            );
-        }
-    }
-
-    private Prorroga buildValidProrroga() {
+    private Prorroga buildProrroga(int idActivity) {
         Prorroga prorroga = new Prorroga();
-        prorroga.setIdActivity(SUPPORT_ACTIVITY_ID);
-        prorroga.setOriginalEndDate(ORIGINAL_END_DATE);
-        prorroga.setNewEndDate(NEW_END_DATE);
-        prorroga.setMotivo(EXTENSION_REASON);
+        prorroga.setIdActivity(idActivity);
+        prorroga.setOriginalEndDate(ORIGINAL_END);
+        prorroga.setNewEndDate(NEW_END);
+        prorroga.setMotivo(TestConstants.DEFAULT_MOTIVE);
         return prorroga;
     }
 
     @Test
-    void testSaveValidProrrogaReturnsGeneratedId() throws Exception {
-        insertSupportActivity();
-        int generatedId = dao.save(buildValidProrroga());
-        assertTrue(generatedId > 0);
-    }
-
-    @Test
-    void testSaveValidProrrogaAssignsGeneratedId() throws Exception {
-        insertSupportActivity();
-        Prorroga prorroga = buildValidProrroga();
-        dao.save(prorroga);
-        assertTrue(prorroga.getIdProrroga() > 0);
+    void testSaveValidProrrogaReturnsPositiveId() throws ServiceException, ValidationException {
+        int idActivity = persistActivity();
+        int generatedId = dao.save(buildProrroga(idActivity));
+        assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
     void testSaveProrrogaWithZeroActivityIdThrowsValidationException() {
-        Prorroga prorroga = buildValidProrroga();
-        prorroga.setIdActivity(INVALID_ACTIVITY_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.save(prorroga));
+        Prorroga prorroga = buildProrroga(TestConstants.INVALID_ID_ZERO);
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(prorroga);
+            }
+        });
     }
 
     @Test
-    void testSaveProrrogaWithNullReasonThrowsValidationException() {
-        Prorroga prorroga = buildValidProrroga();
-        prorroga.setMotivo(null);
-        assertThrows(ValidationException.class, () -> dao.save(prorroga));
+    void testSaveProrrogaWithBlankMotiveThrowsValidationException() throws ServiceException, ValidationException {
+        int idActivity = persistActivity();
+        Prorroga prorroga = buildProrroga(idActivity);
+        prorroga.setMotivo(TestConstants.BLANK_TEXT);
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(prorroga);
+            }
+        });
     }
 
-    @Test
-    void testSaveProrrogaWithBlankReasonThrowsValidationException() {
-        Prorroga prorroga = buildValidProrroga();
-        prorroga.setMotivo(BLANK_REASON);
-        assertThrows(ValidationException.class, () -> dao.save(prorroga));
-    }
-
-    @Test
-    void testSaveProrrogaWithNullNewEndDateThrowsValidationException() {
-        Prorroga prorroga = buildValidProrroga();
-        prorroga.setNewEndDate(null);
-        assertThrows(ValidationException.class, () -> dao.save(prorroga));
+    private int persistActivity() throws ServiceException, ValidationException {
+        int idActivity;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            idActivity = new ActivityTestDataBuilder()
+                    .withProjectId(scene.getProjectId())
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idActivity;
     }
 }

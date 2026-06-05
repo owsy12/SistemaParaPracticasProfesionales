@@ -138,7 +138,7 @@ public class AddProfesorController {
         try {
             ProfessorDAO professorDAO = new ProfessorDAO();
             Professor professor = new Professor();
-            professor.setMatricula(idTextField.getText());
+            professor.setRegistrationNumber(idTextField.getText());
             professor.setFirstName(firstNameTextField.getText());
             professor.setLastName(lastNameTextField.getText());
             professor.setSecondLastName(secondLastNameTextField.getText());

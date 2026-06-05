@@ -119,7 +119,7 @@ public class AdministratorDAO implements IAdministratorDAO {
     private Administrator mapAdministrator(ResultSet resultSet) throws SQLException {
         Administrator administrator = new Administrator();
         administrator.setId(resultSet.getInt("id_usuario"));
-        administrator.setMatricula(resultSet.getString("matricula"));
+        administrator.setRegistrationNumber(resultSet.getString("matricula"));
         administrator.setFirstName(resultSet.getString("nombre"));
         administrator.setLastName(resultSet.getString("apellido_paterno"));
         administrator.setSecondLastName(resultSet.getString("apellido_materno"));

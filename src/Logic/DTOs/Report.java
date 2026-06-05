@@ -211,4 +211,36 @@ public class Report {
         }
         return typeDisplay;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        Report other = (Report) object;
+        return idReport == other.idReport
+                && idIntern == other.idIntern
+                && idProject == other.idProject
+                && idProfessor == other.idProfessor
+                && java.util.Objects.equals(reportType, other.reportType)
+                && java.util.Objects.equals(period, other.period)
+                && java.util.Objects.equals(documentPath, other.documentPath)
+                && java.util.Objects.equals(signedDocumentPath, other.signedDocumentPath)
+                && java.util.Objects.equals(status, other.status)
+                && reportedHours == other.reportedHours
+                && java.util.Objects.equals(professorObservations, other.professorObservations)
+                && java.util.Objects.equals(reviewDate, other.reviewDate)
+                && java.util.Objects.equals(sumissionDate, other.sumissionDate)
+                && java.util.Objects.equals(deadline, other.deadline)
+                && entregaTardia == other.entregaTardia
+                && java.util.Objects.equals(monthName, other.monthName);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idReport, idIntern, idProject, idProfessor, reportType, period, documentPath, signedDocumentPath, status, reportedHours, professorObservations, reviewDate, sumissionDate, deadline, entregaTardia, monthName);
+    }
 }

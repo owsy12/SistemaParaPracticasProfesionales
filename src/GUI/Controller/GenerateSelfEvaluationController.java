@@ -209,7 +209,7 @@ public class GenerateSelfEvaluationController {
 
     private void populateReadOnlyFields() {
         nameTextField.setText(buildInternFullName(currentIntern));
-        idTextField.setText(currentIntern.getMatricula());
+        idTextField.setText(currentIntern.getRegistrationNumber());
         organizationTextField.setText(currentOrganization.getName());
         departmentTextField.setText(currentOrganization.getSector());
         responsibleTextField.setText(buildSupervisorFullName(currentSupervisor));
@@ -305,7 +305,7 @@ public class GenerateSelfEvaluationController {
         javafx.stage.Window ownerWindow = resolveOwnerWindow();
         ReportGenerationContext generationContext = new ReportGenerationContextBuilder()
                 .internFullName(buildInternFullName(currentIntern))
-                .matricula(currentIntern.getMatricula())
+                .registrationNumber(currentIntern.getRegistrationNumber())
                 .organizationName(currentOrganization.getName())
                 .organizationDepartment(currentOrganization.getSector())
                 .technicianName(buildSupervisorFullName(currentSupervisor))

@@ -46,7 +46,7 @@ public class FinalReportGenerator {
         byte[] docxBytes = fillTemplate(values, content);
         byte[] pdfBytes = DocxToPdfConverter.convert(docxBytes);
 
-        String storagePath = buildStoragePath(report, context.getMatricula());
+        String storagePath = buildStoragePath(report, context.getRegistrationNumber());
         saveFile(pdfBytes, storagePath);
 
         String fileName = "Reporte_Final_" + report.getReportNumber() + ".pdf";
@@ -266,8 +266,8 @@ public class FinalReportGenerator {
         return result;
     }
 
-    private static String buildStoragePath(PartialAndFinalReport report, String matricula) {
-        String path = "storage/intern_" + matricula
+    private static String buildStoragePath(PartialAndFinalReport report, String registrationNumber) {
+        String path = "storage/intern_" + registrationNumber
                 + "/project_" + report.getIdProject()
                 + "/reports/final_" + report.getIdReport() + ".pdf";
         return path;

@@ -2,163 +2,247 @@ import DataAccess.DataBaseConnection;
 import Logic.DAO.LinkedOrganizationDAO;
 import Logic.DTOs.LinkedOrganization;
 import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LinkedOrganizationDAOTest extends BaseDAOTest {
 
-    private static final String NEW_ORG_NAME = "InnovaSoft";
-    private static final String NEW_ORG_EMAIL = "contacto@innovasoft.mx";
+    private static final String NEW_ORG_NAME = "InnovaSoft Test";
+    private static final String NEW_ORG_EMAIL = "contacto@innovasoft-test.mx";
     private static final String NEW_ORG_ADDRESS = "Calle Reforma 123";
     private static final String NEW_ORG_SECTOR = "Software";
-    private static final String UPDATED_NAME = "InnovaSoft Avanzado";
-    private static final String ORG_STATUS_INACTIVE = "Inactiva";
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -1;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final int SECONDARY_ORG_ID = 2;
+    private static final String UPDATED_ORG_NAME = "InnovaSoft Test Avanzado";
+    private static final String SECONDARY_ORG_NAME = "DataLabs Test";
+    private static final String SECONDARY_ORG_EMAIL = "contacto@datalabs-test.mx";
 
     private final LinkedOrganizationDAO dao = new LinkedOrganizationDAO();
 
-    private void insertSecondaryOrganization() throws Exception {
-        try (Connection connection = DataBaseConnection.connectDatabase();
-             Statement statement = connection.createStatement()) {
-            statement.execute(
-                "INSERT INTO organizacion_vinculada (id_organizacion, nombre_organizacion, " +
-                "correo_organizacion, direccion, sector, estado) VALUES " +
-                "(" + SECONDARY_ORG_ID + ", 'DataLabs', 'contacto@datalabs.mx', " +
-                "'Av. Tec 5', 'Datos', 'Activa')"
-            );
-        }
-    }
-
-    private LinkedOrganization buildValidOrganization() {
-        return new LinkedOrganization(0, NEW_ORG_NAME, NEW_ORG_SECTOR, NEW_ORG_ADDRESS, NEW_ORG_EMAIL);
+    private LinkedOrganization buildOrganization(String name, String email) {
+        LinkedOrganization organization = new LinkedOrganization();
+        organization.setName(name);
+        organization.setEmail(email);
+        organization.setAddress(NEW_ORG_ADDRESS);
+        organization.setSector(NEW_ORG_SECTOR);
+        return organization;
     }
 
     @Test
-    void testSaveValidOrganizationReturnsTrue() throws Exception {
-        boolean result = dao.saveLinkedOrganization(buildValidOrganization());
+    void testSaveValidOrganizationReturnsTrue() throws ServiceException, ValidationException {
+        boolean result = dao.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, NEW_ORG_EMAIL));
         assertTrue(result);
     }
 
     @Test
-    void testSaveDuplicateNameThrowsDuplicateEntryException() throws Exception {
-        dao.saveLinkedOrganization(buildValidOrganization());
-        assertThrows(DuplicateEntryException.class,
-                () -> dao.saveLinkedOrganization(buildValidOrganization()));
+    void testSaveDuplicateNameThrowsDuplicateEntryException() throws ServiceException, ValidationException {
+        dao.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, NEW_ORG_EMAIL));
+        assertThrows(DuplicateEntryException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, SECONDARY_ORG_EMAIL));
+            }
+        });
     }
 
     @Test
-    void testFindByIdReturnsSupportOrganization() throws Exception {
-        LinkedOrganization retrieved = dao.findById(ID_ORGANIZATION);
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganizationViaBuilder();
+        LinkedOrganization retrieved = dao.findById(idOrganization);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        LinkedOrganization retrieved = dao.findById(NON_EXISTENT_ID);
+    void testFindByIdWithNegativeIdThrowsValidationException() {
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+            }
+        });
+    }
+
+    @Test
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
+        LinkedOrganization retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllReturnsAtLeastOneElement() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<LinkedOrganization> all = dao.findAll();
-        assertEquals(1, all.size());
+        assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAfterSaveReturnsTwoElements() throws Exception {
-        dao.saveLinkedOrganization(buildValidOrganization());
+    void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
+        persistOrganizationViaBuilder();
         List<LinkedOrganization> all = dao.findAll();
-        assertEquals(2, all.size());
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testFindAllActiveReturnsAtLeastOneElement() throws Exception {
-        List<LinkedOrganization> active = dao.findAllActive();
-        assertEquals(1, active.size());
+    void testFindAllActiveExcludesInactiveOrganizations() throws ServiceException, ValidationException {
+        int activeId = persistOrganizationViaBuilder();
+        int inactiveId = persistInactiveOrganizationViaBuilder();
+        List<LinkedOrganization> activeList = dao.findAllActive();
+        assertEquals(TestConstants.SINGLE_RESULT, activeList.size());
+        assertEquals(activeId, activeList.get(0).getIdLinkedOrganization());
+        assertFalse(activeId == inactiveId);
     }
 
     @Test
-    void testUpdateOrganizationReturnsTrue() throws Exception {
-        LinkedOrganization organization = dao.findById(ID_ORGANIZATION);
-        organization.setName(UPDATED_NAME);
+    void testUpdateOrganizationReturnsTrue() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganizationViaBuilder();
+        LinkedOrganization organization = dao.findById(idOrganization);
+        organization.setName(UPDATED_ORG_NAME);
         boolean result = dao.update(organization);
         assertTrue(result);
     }
 
     @Test
-    void testUpdateOrganizationPersistsNewName() throws Exception {
-        LinkedOrganization organization = dao.findById(ID_ORGANIZATION);
-        organization.setName(UPDATED_NAME);
+    void testUpdateOrganizationPersistsNewName() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganizationViaBuilder();
+        LinkedOrganization organization = dao.findById(idOrganization);
+        organization.setName(UPDATED_ORG_NAME);
         dao.update(organization);
-        LinkedOrganization retrieved = dao.findById(ID_ORGANIZATION);
-        assertEquals(UPDATED_NAME, retrieved.getName());
+        LinkedOrganization retrieved = dao.findById(idOrganization);
+        assertEquals(UPDATED_ORG_NAME, retrieved.getName());
     }
 
     @Test
     void testUpdateOrganizationWithZeroIdThrowsValidationException() {
-        LinkedOrganization organization = buildValidOrganization();
-        organization.setIdLinkedOrganization(INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.update(organization));
+        LinkedOrganization organization = buildOrganization(NEW_ORG_NAME, NEW_ORG_EMAIL);
+        organization.setIdLinkedOrganization(TestConstants.INVALID_ID_ZERO);
+        organization.setStatus(TestConstants.STATUS_ACTIVE_ORG);
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.update(organization);
+            }
+        });
     }
 
     @Test
-    void testDeactivateOrganizationReturnsTrue() throws Exception {
-        insertSecondaryOrganization();
-        boolean result = dao.deactivateLinkedOrganization(SECONDARY_ORG_ID);
+    void testDeactivateOrganizationReturnsTrue() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganizationViaBuilder();
+        boolean result = dao.deactivateLinkedOrganization(idOrganization);
         assertTrue(result);
     }
 
     @Test
-    void testDeactivateOrganizationPersistsInactiveStatus() throws Exception {
-        insertSecondaryOrganization();
-        dao.deactivateLinkedOrganization(SECONDARY_ORG_ID);
-        LinkedOrganization retrieved = dao.findById(SECONDARY_ORG_ID);
-        assertEquals(ORG_STATUS_INACTIVE, retrieved.getStatus());
+    void testDeactivateOrganizationPersistsInactiveStatus() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganizationViaBuilder();
+        dao.deactivateLinkedOrganization(idOrganization);
+        LinkedOrganization retrieved = dao.findById(idOrganization);
+        assertEquals(TestConstants.STATUS_INACTIVE_ORG, retrieved.getStatus());
     }
 
     @Test
-    void testDeactivateOrganizationWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.deactivateLinkedOrganization(INVALID_ID_NEGATIVE));
+    void testDeactivateOrganizationWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deactivateLinkedOrganization(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testHasAssociatedProjectsReturnsTrueForSupportOrganization() throws Exception {
-        boolean result = dao.hasAssociatedProjects(ID_ORGANIZATION);
+    void testHasAssociatedProjectsReturnsTrueWhenProjectsExist() throws ServiceException, ValidationException {
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            boolean hasProjects = dao.hasAssociatedProjects(scene.getOrganizationId());
+            assertTrue(hasProjects);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+    }
+
+    @Test
+    void testHasAssociatedProjectsReturnsFalseWhenNoProjects() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganizationViaBuilder();
+        boolean hasProjects = dao.hasAssociatedProjects(idOrganization);
+        assertFalse(hasProjects);
+    }
+
+    @Test
+    void testDeleteOrganizationWithAssociatedProjectsThrowsValidationException() throws ServiceException, ValidationException {
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            assertThrows(ValidationException.class, new Executable() {
+                @Override
+                public void execute() throws Throwable {
+                    dao.deleteLinkedOrganization(scene.getOrganizationId());
+                }
+            });
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+    }
+
+    @Test
+    void testDeleteOrganizationWithoutProjectsReturnsTrue() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganizationViaBuilder();
+        boolean result = dao.deleteLinkedOrganization(idOrganization);
         assertTrue(result);
     }
 
     @Test
-    void testHasAssociatedProjectsReturnsFalseForOrganizationWithoutProjects() throws Exception {
-        insertSecondaryOrganization();
-        boolean result = dao.hasAssociatedProjects(SECONDARY_ORG_ID);
-        assertFalse(result);
+    void testDeleteOrganizationWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deleteLinkedOrganization(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    @Test
-    void testDeleteOrganizationWithAssociatedProjectsThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.deleteLinkedOrganization(ID_ORGANIZATION));
+    private int persistOrganizationViaBuilder() throws ServiceException, ValidationException {
+        int idOrganization;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idOrganization = new OrganizationTestDataBuilder()
+                    .withName(NEW_ORG_NAME)
+                    .withEmail(NEW_ORG_EMAIL)
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idOrganization;
     }
 
-    @Test
-    void testDeleteOrganizationWithoutProjectsReturnsTrue() throws Exception {
-        insertSecondaryOrganization();
-        boolean result = dao.deleteLinkedOrganization(SECONDARY_ORG_ID);
-        assertTrue(result);
+    private int persistInactiveOrganizationViaBuilder() throws ServiceException, ValidationException {
+        int idOrganization;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idOrganization = new OrganizationTestDataBuilder()
+                    .withName(SECONDARY_ORG_NAME)
+                    .withEmail(SECONDARY_ORG_EMAIL)
+                    .withStatus(TestConstants.STATUS_INACTIVE_ORG)
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idOrganization;
     }
 }

@@ -98,7 +98,7 @@ public class AddInternController {
         try {
             InternDAO internDAO = new InternDAO();
             Intern intern = new Intern();
-            intern.setMatricula(idTextField.getText());
+            intern.setRegistrationNumber(idTextField.getText());
             intern.setFirstName(firstNameTextField.getText());
             intern.setLastName(lastNameTextField.getText());
             intern.setSecondLastName(secondLastNameTextField.getText());

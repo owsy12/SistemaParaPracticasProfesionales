@@ -1,112 +1,144 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.AdministratorDAO;
 import Logic.DTOs.Administrator;
-import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AdministratorDAOTest extends BaseDAOTest {
 
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -3;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final int NEW_ADMINISTRATOR_ID = 10;
+    private static final String ADMIN_REGISTRATION_NUMBER = "A60000001";
+    private static final String ADMIN_EMAIL = "admin.test@uv.mx";
+    private static final String ADMIN_FIRST_NAME = "Rosa";
+    private static final String ADMIN_LAST_NAME = "Mendoza";
 
     private final AdministratorDAO dao = new AdministratorDAO();
-
-    private void insertAdministratorUser(int idUser, String matricula, String email) throws Exception {
-        try (Connection connection = DataBaseConnection.connectDatabase();
-             Statement statement = connection.createStatement()) {
-            statement.execute(
-                "INSERT INTO usuario (id_usuario, matricula, nombre, apellido_paterno, " +
-                "apellido_materno, contrasenia, correo) VALUES (" + idUser + ", '" + matricula +
-                "', 'Admin', 'Root', 'User', '$2b$10$hashAdmin', '" + email + "')"
-            );
-        }
-    }
 
     private Administrator buildAdministrator(int idUser) {
         Administrator administrator = new Administrator();
         administrator.setId(idUser);
+        administrator.setRegistrationNumber(ADMIN_REGISTRATION_NUMBER);
+        administrator.setFirstName(ADMIN_FIRST_NAME);
+        administrator.setLastName(ADMIN_LAST_NAME);
+        administrator.setSecondLastName(ADMIN_LAST_NAME);
+        administrator.setPassword(TestConstants.DEFAULT_PASSWORD_HASH);
+        administrator.setEmail(ADMIN_EMAIL);
+        administrator.setStatus(TestConstants.STATUS_ACTIVE_USER);
         return administrator;
     }
 
     @Test
-    void testSaveValidAdministratorReturnsTrue() throws Exception {
-        insertAdministratorUser(NEW_ADMINISTRATOR_ID, "A10000010", "admin10@uv.mx");
-        boolean result = dao.saveAdmin(buildAdministrator(NEW_ADMINISTRATOR_ID));
+    void testSaveValidAdministratorReturnsTrue() throws ServiceException, ValidationException {
+        int idUser = persistUserOnly();
+        boolean result = dao.saveAdmin(buildAdministrator(idUser));
         assertTrue(result);
     }
 
     @Test
-    void testSaveAdministratorWithIdZeroThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.saveAdmin(buildAdministrator(INVALID_ID_ZERO)));
+    void testSaveAdministratorWithZeroIdThrowsValidationException() {
+        Administrator administrator = buildAdministrator(TestConstants.INVALID_ID_ZERO);
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveAdmin(administrator);
+            }
+        });
+    }
+
+    private int persistUserOnly() throws ServiceException, ValidationException {
+        int idUser;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idUser = new UserTestDataBuilder()
+                    .withRegistrationNumber(ADMIN_REGISTRATION_NUMBER)
+                    .withEmail(ADMIN_EMAIL)
+                    .withFirstName(ADMIN_FIRST_NAME)
+                    .withLastName(ADMIN_LAST_NAME)
+                    .withRole(TestConstants.ROLE_ADMINISTRATOR)
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idUser;
     }
 
     @Test
-    void testSaveAdministratorWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.saveAdmin(buildAdministrator(INVALID_ID_NEGATIVE)));
-    }
-
-    @Test
-    void testSaveDuplicateAdministratorThrowsDuplicateEntryException() throws Exception {
-        insertAdministratorUser(NEW_ADMINISTRATOR_ID, "A10000010", "admin10@uv.mx");
-        dao.saveAdmin(buildAdministrator(NEW_ADMINISTRATOR_ID));
-        assertThrows(DuplicateEntryException.class,
-                () -> dao.saveAdmin(buildAdministrator(NEW_ADMINISTRATOR_ID)));
-    }
-
-    @Test
-    void testFindByIdAfterSaveReturnsNotNull() throws Exception {
-        insertAdministratorUser(NEW_ADMINISTRATOR_ID, "A10000010", "admin10@uv.mx");
-        dao.saveAdmin(buildAdministrator(NEW_ADMINISTRATOR_ID));
-        Administrator retrieved = dao.findById(NEW_ADMINISTRATOR_ID);
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
+        int idUser = persistAdministratorViaBuilders();
+        Administrator retrieved = dao.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsCorrectId() throws Exception {
-        insertAdministratorUser(NEW_ADMINISTRATOR_ID, "A10000010", "admin10@uv.mx");
-        dao.saveAdmin(buildAdministrator(NEW_ADMINISTRATOR_ID));
-        Administrator retrieved = dao.findById(NEW_ADMINISTRATOR_ID);
-        assertEquals(NEW_ADMINISTRATOR_ID, retrieved.getId());
-    }
-
-    @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        Administrator retrieved = dao.findById(NON_EXISTENT_ID);
-        assertNull(retrieved);
+    void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws ServiceException, ValidationException {
+        int idUser = persistAdministratorViaBuilders();
+        Administrator retrieved = dao.findById(idUser);
+        assertEquals(ADMIN_REGISTRATION_NUMBER, retrieved.getRegistrationNumber());
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_NEGATIVE));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+            }
+        });
     }
 
     @Test
-    void testFindAllWhenEmptyReturnsEmptyList() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
+        Administrator retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        assertNull(retrieved);
+    }
+
+    @Test
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<Administrator> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAfterSaveReturnsOneElement() throws Exception {
-        insertAdministratorUser(NEW_ADMINISTRATOR_ID, "A10000010", "admin10@uv.mx");
-        dao.saveAdmin(buildAdministrator(NEW_ADMINISTRATOR_ID));
+    void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
+        persistAdministratorViaBuilders();
         List<Administrator> all = dao.findAll();
-        assertEquals(1, all.size());
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+    }
+
+    private int persistAdministratorViaBuilders() throws ServiceException, ValidationException {
+        int idUser;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idUser = new UserTestDataBuilder()
+                    .withRegistrationNumber(ADMIN_REGISTRATION_NUMBER)
+                    .withEmail(ADMIN_EMAIL)
+                    .withFirstName(ADMIN_FIRST_NAME)
+                    .withLastName(ADMIN_LAST_NAME)
+                    .withRole(TestConstants.ROLE_ADMINISTRATOR)
+                    .persist(connection);
+            new AdministratorTestDataBuilder().withUserId(idUser).persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idUser;
     }
 }

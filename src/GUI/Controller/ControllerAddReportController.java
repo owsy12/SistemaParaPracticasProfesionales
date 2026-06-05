@@ -255,8 +255,8 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
     }
 
     private String copySignedFile() throws IOException {
-        String internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
-        String folder = "storage/intern_" + internMatricula + "/project_" + selectedReport.getIdProject()
+        String internRegistrationNumber = SessionManager.getInstance().getUsuario().getRegistrationNumber();
+        String folder = "storage/intern_" + internRegistrationNumber + "/project_" + selectedReport.getIdProject()
                 + "/reportes_generados";
         String fileName = "reporte_" + selectedReport.getReportType().toLowerCase()
                 + "_" + selectedReport.getIdReport() + "_firmado";

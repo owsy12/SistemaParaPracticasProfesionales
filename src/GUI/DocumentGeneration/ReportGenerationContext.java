@@ -5,7 +5,7 @@ import javafx.stage.Window;
 public class ReportGenerationContext {
 
     private final String internFullName;
-    private final String matricula;
+    private final String registrationNumber;
     private final String nrc;
     private final String organizationName;
     private final String organizationDepartment;
@@ -18,7 +18,7 @@ public class ReportGenerationContext {
 
     ReportGenerationContext(ReportGenerationContextBuilder builder) {
         this.internFullName = builder.getInternFullName();
-        this.matricula = builder.getMatricula();
+        this.registrationNumber = builder.getRegistrationNumber();
         this.nrc = builder.getNrc();
         this.organizationName = builder.getOrganizationName();
         this.organizationDepartment = builder.getOrganizationDepartment();
@@ -31,7 +31,7 @@ public class ReportGenerationContext {
     }
 
     public String getInternFullName() { return internFullName; }
-    public String getMatricula() { return matricula; }
+    public String getRegistrationNumber() { return registrationNumber; }
     public String getNrc() { return nrc; }
     public String getOrganizationName() { return organizationName; }
     public String getOrganizationDepartment() { return organizationDepartment; }

@@ -67,7 +67,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     private File selectedFile;
     private SelfEvaluation selfEvaluation;
     private int internId;
-    private String internMatricula;
+    private String internRegistrationNumber;
 
     @FXML
     private void initialize() {
@@ -132,7 +132,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             openWelcomePage(anchorPane);
         } else {
             internId = SessionManager.getInstance().getUsuario().getId();
-            internMatricula = SessionManager.getInstance().getUsuario().getMatricula();
+            internRegistrationNumber = SessionManager.getInstance().getUsuario().getRegistrationNumber();
             loadInternData();
         }
     }
@@ -274,7 +274,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     }
 
     private String copySignedFile() throws IOException {
-        String folder = "storage/intern_" + internMatricula + "/project_" + selfEvaluation.getIdProject() + "/self_evaluation";
+        String folder = "storage/intern_" + internRegistrationNumber + "/project_" + selfEvaluation.getIdProject() + "/self_evaluation";
         String fileName = "self_evaluation_" + selfEvaluation.getIdSelfEvalation() + "_signed";
         Path folderPath = Paths.get(folder);
         Files.createDirectories(folderPath);

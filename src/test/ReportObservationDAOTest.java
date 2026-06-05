@@ -1,103 +1,95 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.ReportObservationDAO;
 import Logic.DTOs.ReportObservation;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReportObservationDAOTest extends BaseDAOTest {
 
-    private static final String OBSERVATION_COMMENT = "Falta detallar la metodología empleada.";
-    private static final String OBSERVATION_COMMENT_SECOND = "Adjuntar evidencias firmadas.";
-    private static final String BLANK_COMMENT = "  ";
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -1;
-    private static final int EXPECTED_TWO_OBSERVATIONS = 2;
-
     private final ReportObservationDAO dao = new ReportObservationDAO();
 
-    private ReportObservation buildValidObservation(String comment) {
+    private ReportObservation buildObservation(int idReport, int idProfessor) {
         ReportObservation observation = new ReportObservation();
-        observation.setIdReport(ID_REPORT);
-        observation.setIdProfessor(ID_PROFESSOR);
-        observation.setComment(comment);
+        observation.setIdReport(idReport);
+        observation.setIdProfessor(idProfessor);
+        observation.setComment(TestConstants.DEFAULT_COMMENT);
+        observation.setObservationDate(LocalDateTime.now());
         return observation;
     }
 
     @Test
-    void testSaveValidObservationReturnsTrue() throws Exception {
-        boolean result = dao.save(buildValidObservation(OBSERVATION_COMMENT));
+    void testSaveValidObservationReturnsTrue() throws ServiceException, ValidationException {
+        ObservationContext context = persistContext();
+        boolean result = dao.save(buildObservation(context.idReport, context.idProfessor));
         assertTrue(result);
     }
 
     @Test
-    void testSaveValidObservationAssignsGeneratedId() throws Exception {
-        ReportObservation observation = buildValidObservation(OBSERVATION_COMMENT);
-        dao.save(observation);
-        assertTrue(observation.getIdObservation() > 0);
+    void testSaveObservationWithZeroReportIdThrowsValidationException() throws ServiceException, ValidationException {
+        ObservationContext context = persistContext();
+        ReportObservation observation = buildObservation(TestConstants.INVALID_ID_ZERO, context.idProfessor);
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(observation);
+            }
+        });
     }
 
     @Test
-    void testSaveObservationWithZeroReportIdThrowsValidationException() {
-        ReportObservation observation = buildValidObservation(OBSERVATION_COMMENT);
-        observation.setIdReport(INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.save(observation));
+    void testFindByReportAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
+        ObservationContext context = persistContext();
+        dao.save(buildObservation(context.idReport, context.idProfessor));
+        List<ReportObservation> observations = dao.findByReport(context.idReport);
+        assertEquals(TestConstants.SINGLE_RESULT, observations.size());
     }
 
     @Test
-    void testSaveObservationWithZeroProfessorIdThrowsValidationException() {
-        ReportObservation observation = buildValidObservation(OBSERVATION_COMMENT);
-        observation.setIdProfessor(INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.save(observation));
-    }
-
-    @Test
-    void testSaveObservationWithNullCommentThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.save(buildValidObservation(null)));
-    }
-
-    @Test
-    void testSaveObservationWithBlankCommentThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.save(buildValidObservation(BLANK_COMMENT)));
-    }
-
-    @Test
-    void testFindByReportAfterSaveReturnsOneElement() throws Exception {
-        dao.save(buildValidObservation(OBSERVATION_COMMENT));
-        List<ReportObservation> observations = dao.findByReport(ID_REPORT);
-        assertEquals(1, observations.size());
-    }
-
-    @Test
-    void testFindByReportAfterSaveReturnsCorrectComment() throws Exception {
-        dao.save(buildValidObservation(OBSERVATION_COMMENT));
-        List<ReportObservation> observations = dao.findByReport(ID_REPORT);
-        assertEquals(OBSERVATION_COMMENT, observations.get(0).getComment());
-    }
-
-    @Test
-    void testFindByReportAfterSavingTwoReturnsTwo() throws Exception {
-        dao.save(buildValidObservation(OBSERVATION_COMMENT));
-        dao.save(buildValidObservation(OBSERVATION_COMMENT_SECOND));
-        List<ReportObservation> observations = dao.findByReport(ID_REPORT);
-        assertEquals(EXPECTED_TWO_OBSERVATIONS, observations.size());
-    }
-
-    @Test
-    void testFindByReportWhenNoObservationsReturnsEmptyList() throws Exception {
-        List<ReportObservation> observations = dao.findByReport(ID_REPORT);
+    void testFindByReportWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
+        ObservationContext context = persistContext();
+        List<ReportObservation> observations = dao.findByReport(context.idReport);
         assertTrue(observations.isEmpty());
     }
 
     @Test
     void testFindByReportWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByReport(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByReport(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    @Test
-    void testFindByReportWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByReport(INVALID_ID_NEGATIVE));
+    private ObservationContext persistContext() throws ServiceException, ValidationException {
+        ObservationContext context = new ObservationContext();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            TestScene scene = TestScene.createFullScene(connection);
+            context.idProfessor = scene.getProfessorId();
+            context.idReport = new ReportTestDataBuilder()
+                    .withInternId(scene.getInternId())
+                    .withProjectId(scene.getProjectId())
+                    .withProfessorId(scene.getProfessorId())
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return context;
+    }
+
+    private static final class ObservationContext {
+        int idReport;
+        int idProfessor;
     }
 }

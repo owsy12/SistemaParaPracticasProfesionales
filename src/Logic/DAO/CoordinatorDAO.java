@@ -215,7 +215,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     private Coordinator mapCoordinator(ResultSet resultSet) throws SQLException {
         Coordinator coordinator = new Coordinator();
         coordinator.setId(resultSet.getInt("id_usuario"));
-        coordinator.setMatricula(resultSet.getString("matricula"));
+        coordinator.setRegistrationNumber(resultSet.getString("matricula"));
         coordinator.setFirstName(resultSet.getString("nombre"));
         coordinator.setLastName(resultSet.getString("apellido_paterno"));
         coordinator.setSecondLastName(resultSet.getString("apellido_materno"));

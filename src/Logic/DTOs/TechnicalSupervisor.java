@@ -88,4 +88,27 @@ public class TechnicalSupervisor {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        TechnicalSupervisor other = (TechnicalSupervisor) object;
+        return idTechnicalSupervisor == other.idTechnicalSupervisor
+                && idOrganization == other.idOrganization
+                && java.util.Objects.equals(name, other.name)
+                && java.util.Objects.equals(lastName, other.lastName)
+                && java.util.Objects.equals(secondLastName, other.secondLastName)
+                && java.util.Objects.equals(eMail, other.eMail)
+                && java.util.Objects.equals(position, other.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idTechnicalSupervisor, idOrganization, name, lastName, secondLastName, eMail, position);
+    }
 }

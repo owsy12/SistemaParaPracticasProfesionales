@@ -48,4 +48,24 @@ public class ProjectApplication {
     public void setPreferenceOrder(int preferenceOrder) {
         this.preferenceOrder = preferenceOrder;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        ProjectApplication other = (ProjectApplication) object;
+        return idProjectApplication == other.idProjectApplication
+                && idApplication == other.idApplication
+                && idProject == other.idProject
+                && preferenceOrder == other.preferenceOrder;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idProjectApplication, idApplication, idProject, preferenceOrder);
+    }
 }

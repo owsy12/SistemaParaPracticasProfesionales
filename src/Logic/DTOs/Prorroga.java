@@ -52,4 +52,25 @@ public class Prorroga {
     public void setMotivo(String motivo) {
         this.motivo = motivo;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        Prorroga other = (Prorroga) object;
+        return idProrroga == other.idProrroga
+                && idActivity == other.idActivity
+                && java.util.Objects.equals(originalEndDate, other.originalEndDate)
+                && java.util.Objects.equals(newEndDate, other.newEndDate)
+                && java.util.Objects.equals(motivo, other.motivo);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idProrroga, idActivity, originalEndDate, newEndDate, motivo);
+    }
 }

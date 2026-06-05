@@ -79,4 +79,27 @@ public class InitialFormat {
     public void setIdProject(int idProject) {
         this.idProject = idProject;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        InitialFormat other = (InitialFormat) object;
+        return idInitialFormat == other.idInitialFormat
+                && idIntern == other.idIntern
+                && idProject == other.idProject
+                && java.util.Objects.equals(formatType, other.formatType)
+                && java.util.Objects.equals(filePath, other.filePath)
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(submissionDate, other.submissionDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idInitialFormat, idIntern, idProject, formatType, filePath, status, submissionDate);
+    }
 }

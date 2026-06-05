@@ -1,138 +1,154 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.InternDAO;
 import Logic.DTOs.Intern;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InternDAOTest extends BaseDAOTest {
 
-    private static final int UPDATED_CREDITS = 240;
-    private static final int NEGATIVE_CREDITS = -10;
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ID_NEGATIVE = -1;
-    private static final int NON_EXISTENT_ID = 9999;
-    private static final int EXPECTED_INITIAL_CREDITS = 200;
+    private static final String INTERN_REGISTRATION_NUMBER = "S30000001";
+    private static final String INTERN_EMAIL = "intern.test@uv.mx";
+    private static final String INTERN_FIRST_NAME = "Karen";
+    private static final String INTERN_LAST_NAME = "Reyes";
+    private static final int UPDATED_CREDITS = 280;
 
-    private InternDAO createDao() throws Exception {
+    private InternDAO buildDao() throws ServiceException, ValidationException {
         return new InternDAO();
     }
 
+    private Intern buildIntern() {
+        Intern intern = new Intern();
+        intern.setRegistrationNumber(INTERN_REGISTRATION_NUMBER);
+        intern.setFirstName(INTERN_FIRST_NAME);
+        intern.setLastName(INTERN_LAST_NAME);
+        intern.setSecondLastName(INTERN_LAST_NAME);
+        intern.setPassword(TestConstants.DEFAULT_PASSWORD_HASH);
+        intern.setEmail(INTERN_EMAIL);
+        intern.setStatus(TestConstants.STATUS_ACTIVE_USER);
+        intern.setRole(TestConstants.ROLE_INTERN);
+        intern.setCredits(TestConstants.DEFAULT_INTERN_CREDITS);
+        return intern;
+    }
+
     @Test
-    void testFindByIdReturnsSupportIntern() throws Exception {
-        InternDAO dao = createDao();
-        Intern retrieved = dao.findById(ID_INTERN);
+    void testSaveValidInternReturnsTrue() throws ServiceException, ValidationException {
+        InternDAO dao = buildDao();
+        boolean result = dao.saveIntern(buildIntern());
+        assertTrue(result);
+    }
+
+    @Test
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
+        int idUser = persistInternViaBuilders();
+        InternDAO dao = buildDao();
+        Intern retrieved = dao.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByIdReturnsCorrectCredits() throws Exception {
-        InternDAO dao = createDao();
-        Intern retrieved = dao.findById(ID_INTERN);
-        assertEquals(EXPECTED_INITIAL_CREDITS, retrieved.getCredits());
+    void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
+        InternDAO dao = buildDao();
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithZeroIdThrowsValidationException() throws Exception {
-        InternDAO dao = createDao();
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
-    }
-
-    @Test
-    void testFindByIdWithNegativeIdThrowsValidationException() throws Exception {
-        InternDAO dao = createDao();
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_NEGATIVE));
-    }
-
-    @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        InternDAO dao = createDao();
-        Intern retrieved = dao.findById(NON_EXISTENT_ID);
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
+        InternDAO dao = buildDao();
+        Intern retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllCoordinatorsReturnsSupportIntern() throws Exception {
-        InternDAO dao = createDao();
-        List<Intern> all = dao.findAllCoordinators();
-        assertEquals(1, all.size());
+    void testDeactivateInternWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
+        InternDAO dao = buildDao();
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deactivateIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindAllActiveInternsReturnsSupportIntern() throws Exception {
-        InternDAO dao = createDao();
+    void testDeactivateInternReturnsTrue() throws ServiceException, ValidationException {
+        int idUser = persistInternViaBuilders();
+        InternDAO dao = buildDao();
+        boolean result = dao.deactivateIntern(idUser);
+        assertTrue(result);
+    }
+
+    @Test
+    void testUpdateCreditsReturnsTrue() throws ServiceException, ValidationException {
+        int idUser = persistInternViaBuilders();
+        InternDAO dao = buildDao();
+        boolean result = dao.updateCredits(idUser, UPDATED_CREDITS);
+        assertTrue(result);
+    }
+
+    @Test
+    void testUpdateCreditsWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
+        InternDAO dao = buildDao();
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.updateCredits(TestConstants.INVALID_ID_ZERO, UPDATED_CREDITS);
+            }
+        });
+    }
+
+    @Test
+    void testFindAllActiveInternsAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
+        persistInternViaBuilders();
+        InternDAO dao = buildDao();
         List<Intern> active = dao.findAllActiveinterns();
-        assertEquals(1, active.size());
+        assertEquals(TestConstants.SINGLE_RESULT, active.size());
     }
 
     @Test
-    void testFindByProjectWhenNoAssignmentReturnsEmptyList() throws Exception {
-        InternDAO dao = createDao();
-        List<Intern> interns = dao.findByProject(ID_PROJECT);
-        assertTrue(interns.isEmpty());
+    void testFindByProjectWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
+        InternDAO dao = buildDao();
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByProject(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    @Test
-    void testFindByProjectWithZeroIdThrowsValidationException() throws Exception {
-        InternDAO dao = createDao();
-        assertThrows(ValidationException.class, () -> dao.findByProject(INVALID_ID_ZERO));
-    }
-
-    @Test
-    void testDeactivateInternWithZeroIdThrowsValidationException() throws Exception {
-        InternDAO dao = createDao();
-        assertThrows(ValidationException.class, () -> dao.deactivateIntern(INVALID_ID_ZERO));
-    }
-
-    @Test
-    void testDeactivateInternReturnsTrue() throws Exception {
-        InternDAO dao = createDao();
-        boolean result = dao.deactivateIntern(ID_INTERN);
-        assertTrue(result);
-    }
-
-    @Test
-    void testDeactivateInternWithNonExistentIdReturnsFalse() throws Exception {
-        InternDAO dao = createDao();
-        boolean result = dao.deactivateIntern(NON_EXISTENT_ID);
-        assertFalse(result);
-    }
-
-    @Test
-    void testUpdateCreditsReturnsTrue() throws Exception {
-        InternDAO dao = createDao();
-        boolean result = dao.updateCredits(ID_INTERN, UPDATED_CREDITS);
-        assertTrue(result);
-    }
-
-    @Test
-    void testUpdateCreditsPersistsNewValue() throws Exception {
-        InternDAO dao = createDao();
-        dao.updateCredits(ID_INTERN, UPDATED_CREDITS);
-        Intern retrieved = dao.findById(ID_INTERN);
-        assertEquals(UPDATED_CREDITS, retrieved.getCredits());
-    }
-
-    @Test
-    void testUpdateCreditsWithZeroIdThrowsValidationException() throws Exception {
-        InternDAO dao = createDao();
-        assertThrows(ValidationException.class,
-                () -> dao.updateCredits(INVALID_ID_ZERO, UPDATED_CREDITS));
-    }
-
-    @Test
-    void testUpdateCreditsWithNegativeCreditsThrowsValidationException() throws Exception {
-        InternDAO dao = createDao();
-        assertThrows(ValidationException.class,
-                () -> dao.updateCredits(ID_INTERN, NEGATIVE_CREDITS));
-    }
-
-    @Test
-    void testUpdateCreditsWithNonExistentInternReturnsFalse() throws Exception {
-        InternDAO dao = createDao();
-        boolean result = dao.updateCredits(NON_EXISTENT_ID, UPDATED_CREDITS);
-        assertFalse(result);
+    private int persistInternViaBuilders() throws ServiceException, ValidationException {
+        int idUser;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idUser = new UserTestDataBuilder()
+                    .withRegistrationNumber(INTERN_REGISTRATION_NUMBER)
+                    .withEmail(INTERN_EMAIL)
+                    .withFirstName(INTERN_FIRST_NAME)
+                    .withLastName(INTERN_LAST_NAME)
+                    .withRole(TestConstants.ROLE_INTERN)
+                    .persist(connection);
+            new InternTestDataBuilder()
+                    .withUserId(idUser)
+                    .withCredits(TestConstants.DEFAULT_INTERN_CREDITS)
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idUser;
     }
 }

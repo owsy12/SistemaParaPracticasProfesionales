@@ -8,12 +8,12 @@ public class Intern extends User {
         super();
     }
 
-    public Intern(int id, String matricula, String firstName,
+    public Intern(int id, String registrationNumber, String firstName,
                      String lastName, String secondLastName,
                      String password, String status,
                      int credits) {
 
-        super(id, matricula, firstName, lastName, secondLastName, password, status);
+        super(id, registrationNumber, firstName, lastName, secondLastName, password, status);
         this.credits = credits;
     }
 
@@ -33,5 +33,25 @@ public class Intern extends User {
             result = getFirstName() + " " + getLastName() + " " + getSecondLastName();
         }
         return result;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        Intern other = (Intern) object;
+        return credits == other.credits;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(super.hashCode(), credits);
     }
 }

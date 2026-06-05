@@ -92,7 +92,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     private TableColumn<Intern, String> internNameColumn;
 
     @FXML
-    private TableColumn<Intern, String> internMatriculaColumn;
+    private TableColumn<Intern, String> internRegistrationNumberColumn;
 
     @FXML
     private Label internsStatusLabel;

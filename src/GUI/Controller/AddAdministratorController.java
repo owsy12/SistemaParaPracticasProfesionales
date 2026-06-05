@@ -95,7 +95,7 @@ public class AddAdministratorController {
                         Alert.AlertType.WARNING);
             } else {
                 User administrator = new User();
-                administrator.setMatricula(idTextField.getText());
+                administrator.setRegistrationNumber(idTextField.getText());
                 administrator.setFirstName(firstNameTextField.getText());
                 administrator.setLastName(lastNameTextField.getText());
                 administrator.setSecondLastName(secondLastNameTextField.getText());

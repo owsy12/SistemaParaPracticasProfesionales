@@ -218,7 +218,7 @@ public class ProfessorDAO implements IProfessorDAO {
 
         Professor professor = new Professor();
         professor.setId(resultSet.getInt("id_usuario"));
-        professor.setMatricula(resultSet.getString("matricula"));
+        professor.setRegistrationNumber(resultSet.getString("matricula"));
         professor.setFirstName(resultSet.getString("nombre"));
         professor.setLastName(resultSet.getString("apellido_paterno"));
         professor.setSecondLastName(resultSet.getString("apellido_materno"));

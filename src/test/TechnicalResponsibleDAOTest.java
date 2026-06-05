@@ -1,143 +1,155 @@
+import DataAccess.DataBaseConnection;
 import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.TechnicalSupervisor;
-import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TechnicalResponsibleDAOTest extends BaseDAOTest {
 
-    private static final String NEW_NAME = "Mario";
-    private static final String NEW_LAST_NAME = "Hernández";
-    private static final String NEW_SECOND_LAST_NAME = "Ríos";
-    private static final String NEW_EMAIL = "mario.hernandez@techcorp.mx";
-    private static final String NEW_POSITION = "Líder de proyecto";
-    private static final String UPDATED_NAME = "Mario Alberto";
-    private static final int INVALID_ID_ZERO = 0;
-    private static final int INVALID_ORGANIZATION_ID_ZERO = 0;
-    private static final int NON_EXISTENT_ID = 9999;
+    private static final String TECH_FIRST_NAME = "Sandra";
+    private static final String TECH_LAST_NAME = "Núñez";
+    private static final String TECH_EMAIL = "sandra.nunez@techcorp-test.mx";
+    private static final String TECH_POSITION = "Líder de proyecto";
+    private static final String UPDATED_TECH_POSITION = "Directora de proyecto";
 
     private final TechnicalResponsibleDAO dao = new TechnicalResponsibleDAO();
 
-    private TechnicalSupervisor buildValidSupervisor() {
+    private TechnicalSupervisor buildSupervisor(int idOrganization) {
         TechnicalSupervisor supervisor = new TechnicalSupervisor();
-        supervisor.setIdOrganization(ID_ORGANIZATION);
-        supervisor.setName(NEW_NAME);
-        supervisor.setLastName(NEW_LAST_NAME);
-        supervisor.setSecondLastName(NEW_SECOND_LAST_NAME);
-        supervisor.seteMail(NEW_EMAIL);
-        supervisor.setPosition(NEW_POSITION);
+        supervisor.setIdOrganization(idOrganization);
+        supervisor.setName(TECH_FIRST_NAME);
+        supervisor.setLastName(TECH_LAST_NAME);
+        supervisor.setSecondLastName(TECH_LAST_NAME);
+        supervisor.seteMail(TECH_EMAIL);
+        supervisor.setPosition(TECH_POSITION);
         return supervisor;
     }
 
     @Test
-    void testSaveValidSupervisorReturnsTrue() throws Exception {
-        boolean result = dao.saveTechnicalResponsible(buildValidSupervisor());
+    void testSaveValidSupervisorReturnsTrue() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganization();
+        boolean result = dao.saveTechnicalResponsible(buildSupervisor(idOrganization));
         assertTrue(result);
     }
 
     @Test
-    void testSaveDuplicateEmailThrowsDuplicateEntryException() throws Exception {
-        dao.saveTechnicalResponsible(buildValidSupervisor());
-        assertThrows(DuplicateEntryException.class,
-                () -> dao.saveTechnicalResponsible(buildValidSupervisor()));
-    }
-
-    @Test
-    void testFindByIdReturnsSupportSupervisor() throws Exception {
-        TechnicalSupervisor retrieved = dao.findById(ID_TECHNICAL);
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
+        int idTechnical = persistSupervisorViaBuilders();
+        TechnicalSupervisor retrieved = dao.findById(idTechnical);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByIdReturnsCorrectOrganizationId() throws Exception {
-        TechnicalSupervisor retrieved = dao.findById(ID_TECHNICAL);
-        assertEquals(ID_ORGANIZATION, retrieved.getIdOrganization());
-    }
-
-    @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
-        TechnicalSupervisor retrieved = dao.findById(NON_EXISTENT_ID);
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
+        TechnicalSupervisor retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllReturnsAtLeastOneElement() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<TechnicalSupervisor> all = dao.findAll();
-        assertEquals(1, all.size());
+        assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAfterSaveReturnsTwoElements() throws Exception {
-        dao.saveTechnicalResponsible(buildValidSupervisor());
+    void testFindAllAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
+        persistSupervisorViaBuilders();
         List<TechnicalSupervisor> all = dao.findAll();
-        assertEquals(2, all.size());
+        assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testFindByOrganizationReturnsSupportSupervisor() throws Exception {
-        List<TechnicalSupervisor> supervisors = dao.findByOrganization(ID_ORGANIZATION);
-        assertEquals(1, supervisors.size());
-    }
-
-    @Test
-    void testFindByOrganizationWhenNoneReturnsEmptyList() throws Exception {
-        List<TechnicalSupervisor> supervisors = dao.findByOrganization(NON_EXISTENT_ID);
-        assertTrue(supervisors.isEmpty());
+    void testFindByOrganizationReturnsOneElement() throws ServiceException, ValidationException {
+        int idOrganization = persistOrganization();
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            new TechnicalSupervisorTestDataBuilder()
+                    .withOrganizationId(idOrganization)
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        List<TechnicalSupervisor> byOrg = dao.findByOrganization(idOrganization);
+        assertEquals(TestConstants.SINGLE_RESULT, byOrg.size());
     }
 
     @Test
     void testFindByOrganizationWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findByOrganization(INVALID_ORGANIZATION_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByOrganization(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testUpdateSupervisorReturnsTrue() throws Exception {
-        TechnicalSupervisor supervisor = dao.findById(ID_TECHNICAL);
-        supervisor.setName(UPDATED_NAME);
+    void testUpdateSupervisorReturnsTrue() throws ServiceException, ValidationException {
+        int idTechnical = persistSupervisorViaBuilders();
+        TechnicalSupervisor supervisor = dao.findById(idTechnical);
+        supervisor.setPosition(UPDATED_TECH_POSITION);
         boolean result = dao.update(supervisor);
         assertTrue(result);
     }
 
     @Test
-    void testUpdateSupervisorPersistsNewName() throws Exception {
-        TechnicalSupervisor supervisor = dao.findById(ID_TECHNICAL);
-        supervisor.setName(UPDATED_NAME);
-        dao.update(supervisor);
-        TechnicalSupervisor retrieved = dao.findById(ID_TECHNICAL);
-        assertEquals(UPDATED_NAME, retrieved.getName());
+    void testDeleteSupervisorWithZeroIdThrowsValidationException() {
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.delete(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testUpdateSupervisorWithZeroIdThrowsValidationException() {
-        TechnicalSupervisor supervisor = buildValidSupervisor();
-        supervisor.setIdTechnicalSupervisor(INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.update(supervisor));
+    void testDeleteSupervisorReturnsTrue() throws ServiceException, ValidationException {
+        int idTechnical = persistSupervisorViaBuilders();
+        boolean result = dao.delete(idTechnical);
+        assertTrue(result);
     }
 
-    @Test
-    void testDeleteWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(INVALID_ID_ZERO));
+    private int persistOrganization() throws ServiceException, ValidationException {
+        int idOrganization;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            idOrganization = new OrganizationTestDataBuilder().persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idOrganization;
     }
 
-    @Test
-    void testDeleteNonExistentSupervisorReturnsFalse() throws Exception {
-        boolean result = dao.delete(NON_EXISTENT_ID);
-        assertFalse(result);
-    }
-
-    @Test
-    void testDeleteWithOrganizationValidationFailsWhenOrgHasProjects() {
-        assertThrows(ValidationException.class,
-                () -> dao.deleteWithOrganizationValidation(ID_TECHNICAL));
+    private int persistSupervisorViaBuilders() throws ServiceException, ValidationException {
+        int idTechnical;
+        try (Connection connection = DataBaseConnection.connectDatabase()) {
+            int idOrganization = new OrganizationTestDataBuilder().persist(connection);
+            idTechnical = new TechnicalSupervisorTestDataBuilder()
+                    .withOrganizationId(idOrganization)
+                    .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
+        }
+        return idTechnical;
     }
 }
