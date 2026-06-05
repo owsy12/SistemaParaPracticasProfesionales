@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.InternDAO;
 import Logic.DTOs.Intern;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,7 +24,7 @@ class InternDAOTest extends BaseDAOTest {
     private static final String INTERN_LAST_NAME = "Reyes";
     private static final int UPDATED_CREDITS = 280;
 
-    private InternDAO buildDao() throws Exception {
+    private InternDAO buildDao() throws ServiceException, ValidationException {
         return new InternDAO();
     }
 
@@ -40,14 +43,14 @@ class InternDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidInternReturnsTrue() throws Exception {
+    void testSaveValidInternReturnsTrue() throws ServiceException, ValidationException {
         InternDAO dao = buildDao();
         boolean result = dao.saveIntern(buildIntern());
         assertTrue(result);
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsNotNull() throws Exception {
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistInternViaBuilders();
         InternDAO dao = buildDao();
         Intern retrieved = dao.findById(idUser);
@@ -55,27 +58,36 @@ class InternDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByIdWithZeroIdThrowsValidationException() throws Exception {
+    void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         InternDAO dao = buildDao();
-        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         InternDAO dao = buildDao();
         Intern retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testDeactivateInternWithZeroIdThrowsValidationException() throws Exception {
+    void testDeactivateInternWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         InternDAO dao = buildDao();
-        assertThrows(ValidationException.class,
-                () -> dao.deactivateIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deactivateIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testDeactivateInternReturnsTrue() throws Exception {
+    void testDeactivateInternReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistInternViaBuilders();
         InternDAO dao = buildDao();
         boolean result = dao.deactivateIntern(idUser);
@@ -83,7 +95,7 @@ class InternDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateCreditsReturnsTrue() throws Exception {
+    void testUpdateCreditsReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistInternViaBuilders();
         InternDAO dao = buildDao();
         boolean result = dao.updateCredits(idUser, UPDATED_CREDITS);
@@ -91,14 +103,18 @@ class InternDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateCreditsWithZeroIdThrowsValidationException() throws Exception {
+    void testUpdateCreditsWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         InternDAO dao = buildDao();
-        assertThrows(ValidationException.class,
-                () -> dao.updateCredits(TestConstants.INVALID_ID_ZERO, UPDATED_CREDITS));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.updateCredits(TestConstants.INVALID_ID_ZERO, UPDATED_CREDITS);
+            }
+        });
     }
 
     @Test
-    void testFindAllActiveInternsAfterPersistReturnsOneElement() throws Exception {
+    void testFindAllActiveInternsAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistInternViaBuilders();
         InternDAO dao = buildDao();
         List<Intern> active = dao.findAllActiveinterns();
@@ -106,13 +122,17 @@ class InternDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByProjectWithZeroIdThrowsValidationException() throws Exception {
+    void testFindByProjectWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         InternDAO dao = buildDao();
-        assertThrows(ValidationException.class,
-                () -> dao.findByProject(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByProject(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    private int persistInternViaBuilders() throws Exception {
+    private int persistInternViaBuilders() throws ServiceException, ValidationException {
         int idUser;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idUser = new UserTestDataBuilder()
@@ -126,6 +146,8 @@ class InternDAOTest extends BaseDAOTest {
                     .withUserId(idUser)
                     .withCredits(TestConstants.DEFAULT_INTERN_CREDITS)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idUser;
     }

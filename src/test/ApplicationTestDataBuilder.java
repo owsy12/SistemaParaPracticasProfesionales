@@ -1,3 +1,5 @@
+import Logic.Exceptions.ServiceException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,7 +24,7 @@ public final class ApplicationTestDataBuilder {
         return this;
     }
 
-    public int persist(Connection connection) throws SQLException {
+    public int persist(Connection connection) throws ServiceException {
         int generatedId = 0;
         try (PreparedStatement statement = connection.prepareStatement(
                 INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
@@ -34,6 +36,8 @@ public final class ApplicationTestDataBuilder {
                     generatedId = keys.getInt(1);
                 }
             }
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to persist application test data", sqlException);
         }
         return generatedId;
     }

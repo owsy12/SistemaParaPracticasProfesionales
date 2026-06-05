@@ -1,3 +1,5 @@
+import Logic.Exceptions.ServiceException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -64,7 +66,7 @@ public final class ProjectTestDataBuilder {
         return this;
     }
 
-    public int persist(Connection connection) throws SQLException {
+    public int persist(Connection connection) throws ServiceException {
         int generatedId = 0;
         try (PreparedStatement statement = connection.prepareStatement(
                 INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
@@ -85,6 +87,8 @@ public final class ProjectTestDataBuilder {
                     generatedId = keys.getInt(1);
                 }
             }
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to persist project test data", sqlException);
         }
         return generatedId;
     }

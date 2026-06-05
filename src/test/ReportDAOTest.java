@@ -2,10 +2,13 @@ import DataAccess.DataBaseConnection;
 import Logic.DAO.ReportDAO;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportStatusUpdate;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Date;
 import java.util.List;
 
@@ -44,14 +47,14 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidReportReturnsOneRowAffected() throws Exception {
+    void testSaveValidReportReturnsOneRowAffected() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         int result = dao.save(buildReport(context));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveValidReportAssignsGeneratedId() throws Exception {
+    void testSaveValidReportAssignsGeneratedId() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         Report report = buildReport(context);
         dao.save(report);
@@ -59,15 +62,20 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveReportWithZeroInternIdThrowsValidationException() throws Exception {
+    void testSaveReportWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         Report report = buildReport(context);
         report.setIdIntern(TestConstants.INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.save(report));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(report);
+            }
+        });
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
+    void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         int idReport = persistReportRow(context);
         Report retrieved = dao.getById(idReport);
@@ -76,17 +84,22 @@ class ReportDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         Report retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+    void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         List<Report> all = dao.getAll();
@@ -94,13 +107,13 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+    void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<Report> all = dao.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testGetByStatusPendingReturnsOneElement() throws Exception {
+    void testGetByStatusPendingReturnsOneElement() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         List<Report> pending = dao.getByStatusPending();
@@ -108,7 +121,7 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetByIdInternReturnsOneElement() throws Exception {
+    void testGetByIdInternReturnsOneElement() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         List<Report> reports = dao.getByIdIntern(context.idIntern);
@@ -117,12 +130,16 @@ class ReportDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.getByIdIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getByIdIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testGetByInternAndProjectReturnsOneElement() throws Exception {
+    void testGetByInternAndProjectReturnsOneElement() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         List<Report> reports = dao.getByInternAndProject(context.idIntern, context.idProject);
@@ -130,7 +147,7 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateStatusReturnsTrue() throws Exception {
+    void testUpdateStatusReturnsTrue() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         int idReport = persistReportRow(context);
         boolean result = dao.updateStatus(idReport, buildReviewUpdate());
@@ -138,7 +155,7 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateSignedDocumentPathReturnsTrue() throws Exception {
+    void testUpdateSignedDocumentPathReturnsTrue() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         int idReport = persistReportRow(context);
         boolean result = dao.updateSignedDocumentPath(idReport, SIGNED_DOCUMENT_PATH);
@@ -146,7 +163,7 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateDocumentPathReturnsTrue() throws Exception {
+    void testUpdateDocumentPathReturnsTrue() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         int idReport = persistReportRow(context);
         boolean result = dao.updateDocumentPath(idReport, NEW_DOCUMENT_PATH);
@@ -154,7 +171,7 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testMarkLateDeliveryReturnsTrue() throws Exception {
+    void testMarkLateDeliveryReturnsTrue() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         int idReport = persistReportRow(context);
         boolean result = dao.markLateDelivery(idReport);
@@ -162,7 +179,7 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetTotalApprovedHoursByInternReturnsZero() throws Exception {
+    void testGetTotalApprovedHoursByInternReturnsZero() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         int total = dao.getTotalApprovedHoursByIntern(context.idIntern);
@@ -171,12 +188,16 @@ class ReportDAOTest extends BaseDAOTest {
 
     @Test
     void testGetTotalApprovedHoursByInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.getTotalApprovedHoursByIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getTotalApprovedHoursByIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testExistsPartialByInternAndProjectReturnsTrue() throws Exception {
+    void testExistsPartialByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         boolean exists = dao.existsPartialByInternAndProject(context.idIntern, context.idProject);
@@ -184,7 +205,7 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testExistsFinalByInternAndProjectReturnsFalse() throws Exception {
+    void testExistsFinalByInternAndProjectReturnsFalse() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         boolean exists = dao.existsFinalByInternAndProject(context.idIntern, context.idProject);
@@ -192,25 +213,27 @@ class ReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+    void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         ReportContext context = persistContext();
         persistReportRow(context);
         boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 
-    private ReportContext persistContext() throws Exception {
+    private ReportContext persistContext() throws ServiceException, ValidationException {
         ReportContext context = new ReportContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             context.idIntern = scene.getInternId();
             context.idProject = scene.getProjectId();
             context.idProfessor = scene.getProfessorId();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }
 
-    private int persistReportRow(ReportContext context) throws Exception {
+    private int persistReportRow(ReportContext context) throws ServiceException, ValidationException {
         int idReport;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idReport = new ReportTestDataBuilder()
@@ -218,6 +241,8 @@ class ReportDAOTest extends BaseDAOTest {
                     .withProjectId(context.idProject)
                     .withProfessorId(context.idProfessor)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idReport;
     }

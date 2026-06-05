@@ -1,3 +1,5 @@
+import Logic.Exceptions.ServiceException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,7 +64,7 @@ public final class UserTestDataBuilder {
         return this;
     }
 
-    public int persist(Connection connection) throws SQLException {
+    public int persist(Connection connection) throws ServiceException {
         int generatedId = insertUser(connection);
         if (role != null) {
             insertRole(connection, generatedId);
@@ -70,7 +72,7 @@ public final class UserTestDataBuilder {
         return generatedId;
     }
 
-    private int insertUser(Connection connection) throws SQLException {
+    private int insertUser(Connection connection) throws ServiceException {
         int generatedId = 0;
         try (PreparedStatement statement = connection.prepareStatement(
                 INSERT_USER_SQL, Statement.RETURN_GENERATED_KEYS)) {
@@ -86,16 +88,20 @@ public final class UserTestDataBuilder {
                     generatedId = keys.getInt(1);
                 }
             }
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to persist user test data", sqlException);
         }
         return generatedId;
     }
 
-    private void insertRole(Connection connection, int idUser) throws SQLException {
+    private void insertRole(Connection connection, int idUser) throws ServiceException {
         try (PreparedStatement statement = connection.prepareStatement(INSERT_ROLE_SQL)) {
             statement.setInt(1, idUser);
             statement.setString(2, role);
             statement.setString(3, roleStatus);
             statement.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to persist user role test data", sqlException);
         }
     }
 }

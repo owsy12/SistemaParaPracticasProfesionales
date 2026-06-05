@@ -27,4 +27,24 @@ public class Administrator extends User {
     public void setIdAdmin(int idAdmin) {
         this.idAdmin = idAdmin;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        Administrator other = (Administrator) object;
+        return idAdmin == other.idAdmin;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(super.hashCode(), idAdmin);
+    }
 }

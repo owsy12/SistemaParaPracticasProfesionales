@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,7 +33,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidInitialFormatReturnsPositiveId() throws Exception {
+    void testSaveValidInitialFormatReturnsPositiveId() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         int generatedId = dao.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
@@ -38,15 +41,20 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveInitialFormatWithZeroInternIdThrowsValidationException() throws Exception {
+    void testSaveInitialFormatWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         InitialFormat initialFormat = buildInitialFormat(
                 TestConstants.INVALID_ID_ZERO, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT);
-        assertThrows(ValidationException.class, () -> dao.save(initialFormat));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(initialFormat);
+            }
+        });
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
+    void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         int idInitialFormat = dao.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
@@ -56,17 +64,22 @@ class InitialFormatDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         InitialFormat retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+    void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         dao.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
@@ -75,13 +88,13 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+    void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<InitialFormat> all = dao.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testGetByIdInternAfterSaveReturnsOneElement() throws Exception {
+    void testGetByIdInternAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         dao.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
@@ -91,12 +104,16 @@ class InitialFormatDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.getByIdIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getByIdIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindPendingByInternAfterSaveReturnsOneElement() throws Exception {
+    void testFindPendingByInternAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         dao.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
@@ -105,7 +122,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateStatusReturnsOneRowAffected() throws Exception {
+    void testUpdateStatusReturnsOneRowAffected() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         int idInitialFormat = dao.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_SCHEDULE));
@@ -116,7 +133,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+    void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
         dao.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_CERTIFICATE));
@@ -124,12 +141,14 @@ class InitialFormatDAOTest extends BaseDAOTest {
         assertTrue(result);
     }
 
-    private InitialFormatContext persistContext() throws Exception {
+    private InitialFormatContext persistContext() throws ServiceException, ValidationException {
         InitialFormatContext context = new InitialFormatContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             context.idIntern = scene.getInternId();
             context.idProject = scene.getProjectId();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }

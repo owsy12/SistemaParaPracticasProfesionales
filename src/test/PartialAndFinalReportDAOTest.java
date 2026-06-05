@@ -5,8 +5,10 @@ import Logic.DTOs.Report;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
@@ -41,22 +43,27 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidPartialReportReturnsOneRowAffected() throws Exception {
+    void testSaveValidPartialReportReturnsOneRowAffected() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         int result = dao.save(buildPartialReport(context));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSavePartialReportWithZeroInternIdThrowsServiceException() throws Exception {
+    void testSavePartialReportWithZeroInternIdThrowsServiceException() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         PartialAndFinalReport report = buildPartialReport(context);
         report.setIdIntern(TestConstants.INVALID_ID_ZERO);
-        assertThrows(ServiceException.class, () -> dao.save(report));
+        assertThrows(ServiceException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(report);
+            }
+        });
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
+    void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         PartialAndFinalReport report = buildPartialReport(context);
         dao.save(report);
@@ -66,17 +73,22 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         PartialAndFinalReport retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+    void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         dao.save(buildPartialReport(context));
         List<Report> all = dao.getAll();
@@ -84,26 +96,28 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+    void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<Report> all = dao.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testGetByStatusPendingReturnsOneElement() throws Exception {
+    void testGetByStatusPendingReturnsOneElement() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         dao.save(buildPartialReport(context));
         List<Report> pending = dao.getByStatusPending();
         assertEquals(TestConstants.SINGLE_RESULT, pending.size());
     }
 
-    private ReportSceneContext persistContext() throws Exception {
+    private ReportSceneContext persistContext() throws ServiceException, ValidationException {
         ReportSceneContext context = new ReportSceneContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             context.idIntern = scene.getInternId();
             context.idProject = scene.getProjectId();
             context.idProfessor = scene.getProfessorId();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }

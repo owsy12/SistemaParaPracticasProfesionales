@@ -2,10 +2,13 @@ import DataAccess.DataBaseConnection;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Project;
 import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -50,38 +53,52 @@ class ProjectDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidProjectReturnsTrue() throws Exception {
+    void testSaveValidProjectReturnsTrue() throws ServiceException, ValidationException {
         ProjectContext context = persistFKDependencies();
         boolean result = dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
         assertTrue(result);
     }
 
     @Test
-    void testSaveProjectWithStartAfterEndThrowsValidationException() throws Exception {
+    void testSaveProjectWithStartAfterEndThrowsValidationException() throws ServiceException, ValidationException {
         ProjectContext context = persistFKDependencies();
         Project project = buildProject(context, NEW_PROJECT_NAME);
         project.setEndDate(INVALID_END);
-        assertThrows(ValidationException.class, () -> dao.saveProject(project));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveProject(project);
+            }
+        });
     }
 
     @Test
-    void testSaveProjectWithZeroMaxSlotsThrowsValidationException() throws Exception {
+    void testSaveProjectWithZeroMaxSlotsThrowsValidationException() throws ServiceException, ValidationException {
         ProjectContext context = persistFKDependencies();
         Project project = buildProject(context, NEW_PROJECT_NAME);
         project.setMaximumPlaces(INVALID_MAX_SLOTS);
-        assertThrows(ValidationException.class, () -> dao.saveProject(project));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveProject(project);
+            }
+        });
     }
 
     @Test
-    void testSaveDuplicateNameSameOrganizationThrowsDuplicateEntryException() throws Exception {
+    void testSaveDuplicateNameSameOrganizationThrowsDuplicateEntryException() throws ServiceException, ValidationException {
         ProjectContext context = persistFKDependencies();
         dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
-        assertThrows(DuplicateEntryException.class,
-                () -> dao.saveProject(buildProject(context, NEW_PROJECT_NAME)));
+        assertThrows(DuplicateEntryException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
+            }
+        });
     }
 
     @Test
-    void testFindByIdAfterPersistReturnsNotNull() throws Exception {
+    void testFindByIdAfterPersistReturnsNotNull() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
         Project retrieved = dao.findById(idProject);
         assertNotNull(retrieved);
@@ -89,37 +106,42 @@ class ProjectDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         Project retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllReturnsOneElement() throws Exception {
+    void testFindAllReturnsOneElement() throws ServiceException, ValidationException {
         persistProjectViaScene();
         List<Project> all = dao.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<Project> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAvailableReturnsOneElement() throws Exception {
+    void testFindAllAvailableReturnsOneElement() throws ServiceException, ValidationException {
         persistProjectViaScene();
         List<Project> available = dao.findAllAvailable();
         assertEquals(TestConstants.SINGLE_RESULT, available.size());
     }
 
     @Test
-    void testUpdateProjectReturnsTrue() throws Exception {
+    void testUpdateProjectReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
         Project project = dao.findById(idProject);
         project.setName(UPDATED_PROJECT_NAME);
@@ -128,44 +150,53 @@ class ProjectDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testCancelProjectReturnsTrue() throws Exception {
+    void testCancelProjectReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
         boolean result = dao.cancelProject(idProject);
         assertTrue(result);
     }
 
     @Test
-    void testDecrementAvailableSlotReturnsTrue() throws Exception {
+    void testDecrementAvailableSlotReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
         boolean result = dao.decrementAvailableSlot(idProject);
         assertTrue(result);
     }
 
     @Test
-    void testIncrementAvailableSlotReturnsTrue() throws Exception {
+    void testIncrementAvailableSlotReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
         boolean result = dao.incrementAvailableSlot(idProject);
         assertTrue(result);
     }
 
     @Test
-    void testExistsByNrcReturnsFalseForUnusedNrc() throws Exception {
+    void testExistsByNrcReturnsFalseForUnusedNrc() throws ServiceException, ValidationException {
         boolean exists = dao.existsByNrc(TestConstants.UNUSED_NRC);
         assertFalse(exists);
     }
 
     @Test
     void testExistsByNrcWithBlankNrcThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.existsByNrc(TestConstants.BLANK_TEXT));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.existsByNrc(TestConstants.BLANK_TEXT);
+            }
+        });
     }
 
     @Test
     void testDeleteProjectWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.deleteProject(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deleteProject(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    private ProjectContext persistFKDependencies() throws Exception {
+    private ProjectContext persistFKDependencies() throws ServiceException, ValidationException {
         ProjectContext context = new ProjectContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             context.idOrganization = new OrganizationTestDataBuilder().persist(connection);
@@ -181,15 +212,19 @@ class ProjectDAOTest extends BaseDAOTest {
             new EducationalExperienceTestDataBuilder()
                     .withProfessorId(context.idProfessor)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }
 
-    private int persistProjectViaScene() throws Exception {
+    private int persistProjectViaScene() throws ServiceException, ValidationException {
         int idProject;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             idProject = scene.getProjectId();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idProject;
     }

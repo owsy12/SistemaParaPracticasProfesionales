@@ -1,4 +1,5 @@
 import DataAccess.DataBaseConnection;
+import Logic.Exceptions.ServiceException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -67,37 +68,29 @@ public abstract class BaseDAOTest {
     };
 
     @BeforeEach
-    protected void cleanDatabaseBeforeTest() throws SQLException {
+    protected void cleanDatabaseBeforeTest() throws ServiceException {
         resetDatabase();
     }
 
     @AfterEach
-    protected void cleanDatabaseAfterTest() throws SQLException {
+    protected void cleanDatabaseAfterTest() throws ServiceException {
         resetDatabase();
     }
 
-    private void resetDatabase() throws SQLException {
+    private void resetDatabase() throws ServiceException {
         try (Connection connection = DataBaseConnection.connectDatabase();
              Statement statement = connection.createStatement()) {
             statement.execute(DISABLE_FK_CHECKS);
-            executeAllDeletes(statement);
-            executeAllResets(statement);
+            for (String deleteStatement : DELETE_STATEMENTS) {
+                statement.execute(deleteStatement);
+            }
+            for (String resetStatement : RESET_AUTO_INCREMENT_STATEMENTS) {
+                statement.execute(resetStatement);
+            }
             statement.execute(ENABLE_FK_CHECKS);
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error resetting test database: {0}", sqlException.getMessage());
-            throw sqlException;
-        }
-    }
-
-    private void executeAllDeletes(Statement statement) throws SQLException {
-        for (String deleteStatement : DELETE_STATEMENTS) {
-            statement.execute(deleteStatement);
-        }
-    }
-
-    private void executeAllResets(Statement statement) throws SQLException {
-        for (String resetStatement : RESET_AUTO_INCREMENT_STATEMENTS) {
-            statement.execute(resetStatement);
+            throw new ServiceException("Error resetting test database", sqlException);
         }
     }
 }

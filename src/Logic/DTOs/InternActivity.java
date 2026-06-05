@@ -100,4 +100,28 @@ public class InternActivity {
     public String toString() {
         return activityName != null ? activityName : String.valueOf(idActivity);
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        InternActivity other = (InternActivity) object;
+        return idInternActivity == other.idInternActivity
+                && idActivity == other.idActivity
+                && idIntern == other.idIntern
+                && dedicatedHours == other.dedicatedHours
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(completionDate, other.completionDate)
+                && java.util.Objects.equals(observations, other.observations)
+                && java.util.Objects.equals(activityName, other.activityName);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idInternActivity, idActivity, idIntern, dedicatedHours, status, completionDate, observations, activityName);
+    }
 }

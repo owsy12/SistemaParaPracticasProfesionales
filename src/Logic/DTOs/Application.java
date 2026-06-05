@@ -54,4 +54,24 @@ public class Application {
     }
 
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        Application other = (Application) object;
+        return idApplication == other.idApplication
+                && idIntern == other.idIntern
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(applicationDate, other.applicationDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idApplication, idIntern, status, applicationDate);
+    }
 }

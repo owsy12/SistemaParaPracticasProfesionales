@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.AdministratorDAO;
 import Logic.DTOs.Administrator;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +39,7 @@ class AdministratorDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidAdministratorReturnsTrue() throws Exception {
+    void testSaveValidAdministratorReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistUserOnly();
         boolean result = dao.saveAdmin(buildAdministrator(idUser));
         assertTrue(result);
@@ -45,10 +48,15 @@ class AdministratorDAOTest extends BaseDAOTest {
     @Test
     void testSaveAdministratorWithZeroIdThrowsValidationException() {
         Administrator administrator = buildAdministrator(TestConstants.INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.saveAdmin(administrator));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveAdmin(administrator);
+            }
+        });
     }
 
-    private int persistUserOnly() throws Exception {
+    private int persistUserOnly() throws ServiceException, ValidationException {
         int idUser;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idUser = new UserTestDataBuilder()
@@ -58,19 +66,21 @@ class AdministratorDAOTest extends BaseDAOTest {
                     .withLastName(ADMIN_LAST_NAME)
                     .withRole(TestConstants.ROLE_ADMINISTRATOR)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idUser;
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsNotNull() throws Exception {
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistAdministratorViaBuilders();
         Administrator retrieved = dao.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws Exception {
+    void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws ServiceException, ValidationException {
         int idUser = persistAdministratorViaBuilders();
         Administrator retrieved = dao.findById(idUser);
         assertEquals(ADMIN_REGISTRATION_NUMBER, retrieved.getRegistrationNumber());
@@ -78,35 +88,44 @@ class AdministratorDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findById(TestConstants.INVALID_ID_NEGATIVE));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         Administrator retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<Administrator> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAfterSaveReturnsOneElement() throws Exception {
+    void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         persistAdministratorViaBuilders();
         List<Administrator> all = dao.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
-    private int persistAdministratorViaBuilders() throws Exception {
+    private int persistAdministratorViaBuilders() throws ServiceException, ValidationException {
         int idUser;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idUser = new UserTestDataBuilder()
@@ -117,6 +136,8 @@ class AdministratorDAOTest extends BaseDAOTest {
                     .withRole(TestConstants.ROLE_ADMINISTRATOR)
                     .persist(connection);
             new AdministratorTestDataBuilder().withUserId(idUser).persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idUser;
     }

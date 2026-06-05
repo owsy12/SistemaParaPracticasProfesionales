@@ -25,4 +25,24 @@ public class Coordinator extends User {
     public String toString() {
         return firstName + " " + lastName + " (" + registrationNumber + ")";
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        Coordinator other = (Coordinator) object;
+        return isProfessor == other.isProfessor;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(super.hashCode(), isProfessor);
+    }
 }

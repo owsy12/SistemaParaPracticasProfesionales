@@ -118,4 +118,29 @@ public class Activity {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        Activity other = (Activity) object;
+        return idActivity == other.idActivity
+                && idProject == other.idProject
+                && java.util.Objects.equals(name, other.name)
+                && java.util.Objects.equals(description, other.description)
+                && java.util.Objects.equals(creationDate, other.creationDate)
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(projectName, other.projectName)
+                && java.util.Objects.equals(startDate, other.startDate)
+                && java.util.Objects.equals(endDate, other.endDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idActivity, idProject, name, description, creationDate, status, projectName, startDate, endDate);
+    }
 }

@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.OVEvaluationDAO;
 import Logic.DTOs.OVEvaluation;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,21 +31,26 @@ class OVEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidOVEvaluationReturnsOneRowAffected() throws Exception {
+    void testSaveValidOVEvaluationReturnsOneRowAffected() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
         int result = dao.save(buildOVEvaluation(context.idIntern, context.idProject));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveOVEvaluationWithZeroInternIdThrowsValidationException() throws Exception {
+    void testSaveOVEvaluationWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
         OVEvaluation evaluation = buildOVEvaluation(TestConstants.INVALID_ID_ZERO, context.idProject);
-        assertThrows(ValidationException.class, () -> dao.save(evaluation));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(evaluation);
+            }
+        });
     }
 
     @Test
-    void testFindByInternAndProjectAfterSaveReturnsNotNull() throws Exception {
+    void testFindByInternAndProjectAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
         dao.save(buildOVEvaluation(context.idIntern, context.idProject));
         OVEvaluation retrieved = dao.findByInternAndProject(context.idIntern, context.idProject);
@@ -50,21 +58,25 @@ class OVEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByInternAndProjectWithNonExistentReturnsNull() throws Exception {
+    void testFindByInternAndProjectWithNonExistentReturnsNull() throws ServiceException, ValidationException {
         OVEvaluation retrieved = dao.findByInternAndProject(
                 TestConstants.NON_EXISTENT_ID, TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByInternAndProjectWithZeroInternIdThrowsValidationException() throws Exception {
+    void testFindByInternAndProjectWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
-        assertThrows(ValidationException.class,
-                () -> dao.findByInternAndProject(TestConstants.INVALID_ID_ZERO, context.idProject));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByInternAndProject(TestConstants.INVALID_ID_ZERO, context.idProject);
+            }
+        });
     }
 
     @Test
-    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+    void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
         dao.save(buildOVEvaluation(context.idIntern, context.idProject));
         boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
@@ -72,18 +84,24 @@ class OVEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteByInternAndProjectWithZeroProjectIdThrowsValidationException() throws Exception {
+    void testDeleteByInternAndProjectWithZeroProjectIdThrowsValidationException() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
-        assertThrows(ValidationException.class,
-                () -> dao.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    private OVEvalContext persistContext() throws Exception {
+    private OVEvalContext persistContext() throws ServiceException, ValidationException {
         OVEvalContext context = new OVEvalContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             context.idIntern = scene.getInternId();
             context.idProject = scene.getProjectId();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }

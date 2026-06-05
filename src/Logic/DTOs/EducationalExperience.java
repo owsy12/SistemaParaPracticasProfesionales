@@ -42,4 +42,23 @@ public class EducationalExperience {
     public String toString() {
         return nrc + " - " + name;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        EducationalExperience other = (EducationalExperience) object;
+        return java.util.Objects.equals(nrc, other.nrc)
+                && java.util.Objects.equals(name, other.name)
+                && idProfessor == other.idProfessor;
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(nrc, name, idProfessor);
+    }
 }

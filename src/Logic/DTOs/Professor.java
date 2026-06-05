@@ -29,4 +29,24 @@ public class Professor extends User{
         return firstName + " " + lastName + " (" + registrationNumber + ")";
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        Professor other = (Professor) object;
+        return java.util.Objects.equals(academicArea, other.academicArea);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(super.hashCode(), academicArea);
+    }
 }

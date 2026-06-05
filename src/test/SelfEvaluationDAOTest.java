@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.SelfEvaluation;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,21 +43,26 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidSelfEvaluationReturnsOneRowAffected() throws Exception {
+    void testSaveValidSelfEvaluationReturnsOneRowAffected() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         int result = dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveSelfEvaluationWithZeroInternIdThrowsValidationException() throws Exception {
+    void testSaveSelfEvaluationWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(TestConstants.INVALID_ID_ZERO, context.idProject);
-        assertThrows(ValidationException.class, () -> dao.save(selfEvaluation));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(selfEvaluation);
+            }
+        });
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
+    void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
         dao.save(selfEvaluation);
@@ -64,17 +72,22 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         SelfEvaluation retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+    void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
         List<SelfEvaluation> all = dao.getAll();
@@ -82,13 +95,13 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+    void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<SelfEvaluation> all = dao.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindByIdInternAfterSaveReturnsNotNull() throws Exception {
+    void testFindByIdInternAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
         SelfEvaluation retrieved = dao.findByIdIntern(context.idIntern);
@@ -97,12 +110,16 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findByIdIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByIdIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testUpdateStatusReturnsTrue() throws Exception {
+    void testUpdateStatusReturnsTrue() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
         dao.save(selfEvaluation);
@@ -113,24 +130,30 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
 
     @Test
     void testUpdateStatusWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.updateStatus(TestConstants.INVALID_ID_ZERO, TestConstants.STATUS_SELF_EVAL_DELIVERED));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.updateStatus(TestConstants.INVALID_ID_ZERO, TestConstants.STATUS_SELF_EVAL_DELIVERED);
+            }
+        });
     }
 
     @Test
-    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+    void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
         boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 
-    private SelfEvalContext persistContext() throws Exception {
+    private SelfEvalContext persistContext() throws ServiceException, ValidationException {
         SelfEvalContext context = new SelfEvalContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             context.idIntern = scene.getInternId();
             context.idProject = scene.getProjectId();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }

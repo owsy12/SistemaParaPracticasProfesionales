@@ -70,4 +70,27 @@ public class Practice {
         this.grade = grade;
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        Practice other = (Practice) object;
+        return idPractice == other.idPractice
+                && java.util.Objects.equals(nrc, other.nrc)
+                && idIntern == other.idIntern
+                && java.util.Objects.equals(startDate, other.startDate)
+                && java.util.Objects.equals(endDate, other.endDate)
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(grade, other.grade);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idPractice, nrc, idIntern, startDate, endDate, status, grade);
+    }
 }

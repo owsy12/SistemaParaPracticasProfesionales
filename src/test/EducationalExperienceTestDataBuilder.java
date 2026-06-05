@@ -1,3 +1,5 @@
+import Logic.Exceptions.ServiceException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -28,12 +30,14 @@ public final class EducationalExperienceTestDataBuilder {
         return this;
     }
 
-    public void persist(Connection connection) throws SQLException {
+    public void persist(Connection connection) throws ServiceException {
         try (PreparedStatement statement = connection.prepareStatement(INSERT_SQL)) {
             statement.setString(1, nrc);
             statement.setString(2, name);
             statement.setInt(3, idProfessor);
             statement.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to persist educational experience test data", sqlException);
         }
     }
 }

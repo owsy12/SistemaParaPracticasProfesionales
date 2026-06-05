@@ -2,10 +2,13 @@ import DataAccess.DataBaseConnection;
 import Logic.DAO.EducationalExperienceDAO;
 import Logic.DTOs.EducationalExperience;
 import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,22 +33,26 @@ class EducationalExperienceDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidEducationalExperienceReturnsTrue() throws Exception {
+    void testSaveValidEducationalExperienceReturnsTrue() throws ServiceException, ValidationException {
         int idProfessor = persistProfessor();
         boolean result = dao.save(buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor));
         assertTrue(result);
     }
 
     @Test
-    void testSaveDuplicateNrcThrowsDuplicateEntryException() throws Exception {
+    void testSaveDuplicateNrcThrowsDuplicateEntryException() throws ServiceException, ValidationException {
         int idProfessor = persistProfessor();
         dao.save(buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor));
-        assertThrows(DuplicateEntryException.class,
-                () -> dao.save(buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor)));
+        assertThrows(DuplicateEntryException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor));
+            }
+        });
     }
 
     @Test
-    void testFindByNrcAfterSaveReturnsNotNull() throws Exception {
+    void testFindByNrcAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idProfessor = persistProfessor();
         dao.save(buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor));
         EducationalExperience retrieved = dao.findByNrc(TestConstants.DEFAULT_NRC);
@@ -54,23 +61,28 @@ class EducationalExperienceDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByNrcWithBlankNrcThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByNrc(TestConstants.BLANK_TEXT));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByNrc(TestConstants.BLANK_TEXT);
+            }
+        });
     }
 
     @Test
-    void testFindByNrcWithUnusedNrcReturnsNull() throws Exception {
+    void testFindByNrcWithUnusedNrcReturnsNull() throws ServiceException, ValidationException {
         EducationalExperience retrieved = dao.findByNrc(TestConstants.UNUSED_NRC);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<EducationalExperience> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAfterSaveReturnsOneElement() throws Exception {
+    void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         int idProfessor = persistProfessor();
         dao.save(buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor));
         List<EducationalExperience> all = dao.findAll();
@@ -78,7 +90,7 @@ class EducationalExperienceDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateEducationalExperienceReturnsTrue() throws Exception {
+    void testUpdateEducationalExperienceReturnsTrue() throws ServiceException, ValidationException {
         int idProfessor = persistProfessor();
         dao.save(buildEducationalExperience(TestConstants.DEFAULT_NRC, idProfessor));
         EducationalExperience experience = dao.findByNrc(TestConstants.DEFAULT_NRC);
@@ -88,7 +100,7 @@ class EducationalExperienceDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteEducationalExperienceReturnsTrue() throws Exception {
+    void testDeleteEducationalExperienceReturnsTrue() throws ServiceException, ValidationException {
         int idProfessor = persistProfessor();
         dao.save(buildEducationalExperience(TestConstants.ALTERNATE_NRC, idProfessor));
         boolean result = dao.delete(TestConstants.ALTERNATE_NRC);
@@ -97,10 +109,15 @@ class EducationalExperienceDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteWithBlankNrcThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.BLANK_TEXT));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.delete(TestConstants.BLANK_TEXT);
+            }
+        });
     }
 
-    private int persistProfessor() throws Exception {
+    private int persistProfessor() throws ServiceException, ValidationException {
         int idUser;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idUser = new UserTestDataBuilder()
@@ -109,6 +126,8 @@ class EducationalExperienceDAOTest extends BaseDAOTest {
                     .withRole(TestConstants.ROLE_PROFESSOR)
                     .persist(connection);
             new ProfessorTestDataBuilder().withUserId(idUser).persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idUser;
     }

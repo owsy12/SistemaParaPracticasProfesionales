@@ -150,4 +150,29 @@ public class ReportActivity {
         }
         return weeks;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        ReportActivity other = (ReportActivity) object;
+        return idReporteActividad == other.idReporteActividad
+                && idReport == other.idReport
+                && idActivity == other.idActivity
+                && java.util.Objects.equals(activityName, other.activityName)
+                && java.util.Objects.equals(periodo, other.periodo)
+                && java.util.Objects.equals(planSemanas, other.planSemanas)
+                && java.util.Objects.equals(realSemanas, other.realSemanas)
+                && advancePercentage == other.advancePercentage
+                && java.util.Objects.equals(observaciones, other.observaciones);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idReporteActividad, idReport, idActivity, activityName, periodo, planSemanas, realSemanas, advancePercentage, observaciones);
+    }
 }

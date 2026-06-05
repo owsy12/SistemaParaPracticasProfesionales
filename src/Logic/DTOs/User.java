@@ -82,4 +82,30 @@ public class User{
         return fullName;
     }
 
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        User other = (User) object;
+        return id == other.id
+                && java.util.Objects.equals(registrationNumber, other.registrationNumber)
+                && java.util.Objects.equals(firstName, other.firstName)
+                && java.util.Objects.equals(lastName, other.lastName)
+                && java.util.Objects.equals(secondLastName, other.secondLastName)
+                && java.util.Objects.equals(password, other.password)
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(role, other.role)
+                && java.util.Objects.equals(roles, other.roles)
+                && java.util.Objects.equals(email, other.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(id, registrationNumber, firstName, lastName, secondLastName, password, status, role, roles, email);
+    }
 }

@@ -61,4 +61,26 @@ public class OVEvaluation {
     public void setDeliveryDate(LocalDateTime deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        OVEvaluation other = (OVEvaluation) object;
+        return idOVEvaluation == other.idOVEvaluation
+                && idIntern == other.idIntern
+                && idProject == other.idProject
+                && java.util.Objects.equals(documentPath, other.documentPath)
+                && java.util.Objects.equals(status, other.status)
+                && java.util.Objects.equals(deliveryDate, other.deliveryDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idOVEvaluation, idIntern, idProject, documentPath, status, deliveryDate);
+    }
 }

@@ -60,4 +60,25 @@ public class ReportEvaluation{
     public void setEvaluationDate(Date evaluationDate) {
         this.evaluationDate = evaluationDate;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        ReportEvaluation other = (ReportEvaluation) object;
+        return idReportEvaluation == other.idReportEvaluation
+                && idReport == other.idReport
+                && grade == other.grade
+                && java.util.Objects.equals(feedback, other.feedback)
+                && java.util.Objects.equals(evaluationDate, other.evaluationDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(idReportEvaluation, idReport, grade, feedback, evaluationDate);
+    }
 }

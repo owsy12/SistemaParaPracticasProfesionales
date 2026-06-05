@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.PracticeDAO;
 import Logic.DTOs.Practice;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -34,21 +37,26 @@ class PracticeDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidPracticeReturnsTrue() throws Exception {
+    void testSaveValidPracticeReturnsTrue() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         boolean result = dao.save(buildPractice(scene.getInternId(), scene.getNrc()));
         assertTrue(result);
     }
 
     @Test
-    void testSavePracticeWithZeroInternIdThrowsValidationException() throws Exception {
+    void testSavePracticeWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         Practice practice = buildPractice(TestConstants.INVALID_ID_ZERO, scene.getNrc());
-        assertThrows(ValidationException.class, () -> dao.save(practice));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(practice);
+            }
+        });
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsNotNull() throws Exception {
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         int idPractice = persistPractice(scene);
         Practice retrieved = dao.findById(idPractice);
@@ -57,17 +65,22 @@ class PracticeDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         Practice retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByNrcReturnsOneElement() throws Exception {
+    void testFindByNrcReturnsOneElement() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
         List<Practice> byNrc = dao.findByNrc(scene.getNrc());
@@ -76,11 +89,16 @@ class PracticeDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByNrcWithBlankNrcThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findByNrc(TestConstants.BLANK_TEXT));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByNrc(TestConstants.BLANK_TEXT);
+            }
+        });
     }
 
     @Test
-    void testFindByInternReturnsOneElement() throws Exception {
+    void testFindByInternReturnsOneElement() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
         List<Practice> byIntern = dao.findByIntern(scene.getInternId());
@@ -88,7 +106,7 @@ class PracticeDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdatePracticeReturnsTrue() throws Exception {
+    void testUpdatePracticeReturnsTrue() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         int idPractice = persistPractice(scene);
         Practice practice = dao.findById(idPractice);
@@ -98,7 +116,7 @@ class PracticeDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeletePracticeReturnsTrue() throws Exception {
+    void testDeletePracticeReturnsTrue() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         int idPractice = persistPractice(scene);
         boolean result = dao.delete(idPractice);
@@ -107,11 +125,16 @@ class PracticeDAOTest extends BaseDAOTest {
 
     @Test
     void testDeletePracticeWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.delete(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindActiveByInternReturnsNotNull() throws Exception {
+    void testFindActiveByInternReturnsNotNull() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
         Practice active = dao.findActiveByIntern(scene.getInternId());
@@ -119,7 +142,7 @@ class PracticeDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testHasConcludedPracticeReturnsFalseForActive() throws Exception {
+    void testHasConcludedPracticeReturnsFalseForActive() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
         boolean concluded = dao.hasConcludedPractice(scene.getInternId());
@@ -128,25 +151,33 @@ class PracticeDAOTest extends BaseDAOTest {
 
     @Test
     void testConcludeActiveByInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.concludeActiveByIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.concludeActiveByIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    private TestScene persistScene() throws Exception {
+    private TestScene persistScene() throws ServiceException, ValidationException {
         TestScene scene;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             scene = TestScene.createFullScene(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return scene;
     }
 
-    private int persistPractice(TestScene scene) throws Exception {
+    private int persistPractice(TestScene scene) throws ServiceException, ValidationException {
         int idPractice;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idPractice = new PracticeTestDataBuilder()
                     .withInternId(scene.getInternId())
                     .withNrc(scene.getNrc())
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idPractice;
     }

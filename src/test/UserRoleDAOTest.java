@@ -2,10 +2,13 @@ import DataAccess.DataBaseConnection;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
 import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -32,26 +35,35 @@ class UserRoleDAOTest extends BaseDAOTest {
     @Test
     void testSaveUserRoleWithZeroIdThrowsValidationException() {
         User user = buildUserWithIdAndRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_ADMINISTRATOR);
-        assertThrows(ValidationException.class, () -> dao.saveUserRole(user));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveUserRole(user);
+            }
+        });
     }
 
     @Test
-    void testSaveUserRoleValidReturnsTrue() throws Exception {
+    void testSaveUserRoleValidReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         boolean result = dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         assertTrue(result);
     }
 
     @Test
-    void testSaveDuplicateUserRoleThrowsDuplicateEntryException() throws Exception {
+    void testSaveDuplicateUserRoleThrowsDuplicateEntryException() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
-        assertThrows(DuplicateEntryException.class,
-                () -> dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR)));
+        assertThrows(DuplicateEntryException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+            }
+        });
     }
 
     @Test
-    void testFindRolesByUserIdAfterSaveReturnsOneRole() throws Exception {
+    void testFindRolesByUserIdAfterSaveReturnsOneRole() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         List<String> roles = dao.findRolesByUserId(idUser);
@@ -60,18 +72,26 @@ class UserRoleDAOTest extends BaseDAOTest {
 
     @Test
     void testFindRolesByUserIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findRolesByUserId(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findRolesByUserId(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
     void testFindRolesByUserIdWithNegativeIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findRolesByUserId(TestConstants.INVALID_ID_NEGATIVE));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findRolesByUserId(TestConstants.INVALID_ID_NEGATIVE);
+            }
+        });
     }
 
     @Test
-    void testFindUsersByRoleReturnsOneUser() throws Exception {
+    void testFindUsersByRoleReturnsOneUser() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         List<Map<String, Object>> users = dao.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
@@ -79,13 +99,13 @@ class UserRoleDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindUsersByRoleWithUnusedRoleReturnsEmptyList() throws Exception {
+    void testFindUsersByRoleWithUnusedRoleReturnsEmptyList() throws ServiceException, ValidationException {
         List<Map<String, Object>> users = dao.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
         assertTrue(users.isEmpty());
     }
 
     @Test
-    void testDeleteUserRoleReturnsTrue() throws Exception {
+    void testDeleteUserRoleReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         boolean result = dao.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
@@ -94,19 +114,23 @@ class UserRoleDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteUserRoleWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.deleteUserRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_INTERN));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deleteUserRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_INTERN);
+            }
+        });
     }
 
     @Test
-    void testDeleteNonExistentUserRoleReturnsFalse() throws Exception {
+    void testDeleteNonExistentUserRoleReturnsFalse() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         boolean result = dao.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
         assertFalse(result);
     }
 
     @Test
-    void testUpdateUserRoleStatusReturnsTrue() throws Exception {
+    void testUpdateUserRoleStatusReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         User user = buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
@@ -119,11 +143,16 @@ class UserRoleDAOTest extends BaseDAOTest {
     void testUpdateUserRoleStatusWithZeroIdThrowsValidationException() {
         User user = buildUserWithIdAndRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_INTERN);
         user.setStatus(TestConstants.STATUS_INACTIVE_USER);
-        assertThrows(ValidationException.class, () -> dao.updateUserRolStatus(user));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.updateUserRolStatus(user);
+            }
+        });
     }
 
     @Test
-    void testGetActiveRolesByUserIdReturnsOneActiveRole() throws Exception {
+    void testGetActiveRolesByUserIdReturnsOneActiveRole() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         List<String> active = dao.getActiveRolsByUserId(idUser);
@@ -131,7 +160,7 @@ class UserRoleDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetActiveRolesByUserIdReturnsEmptyForInactiveRole() throws Exception {
+    void testGetActiveRolesByUserIdReturnsEmptyForInactiveRole() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
         dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         User user = buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
@@ -141,13 +170,15 @@ class UserRoleDAOTest extends BaseDAOTest {
         assertTrue(active.isEmpty());
     }
 
-    private int persistStandaloneUser() throws Exception {
+    private int persistStandaloneUser() throws ServiceException, ValidationException {
         int idUser;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idUser = new UserTestDataBuilder()
                     .withRegistrationNumber(NEW_USER_REGISTRATION_NUMBER)
                     .withEmail(NEW_USER_EMAIL)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idUser;
     }

@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.TechnicalSupervisor;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -35,14 +38,14 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidSupervisorReturnsTrue() throws Exception {
+    void testSaveValidSupervisorReturnsTrue() throws ServiceException, ValidationException {
         int idOrganization = persistOrganization();
         boolean result = dao.saveTechnicalResponsible(buildSupervisor(idOrganization));
         assertTrue(result);
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsNotNull() throws Exception {
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
         TechnicalSupervisor retrieved = dao.findById(idTechnical);
         assertNotNull(retrieved);
@@ -50,35 +53,42 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         TechnicalSupervisor retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<TechnicalSupervisor> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAfterPersistReturnsOneElement() throws Exception {
+    void testFindAllAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistSupervisorViaBuilders();
         List<TechnicalSupervisor> all = dao.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
-    void testFindByOrganizationReturnsOneElement() throws Exception {
+    void testFindByOrganizationReturnsOneElement() throws ServiceException, ValidationException {
         int idOrganization = persistOrganization();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             new TechnicalSupervisorTestDataBuilder()
                     .withOrganizationId(idOrganization)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         List<TechnicalSupervisor> byOrg = dao.findByOrganization(idOrganization);
         assertEquals(TestConstants.SINGLE_RESULT, byOrg.size());
@@ -86,12 +96,16 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByOrganizationWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findByOrganization(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByOrganization(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testUpdateSupervisorReturnsTrue() throws Exception {
+    void testUpdateSupervisorReturnsTrue() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
         TechnicalSupervisor supervisor = dao.findById(idTechnical);
         supervisor.setPosition(UPDATED_TECH_POSITION);
@@ -101,31 +115,40 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteSupervisorWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.delete(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testDeleteSupervisorReturnsTrue() throws Exception {
+    void testDeleteSupervisorReturnsTrue() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
         boolean result = dao.delete(idTechnical);
         assertTrue(result);
     }
 
-    private int persistOrganization() throws Exception {
+    private int persistOrganization() throws ServiceException, ValidationException {
         int idOrganization;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idOrganization = new OrganizationTestDataBuilder().persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idOrganization;
     }
 
-    private int persistSupervisorViaBuilders() throws Exception {
+    private int persistSupervisorViaBuilders() throws ServiceException, ValidationException {
         int idTechnical;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             int idOrganization = new OrganizationTestDataBuilder().persist(connection);
             idTechnical = new TechnicalSupervisorTestDataBuilder()
                     .withOrganizationId(idOrganization)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idTechnical;
     }

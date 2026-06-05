@@ -1,5 +1,6 @@
+import Logic.Exceptions.ServiceException;
+
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public final class TestScene {
 
@@ -36,7 +37,7 @@ public final class TestScene {
         this.nrc = builder.nrc;
     }
 
-    public static TestScene createFullScene(Connection connection) throws SQLException {
+    public static TestScene createFullScene(Connection connection) throws ServiceException {
         SceneBuilder builder = new SceneBuilder();
         builder.idIntern = persistIntern(connection);
         builder.idProfessor = persistProfessor(connection);
@@ -76,7 +77,7 @@ public final class TestScene {
         return nrc;
     }
 
-    private static int persistIntern(Connection connection) throws SQLException {
+    private static int persistIntern(Connection connection) throws ServiceException {
         int internId = new UserTestDataBuilder()
                 .withRegistrationNumber(INTERN_REGISTRATION_NUMBER)
                 .withFirstName(INTERN_FIRST_NAME)
@@ -88,7 +89,7 @@ public final class TestScene {
         return internId;
     }
 
-    private static int persistProfessor(Connection connection) throws SQLException {
+    private static int persistProfessor(Connection connection) throws ServiceException {
         int professorId = new UserTestDataBuilder()
                 .withRegistrationNumber(PROFESSOR_REGISTRATION_NUMBER)
                 .withFirstName(PROFESSOR_FIRST_NAME)
@@ -100,7 +101,7 @@ public final class TestScene {
         return professorId;
     }
 
-    private static int persistCoordinator(Connection connection) throws SQLException {
+    private static int persistCoordinator(Connection connection) throws ServiceException {
         int coordinatorId = new UserTestDataBuilder()
                 .withRegistrationNumber(COORDINATOR_REGISTRATION_NUMBER)
                 .withFirstName(COORDINATOR_FIRST_NAME)
@@ -112,25 +113,25 @@ public final class TestScene {
         return coordinatorId;
     }
 
-    private static int persistOrganization(Connection connection) throws SQLException {
+    private static int persistOrganization(Connection connection) throws ServiceException {
         return new OrganizationTestDataBuilder().persist(connection);
     }
 
-    private static int persistTechnical(Connection connection, int idOrganization) throws SQLException {
+    private static int persistTechnical(Connection connection, int idOrganization) throws ServiceException {
         return new TechnicalSupervisorTestDataBuilder()
                 .withOrganizationId(idOrganization)
                 .persist(connection);
     }
 
     private static String persistEducationalExperience(Connection connection,
-                                                       int idProfessor) throws SQLException {
+                                                       int idProfessor) throws ServiceException {
         new EducationalExperienceTestDataBuilder()
                 .withProfessorId(idProfessor)
                 .persist(connection);
         return TestConstants.DEFAULT_NRC;
     }
 
-    private static int persistProject(Connection connection, SceneBuilder builder) throws SQLException {
+    private static int persistProject(Connection connection, SceneBuilder builder) throws ServiceException {
         return new ProjectTestDataBuilder()
                 .withOrganizationId(builder.idOrganization)
                 .withTechnicalId(builder.idTechnical)

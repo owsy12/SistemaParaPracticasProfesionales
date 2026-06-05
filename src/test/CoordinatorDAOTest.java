@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.CoordinatorDAO;
 import Logic.DTOs.Coordinator;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,7 +23,7 @@ class CoordinatorDAOTest extends BaseDAOTest {
     private static final String COORD_FIRST_NAME = "Pedro";
     private static final String COORD_LAST_NAME = "Silva";
 
-    private CoordinatorDAO buildDao() throws Exception {
+    private CoordinatorDAO buildDao() throws ServiceException, ValidationException {
         return new CoordinatorDAO();
     }
 
@@ -38,24 +41,29 @@ class CoordinatorDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidCoordinatorReturnsTrue() throws Exception {
+    void testSaveValidCoordinatorReturnsTrue() throws ServiceException, ValidationException {
         CoordinatorDAO dao = buildDao();
         boolean result = dao.save(buildCoordinator());
         assertTrue(result);
     }
 
     @Test
-    void testSaveSecondActiveCoordinatorThrowsValidationException() throws Exception {
+    void testSaveSecondActiveCoordinatorThrowsValidationException() throws ServiceException, ValidationException {
         CoordinatorDAO dao = buildDao();
         persistCoordinatorViaBuilders();
         Coordinator secondCoordinator = buildCoordinator();
         secondCoordinator.setRegistrationNumber("C70000002");
         secondCoordinator.setEmail("coord2.test@uv.mx");
-        assertThrows(ValidationException.class, () -> dao.save(secondCoordinator));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(secondCoordinator);
+            }
+        });
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsNotNull() throws Exception {
+    void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistCoordinatorViaBuilders();
         CoordinatorDAO dao = buildDao();
         Coordinator retrieved = dao.findById(idUser);
@@ -63,34 +71,43 @@ class CoordinatorDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByIdWithZeroIdThrowsValidationException() throws Exception {
+    void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         CoordinatorDAO dao = buildDao();
-        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNegativeIdThrowsValidationException() throws Exception {
+    void testFindByIdWithNegativeIdThrowsValidationException() throws ServiceException, ValidationException {
         CoordinatorDAO dao = buildDao();
-        assertThrows(ValidationException.class,
-                () -> dao.findById(TestConstants.INVALID_ID_NEGATIVE));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         CoordinatorDAO dao = buildDao();
         Coordinator retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllCoordinatorsWithNoDataReturnsEmptyList() throws Exception {
+    void testFindAllCoordinatorsWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         CoordinatorDAO dao = buildDao();
         List<Coordinator> all = dao.findAllCoordinators();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllCoordinatorsAfterPersistReturnsOneElement() throws Exception {
+    void testFindAllCoordinatorsAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistCoordinatorViaBuilders();
         CoordinatorDAO dao = buildDao();
         List<Coordinator> all = dao.findAllCoordinators();
@@ -98,7 +115,7 @@ class CoordinatorDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindActiveCoordinatorsReturnsOnlyActive() throws Exception {
+    void testFindActiveCoordinatorsReturnsOnlyActive() throws ServiceException, ValidationException {
         persistCoordinatorViaBuilders();
         CoordinatorDAO dao = buildDao();
         List<Coordinator> active = dao.findActiveCoordinators();
@@ -106,20 +123,25 @@ class CoordinatorDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteCoordinatorWithZeroIdThrowsValidationException() throws Exception {
+    void testDeleteCoordinatorWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         CoordinatorDAO dao = buildDao();
-        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.delete(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testDeleteCoordinatorReturnsTrue() throws Exception {
+    void testDeleteCoordinatorReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistCoordinatorViaBuilders();
         CoordinatorDAO dao = buildDao();
         boolean result = dao.delete(idUser);
         assertTrue(result);
     }
 
-    private int persistCoordinatorViaBuilders() throws Exception {
+    private int persistCoordinatorViaBuilders() throws ServiceException, ValidationException {
         int idUser;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             idUser = new UserTestDataBuilder()
@@ -130,6 +152,8 @@ class CoordinatorDAOTest extends BaseDAOTest {
                     .withRole(TestConstants.ROLE_COORDINATOR)
                     .persist(connection);
             new CoordinatorTestDataBuilder().withUserId(idUser).persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idUser;
     }

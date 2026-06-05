@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.ProrrogaDAO;
 import Logic.DTOs.Prorroga;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,7 +30,7 @@ class ProrrogaDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidProrrogaReturnsPositiveId() throws Exception {
+    void testSaveValidProrrogaReturnsPositiveId() throws ServiceException, ValidationException {
         int idActivity = persistActivity();
         int generatedId = dao.save(buildProrroga(idActivity));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
@@ -36,24 +39,36 @@ class ProrrogaDAOTest extends BaseDAOTest {
     @Test
     void testSaveProrrogaWithZeroActivityIdThrowsValidationException() {
         Prorroga prorroga = buildProrroga(TestConstants.INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.save(prorroga));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(prorroga);
+            }
+        });
     }
 
     @Test
-    void testSaveProrrogaWithBlankMotiveThrowsValidationException() throws Exception {
+    void testSaveProrrogaWithBlankMotiveThrowsValidationException() throws ServiceException, ValidationException {
         int idActivity = persistActivity();
         Prorroga prorroga = buildProrroga(idActivity);
         prorroga.setMotivo(TestConstants.BLANK_TEXT);
-        assertThrows(ValidationException.class, () -> dao.save(prorroga));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(prorroga);
+            }
+        });
     }
 
-    private int persistActivity() throws Exception {
+    private int persistActivity() throws ServiceException, ValidationException {
         int idActivity;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             idActivity = new ActivityTestDataBuilder()
                     .withProjectId(scene.getProjectId())
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return idActivity;
     }

@@ -64,4 +64,30 @@ public class PartialAndFinalReport extends Report{
     public void setIdPartialAndFinalReport(int idPartialAndFinalReport) {
         this.idPartialAndFinalReport = idPartialAndFinalReport;
     }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        PartialAndFinalReport other = (PartialAndFinalReport) object;
+        return idPartialAndFinalReport == other.idPartialAndFinalReport
+                && reportNumber == other.reportNumber
+                && coveredHours == other.coveredHours
+                && java.util.Objects.equals(methodology, other.methodology)
+                && java.util.Objects.equals(obtainedResults, other.obtainedResults)
+                && java.util.Objects.equals(observations, other.observations)
+                && java.util.Objects.equals(generalObjective, other.generalObjective);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(super.hashCode(), idPartialAndFinalReport, reportNumber, coveredHours, methodology, obtainedResults, observations, generalObjective);
+    }
 }

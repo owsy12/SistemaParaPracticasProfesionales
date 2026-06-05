@@ -4,8 +4,10 @@ import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,14 +44,14 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidUserAssignsGeneratedId() throws Exception {
+    void testSaveValidUserAssignsGeneratedId() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
-    void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws Exception {
+    void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findById(generatedId);
@@ -57,34 +59,43 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByIdWithZeroIdThrowsValidationException() throws Exception {
+    void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
-        assertThrows(ValidationException.class, () -> dao.findById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNegativeIdThrowsValidationException() throws Exception {
+    void testFindByIdWithNegativeIdThrowsValidationException() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
-        assertThrows(ValidationException.class,
-                () -> dao.findById(TestConstants.INVALID_ID_NEGATIVE));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+            }
+        });
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         User retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         List<User> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testFindAllAfterSaveReturnsOneElement() throws Exception {
+    void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         List<User> all = dao.findAll();
@@ -92,7 +103,7 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByIdentifierByRegistrationNumberReturnsUser() throws Exception {
+    void testFindByIdentifierByRegistrationNumberReturnsUser() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findByIdentifier(NEW_USER_REGISTRATION_NUMBER);
@@ -100,7 +111,7 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByIdentifierByEmailReturnsUser() throws Exception {
+    void testFindByIdentifierByEmailReturnsUser() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findByIdentifier(NEW_USER_EMAIL);
@@ -108,14 +119,14 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByIdentifierWithUnknownReturnsNull() throws Exception {
+    void testFindByIdentifierWithUnknownReturnsNull() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         User retrieved = dao.findByIdentifier(NON_EXISTENT_REGISTRATION_NUMBER);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByEmailReturnsCorrectRegistrationNumber() throws Exception {
+    void testFindByEmailReturnsCorrectRegistrationNumber() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findByEmail(NEW_USER_EMAIL);
@@ -123,7 +134,7 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateUserReturnsTrue() throws Exception {
+    void testUpdateUserReturnsTrue() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User user = dao.findById(generatedId);
@@ -134,7 +145,7 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testUpdateUserPersistsNewFirstName() throws Exception {
+    void testUpdateUserPersistsNewFirstName() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User user = dao.findById(generatedId);
@@ -146,7 +157,7 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteUserReturnsTrue() throws Exception {
+    void testDeleteUserReturnsTrue() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         int generatedId = persistStandaloneUser();
         boolean result = dao.delete(generatedId);
@@ -154,7 +165,7 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteUserRemovesRecord() throws Exception {
+    void testDeleteUserRemovesRecord() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         int generatedId = persistStandaloneUser();
         dao.delete(generatedId);
@@ -163,25 +174,32 @@ class UserDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteUserWithZeroIdThrowsValidationException() throws Exception {
+    void testDeleteUserWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
-        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.delete(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testDeleteNonExistentUserReturnsFalse() throws Exception {
+    void testDeleteNonExistentUserReturnsFalse() throws ServiceException, ValidationException {
         UserDAO dao = buildDao();
         boolean result = dao.delete(TestConstants.NON_EXISTENT_ID);
         assertFalse(result);
     }
 
-    private int persistStandaloneUser() throws Exception {
+    private int persistStandaloneUser() throws ServiceException, ValidationException {
         int generatedId;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             generatedId = new UserTestDataBuilder()
                     .withRegistrationNumber(NEW_USER_REGISTRATION_NUMBER)
                     .withEmail(NEW_USER_EMAIL)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return generatedId;
     }

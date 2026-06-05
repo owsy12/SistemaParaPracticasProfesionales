@@ -2,10 +2,13 @@ import DataAccess.DataBaseConnection;
 import Logic.DAO.InternActivityDAO;
 import Logic.DTOs.InternActivity;
 import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,29 +36,38 @@ class InternActivityDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidInternActivityReturnsPositiveId() throws Exception {
+    void testSaveValidInternActivityReturnsPositiveId() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         int generatedId = dao.save(buildInternActivity(context.idActivity, context.idIntern));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
-    void testSaveInternActivityWithZeroActivityIdThrowsValidationException() throws Exception {
+    void testSaveInternActivityWithZeroActivityIdThrowsValidationException() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         InternActivity activity = buildInternActivity(TestConstants.INVALID_ID_ZERO, context.idIntern);
-        assertThrows(ValidationException.class, () -> dao.save(activity));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(activity);
+            }
+        });
     }
 
     @Test
-    void testSaveDuplicateInternActivityThrowsDuplicateEntryException() throws Exception {
+    void testSaveDuplicateInternActivityThrowsDuplicateEntryException() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         dao.save(buildInternActivity(context.idActivity, context.idIntern));
-        assertThrows(DuplicateEntryException.class,
-                () -> dao.save(buildInternActivity(context.idActivity, context.idIntern)));
+        assertThrows(DuplicateEntryException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(buildInternActivity(context.idActivity, context.idIntern));
+            }
+        });
     }
 
     @Test
-    void testFindByActivityAndInternAfterSaveReturnsNotNull() throws Exception {
+    void testFindByActivityAndInternAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         dao.save(buildInternActivity(context.idActivity, context.idIntern));
         InternActivity retrieved = dao.findByActivityAndIntern(context.idActivity, context.idIntern);
@@ -63,21 +75,25 @@ class InternActivityDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByActivityAndInternWhenNoRecordReturnsNull() throws Exception {
+    void testFindByActivityAndInternWhenNoRecordReturnsNull() throws ServiceException, ValidationException {
         InternActivity retrieved = dao.findByActivityAndIntern(
                 TestConstants.NON_EXISTENT_ID, TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByActivityAndInternWithZeroIdThrowsValidationException() throws Exception {
+    void testFindByActivityAndInternWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        assertThrows(ValidationException.class,
-                () -> dao.findByActivityAndIntern(TestConstants.INVALID_ID_ZERO, context.idIntern));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findByActivityAndIntern(TestConstants.INVALID_ID_ZERO, context.idIntern);
+            }
+        });
     }
 
     @Test
-    void testFindByInternAndProjectAfterSaveReturnsOneElement() throws Exception {
+    void testFindByInternAndProjectAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         dao.save(buildInternActivity(context.idActivity, context.idIntern));
         List<InternActivity> activities = dao.findByInternAndProject(context.idIntern, context.idProject);
@@ -85,14 +101,14 @@ class InternActivityDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByInternAndProjectWithNoActivitiesReturnsEmptyList() throws Exception {
+    void testFindByInternAndProjectWithNoActivitiesReturnsEmptyList() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         List<InternActivity> activities = dao.findByInternAndProject(context.idIntern, context.idProject);
         assertTrue(activities.isEmpty());
     }
 
     @Test
-    void testGetTotalHoursByInternAfterSaveReturnsDedicatedHours() throws Exception {
+    void testGetTotalHoursByInternAfterSaveReturnsDedicatedHours() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         dao.save(buildInternActivity(context.idActivity, context.idIntern));
         int total = dao.getTotalHoursByIntern(context.idIntern);
@@ -101,12 +117,16 @@ class InternActivityDAOTest extends BaseDAOTest {
 
     @Test
     void testGetTotalHoursByInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.getTotalHoursByIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getTotalHoursByIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testUpdateInternActivityReturnsTrue() throws Exception {
+    void testUpdateInternActivityReturnsTrue() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         InternActivity activity = buildInternActivity(context.idActivity, context.idIntern);
         dao.save(activity);
@@ -121,11 +141,16 @@ class InternActivityDAOTest extends BaseDAOTest {
         InternActivity activity = buildInternActivity(
                 TestConstants.NON_EXISTENT_ID, TestConstants.NON_EXISTENT_ID);
         activity.setIdInternActivity(TestConstants.INVALID_ID_ZERO);
-        assertThrows(ValidationException.class, () -> dao.update(activity));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.update(activity);
+            }
+        });
     }
 
     @Test
-    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+    void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         dao.save(buildInternActivity(context.idActivity, context.idIntern));
         boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
@@ -133,13 +158,17 @@ class InternActivityDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteByInternAndProjectWithZeroProjectIdThrowsValidationException() throws Exception {
+    void testDeleteByInternAndProjectWithZeroProjectIdThrowsValidationException() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        assertThrows(ValidationException.class,
-                () -> dao.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    private InternActivityContext persistContext() throws Exception {
+    private InternActivityContext persistContext() throws ServiceException, ValidationException {
         InternActivityContext context = new InternActivityContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
@@ -148,6 +177,8 @@ class InternActivityDAOTest extends BaseDAOTest {
             context.idActivity = new ActivityTestDataBuilder()
                     .withProjectId(scene.getProjectId())
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }

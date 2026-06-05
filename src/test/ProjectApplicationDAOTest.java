@@ -1,10 +1,13 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.ProjectApplicationDAO;
 import Logic.DTOs.ProjectApplication;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,7 +29,7 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testCreateValidProjectApplicationReturnsTrue() throws Exception {
+    void testCreateValidProjectApplicationReturnsTrue() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
         boolean result = dao.create(buildProjectApplication(context.idApplication, context.idProject));
         assertTrue(result);
@@ -36,11 +39,16 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     void testCreateProjectApplicationWithZeroApplicationIdThrowsValidationException() {
         ProjectApplication projectApplication =
                 buildProjectApplication(TestConstants.INVALID_ID_ZERO, TestConstants.NON_EXISTENT_ID);
-        assertThrows(ValidationException.class, () -> dao.create(projectApplication));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.create(projectApplication);
+            }
+        });
     }
 
     @Test
-    void testFindByIdAfterCreateReturnsNotNull() throws Exception {
+    void testFindByIdAfterCreateReturnsNotNull() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
         dao.create(buildProjectApplication(context.idApplication, context.idProject));
         List<ProjectApplication> all = dao.findAll();
@@ -49,13 +57,13 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         ProjectApplication retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testFindByApplicationReturnsOneElement() throws Exception {
+    void testFindByApplicationReturnsOneElement() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
         dao.create(buildProjectApplication(context.idApplication, context.idProject));
         List<ProjectApplication> byApplication = dao.findByApplication(context.idApplication);
@@ -63,13 +71,13 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testFindAllWithNoDataReturnsEmptyList() throws Exception {
+    void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<ProjectApplication> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testDeleteProjectApplicationReturnsTrue() throws Exception {
+    void testDeleteProjectApplicationReturnsTrue() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
         dao.create(buildProjectApplication(context.idApplication, context.idProject));
         List<ProjectApplication> all = dao.findAll();
@@ -79,11 +87,16 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.delete(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.delete(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testFindProjectIdsByInternReturnsOneElement() throws Exception {
+    void testFindProjectIdsByInternReturnsOneElement() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
         dao.create(buildProjectApplication(context.idApplication, context.idProject));
         List<Integer> projectIds = dao.findProjectIdsByIntern(context.idIntern);
@@ -92,11 +105,15 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
 
     @Test
     void testFindProjectIdsByInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.findProjectIdsByIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.findProjectIdsByIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
-    private ProjectApplicationContext persistDependencies() throws Exception {
+    private ProjectApplicationContext persistDependencies() throws ServiceException, ValidationException {
         ProjectApplicationContext context = new ProjectApplicationContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
@@ -106,6 +123,8 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
                     .withInternId(scene.getInternId())
                     .withStatus(TestConstants.STATUS_PENDING)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }

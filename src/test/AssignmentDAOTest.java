@@ -4,8 +4,10 @@ import Logic.DTOs.Assignment;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -31,14 +33,14 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidAssignmentReturnsOneRowAffected() throws Exception {
+    void testSaveValidAssignmentReturnsOneRowAffected() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         int result = dao.save(buildAssignment(context));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveValidAssignmentAssignsGeneratedId() throws Exception {
+    void testSaveValidAssignmentAssignsGeneratedId() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         Assignment assignment = buildAssignment(context);
         dao.save(assignment);
@@ -46,14 +48,19 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveDuplicateInternThrowsServiceException() throws Exception {
+    void testSaveDuplicateInternThrowsServiceException() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         dao.save(buildAssignment(context));
-        assertThrows(ServiceException.class, () -> dao.save(buildAssignment(context)));
+        assertThrows(ServiceException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.save(buildAssignment(context));
+            }
+        });
     }
 
     @Test
-    void testGetByIdAfterSaveReturnsNotNull() throws Exception {
+    void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         Assignment assignment = buildAssignment(context);
         dao.save(assignment);
@@ -63,23 +70,28 @@ class AssignmentDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class, () -> dao.getById(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getById(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testGetByIdWithNonExistentIdReturnsNull() throws Exception {
+    void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
         Assignment retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
-    void testGetAllWithNoDataReturnsEmptyList() throws Exception {
+    void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         List<Assignment> all = dao.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
-    void testGetAllAfterSaveReturnsOneElement() throws Exception {
+    void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         dao.save(buildAssignment(context));
         List<Assignment> all = dao.getAll();
@@ -87,7 +99,7 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetByIdInternReturnsOneElement() throws Exception {
+    void testGetByIdInternReturnsOneElement() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         dao.save(buildAssignment(context));
         List<Assignment> byIntern = dao.getByIdIntern(context.idIntern);
@@ -96,12 +108,16 @@ class AssignmentDAOTest extends BaseDAOTest {
 
     @Test
     void testGetByIdInternWithZeroIdThrowsValidationException() {
-        assertThrows(ValidationException.class,
-                () -> dao.getByIdIntern(TestConstants.INVALID_ID_ZERO));
+        assertThrows(ValidationException.class, new Executable() {
+            @Override
+            public void execute() throws Throwable {
+                dao.getByIdIntern(TestConstants.INVALID_ID_ZERO);
+            }
+        });
     }
 
     @Test
-    void testGetByIdProjectReturnsOneElement() throws Exception {
+    void testGetByIdProjectReturnsOneElement() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         dao.save(buildAssignment(context));
         List<Assignment> byProject = dao.getByIdProject(context.idProject);
@@ -109,7 +125,7 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testGetActiveByIdInternReturnsNotNull() throws Exception {
+    void testGetActiveByIdInternReturnsNotNull() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         dao.save(buildAssignment(context));
         Assignment active = dao.getActiveByIdIntern(context.idIntern);
@@ -117,14 +133,14 @@ class AssignmentDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testDeleteByInternAndProjectReturnsTrue() throws Exception {
+    void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         dao.save(buildAssignment(context));
         boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 
-    private AssignmentContext persistAssignmentDependencies() throws Exception {
+    private AssignmentContext persistAssignmentDependencies() throws ServiceException, ValidationException {
         AssignmentContext context = new AssignmentContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
@@ -134,6 +150,8 @@ class AssignmentDAOTest extends BaseDAOTest {
                     .withInternId(scene.getInternId())
                     .withStatus(TestConstants.STATUS_ACCEPTED)
                     .persist(connection);
+        } catch (SQLException sqlException) {
+            throw new ServiceException("Failed to access test database connection", sqlException);
         }
         return context;
     }
