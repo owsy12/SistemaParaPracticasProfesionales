@@ -163,16 +163,16 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="160.0">
                                 <columns>
-                                    <TableColumn fx:id="colActName" prefWidth="280.0" text="Nombre">
+                                    <TableColumn fx:id="columnActName" prefWidth="280.0" text="Nombre">
                                         <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colActDesc" prefWidth="310.0" text="Descripción">
+                                    <TableColumn fx:id="columnActDesc" prefWidth="310.0" text="Descripción">
                                         <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colActPlanStart" prefWidth="120.0" text="Fecha inicio">
+                                    <TableColumn fx:id="columnActPlanStart" prefWidth="120.0" text="Fecha inicio">
                                         <cellValueFactory><PropertyValueFactory property="fechaInicioDisplay"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colActPlanEnd" prefWidth="120.0" text="Fecha fin">
+                                    <TableColumn fx:id="columnActPlanEnd" prefWidth="120.0" text="Fecha fin">
                                         <cellValueFactory><PropertyValueFactory property="fechaFinDisplay"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>
@@ -192,13 +192,13 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="140.0">
                                 <columns>
-                                    <TableColumn fx:id="colRaName" prefWidth="320.0" text="Actividad">
+                                    <TableColumn fx:id="columnRaName" prefWidth="320.0" text="Actividad">
                                         <cellValueFactory><PropertyValueFactory property="activityName"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colRaPeriod" prefWidth="240.0" text="Período / Semanas">
+                                    <TableColumn fx:id="columnRangePeriod" prefWidth="240.0" text="Período / Semanas">
                                         <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colRaDetail" prefWidth="270.0" text="Avance / Obs.">
+                                    <TableColumn fx:id="columnRangeDetail" prefWidth="270.0" text="Avance / Obs.">
                                         <cellValueFactory><PropertyValueFactory property="detailDisplay"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>
@@ -226,16 +226,16 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="140.0">
                                 <columns>
-                                    <TableColumn fx:id="colRdResult" prefWidth="210.0" text="Resultado entregable">
+                                    <TableColumn fx:id="columnRreportdDeliverableResult" prefWidth="210.0" text="Resultado entregable">
                                         <cellValueFactory><PropertyValueFactory property="resultado"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colRdDesc" prefWidth="220.0" text="Descripción">
+                                    <TableColumn fx:id="columnReportDeliverableDesc" prefWidth="220.0" text="Descripción">
                                         <cellValueFactory><PropertyValueFactory property="descripcionDisplay"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colRdAdvance" prefWidth="90.0" text="Avance">
+                                    <TableColumn fx:id="columnReportdDeliverableAdvance" prefWidth="90.0" text="Avance">
                                         <cellValueFactory><PropertyValueFactory property="advanceDisplay"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="colRdObs" prefWidth="310.0" text="Observaciones">
+                                    <TableColumn fx:id="columnReportDeliverableObseervations" prefWidth="310.0" text="Observaciones">
                                         <cellValueFactory><PropertyValueFactory property="observacionesDisplay"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>

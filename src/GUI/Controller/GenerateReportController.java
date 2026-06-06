@@ -121,28 +121,28 @@ public class GenerateReportController {
     private TableView<Activity> projectActivitiesTable;
 
     @FXML
-    private TableColumn<Activity, String> colActName;
+    private TableColumn<Activity, String> columnActName;
 
     @FXML
-    private TableColumn<Activity, String> colActDesc;
+    private TableColumn<Activity, String> columnActDesc;
 
     @FXML
-    private TableColumn<Activity, String> colActPlanStart;
+    private TableColumn<Activity, String> columnActPlanStart;
 
     @FXML
-    private TableColumn<Activity, String> colActPlanEnd;
+    private TableColumn<Activity, String> columnActPlanEnd;
 
     @FXML
     private TableView<ReportActivity> reportActivitiesTable;
 
     @FXML
-    private TableColumn<ReportActivity, String> colRaName;
+    private TableColumn<ReportActivity, String> columnRaName;
 
     @FXML
-    private TableColumn<ReportActivity, String> colRaPeriod;
+    private TableColumn<ReportActivity, String> columnRangePeriod;
 
     @FXML
-    private TableColumn<ReportActivity, String> colRaDetail;
+    private TableColumn<ReportActivity, String> columnRangeDetail;
 
     @FXML
     private Label deliverablesLabel;
@@ -157,16 +157,16 @@ public class GenerateReportController {
     private TableView<ReportDeliverable> reportDeliverablesTable;
 
     @FXML
-    private TableColumn<ReportDeliverable, String> colRdResult;
+    private TableColumn<ReportDeliverable, String> columnRreportdDeliverableResult;
 
     @FXML
-    private TableColumn<ReportDeliverable, String> colRdDesc;
+    private TableColumn<ReportDeliverable, String> columnReportDeliverableDesc;
 
     @FXML
-    private TableColumn<ReportDeliverable, String> colRdAdvance;
+    private TableColumn<ReportDeliverable, String> columnReportdDeliverableAdvance;
 
     @FXML
-    private TableColumn<ReportDeliverable, String> colRdObs;
+    private TableColumn<ReportDeliverable, String> columnReportDeliverableObseervations;
 
     private Intern currentIntern;
     private Project currentProject;
@@ -468,9 +468,7 @@ public class GenerateReportController {
         if (hasIntern) {
             try {
                 ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
-                List<Integer> usedIds =
-                        reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(
-                                currentIntern.getId());
+                List<Integer> usedIds = reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(currentIntern.getId());
                 List<Activity> unused = new ArrayList<>();
                 for (Activity activity : candidates) {
                     boolean isAlreadyUsed = usedIds.contains(activity.getIdActivity());
@@ -618,13 +616,13 @@ public class GenerateReportController {
         Optional<ButtonType> dialogResult = dialog.showAndWait();
         boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
 
-        Optional<ReportActivity> result = Optional.empty();
+        Optional<ReportActivity> reportActivity = Optional.empty();
         if (isConfirmed) {
             String realWeeks = realStartWeekField.getText().trim()
                     + ":" + realEndWeekField.getText().trim();
-            result = Optional.of(buildPartialActivity(activity, realWeeks, observationsField.getText().trim()));
+            reportActivity = Optional.of(buildPartialActivity(activity, realWeeks, observationsField.getText().trim()));
         }
-        return result;
+        return reportActivity;
     }
 
     private ReportActivity buildPartialActivity(Activity activity, String realWeeks,
@@ -659,17 +657,15 @@ public class GenerateReportController {
         Optional<ButtonType> dialogResult = dialog.showAndWait();
         boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
 
-        Optional<ReportActivity> result = Optional.empty();
+        Optional<ReportActivity> reportActivity = Optional.empty();
         if (isConfirmed) {
             int advance = parseIntSafe(advancePercentField.getText().trim());
-            result = Optional.of(
-                    buildFinalActivity(activity, advance, observationsField.getText().trim()));
+            reportActivity = Optional.of (buildFinalActivity(activity, advance, observationsField.getText().trim()));
         }
-        return result;
+        return reportActivity;
     }
 
-    private ReportActivity buildFinalActivity(Activity activity, int advance,
-                                               String observaciones) {
+    private ReportActivity buildFinalActivity(Activity activity, int advance, String observaciones) {
         ReportActivity reportActivity = createReportActivity(activity);
         reportActivity.setAdvancePercentage(advance);
         reportActivity.setObservation(observaciones);
