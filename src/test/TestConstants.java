@@ -87,7 +87,6 @@ public final class TestConstants {
     public static final String DEFAULT_OBTAINED_RESULTS = "Resultados satisfactorios.";
     public static final String DEFAULT_PLAN_WEEKS = "1-4";
     public static final String DEFAULT_REAL_WEEKS = "1-5";
-    public static final String DEFAULT_MOTIVE = "Solicitud justificada por carga académica.";
     public static final String DEFAULT_ASSIGNMENT_REASON = "Asignación por orden de preferencia.";
     public static final String DEFAULT_DELIVERABLE_RESULT = "Entregable validado.";
     public static final String DEFAULT_DELIVERABLE_DESCRIPTION = "Descripción del entregable.";

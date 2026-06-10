@@ -74,7 +74,7 @@ public class SelectProjectForActivityController implements ChangeListener<Projec
 
     private void loadProjects() {
         try {
-            int professorId = SessionManager.getInstance().getUsuario().getId();
+            int professorId = SessionManager.getInstance().getUser().getId();
             ProjectDAO projectDAO = new ProjectDAO();
             List<Project> projects = projectDAO.findByProfessorAvailable(professorId);
             projectsTable.setItems(FXCollections.observableArrayList(projects));

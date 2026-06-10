@@ -98,7 +98,7 @@ public class Activity {
         this.endDate = endDate;
     }
 
-    public String getFechaInicioDisplay() {
+    public String getStartDateDisplay() {
         String display = "";
         if (startDate != null) {
             display = startDate.toString();
@@ -106,7 +106,7 @@ public class Activity {
         return display;
     }
 
-    public String getFechaFinDisplay() {
+    public String getEndDateDisplay() {
         String display = "";
         if (endDate != null) {
             display = endDate.toString();

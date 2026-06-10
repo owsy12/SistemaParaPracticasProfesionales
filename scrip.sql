@@ -297,19 +297,6 @@ create table formato_inicial
 create index idx_fmt_practicante
     on formato_inicial (id_practicante);
 
-create table prorroga
-(
-    id_prorroga        int auto_increment
-        primary key,
-    id_actividad       int  not null,
-    fecha_fin_original date not null,
-    fecha_fin_nueva    date not null,
-    motivo             text not null,
-    constraint fk_prorroga_actividad
-        foreign key (id_actividad) references actividad (id_actividad)
-            on update cascade on delete cascade
-);
-
 create table reporte
 (
     id_reporte             int auto_increment

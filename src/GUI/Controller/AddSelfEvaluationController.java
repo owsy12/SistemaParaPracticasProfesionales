@@ -127,13 +127,13 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     }
 
     private void loadInternContext() {
-        boolean hasSession = SessionManager.getInstance().getUsuario() != null;
+        boolean hasSession = SessionManager.getInstance().getUser() != null;
         if (!hasSession) {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
         } else {
-            internId = SessionManager.getInstance().getUsuario().getId();
-            internRegistrationNumber = SessionManager.getInstance().getUsuario().getRegistrationNumber();
+            internId = SessionManager.getInstance().getUser().getId();
+            internRegistrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
             loadInternData();
         }
     }

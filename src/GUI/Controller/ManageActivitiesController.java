@@ -63,10 +63,10 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     private TextArea descriptionTextArea;
 
     @FXML
-    private DatePicker fechaInicioPicker;
+    private DatePicker startDatePicker;
 
     @FXML
-    private DatePicker fechaFinPicker;
+    private DatePicker endDatePicker;
 
     @FXML
     private Label statusLabel;
@@ -155,7 +155,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     }
 
     @FXML
-    public void grantProrroga(ActionEvent actionEvent) {
+    public void grantExtension(ActionEvent actionEvent) {
         boolean isActivityMissing = selectedActivity == null;
         boolean isProjectMissing = projectComboBox.getValue() == null;
         boolean isDateMissing = selectedActivity != null && selectedActivity.getEndDate() == null;
@@ -173,7 +173,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                     "La actividad seleccionada no tiene fecha de fin registrada.",
                     Alert.AlertType.WARNING);
         } else {
-            processProrrogaDialog();
+            processExtensionDialog();
         }
     }
 
@@ -195,15 +195,15 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         activitiesTableView.getSelectionModel().selectedItemProperty().addListener(this);
     }
 
-    private void processProrrogaDialog() {
-        Optional<LocalDate> dialogResult = showProrrogaDialog();
+    private void processExtensionDialog() {
+        Optional<LocalDate> dialogResult = showExtensionDialog();
         boolean dateProvided = dialogResult.isPresent();
         if (dateProvided) {
-            saveProrrogaProcess(dialogResult.get());
+            saveExtensionProcess(dialogResult.get());
         }
     }
 
-    private Optional<LocalDate> showProrrogaDialog() {
+    private Optional<LocalDate> showExtensionDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Otorgar Prórroga");
         dialog.setHeaderText("Actividad: " + selectedActivity.getName());
@@ -230,7 +230,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         return result;
     }
 
-    private void saveProrrogaProcess(LocalDate newEndDate) {
+    private void saveExtensionProcess(LocalDate newEndDate) {
         boolean isNewDateNull = newEndDate == null;
 
         Project project = projectComboBox.getValue();
@@ -253,11 +253,11 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                     "La nueva fecha límite no puede superar la fecha de fin del proyecto.",
                     Alert.AlertType.WARNING);
         } else {
-            executeProrroga(newEndDate);
+            executeExtension(newEndDate);
         }
     }
 
-    private void executeProrroga(LocalDate newEndDate) {
+    private void executeExtension(LocalDate newEndDate) {
         try {
             selectedActivity.setEndDate(newEndDate);
             ActivityDAO activityDAO = new ActivityDAO();
@@ -266,7 +266,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             if (updated) {
                 LOGGER.log(Level.INFO,
                         "Auditoria: profesor {0} otorgo prorroga a la actividad {1}, nueva fechaFin {2}",
-                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                        new Object[]{SessionManager.getInstance().getUser().getId(),
                                 selectedActivity.getIdActivity(), String.valueOf(newEndDate)});
                 showAlert("Prórroga otorgada",
                         "La nueva fecha límite de la actividad fue registrada correctamente.",
@@ -294,15 +294,15 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         try {
             selectedActivity.setName(nameTextField.getText().trim());
             selectedActivity.setDescription(descriptionTextArea.getText().trim());
-            selectedActivity.setStartDate(fechaInicioPicker.getValue());
-            selectedActivity.setEndDate(fechaFinPicker.getValue());
+            selectedActivity.setStartDate(startDatePicker.getValue());
+            selectedActivity.setEndDate(endDatePicker.getValue());
 
             ActivityDAO activityDAO = new ActivityDAO();
 
             if (activityDAO.update(selectedActivity)) {
                 LOGGER.log(Level.INFO,
                         "Auditoria: profesor {0} actualizo la actividad {1}",
-                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                        new Object[]{SessionManager.getInstance().getUser().getId(),
                                 selectedActivity.getIdActivity()});
                 showAlert("Actividad actualizada",
                         "La actividad fue actualizada correctamente.",
@@ -333,7 +333,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             if (activityDao.delete(selectedActivity.getIdActivity())) {
                 LOGGER.log(Level.INFO,
                         "Auditoria: profesor {0} elimino la actividad {1}",
-                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                        new Object[]{SessionManager.getInstance().getUser().getId(),
                                 selectedActivity.getIdActivity()});
                 showAlert("Actividad eliminada",
                         "La actividad fue eliminada correctamente.",
@@ -365,25 +365,25 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     }
 
     private boolean areDatesInvalid() {
-        LocalDate inicio = fechaInicioPicker.getValue();
-        LocalDate fin = fechaFinPicker.getValue();
-        boolean bothProvided = inicio != null && fin != null;
-        boolean invalid = bothProvided && !fin.isAfter(inicio);
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+        boolean bothProvided = startDate != null && endDate != null;
+        boolean invalid = bothProvided && !endDate.isAfter(startDate);
         return invalid;
     }
 
     private boolean areDatesOutsideProjectRange() {
         Project project = projectComboBox.getValue();
-        LocalDate inicio = fechaInicioPicker.getValue();
-        LocalDate fin = fechaFinPicker.getValue();
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
 
         boolean hasProjectStart = project != null && project.getStartDate() != null;
         boolean hasProjectEnd = project != null && project.getEndDate() != null;
 
-        boolean startBeforeProject = hasProjectStart && inicio != null
-                && inicio.isBefore(project.getStartDate());
-        boolean endAfterProject = hasProjectEnd && fin != null
-                && fin.isAfter(project.getEndDate());
+        boolean startBeforeProject = hasProjectStart && startDate != null
+                && startDate.isBefore(project.getStartDate());
+        boolean endAfterProject = hasProjectEnd && endDate != null
+                && endDate.isAfter(project.getEndDate());
 
         boolean isOutOfRange = startBeforeProject || endAfterProject;
         return isOutOfRange;
@@ -391,7 +391,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     private void loadProjects() {
         try {
-            int professorId = SessionManager.getInstance().getUsuario().getId();
+            int professorId = SessionManager.getInstance().getUser().getId();
             ProjectDAO projectDao = new ProjectDAO();
             List<Project> projectList = projectDao.findByProfessorAvailable(professorId);
             projectComboBox.getItems().setAll(projectList);
@@ -432,8 +432,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         }
         descriptionTextArea.setText(description);
 
-        fechaInicioPicker.setValue(activity.getStartDate());
-        fechaFinPicker.setValue(activity.getEndDate());
+        startDatePicker.setValue(activity.getStartDate());
+        endDatePicker.setValue(activity.getEndDate());
         String statusText = "Estado: " + activity.getStatus();
         statusLabel.setText(statusText);
     }
@@ -442,8 +442,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         selectedActivity = null;
         nameTextField.clear();
         descriptionTextArea.clear();
-        fechaInicioPicker.setValue(null);
-        fechaFinPicker.setValue(null);
+        startDatePicker.setValue(null);
+        endDatePicker.setValue(null);
         statusLabel.setText("");
         activitiesTableView.getSelectionModel().clearSelection();
     }

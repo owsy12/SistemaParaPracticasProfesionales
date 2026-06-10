@@ -116,12 +116,12 @@
                             <HBox spacing="14.0">
                                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                                     <Label text="Fecha de inicio" styleClass="fieldLabelText"/>
-                                    <DatePicker fx:id="fechaInicioPicker"
+                                    <DatePicker fx:id="startDatePicker"
                                                 styleClass="formDatePicker" maxWidth="Infinity"/>
                                 </VBox>
                                 <VBox spacing="6.0" HBox.hgrow="ALWAYS">
                                     <Label text="Fecha límite de entrega" styleClass="fieldLabelText"/>
-                                    <DatePicker fx:id="fechaFinPicker"
+                                    <DatePicker fx:id="endDatePicker"
                                                 styleClass="formDatePicker" maxWidth="Infinity"/>
                                 </VBox>
                             </HBox>
@@ -134,7 +134,7 @@
                             <Button text="Actualizar" styleClass="primaryActionButton"
                                     onAction="#updateActivity" mnemonicParsing="false"/>
                             <Button text="Otorgar Prórroga" styleClass="warnActionButton"
-                                    onAction="#grantProrroga" mnemonicParsing="false"/>
+                                    onAction="#grantExtension" mnemonicParsing="false"/>
                             <Button text="Eliminar" styleClass="rejectActionButton"
                                     onAction="#deleteActivity" mnemonicParsing="false"/>
                             <Region HBox.hgrow="ALWAYS"/>

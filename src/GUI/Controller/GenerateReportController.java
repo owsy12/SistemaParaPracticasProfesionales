@@ -296,7 +296,7 @@ public class GenerateReportController {
     }
 
     private void loadInternContext() {
-        if (SessionManager.getInstance().getUsuario() == null) {
+        if (SessionManager.getInstance().getUser() == null) {
             disableGeneration();
         } else {
             tryLoadInternData();
@@ -304,7 +304,7 @@ public class GenerateReportController {
     }
 
     private void tryLoadInternData() {
-        int internId = SessionManager.getInstance().getUsuario().getId();
+        int internId = SessionManager.getInstance().getUser().getId();
         try {
             InternContext context = InternContextLoader.load(internId);
             handleContextLoaded(context);

@@ -140,7 +140,7 @@ public class GenerateSelfEvaluationController {
     }
 
     private boolean hasActiveSession() {
-        boolean hasSession = SessionManager.getInstance().getUsuario() != null;
+        boolean hasSession = SessionManager.getInstance().getUser() != null;
         return hasSession;
     }
 
@@ -148,7 +148,7 @@ public class GenerateSelfEvaluationController {
         if (!hasActiveSession()) {
             disableGenerationButton();
         } else {
-            int internId = SessionManager.getInstance().getUsuario().getId();
+            int internId = SessionManager.getInstance().getUser().getId();
             loadInternData(internId);
         }
     }

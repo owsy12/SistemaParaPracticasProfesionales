@@ -17,7 +17,7 @@ public class SessionManager {
         return instance;
     }
 
-    public User getUsuario(){
+    public User getUser(){
         return user;
     }
 

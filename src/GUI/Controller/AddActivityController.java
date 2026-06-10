@@ -43,10 +43,10 @@ public class AddActivityController {
     private RestrictedTextArea descriptionTextArea;
 
     @FXML
-    private DatePicker fechaInicioPicker;
+    private DatePicker startDatePicker;
 
     @FXML
-    private DatePicker fechaFinPicker;
+    private DatePicker endDatePicker;
 
     @FXML
     private void initialize() {
@@ -108,7 +108,7 @@ public class AddActivityController {
             if (generatedId > 0) {
                 LOGGER.log(Level.INFO,
                         "Auditoria: profesor {0} registro la actividad {1} en el proyecto {2}",
-                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                        new Object[]{SessionManager.getInstance().getUser().getId(),
                                 generatedId, activity.getIdProject()});
                 showAlert("Actividad registrada",
                         "La actividad fue registrada exitosamente.",
@@ -138,8 +138,8 @@ public class AddActivityController {
         activity.setIdProject(projectComboBox.getValue().getIdProject());
         activity.setName(nameTextField.getText().trim());
         activity.setDescription(descriptionTextArea.getText().trim());
-        activity.setStartDate(fechaInicioPicker.getValue());
-        activity.setEndDate(fechaFinPicker.getValue());
+        activity.setStartDate(startDatePicker.getValue());
+        activity.setEndDate(endDatePicker.getValue());
         activity.setCreationDate(LocalDate.now());
         activity.setStatus("Activa");
         return activity;
@@ -147,7 +147,7 @@ public class AddActivityController {
 
     private void loadProjects() {
         try {
-            int professorId = SessionManager.getInstance().getUsuario().getId();
+            int professorId = SessionManager.getInstance().getUser().getId();
             ProjectDAO projectDAO = new ProjectDAO();
             List<Project> projects = projectDAO.findByProfessorAvailable(professorId);
             projectComboBox.getItems().setAll(projects);
@@ -172,25 +172,25 @@ public class AddActivityController {
     }
 
     private boolean areDatesInvalid() {
-        LocalDate inicio = fechaInicioPicker.getValue();
-        LocalDate fin = fechaFinPicker.getValue();
-        boolean bothProvided = inicio != null && fin != null;
-        boolean invalid = bothProvided && !fin.isAfter(inicio);
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
+        boolean bothProvided = startDate != null && endDate != null;
+        boolean invalid = bothProvided && !endDate.isAfter(startDate);
         return invalid;
     }
 
     private boolean areDatesOutsideProjectRange() {
         Project project = projectComboBox.getValue();
-        LocalDate inicio = fechaInicioPicker.getValue();
-        LocalDate fin = fechaFinPicker.getValue();
+        LocalDate startDate = startDatePicker.getValue();
+        LocalDate endDate = endDatePicker.getValue();
 
         boolean hasProjectStart = project != null && project.getStartDate() != null;
         boolean hasProjectEnd = project != null && project.getEndDate() != null;
 
-        boolean startBeforeProject = hasProjectStart && inicio != null
-                && inicio.isBefore(project.getStartDate());
-        boolean endAfterProject = hasProjectEnd && fin != null
-                && fin.isAfter(project.getEndDate());
+        boolean startBeforeProject = hasProjectStart && startDate != null
+                && startDate.isBefore(project.getStartDate());
+        boolean endAfterProject = hasProjectEnd && endDate != null
+                && endDate.isAfter(project.getEndDate());
 
         boolean isOutOfRange = startBeforeProject || endAfterProject;
         return isOutOfRange;
@@ -199,8 +199,8 @@ public class AddActivityController {
     private void clearForm() {
         nameTextField.clear();
         descriptionTextArea.clear();
-        fechaInicioPicker.setValue(null);
-        fechaFinPicker.setValue(null);
+        startDatePicker.setValue(null);
+        endDatePicker.setValue(null);
     }
 
 }

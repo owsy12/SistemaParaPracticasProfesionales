@@ -57,7 +57,7 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
     private void validatePendingInitialDocuments() {
         try {
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
-            int currentUserId = SessionManager.getInstance().getUsuario().getId();
+            int currentUserId = SessionManager.getInstance().getUser().getId();
             List<InitialFormat> obtainedPendingDocuments = initialFormatDAO.findPendingByIntern(currentUserId);
 
             if (obtainedPendingDocuments.isEmpty()) {
@@ -168,7 +168,7 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
 
     private void saveDocumentProcess() {
         try {
-            String registrationNumber = SessionManager.getInstance().getUsuario().getRegistrationNumber();
+            String registrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
             int idProject = pendingDocuments.get(0).getIdProject();
             String relativeFolder = "storage/intern_" + registrationNumber + "/project_" + idProject + "/initial_formats";
             String documentTypeName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase();

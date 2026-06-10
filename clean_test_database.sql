@@ -9,7 +9,6 @@ DELETE FROM reporte;
 DELETE FROM autoevaluacion;
 DELETE FROM evaluacion_ov;
 DELETE FROM formato_inicial;
-DELETE FROM prorroga;
 DELETE FROM actividad_practicante;
 DELETE FROM actividad;
 DELETE FROM asignacion;
@@ -44,6 +43,5 @@ ALTER TABLE observacion_reporte AUTO_INCREMENT = 1;
 ALTER TABLE autoevaluacion AUTO_INCREMENT = 1;
 ALTER TABLE evaluacion_ov AUTO_INCREMENT = 1;
 ALTER TABLE formato_inicial AUTO_INCREMENT = 1;
-ALTER TABLE prorroga AUTO_INCREMENT = 1;
 
 SET FOREIGN_KEY_CHECKS = 1;

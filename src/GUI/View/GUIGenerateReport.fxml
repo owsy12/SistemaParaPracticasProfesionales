@@ -170,10 +170,10 @@
                                         <cellValueFactory><PropertyValueFactory property="description"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="columnActPlanStart" prefWidth="120.0" text="Fecha inicio">
-                                        <cellValueFactory><PropertyValueFactory property="fechaInicioDisplay"/></cellValueFactory>
+                                        <cellValueFactory><PropertyValueFactory property="startDateDisplay"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="columnActPlanEnd" prefWidth="120.0" text="Fecha fin">
-                                        <cellValueFactory><PropertyValueFactory property="fechaFinDisplay"/></cellValueFactory>
+                                        <cellValueFactory><PropertyValueFactory property="endDateDisplay"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>
                             </TableView>

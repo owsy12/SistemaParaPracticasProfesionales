@@ -111,7 +111,7 @@
                                     <Label text=" *" styleClass="requiredMarkLabel"/>
                                 </HBox>
                                 <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                                    <DatePicker fx:id="fechaInicioPicker"
+                                    <DatePicker fx:id="startDatePicker"
                                                 styleClass="formDatePicker" maxWidth="Infinity"/>
                                 </VBox>
 
@@ -122,7 +122,7 @@
                                     <Label text=" *" styleClass="requiredMarkLabel"/>
                                 </HBox>
                                 <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                    <DatePicker fx:id="fechaFinPicker"
+                                    <DatePicker fx:id="endDatePicker"
                                                 styleClass="formDatePicker" maxWidth="Infinity"/>
                                     <Label text="Fecha límite de entrega de la actividad" styleClass="fieldHintLabel"/>
                                 </VBox>

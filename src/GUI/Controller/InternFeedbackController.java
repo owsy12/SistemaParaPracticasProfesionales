@@ -143,12 +143,12 @@ public class InternFeedbackController {
     }
 
     private void loadFeedback() {
-        boolean hasSession = SessionManager.getInstance().getUsuario() != null;
+        boolean hasSession = SessionManager.getInstance().getUser() != null;
         if (!hasSession) {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
         } else {
-            int internId = SessionManager.getInstance().getUsuario().getId();
+            int internId = SessionManager.getInstance().getUser().getId();
             loadAssignmentReason(internId);
             loadFinalGrade(internId);
             loadReportFeedback(internId);

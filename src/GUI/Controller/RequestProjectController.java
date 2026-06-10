@@ -126,7 +126,7 @@ public class RequestProjectController {
 
     private void verifyActiveInternProjectApplication() {
         try {
-            int currentUserId = SessionManager.getInstance().getUsuario().getId();
+            int currentUserId = SessionManager.getInstance().getUser().getId();
 
             PracticeDAO practiceDAO = new PracticeDAO();
             boolean hasConcluded = practiceDAO.hasConcludedPractice(currentUserId);

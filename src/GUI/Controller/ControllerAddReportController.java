@@ -181,7 +181,7 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
 
     private void loadPendingReports() {
         try {
-            int internId = SessionManager.getInstance().getUsuario().getId();
+            int internId = SessionManager.getInstance().getUser().getId();
             ReportDAO reportDAO = new ReportDAO();
             List<Report> allReports = reportDAO.getByIdInternWithMonth(internId);
             List<Report> pendingReports = new ArrayList<>();
@@ -257,7 +257,7 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
     }
 
     private String copySignedFile() throws IOException {
-        String internRegistrationNumber = SessionManager.getInstance().getUsuario().getRegistrationNumber();
+        String internRegistrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
         String folder = "storage/intern_" + internRegistrationNumber + "/project_" + selectedReport.getIdProject()
                 + "/reportes_generados";
         String fileName = "reporte_" + selectedReport.getReportType().toLowerCase()

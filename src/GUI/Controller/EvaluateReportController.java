@@ -134,7 +134,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
     @FXML
     private void initialize() {
-        currentProfessorId = SessionManager.getInstance().getUsuario().getId();
+        currentProfessorId = SessionManager.getInstance().getUser().getId();
         applyTextAreaRestriction(observationsTextArea, 200);
         gradeTextField.setRestriction(GRADE_MAX_LENGTH, GRADE_INPUT_PATTERN);
         configureListeners();

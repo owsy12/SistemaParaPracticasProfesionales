@@ -16,8 +16,8 @@ public class Administrator extends User {
         super();
     }
 
-    public Administrator(int idUsuario, String registrationNumber, String nombre, String apellidoPaterno, String apellidoMaterno, String contrasenia, String estado) {
-        super(idUsuario, registrationNumber, nombre, apellidoPaterno, apellidoMaterno, contrasenia, estado);
+    public Administrator(int idUser, String registrationNumber, String name, String firstLastName, String secondLastName, String password, String state) {
+        super(idUser, registrationNumber, name, firstLastName, secondLastName, password, state);
     }
 
     public int getIdAdmin() {

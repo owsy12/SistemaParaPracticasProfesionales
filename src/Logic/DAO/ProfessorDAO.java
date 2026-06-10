@@ -64,10 +64,20 @@ public class ProfessorDAO implements IProfessorDAO {
             }
 
         } catch (SQLException sqlException) {
-            try { databaseConnection.rollback(); } catch (SQLException rollbackEx) { /* Ignore */ }
+            try {
+                databaseConnection.rollback();
+            } catch (SQLException rollbackException) {
+                LOGGER.log(Level.SEVERE, "Error al revertir la transacción de profesor: {0}",
+                        rollbackException.getMessage());
+            }
             throw new ServiceException("Error al registrar profesor.", sqlException);
         } finally {
-            try { databaseConnection.setAutoCommit(true); } catch (SQLException sqlException) { /* Ignore */ }
+            try {
+                databaseConnection.setAutoCommit(true);
+            } catch (SQLException autoCommitException) {
+                LOGGER.log(Level.SEVERE, "Error al restaurar auto-commit de profesor: {0}",
+                        autoCommitException.getMessage());
+            }
         }
 
         return isSaved;

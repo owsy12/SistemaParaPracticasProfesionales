@@ -86,7 +86,7 @@ public class ViewProjectSelectionController {
             ApplicationDAO applicationDAO = new ApplicationDAO();
             ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
 
-            int currentUserId = SessionManager.getInstance().getUsuario().getId();
+            int currentUserId = SessionManager.getInstance().getUser().getId();
             Application pendingApplication = applicationDAO.findActiveApplicationByIntern(currentUserId);
 
             Application application;

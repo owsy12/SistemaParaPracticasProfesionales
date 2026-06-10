@@ -61,7 +61,7 @@ public class WelcomeController {
 
     @FXML
     private void initialize() {
-        User user = SessionManager.getInstance().getUsuario();
+        User user = SessionManager.getInstance().getUser();
         populateGreeting(user);
         loadDashboardByRoles(user);
     }
@@ -199,10 +199,7 @@ public class WelcomeController {
         List<Report> myPendingReports = filterByProfessor(allPendingReports, user.getId());
         List<Report> allReports = loadAllReports();
         List<Report> myTotalReports = filterByProfessor(allReports, user.getId());
-        Set<Integer> uniqueInterns = extractUniqueInterns(myTotalReports);
-        int evalsDone = countEvaluationsForReports(myTotalReports);
-
-        populateProfesorCards(myPendingReports, myTotalReports, uniqueInterns.size(), evalsDone);
+        populateProfesorCards(myPendingReports, myTotalReports);
     }
 
     private List<Report> loadAllPendingReports() {
@@ -256,16 +253,22 @@ public class WelcomeController {
         return count;
     }
 
-    private void populateProfesorCards(List<Report> pending, List<Report> total, int internsCount, int evalsDone) {
+    private void populateProfesorCards(List<Report> pending, List<Report> total) {
         int pendingCount = pending.size();
-        boolean hasOnePending = pendingCount == 1;
-        String pendingCountText = hasOnePending ? "1 reporte" : pendingCount + " reportes";
+        String pendingCountText = pendingCount + " reportes";
+        if (pendingCount == 1) {
+            pendingCountText = "1 reporte";
+        }
         profPendingCountLabel.setText(pendingCountText);
-        boolean hasNoPending = pendingCount == 0;
-        String pendingDetailText = hasNoPending ? "Sin reportes pendientes" : pendingCount + " esperando revisión";
+        String pendingDetailText = pendingCount + " esperando revisión";
+        if (pendingCount == 0) {
+            pendingDetailText = "Sin reportes pendientes";
+        }
         profPendingDetailLabel.setText(pendingDetailText);
         profTotalReportsLabel.setText(String.valueOf(total.size()));
+        int internsCount = extractUniqueInterns(total).size();
         profInternsCountLabel.setText(String.valueOf(internsCount));
+        int evalsDone = countEvaluationsForReports(total);
         profEvalDoneLabel.setText(String.valueOf(evalsDone));
     }
 
