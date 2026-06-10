@@ -34,22 +34,22 @@
             <TableView fx:id="reportsTableView" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="typeColumn" prefWidth="150.0" text="Tipo">
-                        <cellValueFactory><PropertyValueFactory property="type"/></cellValueFactory>
+                        <cellValueFactory><PropertyValueFactory property="typeWithMonth"/></cellValueFactory>
                     </TableColumn>
                     <TableColumn fx:id="periodColumn" prefWidth="140.0" text="Período">
                         <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>
                     </TableColumn>
                     <TableColumn fx:id="statusColumn" prefWidth="120.0" text="Estado">
-                        <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+                        <cellValueFactory><PropertyValueFactory property="displayStatus"/></cellValueFactory>
                     </TableColumn>
                     <TableColumn fx:id="gradeColumn" prefWidth="100.0" text="Calificación">
-                        <cellValueFactory><PropertyValueFactory property="grade"/></cellValueFactory>
+                        <cellValueFactory><PropertyValueFactory property="gradeDisplay"/></cellValueFactory>
                     </TableColumn>
                     <TableColumn fx:id="evaluationDateColumn" prefWidth="130.0" text="Fecha de evaluación">
-                        <cellValueFactory><PropertyValueFactory property="evaluationDate"/></cellValueFactory>
+                        <cellValueFactory><PropertyValueFactory property="evaluationDateDisplay"/></cellValueFactory>
                     </TableColumn>
                     <TableColumn fx:id="observationsColumn" prefWidth="280.0" text="Observaciones del profesor">
-                        <cellValueFactory><PropertyValueFactory property="observations"/></cellValueFactory>
+                        <cellValueFactory><PropertyValueFactory property="observationsDisplay"/></cellValueFactory>
                     </TableColumn>
                 </columns>
             </TableView>

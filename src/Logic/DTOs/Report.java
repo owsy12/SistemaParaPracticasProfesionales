@@ -219,6 +219,32 @@ public class Report {
         this.evaluationDate = evaluationDate;
     }
 
+    public String getGradeDisplay() {
+        String display = "Sin calificar";
+        if (grade != null) {
+            display = String.format("%.2f", grade);
+        }
+        return display;
+    }
+
+    public String getEvaluationDateDisplay() {
+        String display = "—";
+        if (evaluationDate != null) {
+            display = evaluationDate.toString();
+        }
+        return display;
+    }
+
+    public String getObservationsDisplay() {
+        String display = "Sin observaciones";
+        boolean hasObservations = professorObservations != null
+                && !professorObservations.isBlank();
+        if (hasObservations) {
+            display = professorObservations;
+        }
+        return display;
+    }
+
     public String getTypeWithMonth() {
         String typeDisplay = reportType != null ? reportType : "";
         boolean isMonthly = "Mensual".equals(reportType);

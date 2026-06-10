@@ -5,7 +5,6 @@ import Logic.DAO.AssignmentDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ReportDAO;
 import Logic.DTOs.Assignment;
-import Logic.DTOs.InternReportFeedback;
 import Logic.DTOs.Practice;
 import Logic.DTOs.Report;
 import Logic.Exceptions.ServiceException;
@@ -25,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,9 +40,6 @@ public class InternFeedbackController {
             "Fuiste asignado a un proyecto que seleccionaste; no se registró un motivo especial.";
     private static final String NO_FINAL_GRADE =
             "La práctica aún no ha concluido; todavía no hay una calificación final registrada.";
-    private static final String NOT_GRADED = "Sin calificar";
-    private static final String NO_OBSERVATIONS = "Sin observaciones";
-    private static final String NO_DATE = "—";
 
     @FXML
     private AnchorPane anchorPane;
@@ -57,25 +51,25 @@ public class InternFeedbackController {
     private Label finalGradeLabel;
 
     @FXML
-    private TableView<InternReportFeedback> reportsTableView;
+    private TableView<Report> reportsTableView;
 
     @FXML
-    private TableColumn<InternReportFeedback, String> typeColumn;
+    private TableColumn<Report, String> typeColumn;
 
     @FXML
-    private TableColumn<InternReportFeedback, String> periodColumn;
+    private TableColumn<Report, String> periodColumn;
 
     @FXML
-    private TableColumn<InternReportFeedback, String> statusColumn;
+    private TableColumn<Report, String> statusColumn;
 
     @FXML
-    private TableColumn<InternReportFeedback, String> gradeColumn;
+    private TableColumn<Report, String> gradeColumn;
 
     @FXML
-    private TableColumn<InternReportFeedback, String> evaluationDateColumn;
+    private TableColumn<Report, String> evaluationDateColumn;
 
     @FXML
-    private TableColumn<InternReportFeedback, String> observationsColumn;
+    private TableColumn<Report, String> observationsColumn;
 
     @FXML
     private void initialize() {
@@ -89,7 +83,7 @@ public class InternFeedbackController {
 
     @FXML
     public void viewReport(ActionEvent actionEvent) {
-        InternReportFeedback selected = reportsTableView.getSelectionModel().getSelectedItem();
+        Report selected = reportsTableView.getSelectionModel().getSelectedItem();
         boolean hasSelection = selected != null;
         boolean hasDocument = hasSelection && selected.getDocumentPath() != null
                 && !selected.getDocumentPath().isBlank();
@@ -107,7 +101,7 @@ public class InternFeedbackController {
 
     @FXML
     public void downloadReport(ActionEvent actionEvent) {
-        InternReportFeedback selected = reportsTableView.getSelectionModel().getSelectedItem();
+        Report selected = reportsTableView.getSelectionModel().getSelectedItem();
         boolean hasSelection = selected != null;
         boolean hasDocument = hasSelection && selected.getDocumentPath() != null
                 && !selected.getDocumentPath().isBlank();
@@ -125,7 +119,7 @@ public class InternFeedbackController {
 
     @FXML
     public void viewSignedDocument(ActionEvent actionEvent) {
-        InternReportFeedback selected = reportsTableView.getSelectionModel().getSelectedItem();
+        Report selected = reportsTableView.getSelectionModel().getSelectedItem();
         boolean hasSelection = selected != null;
         boolean hasSigned = hasSelection && selected.getSignedDocumentPath() != null
                 && !selected.getSignedDocumentPath().isBlank();
@@ -191,7 +185,7 @@ public class InternFeedbackController {
             }
             String gradeText = NO_FINAL_GRADE;
             if (finalGrade != null) {
-                gradeText = "Calificación final: " + formatGrade(finalGrade);
+                gradeText = "Calificación final: " + String.format("%.2f", finalGrade);
             }
             finalGradeLabel.setText(gradeText);
         } catch (ServiceException serviceException) {
@@ -208,11 +202,7 @@ public class InternFeedbackController {
         try {
             ReportDAO reportDAO = new ReportDAO();
             List<Report> reports = reportDAO.getByIdInternWithMonth(internId);
-            List<InternReportFeedback> rows = new ArrayList<InternReportFeedback>();
-            for (Report report : reports) {
-                rows.add(buildFeedbackRow(report));
-            }
-            reportsTableView.setItems(FXCollections.observableArrayList(rows));
+            reportsTableView.setItems(FXCollections.observableArrayList(reports));
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar la retroalimentación de reportes: {0}",
                     serviceException.getMessage());
@@ -221,45 +211,6 @@ public class InternFeedbackController {
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
         }
-    }
-
-    private InternReportFeedback buildFeedbackRow(Report report) {
-        String gradeText = NOT_GRADED;
-        boolean hasGrade = report.getGrade() != null;
-        if (hasGrade) {
-            gradeText = formatGrade(report.getGrade());
-        }
-        String evaluationDateText = formatDate(report.getEvaluationDate());
-        String observationsText = NO_OBSERVATIONS;
-        boolean hasObservations = report.getProfessorObservations() != null
-                && !report.getProfessorObservations().isBlank();
-        if (hasObservations) {
-            observationsText = report.getProfessorObservations();
-        }
-        InternReportFeedback row = new InternReportFeedback();
-        row.setIdReport(report.getIdReport());
-        row.setType(report.getTypeWithMonth());
-        row.setPeriod(report.getPeriod());
-        row.setStatus(report.getDisplayStatus());
-        row.setGrade(gradeText);
-        row.setEvaluationDate(evaluationDateText);
-        row.setObservations(observationsText);
-        row.setDocumentPath(report.getDocumentPath());
-        row.setSignedDocumentPath(report.getSignedDocumentPath());
-        return row;
-    }
-
-    private String formatGrade(double grade) {
-        String formatted = String.format("%.2f", grade);
-        return formatted;
-    }
-
-    private String formatDate(LocalDate date) {
-        String formatted = NO_DATE;
-        if (date != null) {
-            formatted = date.toString();
-        }
-        return formatted;
     }
 
     private void tryOpenFile(String filePath) {
