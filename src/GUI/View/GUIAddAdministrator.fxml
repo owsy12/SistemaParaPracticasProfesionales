@@ -22,7 +22,7 @@
         fitToHeight="false"
         hbarPolicy="NEVER"
         vbarPolicy="AS_NEEDED"
-        xmlns="http://javafx.com/javafx/25"
+        xmlns="http://javafx.com/javafx/21"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="GUI.Controller.AddAdministratorController">
 
@@ -158,7 +158,7 @@
                             <RestrictedPasswordField fx:id="passwordField"
                                            styleClass="formPasswordField"
                                            maxWidth="Infinity"/>
-                            <Label text="Mínimo 8 caracteres, incluye mayúsculas y números"
+                            <Label text="Mínimo 8 caracteres, incluye mayúsculas, números y caracteres especiales"
                                    styleClass="fieldHintLabel"/>
                         </VBox>
 

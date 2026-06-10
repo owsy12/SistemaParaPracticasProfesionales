@@ -19,7 +19,7 @@
 
 <AnchorPane fx:id="rootPane"
             prefHeight="980.0" prefWidth="940.0"
-            xmlns="http://javafx.com/javafx/25"
+            xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.GenerateReportController">
 

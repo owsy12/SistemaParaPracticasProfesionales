@@ -1,27 +1,26 @@
 package Logic.DAO;
 
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.User;
-import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
+import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IUserDAO;
-import static Logic.Utils.Connection.createdConnection;
-import java.sql.*;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class UserDAO implements IUserDAO {
-    private static final String STATUS_ACTIVE = "Activo";
-
 
     private static final Logger LOGGER = Logger.getLogger(UserDAO.class.getName());
-    private final Connection connection;
-
-    public UserDAO() throws ServiceException {
-        connection = createdConnection();
-    }
+    private static final String STATUS_ACTIVE = "Activo";
 
     @Override
     public int saveUser(User user) throws ServiceException, ValidationException {
@@ -30,9 +29,10 @@ public class UserDAO implements IUserDAO {
         int generatedId = -1;
         String sql = "INSERT INTO usuario " +
                 "(matricula, nombre, apellido_paterno, apellido_materno, contrasenia, correo) " +
-                "VALUES (?, ?, ?, ?,?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setString(1, user.getRegistrationNumber());
             preparedStatement.setString(2, user.getFirstName());
@@ -48,14 +48,13 @@ public class UserDAO implements IUserDAO {
                         user.setId(generatedId);
                         user.setStatus(STATUS_ACTIVE);
                     }
-
                     UserRoleDAO userRoleDAO = new UserRoleDAO();
                     userRoleDAO.saveUserRole(user);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar usuario con matrícula {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving user with registration number {0}: {1}",
                     new Object[]{user.getRegistrationNumber(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -64,9 +63,6 @@ public class UserDAO implements IUserDAO {
             }
             throw new ServiceException("Error al guardar el usuario en la base de datos.", sqlException);
         }
-
-
-
 
         return generatedId;
     }
@@ -80,18 +76,19 @@ public class UserDAO implements IUserDAO {
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE id_usuario = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, id);
 
-            try (ResultSet rresultSet = preparedStatement.executeQuery()) {
-                if (rresultSet.next()) {
-                    userResult = mapUser(rresultSet);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    userResult = mapUser(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar usuario con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding user with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -109,15 +106,16 @@ public class UserDAO implements IUserDAO {
         List<User> userList = new ArrayList<>();
         String sql = "SELECT * FROM usuario";
 
-        try (PreparedStatement ppreparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = ppreparedStatement.executeQuery()) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 userList.add(mapUser(resultSet));
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar la lista de usuarios: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving user list: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -138,7 +136,8 @@ public class UserDAO implements IUserDAO {
         String sql = "UPDATE usuario SET nombre=?, apellido_paterno=?, apellido_materno=?, estado=? " +
                 "WHERE id_usuario=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
@@ -151,7 +150,7 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar usuario con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating user with ID {0}: {1}",
                     new Object[]{user.getId(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -173,7 +172,8 @@ public class UserDAO implements IUserDAO {
         boolean isDeleted = false;
         String sql = "DELETE FROM usuario WHERE id_usuario=?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, id);
 
@@ -182,7 +182,7 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al eliminar usuario con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deleting user with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -197,11 +197,11 @@ public class UserDAO implements IUserDAO {
 
     @Override
     public User findByIdentifier(String registrationNumber) throws ServiceException, ValidationException {
-
         User userResult = null;
         String sql = "SELECT * FROM usuario WHERE matricula=? OR correo = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, registrationNumber);
             preparedStatement.setString(2, registrationNumber);
@@ -213,7 +213,7 @@ public class UserDAO implements IUserDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar usuario por matrícula {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding user by identifier {0}: {1}",
                     new Object[]{registrationNumber, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -228,18 +228,22 @@ public class UserDAO implements IUserDAO {
 
     @Override
     public User findByEmail(String email) throws ServiceException, ValidationException {
-        User user = new User();
+        User userResult = null;
         String sql = "SELECT * FROM usuario WHERE correo=?";
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
             preparedStatement.setString(1, email);
-            try (ResultSet resultSet = preparedStatement.executeQuery()){
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    user = mapUser(resultSet);
+                    userResult = mapUser(resultSet);
                 }
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar usuario por correo {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding user by email {0}: {1}",
                     new Object[]{email, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -248,21 +252,34 @@ public class UserDAO implements IUserDAO {
             }
             throw new ServiceException("Error al buscar usuario por correo.", sqlException);
         }
-        return user;
+
+        return userResult;
     }
 
     private void validateUser(User user) throws ValidationException {
+        if (user == null) {
+            throw new ValidationException("El objeto usuario no puede ser nulo.");
+        }
+        if (user.getFirstName() == null || user.getFirstName().isBlank()) {
+            throw new ValidationException("El nombre del usuario no puede estar vacío.");
+        }
+        if (user.getLastName() == null || user.getLastName().isBlank()) {
+            throw new ValidationException("El apellido paterno del usuario no puede estar vacío.");
+        }
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new ValidationException("El correo electrónico del usuario no puede estar vacío.");
+        }
     }
 
     private User mapUser(ResultSet resultSet) throws SQLException {
         User user = new User();
-        user.setId           (resultSet.getInt   ("id_usuario"));
-        user.setRegistrationNumber    (resultSet.getString("matricula"));
-        user.setFirstName    (resultSet.getString("nombre"));
-        user.setLastName     (resultSet.getString("apellido_paterno"));
+        user.setId(resultSet.getInt("id_usuario"));
+        user.setRegistrationNumber(resultSet.getString("matricula"));
+        user.setFirstName(resultSet.getString("nombre"));
+        user.setLastName(resultSet.getString("apellido_paterno"));
         user.setSecondLastName(resultSet.getString("apellido_materno"));
-        user.setPassword     (resultSet.getString("contrasenia"));
-        user.setEmail        (resultSet.getString("correo"));
+        user.setPassword(resultSet.getString("contrasenia"));
+        user.setEmail(resultSet.getString("correo"));
         return user;
     }
 }
