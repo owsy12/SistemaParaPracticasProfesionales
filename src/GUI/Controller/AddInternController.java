@@ -13,6 +13,7 @@ import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 import org.mindrot.jbcrypt.BCrypt;
 
+import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -109,6 +110,7 @@ public class AddInternController {
             intern.setRole("Practicante");
 
             if (internDAO.saveIntern(intern)) {
+                AuditLog.record("registró al practicante con matrícula " + intern.getRegistrationNumber());
                 showAlert("Éxito", "Practicante registrado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();

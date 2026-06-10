@@ -106,6 +106,10 @@ public class AddActivityController {
             int generatedId = activityDAO.save(activity);
 
             if (generatedId > 0) {
+                LOGGER.log(Level.INFO,
+                        "Auditoria: profesor {0} registro la actividad {1} en el proyecto {2}",
+                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                                generatedId, activity.getIdProject()});
                 showAlert("Actividad registrada",
                         "La actividad fue registrada exitosamente.",
                         Alert.AlertType.INFORMATION);

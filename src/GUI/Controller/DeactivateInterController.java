@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.InternDAO;
+import GUI.Utils.AuditLog;
 import Logic.DTOs.Intern;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
@@ -84,6 +85,7 @@ public class DeactivateInterController {
         try {
             InternDAO internDAO = new InternDAO();
             internDAO.deactivateIntern(user.getId());
+            AuditLog.record("inactivó al practicante " + user.getId());
         } catch (ServiceException serviceException) {
             showAlert("Error", "Servicio no disponible por el momento, intente más tarde.",
                     Alert.AlertType.ERROR);

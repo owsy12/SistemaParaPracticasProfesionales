@@ -324,6 +324,8 @@ create table reporte
     horas_reportadas       int                                           default 0                 null,
     observaciones_profesor text                                                                    null,
     fecha_revision         date                                                                    null,
+    calificacion           decimal(4, 2)                                                           null comment '0.00 - 10.00',
+    fecha_evaluacion       datetime                                                                null,
     fecha_entrega          datetime                                      default CURRENT_TIMESTAMP not null,
     ruta_documento_firmado varchar(150)                                                            null,
     fecha_limite           date                                                                    null,
@@ -339,26 +341,6 @@ create table reporte
             on update cascade
 )
     comment 'CU-20 genera; CU-21 sube firmado; CU-17 evalúa';
-
-create table evaluacion_reporte
-(
-    id_evaluacion_reporte int auto_increment
-        primary key,
-    id_reporte            int           not null,
-    calificacion          decimal(4, 2) null comment '0.00 – 10.00',
-    retroalimentacion     text          null,
-    porcentaje_avance     decimal(5, 2) null comment '0.00 – 100.00',
-    fecha_evaluacion      datetime      null,
-    constraint evaluacion_reporte_ibfk_1
-        foreign key (id_reporte) references reporte (id_reporte),
-    constraint chk_rep_avance
-        check ((`porcentaje_avance` is null) or (`porcentaje_avance` between 0 and 100)),
-    constraint chk_rep_calificacion
-        check ((`calificacion` is null) or (`calificacion` between 0 and 10))
-);
-
-create index id_reporte
-    on evaluacion_reporte (id_reporte);
 
 create table observacion_reporte
 (

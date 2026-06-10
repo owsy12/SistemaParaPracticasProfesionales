@@ -22,6 +22,7 @@ import javafx.scene.layout.AnchorPane;
 import java.util.ArrayList;
 import java.util.List;
 
+import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -112,6 +113,7 @@ public class AddProjectController {
                         + "No es posible registrar otro simultáneamente.",
                         Alert.AlertType.WARNING);
             } else if (projectDAO.saveProject(project)) {
+                AuditLog.record("registró el proyecto \"" + project.getName() + "\"");
                 showAlert("Éxito", "El proyecto ha sido guardado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();

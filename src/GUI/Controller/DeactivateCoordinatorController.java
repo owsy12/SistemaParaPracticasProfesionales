@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.CoordinatorDAO;
+import GUI.Utils.AuditLog;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
@@ -79,6 +80,7 @@ public class DeactivateCoordinatorController {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
+            AuditLog.record("inactivó al coordinador " + user.getId());
             showAlert("Coordinador desactivado",
                     "El coordinador ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);

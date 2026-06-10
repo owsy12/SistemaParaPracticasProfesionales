@@ -27,7 +27,8 @@ public class ReportDAO implements IReportDAO {
     private static final String SQL_SELECT_COLUMNS =
             "SELECT id_reporte, id_practicante, id_proyecto, id_profesor, tipo_reporte, " +
             "       periodo, ruta_documento, ruta_documento_firmado, estado, horas_reportadas, " +
-            "       observaciones_profesor, fecha_revision, fecha_entrega, fecha_limite, entrega_tardia ";
+            "       observaciones_profesor, fecha_revision, calificacion, fecha_evaluacion, " +
+            "       fecha_entrega, fecha_limite, entrega_tardia ";
 
     private static final String SQL_SELECT_BY_ID =
             SQL_SELECT_COLUMNS + "FROM reporte WHERE id_reporte = ?";
@@ -44,7 +45,8 @@ public class ReportDAO implements IReportDAO {
     private static final String SQL_SELECT_BY_INTERN_WITH_MONTH =
             "SELECT r.id_reporte, r.id_practicante, r.id_proyecto, r.id_profesor, r.tipo_reporte, " +
             "       r.periodo, r.ruta_documento, r.ruta_documento_firmado, r.estado, r.horas_reportadas, " +
-            "       r.observaciones_profesor, r.fecha_revision, r.fecha_entrega, r.fecha_limite, " +
+            "       r.observaciones_profesor, r.fecha_revision, r.calificacion, r.fecha_evaluacion, " +
+            "       r.fecha_entrega, r.fecha_limite, " +
             "       r.entrega_tardia, rm.mes " +
             "FROM reporte r " +
             "LEFT JOIN reporte_mensual rm ON rm.id_reporte_mensual = r.id_reporte " +
@@ -68,6 +70,15 @@ public class ReportDAO implements IReportDAO {
             "UPDATE reporte " +
             "SET estado = ?, observaciones_profesor = ?, fecha_revision = ? " +
             "WHERE id_reporte = ?";
+
+    private static final String SQL_UPDATE_GRADE =
+            "UPDATE reporte " +
+            "SET calificacion = ?, fecha_evaluacion = ? " +
+            "WHERE id_reporte = ?";
+
+    private static final String SQL_AVERAGE_BY_INTERN =
+            "SELECT AVG(calificacion) AS average_grade " +
+            "FROM reporte WHERE id_practicante = ? AND calificacion IS NOT NULL";
 
     private static final String SQL_UPDATE_DOCUMENT_PATH =
             "UPDATE reporte SET ruta_documento = ? WHERE id_reporte = ?";
@@ -413,6 +424,74 @@ public class ReportDAO implements IReportDAO {
         return isUpdated;
     }
 
+    public boolean updateGrade(int idReport, Double grade, java.time.LocalDate evaluationDate)
+            throws ServiceException, ValidationException {
+        if (idReport <= 0) {
+            throw new ValidationException(
+                    "El ID del reporte debe ser mayor a cero. ID recibido: " + idReport);
+        }
+        if (grade == null || grade < 0 || grade > 10) {
+            throw new ValidationException(
+                    "La calificación debe estar entre 0 y 10. Valor recibido: " + grade);
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_GRADE)) {
+
+            statement.setBigDecimal(1, java.math.BigDecimal.valueOf(grade));
+            if (evaluationDate != null) {
+                statement.setDate(2, java.sql.Date.valueOf(evaluationDate));
+            } else {
+                statement.setDate(2, null);
+            }
+            statement.setInt(3, idReport);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE, "Error al guardar la calificación del reporte {0}: {1}",
+                    new Object[]{idReport, sqlException.getMessage()});
+            throw new ServiceException("Error al guardar la calificación del reporte.", sqlException);
+        }
+
+        return isUpdated;
+    }
+
+    public Double getAveragePracticeGrade(int internId)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+
+        Double averageGrade = null;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_AVERAGE_BY_INTERN)) {
+
+            statement.setInt(1, internId);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    double value = resultSet.getDouble("average_grade");
+                    if (!resultSet.wasNull()) {
+                        averageGrade = value;
+                    }
+                }
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al calcular la calificación promedio del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al calcular la calificación de la práctica.",
+                    sqlException);
+        }
+
+        return averageGrade;
+    }
+
     @Override
     public boolean updateSignedDocumentPath(int idReport, String signedPath)
             throws ServiceException, ValidationException {
@@ -628,6 +707,16 @@ public class ReportDAO implements IReportDAO {
         java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
         if (reviewDate != null) {
             report.setReviewDate(reviewDate.toLocalDate());
+        }
+
+        java.math.BigDecimal grade = resultSet.getBigDecimal("calificacion");
+        if (grade != null) {
+            report.setGrade(grade.doubleValue());
+        }
+
+        java.sql.Date evaluationDate = resultSet.getDate("fecha_evaluacion");
+        if (evaluationDate != null) {
+            report.setEvaluationDate(evaluationDate.toLocalDate());
         }
 
         java.sql.Date deadline = resultSet.getDate("fecha_limite");

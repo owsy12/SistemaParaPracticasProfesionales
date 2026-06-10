@@ -22,6 +22,8 @@ public class Report {
     private LocalDate deadline;
     private boolean entregaTardia;
     private String monthName;
+    private Double grade;
+    private LocalDate evaluationDate;
 
     public Report(int idReport, int idIntern, int idProject, int idProfessor, String reportType, String period, String documentPath, String status, int grade, String feedback, Date sumissionDate, Date evaluationDate, int reportNumber, int coveredHours, String methodology, String obtainedResults, String observations, String month, int year, String block, String section) {
         this.idReport = idReport;
@@ -201,6 +203,22 @@ public class Report {
         this.monthName = monthName;
     }
 
+    public Double getGrade() {
+        return grade;
+    }
+
+    public void setGrade(Double grade) {
+        this.grade = grade;
+    }
+
+    public LocalDate getEvaluationDate() {
+        return evaluationDate;
+    }
+
+    public void setEvaluationDate(LocalDate evaluationDate) {
+        this.evaluationDate = evaluationDate;
+    }
+
     public String getTypeWithMonth() {
         String typeDisplay = reportType != null ? reportType : "";
         boolean isMonthly = "Mensual".equals(reportType);
@@ -236,11 +254,13 @@ public class Report {
                 && java.util.Objects.equals(sumissionDate, other.sumissionDate)
                 && java.util.Objects.equals(deadline, other.deadline)
                 && entregaTardia == other.entregaTardia
-                && java.util.Objects.equals(monthName, other.monthName);
+                && java.util.Objects.equals(monthName, other.monthName)
+                && java.util.Objects.equals(grade, other.grade)
+                && java.util.Objects.equals(evaluationDate, other.evaluationDate);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idReport, idIntern, idProject, idProfessor, reportType, period, documentPath, signedDocumentPath, status, reportedHours, professorObservations, reviewDate, sumissionDate, deadline, entregaTardia, monthName);
+        return java.util.Objects.hash(idReport, idIntern, idProject, idProfessor, reportType, period, documentPath, signedDocumentPath, status, reportedHours, professorObservations, reviewDate, sumissionDate, deadline, entregaTardia, monthName, grade, evaluationDate);
     }
 }

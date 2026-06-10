@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.ProfessorDAO;
+import GUI.Utils.AuditLog;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.Professor;
 import Logic.Exceptions.DuplicateEntryException;
@@ -102,6 +103,7 @@ public class AddProfesorController {
 
                 if (result.isPresent()) {
                     addRolToCoordinator(result.get());
+                    AuditLog.record("asignó el rol de profesor al coordinador " + result.get().getId());
                     showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
                             AlertType.INFORMATION);
                 }

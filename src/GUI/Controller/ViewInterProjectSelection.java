@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.ApplicationDAO;
+import GUI.Utils.AuditLog;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.PracticeDAO;
@@ -241,6 +242,7 @@ public class ViewInterProjectSelection {
                 createInitialDocuments(project.getIdProject());
                 createOrReactivatePractice(project);
 
+                AuditLog.record("asignó un proyecto a un practicante");
                 showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
                         Alert.AlertType.INFORMATION);
                 navigateBackToAssignProject();

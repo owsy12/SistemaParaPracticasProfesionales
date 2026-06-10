@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.AuditLog;
 import GUI.DocumentGeneration.FinalReportGenerator;
 import GUI.DocumentGeneration.InternContext;
 import GUI.DocumentGeneration.InternContextLoader;
@@ -898,6 +899,7 @@ public class GenerateReportController {
 
             monthlyReportDAO.updateDocumentPath(report.getIdReport(), internalPath);
 
+            AuditLog.record("generó el reporte " + report.getReportType() + " del practicante " + report.getIdIntern());
             showAlert("Reporte generado", "Reporte mensual generado correctamente.",
                     Alert.AlertType.INFORMATION);
             clearForm();
@@ -1011,6 +1013,7 @@ public class GenerateReportController {
 
         partialAndFinalReportDAO.updateDocumentPath(report.getIdReport(), internalPath);
 
+        AuditLog.record("generó el reporte " + report.getReportType() + " del practicante " + report.getIdIntern());
         showAlert("Reporte generado",
                 "Reporte " + reportType.toLowerCase() + " generado correctamente.",
                 Alert.AlertType.INFORMATION);

@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.ProfessorDAO;
+import GUI.Utils.AuditLog;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.Professor;
 import Logic.DTOs.User;
@@ -83,6 +84,7 @@ public class DeactivateProfessorController {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
+            AuditLog.record("inactivó al profesor " + user.getId());
             showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);
         } catch (ValidationException validationException) {

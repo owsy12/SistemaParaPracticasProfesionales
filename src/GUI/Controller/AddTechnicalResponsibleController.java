@@ -9,6 +9,7 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import static GUI.Utils.ValidationUtils.isValidEmail;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
@@ -104,6 +105,7 @@ public class AddTechnicalResponsibleController {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
 
             if (technicalResponsibleDAO.saveTechnicalResponsible(technicalSupervisor)) {
+                AuditLog.record("registró al responsable técnico \"" + technicalSupervisor.getName() + "\"");
                 showAlert("Registro exitoso", "El responsable técnico ha sido registrado exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();

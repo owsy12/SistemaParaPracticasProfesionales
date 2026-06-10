@@ -16,6 +16,7 @@ import javafx.scene.layout.AnchorPane;
 
 import java.util.List;
 
+import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -73,6 +74,7 @@ public class AddEducationalExperienceController {
             EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
 
             if (educationalExperienceDAO.save(educationalExperience)) {
+                AuditLog.record("registró la experiencia educativa con NRC " + educationalExperience.getNrc());
                 showAlert("Éxito", "La experiencia educativa ha sido registrada exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();

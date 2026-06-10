@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.AuditLog;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import GUI.DocumentGeneration.SelfEvaluationGenerator;
 import GUI.DocumentGeneration.ReportGenerationContext;
@@ -264,6 +265,7 @@ public class GenerateSelfEvaluationController {
                 selfEvaluationDao.updateDocumentPath(
                         selfEvaluation.getIdSelfEvalation(), internalPath);
 
+                AuditLog.record("generó la autoevaluación del practicante " + selfEvaluation.getIdIntern());
                 showAlert("Documento generado",
                         "Autoevaluación generada correctamente.",
                         AlertType.INFORMATION);

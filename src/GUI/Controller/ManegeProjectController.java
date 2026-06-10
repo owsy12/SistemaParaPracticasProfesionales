@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.ProjectDAO;
+import GUI.Utils.AuditLog;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ReferentialIntegrityException;
 import Logic.Exceptions.ServiceException;
@@ -133,6 +134,7 @@ public class ManegeProjectController {
         try {
             ProjectDAO projectDAO = new ProjectDAO();
             projectDAO.deleteProject(idProject);
+            AuditLog.record("eliminó el proyecto con id " + idProject);
             loadProjectsOnTableView();
             showAlert("Éxito", "Proyecto eliminado exitosamente.", Alert.AlertType.INFORMATION);
         } catch (ReferentialIntegrityException referentialIntegrityException) {

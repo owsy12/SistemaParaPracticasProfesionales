@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.AuditLog;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
@@ -9,7 +10,6 @@ import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DAO.ReportDAO;
-import Logic.DAO.ReportEvaluationDAO;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
@@ -17,7 +17,6 @@ import Logic.DTOs.OVEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportActivity;
-import Logic.DTOs.ReportEvaluation;
 import Logic.DTOs.ReportStatusUpdate;
 import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.ServiceException;
@@ -55,7 +54,11 @@ import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
 public class EvaluateReportController implements ChangeListener<Object> {
     private static final String STATUS_APPROVED = "Aprobado";
     private static final String STATUS_EVALUATED = "Evaluado";
-    private static final String STATUS_REJECTED = "Rechazado";
+    private static final java.util.regex.Pattern GRADE_PATTERN =
+            java.util.regex.Pattern.compile("^(?:10|[0-9])(?:\\.[0-9]{1,2})?$");
+    private static final java.util.regex.Pattern GRADE_INPUT_PATTERN =
+            java.util.regex.Pattern.compile("^(?:10|[0-9])?(?:\\.[0-9]{0,2})?$");
+    private static final int GRADE_MAX_LENGTH = 5;
 
 
     private static final Logger LOGGER = Logger.getLogger(EvaluateReportController.class.getName());
@@ -124,9 +127,6 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private RestrictedTextField gradeTextField;
 
     @FXML
-    private Button rejectButton;
-
-    @FXML
     private Button markInReviewButton;
 
     private Report selectedReport;
@@ -136,28 +136,9 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private void initialize() {
         currentProfessorId = SessionManager.getInstance().getUsuario().getId();
         applyTextAreaRestriction(observationsTextArea, 200);
+        gradeTextField.setRestriction(GRADE_MAX_LENGTH, GRADE_INPUT_PATTERN);
         configureListeners();
         loadProjects();
-    }
-
-    @FXML
-    public void rejectReport(ActionEvent actionEvent) {
-        boolean isReportMissing = selectedReport == null;
-        boolean isStatusInvalid = selectedReport != null && !"En revision".equals(selectedReport.getStatus());
-        boolean isObservationEmpty = observationsTextArea.getText().isBlank();
-
-        if (isReportMissing) {
-            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
-        } else if (isStatusInvalid) {
-            showAlert("Estado inválido", "Solo puede rechazar reportes en estado En revision.",
-                    Alert.AlertType.WARNING);
-        } else if (isObservationEmpty) {
-            showAlert("Observación requerida",
-                    "Ingrese el motivo del rechazo en el campo de observaciones.",
-                    Alert.AlertType.WARNING);
-        } else {
-            updateReportStatus(STATUS_REJECTED);
-        }
     }
 
     @FXML
@@ -373,7 +354,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
             fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
             fileChooser.setInitialFileName(sourceFile.getName());
 
-            File destination = fileChooser.showSaveDialog(rejectButton.getScene().getWindow());
+            File destination = fileChooser.showSaveDialog(markInReviewButton.getScene().getWindow());
             boolean destinationSelected = destination != null;
             if (destinationSelected) {
                 try {
@@ -526,13 +507,16 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
             boolean isEvaluated = STATUS_EVALUATED.equals(newStatus);
             if (isEvaluated && reportGrade != null) {
-                saveReportGrade(reportId, reportGrade, observationsToSave);
+                saveReportGrade(reportId, reportGrade);
             }
 
             ReportStatusUpdate statusUpdate = new ReportStatusUpdate(newStatus, observationsToSave, reviewDate);
             boolean updated = reportDAO.updateStatus(reportId, statusUpdate);
 
             if (updated) {
+                LOGGER.log(Level.INFO,
+                        "Auditoria: profesor {0} evaluo el reporte {1}, nuevo estado ''{2}'', calificacion {3}",
+                        new Object[]{currentProfessorId, reportId, newStatus, String.valueOf(reportGrade)});
                 String message = buildStatusMessage(newStatus);
                 showAlert("Estado actualizado", message, Alert.AlertType.INFORMATION);
                 if (currentIntern != null) {
@@ -564,11 +548,12 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private void tryConcludePractice(int internId, int projectId)
             throws ServiceException, ValidationException {
         if (EvaluationPrerequisiteChecker.isPracticeComplete(internId, projectId)) {
-            ReportEvaluationDAO reportEvaluationDAO = new ReportEvaluationDAO();
-            Double practiceGrade = reportEvaluationDAO.getAveragePracticeGrade(internId);
+            ReportDAO reportDAO = new ReportDAO();
+            Double practiceGrade = reportDAO.getAveragePracticeGrade(internId);
             PracticeDAO practiceDAO = new PracticeDAO();
             boolean concluded = practiceDAO.concludeActiveByIntern(internId, practiceGrade);
             if (concluded) {
+            AuditLog.record("concluyó la práctica del practicante " + internId + " con calificación " + formatGrade(practiceGrade));
                 showAlert("Práctica concluida",
                         "El practicante cumplió todos los requisitos. La práctica fue concluida "
                         + "con calificación " + formatGrade(practiceGrade) + ".",
@@ -577,15 +562,10 @@ public class EvaluateReportController implements ChangeListener<Object> {
         }
     }
 
-    private void saveReportGrade(int reportId, Double grade, String feedback)
+    private void saveReportGrade(int reportId, Double grade)
             throws ServiceException, ValidationException {
-        ReportEvaluation reportEvaluation = new ReportEvaluation();
-        reportEvaluation.setIdReport(reportId);
-        reportEvaluation.setGrade(grade.intValue());
-        reportEvaluation.setFeedback(feedback);
-        reportEvaluation.setEvaluationDate(Date.valueOf(LocalDate.now()));
-        ReportEvaluationDAO reportEvaluationDAO = new ReportEvaluationDAO();
-        reportEvaluationDAO.save(reportEvaluation);
+        ReportDAO reportDAO = new ReportDAO();
+        reportDAO.updateGrade(reportId, grade, LocalDate.now());
     }
 
     private String formatGrade(Double grade) {
@@ -598,14 +578,13 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
     private Double parseGrade(String gradeText) {
         Double grade = null;
-        try {
+        boolean hasValidFormat = gradeText != null && GRADE_PATTERN.matcher(gradeText).matches();
+        if (hasValidFormat) {
             double value = Double.parseDouble(gradeText);
             boolean isInRange = value >= 0 && value <= 10;
             if (isInRange) {
                 grade = value;
             }
-        } catch (NumberFormatException numberFormatException) {
-            grade = null;
         }
         return grade;
     }
@@ -648,9 +627,6 @@ public class EvaluateReportController implements ChangeListener<Object> {
         switch (status) {
             case STATUS_APPROVED:
                 message = "Reporte aprobado. Las horas han sido validadas.";
-                break;
-            case STATUS_REJECTED:
-                message = "Reporte rechazado.";
                 break;
             case STATUS_EVALUATED:
                 message = "Reporte evaluado. Las horas han sido contabilizadas.";

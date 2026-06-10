@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.ApplicationDAO;
+import GUI.Utils.AuditLog;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternActivityDAO;
@@ -221,6 +222,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                 } else {
                     ProjectDAO projectDAO = new ProjectDAO();
                     projectDAO.update(project);
+                    AuditLog.record("actualizó el proyecto \"" + project.getName() + "\"");
                     showAlert("Éxito", "Proyecto actualizado correctamente.",
                             Alert.AlertType.INFORMATION);
                     openWelcomePage(anchorPane);

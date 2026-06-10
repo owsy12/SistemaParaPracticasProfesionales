@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.AuditLog;
 import Logic.DAO.ApplicationDAO;
 import Logic.DAO.ProjectApplicationDAO;
 import Logic.DTOs.Application;
@@ -106,6 +107,7 @@ public class ViewProjectSelectionController {
                 projectApplicationDAO.create(projectApplication);
             }
 
+            AuditLog.record("registró una solicitud de proyecto");
             showAlert("Éxito", "Su solicitud ha sido creada.",
                     Alert.AlertType.INFORMATION);
             openWelcomePage((AnchorPane) anchorPane.getParent());

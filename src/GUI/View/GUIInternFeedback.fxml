@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane fx:id="anchorPane"
@@ -16,7 +17,7 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.InternFeedbackController">
     <children>
-        <VBox spacing="16.0"
+        <VBox spacing="14.0"
               AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <padding><Insets top="28.0" right="32.0" bottom="28.0" left="32.0"/></padding>
@@ -26,23 +27,38 @@
             <Label text="Motivo de tu asignación de proyecto" style="-fx-font-weight: bold;"/>
             <Label fx:id="assignmentReasonLabel" text="" wrapText="true"/>
 
-            <Label text="Observaciones de tus reportes" style="-fx-font-weight: bold;"/>
+            <Label text="Calificación final de la práctica" style="-fx-font-weight: bold;"/>
+            <Label fx:id="finalGradeLabel" text="" wrapText="true"/>
+
+            <Label text="Reportes y observaciones del profesor" style="-fx-font-weight: bold;"/>
             <TableView fx:id="reportsTableView" VBox.vgrow="ALWAYS">
                 <columns>
-                    <TableColumn fx:id="typeColumn" prefWidth="140.0" text="Tipo">
-                        <cellValueFactory><PropertyValueFactory property="reportType"/></cellValueFactory>
+                    <TableColumn fx:id="typeColumn" prefWidth="150.0" text="Tipo">
+                        <cellValueFactory><PropertyValueFactory property="type"/></cellValueFactory>
                     </TableColumn>
-                    <TableColumn fx:id="periodColumn" prefWidth="160.0" text="Período">
+                    <TableColumn fx:id="periodColumn" prefWidth="140.0" text="Período">
                         <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>
                     </TableColumn>
-                    <TableColumn fx:id="statusColumn" prefWidth="140.0" text="Estado">
-                        <cellValueFactory><PropertyValueFactory property="displayStatus"/></cellValueFactory>
+                    <TableColumn fx:id="statusColumn" prefWidth="120.0" text="Estado">
+                        <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
                     </TableColumn>
-                    <TableColumn fx:id="observationsColumn" prefWidth="360.0" text="Observaciones del profesor">
-                        <cellValueFactory><PropertyValueFactory property="professorObservations"/></cellValueFactory>
+                    <TableColumn fx:id="gradeColumn" prefWidth="100.0" text="Calificación">
+                        <cellValueFactory><PropertyValueFactory property="grade"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="evaluationDateColumn" prefWidth="130.0" text="Fecha de evaluación">
+                        <cellValueFactory><PropertyValueFactory property="evaluationDate"/></cellValueFactory>
+                    </TableColumn>
+                    <TableColumn fx:id="observationsColumn" prefWidth="280.0" text="Observaciones del profesor">
+                        <cellValueFactory><PropertyValueFactory property="observations"/></cellValueFactory>
                     </TableColumn>
                 </columns>
             </TableView>
+
+            <HBox spacing="12.0">
+                <Button fx:id="viewReportButton" text="Ver reporte" onAction="#viewReport" mnemonicParsing="false"/>
+                <Button fx:id="downloadReportButton" text="Descargar reporte" onAction="#downloadReport" mnemonicParsing="false"/>
+                <Button fx:id="viewSignedButton" text="Ver documento firmado" onAction="#viewSignedDocument" mnemonicParsing="false"/>
+            </HBox>
 
             <Button text="Volver" onAction="#cancelAction" mnemonicParsing="false"/>
         </VBox>

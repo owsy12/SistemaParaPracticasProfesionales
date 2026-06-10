@@ -1,6 +1,7 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.AuditLog;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.Exceptions.ServiceException;
@@ -188,6 +189,7 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
             if (updateSucceeded) {
                 pendingDocuments.remove(pendingDocuments.get(0));
                 saveFile(selectedFile, relativeFolder, newFileName);
+                AuditLog.record("subió el formato inicial \"" + initialFormat.getFormatType() + "\"");
             }
 
         } catch (ValidationException validationException) {

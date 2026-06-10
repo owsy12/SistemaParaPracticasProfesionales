@@ -1,11 +1,12 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
+import GUI.Utils.AuditLog;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
-import Logic.DAO.ReportEvaluationDAO;
+import Logic.DAO.ReportDAO;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.Project;
@@ -221,6 +222,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             boolean statusUpdated = selfEvaluationDAO.updateStatus(selfEvaluation.getIdSelfEvalation(), DELIVERED_STATUS);
 
             if (pathUpdated && statusUpdated) {
+                AuditLog.record("entregó la autoevaluación firmada");
                 showAlert("Autoevaluación entregada",
                         "Su autoevaluación firmada fue registrada correctamente.",
                         Alert.AlertType.INFORMATION);
@@ -254,11 +256,12 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     private void concludePracticeIfComplete(int internIdentifier, int projectIdentifier) {
         try {
             if (EvaluationPrerequisiteChecker.isPracticeComplete(internIdentifier, projectIdentifier)) {
-                ReportEvaluationDAO reportEvaluationDAO = new ReportEvaluationDAO();
-                Double practiceGrade = reportEvaluationDAO.getAveragePracticeGrade(internIdentifier);
+                ReportDAO reportDAO = new ReportDAO();
+                Double practiceGrade = reportDAO.getAveragePracticeGrade(internIdentifier);
                 PracticeDAO practiceDAO = new PracticeDAO();
                 boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier, practiceGrade);
                 if (concluded) {
+                AuditLog.record("concluyó la práctica del practicante " + internIdentifier);
                     showAlert("Práctica concluida",
                             "El practicante cumplió todos los requisitos; su práctica fue marcada como Concluida.",
                             Alert.AlertType.INFORMATION);

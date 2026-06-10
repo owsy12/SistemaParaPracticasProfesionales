@@ -6,6 +6,7 @@ import Logic.Exceptions.ValidationException;
 import Logic.DTOs.LinkedOrganization;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ValidationUtils.isValidEmail;
+import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
@@ -78,6 +79,7 @@ public class AddLinkedOrganizationController {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
 
             if (linkedOrganizationDAO.saveLinkedOrganization(organization)) {
+                AuditLog.record("registró la organización vinculada \"" + organization.getName() + "\"");
                 showAlert("Registro exitoso", "La organización ha sido registrada exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();

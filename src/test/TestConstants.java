@@ -15,7 +15,6 @@ public final class TestConstants {
     public static final int DEFAULT_DEDICATED_HOURS = 8;
     public static final int DEFAULT_REPORTED_HOURS = 40;
     public static final int DEFAULT_REPORT_NUMBER = 1;
-    public static final int DEFAULT_GRADE = 9;
     public static final int DEFAULT_ADVANCE_PERCENTAGE = 50;
     public static final int DEFAULT_PREFERENCE_ORDER = 1;
     public static final int DEFAULT_STATEMENT_SCORE = 5;

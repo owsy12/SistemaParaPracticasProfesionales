@@ -3,10 +3,8 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.ActivityDAO;
 import Logic.DAO.ProjectDAO;
-import Logic.DAO.ProrrogaDAO;
 import Logic.DTOs.Activity;
 import Logic.DTOs.Project;
-import Logic.DTOs.Prorroga;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.value.ChangeListener;
@@ -25,7 +23,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.GridPane;
 
@@ -199,17 +196,14 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     }
 
     private void processProrrogaDialog() {
-        Optional<Prorroga> dialogResult = showProrrogaDialog();
-        boolean prorrogaProvided = dialogResult.isPresent();
-        if (prorrogaProvided) {
-            Prorroga prorroga = dialogResult.get();
-            prorroga.setIdActivity(selectedActivity.getIdActivity());
-            prorroga.setOriginalEndDate(selectedActivity.getEndDate());
-            saveProrrogaProcess(prorroga);
+        Optional<LocalDate> dialogResult = showProrrogaDialog();
+        boolean dateProvided = dialogResult.isPresent();
+        if (dateProvided) {
+            saveProrrogaProcess(dialogResult.get());
         }
     }
 
-    private Optional<Prorroga> showProrrogaDialog() {
+    private Optional<LocalDate> showProrrogaDialog() {
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Otorgar Prórroga");
         dialog.setHeaderText("Actividad: " + selectedActivity.getName());
@@ -223,45 +217,32 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         grid.setPadding(new Insets(20, 150, 10, 10));
 
         DatePicker newDatePicker = new DatePicker();
-        TextField motivoField = new TextField();
-        motivoField.setPromptText("Motivo de la prórroga");
-
         grid.add(new Label("Nueva fecha límite:"), 0, 0);
         grid.add(newDatePicker, 1, 0);
-        grid.add(new Label("Motivo:"), 0, 1);
-        grid.add(motivoField, 1, 1);
         dialog.getDialogPane().setContent(grid);
 
         Optional<ButtonType> response = dialog.showAndWait();
-        Optional<Prorroga> result = Optional.empty();
+        Optional<LocalDate> result = Optional.empty();
         boolean isConfirmed = response.isPresent() && response.get() == confirmType;
         if (isConfirmed) {
-            Prorroga prorroga = new Prorroga();
-            prorroga.setNewEndDate(newDatePicker.getValue());
-            prorroga.setMotivo(motivoField.getText().trim());
-            result = Optional.of(prorroga);
+            result = Optional.ofNullable(newDatePicker.getValue());
         }
         return result;
     }
 
-    private void saveProrrogaProcess(Prorroga prorroga) {
-        boolean isNewDateNull = prorroga.getNewEndDate() == null;
-        boolean isMotivoBlank = prorroga.getMotivo() == null || prorroga.getMotivo().isBlank();
+    private void saveProrrogaProcess(LocalDate newEndDate) {
+        boolean isNewDateNull = newEndDate == null;
 
         Project project = projectComboBox.getValue();
         boolean hasProjectEnd = project != null && project.getEndDate() != null;
-        boolean isNewDateBeyondProject = hasProjectEnd && prorroga.getNewEndDate() != null
-                && prorroga.getNewEndDate().isAfter(project.getEndDate());
-        boolean isNewDateNotFuture = prorroga.getNewEndDate() != null
-                && !prorroga.getNewEndDate().isAfter(LocalDate.now());
+        boolean isNewDateBeyondProject = hasProjectEnd && newEndDate != null
+                && newEndDate.isAfter(project.getEndDate());
+        boolean isNewDateNotFuture = newEndDate != null
+                && !newEndDate.isAfter(LocalDate.now());
 
         if (isNewDateNull) {
             showAlert("Fecha requerida",
                     "Seleccione la nueva fecha límite para la prórroga.",
-                    Alert.AlertType.WARNING);
-        } else if (isMotivoBlank) {
-            showAlert("Motivo requerido",
-                    "Ingrese el motivo de la prórroga.",
                     Alert.AlertType.WARNING);
         } else if (isNewDateNotFuture) {
             showAlert("Fecha inválida",
@@ -272,27 +253,39 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                     "La nueva fecha límite no puede superar la fecha de fin del proyecto.",
                     Alert.AlertType.WARNING);
         } else {
-            executeSaveProrroga(prorroga);
+            executeProrroga(newEndDate);
         }
     }
 
-    private void executeSaveProrroga(Prorroga prorroga) {
+    private void executeProrroga(LocalDate newEndDate) {
         try {
-            ProrrogaDAO prorrogaDAO = new ProrrogaDAO();
-            prorrogaDAO.save(prorroga);
-            showAlert("Prórroga guardada",
-                    "La prórroga fue otorgada correctamente.",
-                    Alert.AlertType.INFORMATION);
-            refreshActivities(projectComboBox.getValue().getIdProject());
-            clearForm();
+            selectedActivity.setEndDate(newEndDate);
+            ActivityDAO activityDAO = new ActivityDAO();
+            boolean updated = activityDAO.update(selectedActivity);
+
+            if (updated) {
+                LOGGER.log(Level.INFO,
+                        "Auditoria: profesor {0} otorgo prorroga a la actividad {1}, nueva fechaFin {2}",
+                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                                selectedActivity.getIdActivity(), String.valueOf(newEndDate)});
+                showAlert("Prórroga otorgada",
+                        "La nueva fecha límite de la actividad fue registrada correctamente.",
+                        Alert.AlertType.INFORMATION);
+                refreshActivities(projectComboBox.getValue().getIdProject());
+                clearForm();
+            } else {
+                showAlert("Error",
+                        "No se pudo otorgar la prórroga. Intente nuevamente.",
+                        Alert.AlertType.ERROR);
+            }
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar prórroga para actividad {0}: {1}",
-                    new Object[]{prorroga.getIdActivity(), serviceException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error al otorgar prórroga para actividad {0}: {1}",
+                    new Object[]{selectedActivity.getIdActivity(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
-                    "No se pudo guardar la prórroga. Intente más tarde.",
+                    "No se pudo otorgar la prórroga. Intente más tarde.",
                     Alert.AlertType.ERROR);
         }
     }
@@ -307,6 +300,10 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             ActivityDAO activityDAO = new ActivityDAO();
 
             if (activityDAO.update(selectedActivity)) {
+                LOGGER.log(Level.INFO,
+                        "Auditoria: profesor {0} actualizo la actividad {1}",
+                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                                selectedActivity.getIdActivity()});
                 showAlert("Actividad actualizada",
                         "La actividad fue actualizada correctamente.",
                         Alert.AlertType.INFORMATION);
@@ -334,6 +331,10 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             ActivityDAO activityDao = new ActivityDAO();
 
             if (activityDao.delete(selectedActivity.getIdActivity())) {
+                LOGGER.log(Level.INFO,
+                        "Auditoria: profesor {0} elimino la actividad {1}",
+                        new Object[]{SessionManager.getInstance().getUsuario().getId(),
+                                selectedActivity.getIdActivity()});
                 showAlert("Actividad eliminada",
                         "La actividad fue eliminada correctamente.",
                         Alert.AlertType.INFORMATION);

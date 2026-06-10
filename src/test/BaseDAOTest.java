@@ -17,7 +17,6 @@ public abstract class BaseDAOTest {
     private static final String ENABLE_FK_CHECKS = "SET FOREIGN_KEY_CHECKS = 1";
 
     private static final String[] DELETE_STATEMENTS = {
-            "DELETE FROM evaluacion_reporte",
             "DELETE FROM reporte_mensual",
             "DELETE FROM reporte_parcial_y_final",
             "DELETE FROM reporte_actividad",

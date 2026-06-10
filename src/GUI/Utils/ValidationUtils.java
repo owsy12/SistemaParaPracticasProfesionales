@@ -17,7 +17,7 @@ public class ValidationUtils {
             Pattern.compile("^[a-zA-Z0-9@._%+\\-]*$");
 
     private static final Pattern TEXT_PATTERN =
-            Pattern.compile("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ ]*$");
+            Pattern.compile("^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ .\\-]*$");
 
     private static final Pattern NUMBER_PATTERN =
             Pattern.compile("^[0-9]*$");
@@ -179,13 +179,13 @@ public class ValidationUtils {
                 length = 10;
                 break;
             case "Name":
-                length = 30;
+                length = 100;
                 break;
             case "Email":
                 length = 50;
                 break;
             case "Text":
-                length = 45;
+                length = 150;
                 break;
             case "Number":
                 length = 8;

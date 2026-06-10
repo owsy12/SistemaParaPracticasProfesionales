@@ -172,8 +172,6 @@
 
                         <HBox styleClass="formActionBarHBox" alignment="CENTER_LEFT" spacing="10.0">
                             <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
-                            <Button fx:id="rejectButton" text="Rechazar" styleClass="rejectActionButton"
-                                    onAction="#rejectReport" mnemonicParsing="false"/>
                             <Button fx:id="markInReviewButton" text="&#10003;  Evaluar" styleClass="approveActionButton"
                                     onAction="#evaluateReport" mnemonicParsing="false"/>
                             <Region HBox.hgrow="ALWAYS"/>

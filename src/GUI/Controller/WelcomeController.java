@@ -7,10 +7,8 @@ import Logic.DAO.InternDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportDAO;
-import Logic.DAO.ReportEvaluationDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.Report;
-import Logic.DTOs.ReportEvaluation;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -249,20 +247,11 @@ public class WelcomeController {
 
     private int countEvaluationsForReports(List<Report> reports) {
         int count = 0;
-        try {
-            ReportEvaluationDAO evaluationDao = new ReportEvaluationDAO();
-            List<ReportEvaluation> reportEvaluationList = evaluationDao.getAll();
-            Set<Integer> reportIds = new HashSet<>();
-            for (Report report : reports) {
-                reportIds.add(report.getIdReport());
+        for (Report report : reports) {
+            boolean isEvaluated = report.getGrade() != null;
+            if (isEvaluated) {
+                count++;
             }
-            for (ReportEvaluation eval : reportEvaluationList) {
-                if (reportIds.contains(eval.getIdReport())) {
-                    count++;
-                }
-            }
-        } catch (ServiceException e) {
-            LOGGER.log(Level.SEVERE, "Error counting evaluations");
         }
         return count;
     }
