@@ -15,7 +15,7 @@
 
 <AnchorPane fx:id="anchorPane"
             prefHeight="520.0" prefWidth="640.0"
-            xmlns="http://javafx.com/javafx/25"
+            xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.AddOVEvaluationController">
 
