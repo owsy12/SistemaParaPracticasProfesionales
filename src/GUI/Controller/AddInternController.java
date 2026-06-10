@@ -159,7 +159,7 @@ public class AddInternController {
                 confirmPasswordField.getText().isEmpty();
 
         boolean hasEmptyFields = isIdEmpty || isLastNameEmpty || isSecondLastNameEmpty || isEmailEmpty
-                || isFirstNameEmpty || isPasswordEmpty || isConfirmPasswordEmpty;
+                || isFirstNameEmpty || isPasswordEmpty || isConfirmPasswordEmpty || isCreditEmpty;
 
         return hasEmptyFields;
     }

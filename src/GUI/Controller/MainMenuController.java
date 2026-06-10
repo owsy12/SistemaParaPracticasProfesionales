@@ -204,7 +204,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
 
     private void loadProfesorActions() {
         addButton("Evaluar Reporte", "/GUI/View/GUIEvaluateReport.fxml");
-        addButton("Manejar Actividades", "/GUI/view/GUISelectProjectForActivity.fxml");
+        addButton("Manejar Actividades", "/GUI/View/GUISelectProjectForActivity.fxml");
     }
 
     private void loadCoordinadorActions() {
@@ -216,8 +216,8 @@ public class MainMenuController implements EventHandler<ActionEvent> {
         addButton("Registrar Proyecto", "/GUI/View/GUIAddProject.fxml");
         addButton("Actualizar Proyecto", "/GUI/View/GUIManageProject.fxml");
         addButton("Inactivar Practicante", "/GUI/View/GUIDeactivateIntern.fxml");
-        addButton("Consultar Organizaciones Vinculadas", "/GUI/view/GUIManageLinkedOrganization.fxml");
-        addButton("Consultar técnicos responsables", "/GUI/view/GUIManageTechnicalResponsible.fxml");
+        addButton("Consultar Organizaciones Vinculadas", "/GUI/View/GUIManageLinkedOrganization.fxml");
+        addButton("Consultar técnicos responsables", "/GUI/View/GUIManageTechnicalResponsible.fxml");
         addButton("Registrar profesor", "/GUI/View/GUIAddProfesor.fxml");
         addButton("Inactivar profesor", "/GUI/View/GUIDeactivateProfessor.fxml");
     }

@@ -41,7 +41,7 @@ public class UserRoleDAO implements IUserRoleDAO {
     public boolean saveUserRole(User user) throws ServiceException, ValidationException {
         if (user.getId() <= 0) {
             throw new ValidationException(
-                    "El ID del usuario debe ser mayor a cero. ID recibido: " );
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " + user.getId());
         }
         boolean isSaved = false;
 
@@ -85,8 +85,7 @@ public class UserRoleDAO implements IUserRoleDAO {
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    roleList.add(resultSet.getString("rol") + ","
-                    + resultSet.getString("estado"));
+                    roleList.add(resultSet.getString("rol"));
                 }
             }
 

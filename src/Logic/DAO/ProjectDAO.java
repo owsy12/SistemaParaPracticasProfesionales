@@ -292,7 +292,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setDate (7, java.sql.Date.valueOf(project.getEndDate()));
             preparedStatement.setInt (8, project.getMaximumPlaces());
             preparedStatement.setInt (9, project.getAvaliablePlaces());
-            preparedStatement.setString(10, STATUS_AVAILABLE);
+            preparedStatement.setString(10, project.getStatus());
             preparedStatement.setInt (11, project.getIdProject());
 
             if (preparedStatement.executeUpdate() > 0) {

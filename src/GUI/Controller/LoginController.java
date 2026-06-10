@@ -15,8 +15,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
+import java.io.IOException;
 import org.mindrot.jbcrypt.BCrypt;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -76,7 +76,7 @@ public class LoginController {
             mainStage.show();
             Stage loginStage = (Stage) userTextField.getScene().getWindow();
             loginStage.close();
-        } catch (Exception e) {
+        } catch (IOException ioException) {
             showAlert("Error", "Error al abrir, intente más tarde.", Alert.AlertType.ERROR);
         }
     }
@@ -97,41 +97,41 @@ public class LoginController {
         try {
             UserDAO userDao = new UserDAO();
             currentUser = userDao.findByIdentifier(userTextField.getText());
-            UserRoleDAO userRoleDao = new UserRoleDAO();
-            currentUser.setRoles(userRoleDao.getActiveRolsByUserId(currentUser.getId()));
-
-            boolean isPasswordValid = BCrypt.checkpw(passwordField.getText(), currentUser.getPassword());
-            if (!isPasswordValid) {
-                throw new ValidationException("Contraseña incorrecta");
+            if (currentUser == null) {
+                showAlert("Error de autenticación",
+                        "Usuario no encontrado. Verifica tu matrícula e inténtalo de nuevo.",
+                        Alert.AlertType.ERROR);
+                clearFields();
             } else {
-                boolean hasActiveRole = currentUser.getRoles() != null
-                        && !currentUser.getRoles().isEmpty();
-                if (!hasActiveRole) {
-                    LOGGER.log(Level.WARNING,
-                            "Acceso denegado: el usuario {0} no tiene ningún rol activo.",
-                            currentUser.getRegistrationNumber());
-                    showAlert("Acceso denegado",
-                            "No cuenta con ningún rol activo dentro del sistema. Contacte al administrador.",
-                            Alert.AlertType.WARNING);
+                UserRoleDAO userRoleDao = new UserRoleDAO();
+                currentUser.setRoles(userRoleDao.getActiveRolsByUserId(currentUser.getId()));
+                boolean isPasswordValid = BCrypt.checkpw(passwordField.getText(), currentUser.getPassword());
+                if (!isPasswordValid) {
+                    throw new ValidationException("Contraseña incorrecta");
                 } else {
-                    SessionManager.getInstance().login(currentUser);
-                    isValidUser = true;
+                    boolean hasActiveRole = currentUser.getRoles() != null
+                            && !currentUser.getRoles().isEmpty();
+                    if (!hasActiveRole) {
+                        LOGGER.log(Level.WARNING,
+                                "Access denied: user {0} has no active role.",
+                                currentUser.getRegistrationNumber());
+                        showAlert("Acceso denegado",
+                                "No cuenta con ningún rol activo dentro del sistema. Contacte al administrador.",
+                                Alert.AlertType.WARNING);
+                    } else {
+                        SessionManager.getInstance().login(currentUser);
+                        isValidUser = true;
+                    }
                 }
             }
-
-        } catch (ServiceException e) {
+        } catch (ServiceException serviceException) {
             showAlert("Error de servicio",
                     "Ocurrió un error al procesar la solicitud. Inténtalo de nuevo más tarde.",
                     Alert.AlertType.ERROR);
-        } catch (ValidationException e) {
+        } catch (ValidationException validationException) {
             showAlert("Error de validación",
                     "Usuario o contraseña incorrectos. Verifica tu información e inténtalo de nuevo.",
                     Alert.AlertType.ERROR);
-        } catch (NullPointerException e) {
-            showAlert("Error de autenticación",
-                    "Usuario no encontrado. Verifica tu matrícula e inténtalo de nuevo.",
-                    Alert.AlertType.ERROR);
-            clearFields();
         }
 
         return isValidUser;
@@ -162,7 +162,7 @@ public class LoginController {
             mainStage.show();
             Stage loginStage = (Stage) userTextField.getScene().getWindow();
             loginStage.close();
-        } catch (Exception e) {
+        } catch (IOException ioException) {
             showAlert("Error", "Error al abrir, intente más tarde.", Alert.AlertType.ERROR);
         }
     }
