@@ -71,7 +71,7 @@ public class ViewsUtils {
         if (!alreadyScrollable) {
             ScrollPane scrollPane = new ScrollPane(view);
             scrollPane.setFitToWidth(true);
-            scrollPane.setFitToHeight(false);
+            scrollPane.setFitToHeight(true);
             scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
             scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
             scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);

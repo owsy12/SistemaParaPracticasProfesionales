@@ -14,12 +14,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import GUI.Utils.RestrictedTextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import java.util.Optional;
 
 public class AddLinkedOrganizationController {
+
+    private static final String SECTOR_PUBLIC = "Público";
+    private static final String SECTOR_PRIVATE = "Privado";
 
     @FXML
     private AnchorPane anchorPane;
@@ -34,14 +38,14 @@ public class AddLinkedOrganizationController {
     public RestrictedTextField organizationAddressTextField;
 
     @FXML
-    public RestrictedTextField sectorOrganizacionTextField;
+    public ComboBox<String> sectorComboBox;
 
     @FXML
     public void initialize() {
         setTypeAndLength(organizationNameTextField, "Name");
-        setTypeAndLength(organizationAddressTextField, "Text");
-        setTypeAndLength(sectorOrganizacionTextField, "Name");
+        setTypeAndLength(organizationAddressTextField, "Address");
         setTypeAndLength(organizationEmailTextField, "Email");
+        sectorComboBox.getItems().setAll(SECTOR_PUBLIC, SECTOR_PRIVATE);
     }
 
     public void addOrganization(ActionEvent actionEvent) {
@@ -57,8 +61,7 @@ public class AddLinkedOrganizationController {
     }
 
     public void cancel(ActionEvent actionEvent) {
-        Optional<ButtonType> response = showAlertAndWait(
-                "Confirmar cancelación",
+        Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
         boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
@@ -73,7 +76,7 @@ public class AddLinkedOrganizationController {
         organization.setName(organizationNameTextField.getText());
         organization.setEmail(organizationEmailTextField.getText());
         organization.setAddress(organizationAddressTextField.getText());
-        organization.setSector(sectorOrganizacionTextField.getText());
+        organization.setSector(sectorComboBox.getValue());
 
         try {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
@@ -101,7 +104,7 @@ public class AddLinkedOrganizationController {
         boolean isNameEmpty = organizationNameTextField.getText().isEmpty();
         boolean isEmailEmpty = organizationEmailTextField.getText().isEmpty();
         boolean isAddressEmpty = organizationAddressTextField.getText().isEmpty();
-        boolean isSectorEmpty = sectorOrganizacionTextField.getText().isEmpty();
+        boolean isSectorEmpty = sectorComboBox.getValue() == null;
 
         boolean hasEmpty = isNameEmpty || isEmailEmpty || isAddressEmpty || isSectorEmpty;
 
@@ -112,7 +115,7 @@ public class AddLinkedOrganizationController {
         organizationNameTextField.clear();
         organizationEmailTextField.clear();
         organizationAddressTextField.clear();
-        sectorOrganizacionTextField.clear();
+        sectorComboBox.getSelectionModel().clearSelection();
     }
 
 }

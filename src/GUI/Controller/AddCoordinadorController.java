@@ -1,5 +1,6 @@
 package GUI.Controller;
 
+import GUI.Utils.AuditLog;
 import Logic.DAO.CoordinatorDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.UserRoleDAO;
@@ -9,108 +10,79 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.ChoiceDialog;
-import GUI.Utils.RestrictedPasswordField;
-import GUI.Utils.RestrictedTextField;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 
 import java.util.List;
-import java.util.Optional;
 
 import static GUI.Utils.Alert.showAlert;
-import static GUI.Utils.ValidationUtils.setTypeAndLength;
 
 public class AddCoordinadorController {
 
     @FXML
-    private RestrictedTextField idTextField;
+    private Label statusLabel;
 
     @FXML
-    private RestrictedTextField firstNameTextField;
+    private ComboBox<Professor> professorComboBox;
 
     @FXML
-    private RestrictedTextField lastNameTextField;
-
-    @FXML
-    private RestrictedTextField secondLastNameTextField;
-
-    @FXML
-    private RestrictedPasswordField passwordField;
-
-    @FXML
-    private RestrictedPasswordField confirmPasswordField;
-
-    @FXML
-    private RestrictedTextField emailTextField;
+    private Button assignButton;
 
     @FXML
     private void initialize() {
-        setTypeAndLength(firstNameTextField, "Name");
-        setTypeAndLength(lastNameTextField, "Name");
-        setTypeAndLength(secondLastNameTextField, "Name");
-        setTypeAndLength(idTextField, "ID");
-        setTypeAndLength(passwordField, "Password");
-        setTypeAndLength(confirmPasswordField, "Password");
-        setTypeAndLength(emailTextField, "Email");
+        loadProfessors();
     }
 
     @FXML
-    public void registerCoordinator() {
-        showAlert("Operación no permitida",
-                "Los coordinadores solo pueden asignarse desde un profesor existente. "
-                        + "Use el botón \"Profesor Existente\".",
-                AlertType.WARNING);
-    }
-
-    @FXML
-    public void showProfessorList() {
-        try {
-            CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
-            boolean hasActiveCoordinator = !coordinatorDAO.findActiveCoordinators().isEmpty();
-
-            if (hasActiveCoordinator) {
-                showAlert("Coordinador existente",
-                        "Ya existe un coordinador activo en el sistema. "
-                                + "Solo puede haber un coordinador activo a la vez.",
-                        AlertType.WARNING);
-            } else {
-                ProfessorDAO professorDAO = new ProfessorDAO();
-                List<Professor> professors = professorDAO.findProfessorsWithoutCoordinatorRole();
-
-                boolean hasProfessorsAvailable = !professors.isEmpty();
-                if (!hasProfessorsAvailable) {
-                    showAlert("Sin profesores disponibles",
-                            "No hay profesores disponibles para asignar como coordinador.",
-                            AlertType.INFORMATION);
-                } else {
-                    ChoiceDialog<Professor> dialog = new ChoiceDialog<>(professors.get(0), professors);
-                    dialog.setTitle("Seleccionar Profesor");
-                    dialog.setHeaderText("Profesores activos sin rol de coordinador");
-                    dialog.setContentText("Seleccione un profesor:");
-                    Optional<Professor> selectionResult = dialog.showAndWait();
-
-                    boolean isProfessorSelected = selectionResult.isPresent();
-                    if (isProfessorSelected) {
-                        addCoordinatorRoleToProfessor(selectionResult.get());
-                        showAlert("Rol asignado",
-                                "El profesor ha sido asignado como coordinador exitosamente.",
-                                AlertType.INFORMATION);
-                    }
-                }
-            }
-
-        } catch (ServiceException serviceException) {
-            String serviceErrorMessage = "Error al recuperar datos: " + serviceException.getMessage();
-            showAlert("Error", serviceErrorMessage, AlertType.ERROR);
-        } catch (ValidationException validationException) {
-            String validationErrorMessage = "Error al validar datos: " + validationException.getMessage();
-            showAlert("Error de validación", validationErrorMessage, AlertType.ERROR);
+    public void assignCoordinatorRole() {
+        Professor selectedProfessor = professorComboBox.getValue();
+        boolean isSelectionMissing = selectedProfessor == null;
+        if (isSelectionMissing) {
+            showAlert("Sin selección",
+                    "Selecciona el profesor que tomará el rol de coordinador.",
+                    AlertType.WARNING);
+        } else {
+            addCoordinatorRoleToProfessor(selectedProfessor);
         }
     }
 
     @FXML
     public void cancelRegistration() {
+        professorComboBox.getSelectionModel().clearSelection();
         showAlert("Registro cancelado", "La operación ha sido cancelada.",
                 AlertType.INFORMATION);
+    }
+
+    private void loadProfessors() {
+        try {
+            CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
+            boolean hasActiveCoordinator = !coordinatorDAO.findActiveCoordinators().isEmpty();
+
+            if (hasActiveCoordinator) {
+                statusLabel.setText("Ya existe un coordinador activo en el sistema. "
+                        + "Solo puede haber un coordinador activo a la vez.");
+                professorComboBox.setDisable(true);
+                assignButton.setDisable(true);
+            } else {
+                ProfessorDAO professorDAO = new ProfessorDAO();
+                List<Professor> professors = professorDAO.findProfessorsWithoutCoordinatorRole();
+                boolean hasProfessorsAvailable = !professors.isEmpty();
+                if (hasProfessorsAvailable) {
+                    professorComboBox.getItems().setAll(professors);
+                } else {
+                    statusLabel.setText("No hay profesores disponibles para asignar como coordinador.");
+                    professorComboBox.setDisable(true);
+                    assignButton.setDisable(true);
+                }
+            }
+        } catch (ServiceException serviceException) {
+            showAlert("Error", "Error al recuperar datos: " + serviceException.getMessage(),
+                    AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
+                    AlertType.ERROR);
+        }
     }
 
     private void addCoordinatorRoleToProfessor(User professor) {
@@ -118,6 +90,11 @@ public class AddCoordinadorController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             professor.setRole("Coordinador");
             userRoleDAO.saveUserRole(professor);
+            AuditLog.record("asignó el rol de coordinador al profesor " + professor.getId());
+            showAlert("Rol asignado",
+                    "El profesor ha sido asignado como coordinador exitosamente.",
+                    AlertType.INFORMATION);
+            loadProfessors();
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     AlertType.ERROR);

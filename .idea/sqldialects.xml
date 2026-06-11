@@ -2,6 +2,7 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/scrip.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/src/migration_v10_role_reactivation.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/src/migration_v8_merge_report_evaluation.sql" dialect="MySQL" />
   </component>
 </project>

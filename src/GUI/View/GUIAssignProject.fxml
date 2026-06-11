@@ -28,7 +28,7 @@
 
     <children>
         <ScrollPane styleClass="subViewScrollPane"
-                    fitToWidth="true" fitToHeight="false"
+                    fitToWidth="true" fitToHeight="true"
                     hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                     AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
@@ -63,7 +63,7 @@
 
                             <TableView fx:id="internsTableView"
                                        styleClass="mainDataTableView"
-                                       prefHeight="320.0">
+                                       prefHeight="320.0" minHeight="320.0">
                                 <columns>
                                     <TableColumn fx:id="registrationNumberColumn" prefWidth="180.0" text="Matrícula">
                                         <cellValueFactory><PropertyValueFactory property="registrationNumber"/></cellValueFactory>

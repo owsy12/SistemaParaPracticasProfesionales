@@ -15,7 +15,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextArea;
+import GUI.Utils.RestrictedTextArea;
 import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 
@@ -25,6 +25,7 @@ import java.util.List;
 import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
+import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 import javafx.scene.control.ButtonType;
@@ -60,13 +61,14 @@ public class AddProjectController {
     private ComboBox<EducationalExperience> educationalExperienceComboBox;
 
     @FXML
-    private TextArea objetivoTextArea;
+    private RestrictedTextArea objetivoTextArea;
 
     @FXML
     private void initialize() {
         setTypeAndLength(capacityTextField, "Number");
         setTypeAndLength(nameTextField, "Name");
         setTypeAndLength(descriptionTextField, "Text");
+        applyTextAreaRestriction(objetivoTextArea, 500);
 
         loadOrganizations();
         loadEducationalExperiences();

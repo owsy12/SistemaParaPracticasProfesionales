@@ -28,7 +28,7 @@
 
     <children>
         <ScrollPane styleClass="subViewScrollPane"
-                    fitToWidth="true" fitToHeight="false"
+                    fitToWidth="true" fitToHeight="true"
                     hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                     AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
@@ -65,7 +65,7 @@
 
                                 <TableView fx:id="availableTableView"
                                            styleClass="mainDataTableView"
-                                           prefHeight="320.0">
+                                           prefHeight="320.0" minHeight="320.0">
                                     <columns>
                                         <TableColumn fx:id="nameColumn" prefWidth="140.0" text="Nombre">
                                             <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
@@ -113,7 +113,7 @@
 
                                 <TableView fx:id="selectedTableView"
                                            styleClass="mainDataTableView"
-                                           prefHeight="320.0">
+                                           prefHeight="320.0" minHeight="320.0">
                                     <columns>
                                         <TableColumn fx:id="selOrderColumn" prefWidth="40.0" text="#">
                                             <cellValueFactory><PropertyValueFactory property="selectionOrderDisplay"/></cellValueFactory>

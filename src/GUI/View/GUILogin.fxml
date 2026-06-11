@@ -99,10 +99,10 @@
                </padding>
                <Label text="Bienvenido de nuevo" styleClass="tituloBienvenidaLabel"/>
                <Label
-                       text="Inicia sesión con tu cuenta institucional, usuario o matricula."
+                       text="Inicia sesión con tu matrícula, correo o número de personal."
                        styleClass="subtituloBienvenidaLabel"/>
                <VBox spacing="6.0">
-                  <Label text="MATRÍCULA / USUARIO / CORREO" styleClass="etiquetaCampoLabel"/>
+                  <Label text="USUARIO" styleClass="etiquetaCampoLabel"/>
                   <HBox
                           styleClass="contenedorCampoHBox"
                           alignment="CENTER_LEFT"
@@ -115,7 +115,7 @@
                              fx:id="userTextField"
                              styleClass="campoTextoTextField"
                              HBox.hgrow="ALWAYS"
-                             promptText="S00000000"/>
+                             promptText="Matrícula, correo o número de personal"/>
                   </HBox>
                </VBox>
                <VBox spacing="6.0">

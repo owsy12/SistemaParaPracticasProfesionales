@@ -98,8 +98,7 @@ public class LoginController {
             UserDAO userDao = new UserDAO();
             currentUser = userDao.findByIdentifier(userTextField.getText());
             if (currentUser == null) {
-                showAlert("Error de autenticación",
-                        "Usuario no encontrado. Verifica tu matrícula e inténtalo de nuevo.",
+                showAlert("Error de autenticación", "Usuario no encontrado. Verifica tu matrícula, correo o número de personal e inténtalo de nuevo.",
                         Alert.AlertType.ERROR);
                 clearFields();
             } else {

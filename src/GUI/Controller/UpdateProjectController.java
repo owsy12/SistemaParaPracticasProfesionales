@@ -32,7 +32,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
+import GUI.Utils.RestrictedTextArea;
 import javafx.scene.control.TextField;
 import GUI.Utils.RestrictedTextField;
 
@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
+import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
@@ -84,7 +85,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     private TextField nrcTextField;
 
     @FXML
-    private TextArea objetivoTextArea;
+    private RestrictedTextArea objetivoTextArea;
 
     @FXML
     private TableView<Intern> internsTableView;
@@ -294,6 +295,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         setTypeAndLength(nameTextField, "Name");
         setTypeAndLength(descriptionTextField, "Text");
         setTypeAndLength(capacityTextField, "Number");
+        applyTextAreaRestriction(objetivoTextArea, 500);
 
         loadInternsForProject();
     }

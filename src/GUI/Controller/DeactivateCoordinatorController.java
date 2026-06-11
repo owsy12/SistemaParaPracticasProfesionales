@@ -3,17 +3,19 @@ package GUI.Controller;
 import Logic.DAO.CoordinatorDAO;
 import GUI.Utils.AuditLog;
 import Logic.DAO.UserRoleDAO;
+import Logic.DTOs.Coordinator;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 
+import java.util.List;
 import java.util.Optional;
 
 import static GUI.Utils.Alert.showAlert;
@@ -22,37 +24,33 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class DeactivateCoordinatorController {
     private static final String STATUS_INACTIVE = "Inactivo";
-
-    @FXML
-    private TableColumn<User, String> nameColumn;
-
-    @FXML
-    private TableColumn<User, String> secondLastNameColumn;
-
-    @FXML
-    private TableView<User> tableView;
-
-    @FXML
-    private TableColumn<User, String> lastNameColumn;
-
-    @FXML
-    private TableColumn<User, String> tagColumn;
+    private static final String NO_COORDINATOR = "—";
 
     @FXML
     private AnchorPane anchorPane;
 
     @FXML
+    private Label registrationNumberLabel;
+
+    @FXML
+    private Label fullNameLabel;
+
+    @FXML
+    private Button inactivateButton;
+
+    private User activeCoordinator;
+
+    @FXML
     private void initialize() {
-        loadCoordinators();
+        loadCoordinator();
     }
 
     @FXML
     public void inactivateCoordinator(ActionEvent actionEvent) {
-        User selectedUser = tableView.getSelectionModel().getSelectedItem();
-        boolean isSelectionMissing = selectedUser == null;
-        if (isSelectionMissing) {
-            showAlert("Sin selección",
-                    "Seleccione un coordinador de la tabla para inactivar.",
+        boolean isCoordinatorMissing = activeCoordinator == null;
+        if (isCoordinatorMissing) {
+            showAlert("Sin coordinador activo",
+                    "No hay un coordinador activo registrado en el sistema.",
                     Alert.AlertType.WARNING);
         } else {
             Optional<ButtonType> response = showAlertAndWait(
@@ -62,10 +60,10 @@ public class DeactivateCoordinatorController {
 
             boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
             if (isUserConfirmed) {
-                selectedUser.setStatus(STATUS_INACTIVE);
-                selectedUser.setRole("Coordinador");
-                deactivateProcess(selectedUser);
-                loadCoordinators();
+                activeCoordinator.setStatus(STATUS_INACTIVE);
+                activeCoordinator.setRole("Coordinador");
+                deactivateProcess(activeCoordinator);
+                loadCoordinator();
             }
         }
     }
@@ -95,15 +93,34 @@ public class DeactivateCoordinatorController {
         }
     }
 
-    private void loadCoordinators() {
+    private void loadCoordinator() {
         try {
             CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
-            tableView.getItems().setAll(coordinatorDAO.findActiveCoordinators());
+            List<Coordinator> coordinators = coordinatorDAO.findActiveCoordinators();
+            activeCoordinator = null;
+            if (!coordinators.isEmpty()) {
+                activeCoordinator = coordinators.get(0);
+            }
+            showCoordinator();
         } catch (ServiceException serviceException) {
             showAlert("Error de servicio",
-                    "Ocurrió un error al cargar los coordinadores. Intente de nuevo más tarde.",
+                    "Ocurrió un error al cargar el coordinador activo. Intente de nuevo más tarde.",
                     Alert.AlertType.ERROR);
         }
     }
 
+    private void showCoordinator() {
+        boolean hasCoordinator = activeCoordinator != null;
+        if (hasCoordinator) {
+            registrationNumberLabel.setText(activeCoordinator.getRegistrationNumber());
+            String fullName = activeCoordinator.getFirstName() + " "
+                    + activeCoordinator.getLastName() + " "
+                    + activeCoordinator.getSecondLastName();
+            fullNameLabel.setText(fullName);
+        } else {
+            registrationNumberLabel.setText(NO_COORDINATOR);
+            fullNameLabel.setText("No hay un coordinador activo registrado.");
+        }
+        inactivateButton.setDisable(!hasCoordinator);
+    }
 }

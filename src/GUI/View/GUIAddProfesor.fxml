@@ -165,6 +165,8 @@
                             <RestrictedPasswordField fx:id="passwordField"
                                            styleClass="formPasswordField"
                                            maxWidth="Infinity"/>
+                            <Label text="Mínimo 8 caracteres, con mayúscula, minúscula, número y carácter especial"
+                                   styleClass="fieldHintLabel"/>
                         </VBox>
 
                         <HBox alignment="CENTER_RIGHT" spacing="2.0"

@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -27,6 +28,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
     private static final int SIDEBAR_COLLAPSED_WIDTH = 64;
     private static final String ARROW_EXPANDED = "‹";
     private static final String ARROW_COLLAPSED = "›";
+    private static final String ACTIVE_MENU_STYLE_CLASS = "menuItemActiveButton";
 
     private static final String[] DAYS_ES = {
             "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
@@ -192,11 +194,19 @@ public class MainMenuController implements EventHandler<ActionEvent> {
     public void handle(ActionEvent event) {
         Button source = (Button) event.getSource();
         String fxmlPath = (String) source.getUserData();
+        highlightActiveButton(source);
         loadView(fxmlPath);
     }
 
+    private void highlightActiveButton(Button activeButton) {
+        for (Node menuNode : menuVBox.getChildren()) {
+            menuNode.getStyleClass().remove(ACTIVE_MENU_STYLE_CLASS);
+        }
+        activeButton.getStyleClass().add(ACTIVE_MENU_STYLE_CLASS);
+    }
+
     private void loadAdministratorActions() {
-        addButton("Registrar coordinador", "/GUI/View/GUIAddCoordinador.fxml");
+        addButton("Asignar coordinador", "/GUI/View/GUIAddCoordinador.fxml");
         addButton("Registrar profesor", "/GUI/View/GUIAddProfesor.fxml");
         addButton("Inactivar coordinador", "/GUI/View/GUIDeactivateCoordinator.fxml");
 

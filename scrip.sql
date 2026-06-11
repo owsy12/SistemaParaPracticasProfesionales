@@ -511,3 +511,20 @@ begin
     end if;
 end;
 
+create definer = root@localhost trigger trg_single_active_coordinator_upd
+    before update
+    on usuario_rol
+    for each row
+begin
+    declare active_count int;
+    if new.rol = 'Coordinador' and new.estado = 'Activo' and old.estado <> 'Activo' then
+        select count(*) into active_count
+        from usuario_rol
+        where rol = 'Coordinador' and estado = 'Activo';
+        if active_count >= 1 then
+            signal sqlstate '45000'
+                set message_text = 'Solo puede existir un coordinador activo en el sistema.';
+        end if;
+    end if;
+end;
+

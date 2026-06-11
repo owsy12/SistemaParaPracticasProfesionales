@@ -28,7 +28,7 @@
 
     <children>
         <ScrollPane styleClass="subViewScrollPane"
-                    fitToWidth="true" fitToHeight="false"
+                    fitToWidth="true" fitToHeight="true"
                     hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
                     AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
                     AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
@@ -65,7 +65,7 @@
 
                             <TableView fx:id="projectsTableView"
                                        styleClass="mainDataTableView"
-                                       prefHeight="340.0">
+                                       prefHeight="340.0" minHeight="340.0">
                                 <columns>
                                     <TableColumn fx:id="projetcNameColumn" prefWidth="180.0" text="Proyecto">
                                         <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>

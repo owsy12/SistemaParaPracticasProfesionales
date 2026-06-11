@@ -117,6 +117,12 @@
     -fx-text-fill: #ffffff;
 }
 
+.menuVBox > .button.menuItemActiveButton {
+    -fx-background-color: #005691;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+}
+
 .sidebarFooterVBox {
     -fx-background-color: transparent;
 }
