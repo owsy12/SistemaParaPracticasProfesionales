@@ -129,27 +129,6 @@ public class ValidationUtils {
                     hasSpecialCharacter = true;
                 }
 
-                if (i < password.length() - 2) {
-
-                    char current = password.charAt(i);
-                    char next = password.charAt(i + 1);
-                    char nextNext = password.charAt(i + 2);
-
-                    if (Character.isDigit(current) &&
-                            Character.isDigit(next) &&
-                            Character.isDigit(nextNext)) {
-
-                        if ((next == current + 1) &&
-                                (nextNext == next + 1)) {
-
-                            isValid = false;
-
-                        }
-
-                    }
-
-                }
-
             }
 
             if (!hasUppercase ||
