@@ -1,5 +1,6 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.InternDAO;
 import Logic.DTOs.Intern;
 import Logic.Exceptions.DuplicateEntryException;
@@ -7,13 +8,14 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import GUI.Utils.RestrictedPasswordField;
 import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 import org.mindrot.jbcrypt.BCrypt;
 
-import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -24,6 +26,8 @@ import javafx.scene.control.ButtonType;
 import java.util.Optional;
 
 public class AddInternController {
+
+    private static final Logger LOGGER = Logger.getLogger(AddInternController.class.getName());
     private static final String STATUS_ACTIVE = "Activo";
 
 
@@ -110,7 +114,9 @@ public class AddInternController {
             intern.setRole("Practicante");
 
             if (internDAO.saveIntern(intern)) {
-                AuditLog.record("registró al practicante con matrícula " + intern.getRegistrationNumber());
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} registró al practicante con matrícula {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(), intern.getRegistrationNumber()});
                 showAlert("Éxito", "Practicante registrado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();

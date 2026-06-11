@@ -1,7 +1,7 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.CoordinatorDAO;
-import GUI.Utils.AuditLog;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.Coordinator;
 import Logic.DTOs.User;
@@ -9,6 +9,8 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -23,6 +25,8 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class DeactivateCoordinatorController {
+
+    private static final Logger LOGGER = Logger.getLogger(DeactivateCoordinatorController.class.getName());
     private static final String STATUS_INACTIVE = "Inactivo";
     private static final String NO_COORDINATOR = "—";
 
@@ -78,7 +82,9 @@ public class DeactivateCoordinatorController {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
-            AuditLog.record("inactivó al coordinador " + user.getId());
+            LOGGER.log(Level.INFO,
+                    "Usuario {0} inactivó al coordinador {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getId(), user.getId()});
             showAlert("Coordinador desactivado",
                     "El coordinador ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);

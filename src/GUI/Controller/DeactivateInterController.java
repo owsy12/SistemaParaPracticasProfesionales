@@ -1,13 +1,15 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.InternDAO;
-import GUI.Utils.AuditLog;
 import Logic.DTOs.Intern;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
@@ -22,6 +24,8 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class DeactivateInterController {
+
+    private static final Logger LOGGER = Logger.getLogger(DeactivateInterController.class.getName());
 
     @FXML
     private TableView<User> internsTableView;
@@ -85,7 +89,9 @@ public class DeactivateInterController {
         try {
             InternDAO internDAO = new InternDAO();
             internDAO.deactivateIntern(user.getId());
-            AuditLog.record("inactivó al practicante " + user.getId());
+            LOGGER.log(Level.INFO,
+                    "Usuario {0} inactivó al practicante {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getId(), user.getId()});
         } catch (ServiceException serviceException) {
             showAlert("Error", "Servicio no disponible por el momento, intente más tarde.",
                     Alert.AlertType.ERROR);

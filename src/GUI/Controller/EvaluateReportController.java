@@ -1,7 +1,6 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.AuditLog;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
@@ -515,7 +514,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
             if (updated) {
                 LOGGER.log(Level.INFO,
-                        "Auditoria: profesor {0} evaluo el reporte {1}, nuevo estado ''{2}'', calificacion {3}",
+                        "Usuario {0} evaluó el reporte {1} con estado {2} y calificación {3}",
                         new Object[]{currentProfessorId, reportId, newStatus, String.valueOf(reportGrade)});
                 String message = buildStatusMessage(newStatus);
                 showAlert("Estado actualizado", message, Alert.AlertType.INFORMATION);
@@ -553,7 +552,9 @@ public class EvaluateReportController implements ChangeListener<Object> {
             PracticeDAO practiceDAO = new PracticeDAO();
             boolean concluded = practiceDAO.concludeActiveByIntern(internId, practiceGrade);
             if (concluded) {
-            AuditLog.record("concluyó la práctica del practicante " + internId + " con calificación " + formatGrade(practiceGrade));
+            LOGGER.log(Level.INFO,
+                    "Usuario {0} concluyó la práctica del practicante {1} con calificación {2}",
+                    new Object[]{SessionManager.getInstance().getUser().getId(), internId, formatGrade(practiceGrade)});
                 showAlert("Práctica concluida",
                         "El practicante cumplió todos los requisitos. La práctica fue concluida "
                         + "con calificación " + formatGrade(practiceGrade) + ".",

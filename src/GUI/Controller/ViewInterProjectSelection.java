@@ -1,7 +1,7 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.ApplicationDAO;
-import GUI.Utils.AuditLog;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.PracticeDAO;
@@ -242,7 +242,9 @@ public class ViewInterProjectSelection {
                 createInitialDocuments(project.getIdProject());
                 createOrReactivatePractice(project);
 
-                AuditLog.record("asignó un proyecto a un practicante");
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} asignó el proyecto {1} mediante la solicitud {2}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(), project.getIdProject(), applicationId});
                 showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
                         Alert.AlertType.INFORMATION);
                 navigateBackToAssignProject();

@@ -1,13 +1,14 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.AuditLog;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -30,6 +31,8 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 import static GUI.DocumentGeneration.DocumentManngemt.saveFile;
 
 public class UploadInitialDocumentsController implements EventHandler<DragEvent> {
+
+    private static final Logger LOGGER = Logger.getLogger(UploadInitialDocumentsController.class.getName());
 
     public AnchorPane anchorPane;
 
@@ -189,7 +192,9 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
             if (updateSucceeded) {
                 pendingDocuments.remove(pendingDocuments.get(0));
                 saveFile(selectedFile, relativeFolder, newFileName);
-                AuditLog.record("subió el formato inicial \"" + initialFormat.getFormatType() + "\"");
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} subió el formato inicial {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(), initialFormat.getFormatType()});
             }
 
         } catch (ValidationException validationException) {

@@ -1,12 +1,12 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.LinkedOrganizationDAO;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import Logic.DTOs.LinkedOrganization;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
 import static GUI.Utils.ValidationUtils.isValidEmail;
-import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
@@ -19,9 +19,12 @@ import GUI.Utils.RestrictedTextField;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AddLinkedOrganizationController {
 
+    private static final Logger LOGGER = Logger.getLogger(AddLinkedOrganizationController.class.getName());
     private static final String SECTOR_PUBLIC = "Público";
     private static final String SECTOR_PRIVATE = "Privado";
 
@@ -82,7 +85,10 @@ public class AddLinkedOrganizationController {
             LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
 
             if (linkedOrganizationDAO.saveLinkedOrganization(organization)) {
-                AuditLog.record("registró la organización vinculada \"" + organization.getName() + "\"");
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} registró la organización vinculada {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(),
+                                organization.getName()});
                 showAlert("Registro exitoso", "La organización ha sido registrada exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();

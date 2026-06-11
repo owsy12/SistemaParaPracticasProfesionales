@@ -1,13 +1,15 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.ProjectDAO;
-import GUI.Utils.AuditLog;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ReferentialIntegrityException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
@@ -25,6 +27,8 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class ManegeProjectController {
+
+    private static final Logger LOGGER = Logger.getLogger(ManegeProjectController.class.getName());
 
     @FXML
     private TableColumn<Project, String> capacityColumn;
@@ -134,7 +138,9 @@ public class ManegeProjectController {
         try {
             ProjectDAO projectDAO = new ProjectDAO();
             projectDAO.deleteProject(idProject);
-            AuditLog.record("eliminó el proyecto con id " + idProject);
+            LOGGER.log(Level.INFO,
+                    "Usuario {0} eliminó el proyecto {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getId(), idProject});
             loadProjectsOnTableView();
             showAlert("Éxito", "Proyecto eliminado exitosamente.", Alert.AlertType.INFORMATION);
         } catch (ReferentialIntegrityException referentialIntegrityException) {

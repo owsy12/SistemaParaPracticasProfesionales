@@ -1,7 +1,6 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.AuditLog;
 import Logic.DAO.ReportDAO;
 import Logic.DTOs.Report;
 import Logic.Exceptions.ServiceException;
@@ -226,7 +225,9 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
                 if (isLateDelivery()) {
                     reportDAO.markLateDelivery(selectedReport.getIdReport());
                 }
-                AuditLog.record("subió el documento firmado del reporte " + selectedReport.getIdReport());
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} subió el documento firmado del reporte {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(), selectedReport.getIdReport()});
                 showAlert("Documento firmado subido",
                         "El PDF firmado fue registrado correctamente.",
                         Alert.AlertType.INFORMATION);

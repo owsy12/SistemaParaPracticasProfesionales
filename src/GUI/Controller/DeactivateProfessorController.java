@@ -1,7 +1,7 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.ProfessorDAO;
-import GUI.Utils.AuditLog;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.Professor;
 import Logic.DTOs.User;
@@ -9,6 +9,8 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
@@ -22,6 +24,8 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class DeactivateProfessorController {
+
+    private static final Logger LOGGER = Logger.getLogger(DeactivateProfessorController.class.getName());
     private static final String STATUS_INACTIVE = "Inactivo";
 
     @FXML
@@ -84,7 +88,9 @@ public class DeactivateProfessorController {
         try {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
-            AuditLog.record("inactivó al profesor " + user.getId());
+            LOGGER.log(Level.INFO,
+                    "Usuario {0} inactivó al profesor {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getId(), user.getId()});
             showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);
         } catch (ValidationException validationException) {

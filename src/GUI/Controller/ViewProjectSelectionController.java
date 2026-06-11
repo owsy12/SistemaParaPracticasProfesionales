@@ -1,7 +1,6 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.AuditLog;
 import Logic.DAO.ApplicationDAO;
 import Logic.DAO.ProjectApplicationDAO;
 import Logic.DTOs.Application;
@@ -11,6 +10,8 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
@@ -31,6 +32,8 @@ import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class ViewProjectSelectionController {
+
+    private static final Logger LOGGER = Logger.getLogger(ViewProjectSelectionController.class.getName());
     private static final String STATUS_PENDING = "Pendiente";
 
 
@@ -107,7 +110,9 @@ public class ViewProjectSelectionController {
                 projectApplicationDAO.create(projectApplication);
             }
 
-            AuditLog.record("registró una solicitud de proyecto");
+            LOGGER.log(Level.INFO,
+                    "Usuario {0} registró la solicitud de proyecto {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getId(), application.getIdApplication()});
             showAlert("Éxito", "Su solicitud ha sido creada.",
                     Alert.AlertType.INFORMATION);
             openWelcomePage((AnchorPane) anchorPane.getParent());

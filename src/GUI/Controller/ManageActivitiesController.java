@@ -265,7 +265,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
             if (updated) {
                 LOGGER.log(Level.INFO,
-                        "Auditoria: profesor {0} otorgo prorroga a la actividad {1}, nueva fechaFin {2}",
+                        "Usuario {0} otorgó prórroga a la actividad {1} con nueva fecha fin {2}",
                         new Object[]{SessionManager.getInstance().getUser().getId(),
                                 selectedActivity.getIdActivity(), String.valueOf(newEndDate)});
                 showAlert("Prórroga otorgada",
@@ -301,7 +301,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
             if (activityDAO.update(selectedActivity)) {
                 LOGGER.log(Level.INFO,
-                        "Auditoria: profesor {0} actualizo la actividad {1}",
+                        "Usuario {0} actualizó la actividad {1}",
                         new Object[]{SessionManager.getInstance().getUser().getId(),
                                 selectedActivity.getIdActivity()});
                 showAlert("Actividad actualizada",
@@ -332,7 +332,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
             if (activityDao.delete(selectedActivity.getIdActivity())) {
                 LOGGER.log(Level.INFO,
-                        "Auditoria: profesor {0} elimino la actividad {1}",
+                        "Usuario {0} eliminó la actividad {1}",
                         new Object[]{SessionManager.getInstance().getUser().getId(),
                                 selectedActivity.getIdActivity()});
                 showAlert("Actividad eliminada",

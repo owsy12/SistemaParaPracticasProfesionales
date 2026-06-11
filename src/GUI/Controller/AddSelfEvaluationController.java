@@ -1,7 +1,6 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.AuditLog;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.PracticeDAO;
@@ -222,7 +221,10 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             boolean statusUpdated = selfEvaluationDAO.updateStatus(selfEvaluation.getIdSelfEvalation(), DELIVERED_STATUS);
 
             if (pathUpdated && statusUpdated) {
-                AuditLog.record("entregó la autoevaluación firmada");
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} entregó la autoevaluación firmada {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(),
+                                selfEvaluation.getIdSelfEvalation()});
                 showAlert("Autoevaluación entregada",
                         "Su autoevaluación firmada fue registrada correctamente.",
                         Alert.AlertType.INFORMATION);
@@ -261,7 +263,9 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
                 PracticeDAO practiceDAO = new PracticeDAO();
                 boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier, practiceGrade);
                 if (concluded) {
-                AuditLog.record("concluyó la práctica del practicante " + internIdentifier);
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} concluyó la práctica del practicante {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(), internIdentifier});
                     showAlert("Práctica concluida",
                             "El practicante cumplió todos los requisitos; su práctica fue marcada como Concluida.",
                             Alert.AlertType.INFORMATION);

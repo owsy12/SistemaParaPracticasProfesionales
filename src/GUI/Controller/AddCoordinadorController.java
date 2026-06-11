@@ -1,6 +1,6 @@
 package GUI.Controller;
 
-import GUI.Utils.AuditLog;
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.CoordinatorDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.UserRoleDAO;
@@ -9,6 +9,8 @@ import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -19,6 +21,8 @@ import java.util.List;
 import static GUI.Utils.Alert.showAlert;
 
 public class AddCoordinadorController {
+
+    private static final Logger LOGGER = Logger.getLogger(AddCoordinadorController.class.getName());
 
     @FXML
     private Label statusLabel;
@@ -90,7 +94,9 @@ public class AddCoordinadorController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             professor.setRole("Coordinador");
             userRoleDAO.saveUserRole(professor);
-            AuditLog.record("asignó el rol de coordinador al profesor " + professor.getId());
+            LOGGER.log(Level.INFO,
+                    "Usuario {0} asignó el rol de coordinador al profesor {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getId(), professor.getId()});
             showAlert("Rol asignado",
                     "El profesor ha sido asignado como coordinador exitosamente.",
                     AlertType.INFORMATION);

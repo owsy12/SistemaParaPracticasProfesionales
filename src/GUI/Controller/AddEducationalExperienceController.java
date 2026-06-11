@@ -1,5 +1,6 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.EducationalExperienceDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DTOs.EducationalExperience;
@@ -9,6 +10,8 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import GUI.Utils.RestrictedTextField;
@@ -16,7 +19,6 @@ import javafx.scene.layout.AnchorPane;
 
 import java.util.List;
 
-import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -25,6 +27,8 @@ import javafx.scene.control.ButtonType;
 import java.util.Optional;
 
 public class AddEducationalExperienceController {
+
+    private static final Logger LOGGER = Logger.getLogger(AddEducationalExperienceController.class.getName());
 
     @FXML
     public AnchorPane anchorPane;
@@ -74,7 +78,9 @@ public class AddEducationalExperienceController {
             EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
 
             if (educationalExperienceDAO.save(educationalExperience)) {
-                AuditLog.record("registró la experiencia educativa con NRC " + educationalExperience.getNrc());
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} registró la experiencia educativa con NRC {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(), educationalExperience.getNrc()});
                 showAlert("Éxito", "La experiencia educativa ha sido registrada exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();

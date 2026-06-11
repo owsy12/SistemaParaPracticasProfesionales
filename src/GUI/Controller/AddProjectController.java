@@ -1,5 +1,6 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.EducationalExperienceDAO;
 import Logic.DAO.LinkedOrganizationDAO;
 import Logic.DAO.ProjectDAO;
@@ -12,6 +13,8 @@ import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -22,7 +25,6 @@ import javafx.scene.layout.AnchorPane;
 import java.util.ArrayList;
 import java.util.List;
 
-import GUI.Utils.AuditLog;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
@@ -32,6 +34,8 @@ import javafx.scene.control.ButtonType;
 import java.util.Optional;
 
 public class AddProjectController {
+
+    private static final Logger LOGGER = Logger.getLogger(AddProjectController.class.getName());
 
     @FXML
     private AnchorPane anchorPane;
@@ -115,7 +119,9 @@ public class AddProjectController {
                         + "No es posible registrar otro simultáneamente.",
                         Alert.AlertType.WARNING);
             } else if (projectDAO.saveProject(project)) {
-                AuditLog.record("registró el proyecto \"" + project.getName() + "\"");
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} registró el proyecto {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getId(), project.getName()});
                 showAlert("Éxito", "El proyecto ha sido guardado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();

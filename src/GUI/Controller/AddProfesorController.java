@@ -1,13 +1,15 @@
 package GUI.Controller;
 
+import GUI.SessionManager.SessionManager;
 import Logic.DAO.ProfessorDAO;
-import GUI.Utils.AuditLog;
 import Logic.DAO.UserRoleDAO;
 import Logic.DTOs.Professor;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import GUI.Utils.RestrictedPasswordField;
 import GUI.Utils.RestrictedTextField;
 import static GUI.Utils.Alert.showAlert;
@@ -23,6 +25,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class AddProfesorController {
+
+    private static final Logger LOGGER = Logger.getLogger(AddProfesorController.class.getName());
     private static final String STATUS_ACTIVE = "Activo";
 
 
@@ -103,7 +107,9 @@ public class AddProfesorController {
 
                 if (result.isPresent()) {
                     addRolToCoordinator(result.get());
-                    AuditLog.record("asignó el rol de profesor al coordinador " + result.get().getId());
+                    LOGGER.log(Level.INFO,
+                            "Usuario {0} asignó el rol de profesor al coordinador {1}",
+                            new Object[]{SessionManager.getInstance().getUser().getId(), result.get().getId()});
                     showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
                             AlertType.INFORMATION);
                 }

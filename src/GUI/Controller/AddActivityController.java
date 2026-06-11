@@ -107,7 +107,7 @@ public class AddActivityController {
 
             if (generatedId > 0) {
                 LOGGER.log(Level.INFO,
-                        "Auditoria: profesor {0} registro la actividad {1} en el proyecto {2}",
+                        "Usuario {0} registró la actividad {1} en el proyecto {2}",
                         new Object[]{SessionManager.getInstance().getUser().getId(),
                                 generatedId, activity.getIdProject()});
                 showAlert("Actividad registrada",
