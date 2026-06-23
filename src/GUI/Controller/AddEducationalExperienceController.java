@@ -48,6 +48,7 @@ public class AddEducationalExperienceController {
         setTypeAndLength(nrcTextField, "Number");
         setTypeAndLength(nameTextField, "Name");
         loadProfessors();
+        loadPeriodCombobox();
     }
 
     @FXML
@@ -142,8 +143,9 @@ public class AddEducationalExperienceController {
         boolean isNrcEmpty = nrcTextField.getText().isBlank();
         boolean isNameEmpty = nameTextField.getText().isBlank();
         boolean isProfessorMissing = professorComboBox.getValue() == null;
+        boolean isPeriodMissing = periodcomboBox.getValue() == null;
 
-        boolean hasEmptyFields = isNrcEmpty || isNameEmpty || isProfessorMissing;
+        boolean hasEmptyFields = isNrcEmpty || isNameEmpty || isProfessorMissing || isPeriodMissing;
 
         return hasEmptyFields;
     }
@@ -152,6 +154,7 @@ public class AddEducationalExperienceController {
         nrcTextField.clear();
         nameTextField.clear();
         professorComboBox.getSelectionModel().clearSelection();
+        periodcomboBox.getSelectionModel().clearSelection();
     }
 
 }

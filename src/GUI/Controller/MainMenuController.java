@@ -18,12 +18,15 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 
 public class MainMenuController implements EventHandler<ActionEvent> {
 
+    private static final Logger LOGGER = Logger.getLogger(MainMenuController.class.getName());
     private static final int SIDEBAR_EXPANDED_WIDTH = 280;
     private static final int SIDEBAR_COLLAPSED_WIDTH = 64;
     private static final String ARROW_EXPANDED = "‹";
@@ -293,8 +296,9 @@ public class MainMenuController implements EventHandler<ActionEvent> {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent vista = loader.load();
             contentPane.getChildren().setAll(wrapInScrollableContent(vista));
-        } catch (IOException ioException) {
-            showAlert("Error", "Error al cargar la vista.", Alert.AlertType.ERROR);
+        } catch (Exception exception) {
+            LOGGER.log(Level.SEVERE, "Error al cargar la vista: " + fxmlPath, exception);
+            showAlert("Error", "Error al cargar la vista: " + exception.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
