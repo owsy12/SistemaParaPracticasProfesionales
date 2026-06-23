@@ -21,7 +21,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
     private static final Logger LOGGER = Logger.getLogger(EducationalExperienceDAO.class.getName());
 
     private static final String SQL_INSERT =
-            "INSERT INTO experiencia_educativa (nrc, nombre, id_profesor) VALUES (?, ?, ?)";
+            "INSERT INTO experiencia_educativa (nrc, nombre, id_profesor, periodo) VALUES (?, ?, ?, ?)";
 
     private static final String SQL_SELECT_BY_NRC =
             "SELECT nrc, nombre, id_profesor FROM experiencia_educativa WHERE nrc = ?";
@@ -47,6 +47,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             statement.setString(1, educationalExperience.getNrc());
             statement.setString(2, educationalExperience.getName());
             statement.setInt(3, educationalExperience.getIdProfessor());
+            statement.setString(4, educationalExperience.getPeriod());
 
             if (statement.executeUpdate() > 0) {
                 isSaved = true;

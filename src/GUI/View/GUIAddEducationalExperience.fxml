@@ -1,119 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
-<?import GUI.Utils.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
-<?import java.net.URL?>
 
-<AnchorPane fx:id="anchorPane"
-            prefHeight="500.0" prefWidth="640.0"
-            xmlns="http://javafx.com/javafx/21"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="GUI.Controller.AddEducationalExperienceController">
+<AnchorPane fx:id="anchorPane" prefHeight="500.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.Controller.AddEducationalExperienceController">
 
     <stylesheets>
-        <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddEducationalExperienceStyles.css"/>
+        <URL value="@css/SGPPTheme.css" />
+        <URL value="@css/GUIAddEducationalExperienceStyles.css" />
     </stylesheets>
 
     <children>
-        <ScrollPane styleClass="subViewScrollPane"
-                    fitToWidth="true" fitToHeight="false"
-                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
-                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <ScrollPane fitToHeight="false" fitToWidth="true" hbarPolicy="NEVER" styleClass="subViewScrollPane" vbarPolicy="AS_NEEDED" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
-                <VBox styleClass="subViewContentVBox" spacing="20.0">
-                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
+                <VBox spacing="20.0" styleClass="subViewContentVBox">
+                    <padding><Insets bottom="32.0" left="32.0" right="32.0" top="28.0" /></padding>
 
-                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
-                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
-                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
-                            <Label text="COORDINACIÓN · EXPERIENCIAS EDUCATIVAS" styleClass="viewBreadcrumbLabel"/>
+                    <VBox spacing="5.0" styleClass="viewHeaderVBox">
+                        <HBox alignment="CENTER_LEFT" spacing="6.0" styleClass="viewBreadcrumbHBox">
+                            <Label styleClass="viewBreadcrumbIconLabel" text="◯" />
+                            <Label styleClass="viewBreadcrumbLabel" text="COORDINACIÓN · EXPERIENCIAS EDUCATIVAS" />
                         </HBox>
-                        <Label text="Registrar Experiencia Educativa" styleClass="viewTitleLabel"/>
-                        <Label text="Asocia un NRC con un profesor para crear la experiencia educativa del periodo."
-                               styleClass="viewSubtitleLabel"/>
+                        <Label styleClass="viewTitleLabel" text="Registrar Experiencia Educativa" />
+                        <Label styleClass="viewSubtitleLabel" text="Asocia un NRC con un profesor para crear la experiencia educativa del periodo." />
                     </VBox>
 
-                    <Separator styleClass="viewTopAccentSeparator"/>
+                    <Separator styleClass="viewTopAccentSeparator" />
 
                     <VBox styleClass="formCardVBox">
 
-                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
-                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" styleClass="formSectionHeaderHBox">
+                            <padding><Insets bottom="14.0" left="22.0" right="22.0" top="14.0" /></padding>
                             <StackPane styleClass="formSectionIconStackPane">
-                                <Label text="+" styleClass="formSectionIconLabel"/>
+                                <Label styleClass="formSectionIconLabel" text="+" />
                             </StackPane>
-                            <Label text="Datos de la experiencia" styleClass="formSectionTitleLabel"/>
+                            <Label styleClass="formSectionTitleLabel" text="Datos de la experiencia" />
                         </HBox>
 
                         <VBox spacing="18.0">
-                            <padding><Insets top="26.0" right="36.0" bottom="26.0" left="36.0"/></padding>
+                            <padding><Insets bottom="26.0" left="36.0" right="36.0" top="26.0" /></padding>
 
-                            <GridPane hgap="0.0" vgap="20.0" maxWidth="Infinity">
+                            <GridPane hgap="0.0" maxWidth="Infinity" vgap="20.0">
                                 <columnConstraints>
-                                    <ColumnConstraints prefWidth="200.0" minWidth="150.0" halignment="RIGHT"/>
-                                    <ColumnConstraints hgrow="ALWAYS" minWidth="0.0"/>
+                                    <ColumnConstraints halignment="RIGHT" minWidth="150.0" prefWidth="200.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="0.0" />
                                 </columnConstraints>
 
-                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
-                                      GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <padding><Insets right="18.0"/></padding>
-                                    <Label text="NRC" styleClass="fieldLabelText"/>
-                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <padding><Insets right="18.0" /></padding>
+                                    <Label styleClass="fieldLabelText" text="NRC" />
+                                    <Label styleClass="requiredMarkLabel" text=" *" />
                                 </HBox>
                                 <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <RestrictedTextField fx:id="nrcTextField"
-                                                         promptText="Ej: 12345"
-                                                         styleClass="formTextField" maxWidth="Infinity"/>
-                                    <Label text="Número de Referencia Curricular" styleClass="fieldHintLabel"/>
+                                    <RestrictedTextField fx:id="nrcTextField" maxWidth="Infinity" promptText="Ej: 12345" styleClass="formTextField" />
+                                    <Label styleClass="fieldHintLabel" text="Número de Referencia Curricular" />
                                 </VBox>
 
-                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
-                                      GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                    <padding><Insets right="18.0"/></padding>
-                                    <Label text="Nombre" styleClass="fieldLabelText"/>
-                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <padding><Insets right="18.0" /></padding>
+                                    <Label styleClass="fieldLabelText" text="Nombre" />
+                                    <Label styleClass="requiredMarkLabel" text=" *" />
                                 </HBox>
                                 <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                    <RestrictedTextField fx:id="nameTextField"
-                                                         promptText="Ej: Desarrollo de Software"
-                                                         styleClass="formTextField" maxWidth="Infinity"/>
+                                    <RestrictedTextField fx:id="nameTextField" maxWidth="Infinity" promptText="Ej: Desarrollo de Software" styleClass="formTextField" />
                                 </VBox>
 
-                                <HBox alignment="CENTER_RIGHT" spacing="2.0"
-                                      GridPane.columnIndex="0" GridPane.rowIndex="2">
-                                    <padding><Insets right="18.0"/></padding>
-                                    <Label text="Profesor asignado" styleClass="fieldLabelText"/>
-                                    <Label text=" *" styleClass="requiredMarkLabel"/>
+                                <HBox alignment="CENTER_RIGHT" spacing="2.0" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                    <padding><Insets right="18.0" /></padding>
+                                    <Label styleClass="fieldLabelText" text="Profesor asignado" />
+                                    <Label styleClass="requiredMarkLabel" text=" *" />
                                 </HBox>
                                 <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                                    <ComboBox fx:id="professorComboBox"
-                                              styleClass="formComboBox" maxWidth="Infinity"/>
+                                    <ComboBox fx:id="professorComboBox" maxWidth="Infinity" styleClass="formComboBox" />
                                 </VBox>
+                        <HBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="84.0" spacing="2.0" GridPane.rowIndex="3">
+                           <padding>
+                              <Insets right="18.0" />
+                           </padding>
+                           <children>
+                              <Label styleClass="fieldLabelText" text="Periodo" />
+                              <Label styleClass="requiredMarkLabel" text=" *" />
+                           </children>
+                        </HBox>
+                        <VBox layoutX="210.0" layoutY="84.0" spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                           <children>
+                              <ComboBox fx:id="periodcomboBox" maxWidth="Infinity" styleClass="formComboBox" />
+                           </children>
+                        </VBox>
+                        <rowConstraints>
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints />
+                           <RowConstraints minHeight="10.0" prefHeight="30.0" />
+                        </rowConstraints>
 
                             </GridPane>
                         </VBox>
 
-                        <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
-                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button text="Cancelar" styleClass="cancelActionButton"
-                                    onAction="#cancel" mnemonicParsing="false"/>
-                            <Button text="&#10003;  Guardar" styleClass="primaryActionButton"
-                                    onAction="#save" mnemonicParsing="false"/>
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="formActionBarHBox">
+                            <padding><Insets bottom="14.0" left="22.0" right="22.0" top="14.0" /></padding>
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Button mnemonicParsing="false" onAction="#cancel" styleClass="cancelActionButton" text="Cancelar" />
+                            <Button mnemonicParsing="false" onAction="#save" styleClass="primaryActionButton" text="✓  Guardar" />
                         </HBox>
 
                     </VBox>

@@ -173,7 +173,7 @@ public class AddProfessorController {
             }
             showAlert("Registro duplicado", duplicateMessage, AlertType.WARNING);
         } catch (ServiceException serviceException) {
-            showAlert("Servicio no disponible", "Error al procesar el registro. Intente más tarde.",
+            showAlert("Servicio no disponible", "Error al conectar, Servidor fuera de linea",
                     AlertType.ERROR);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),

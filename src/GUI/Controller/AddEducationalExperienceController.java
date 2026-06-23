@@ -29,7 +29,6 @@ import java.util.Optional;
 public class AddEducationalExperienceController {
 
     private static final Logger LOGGER = Logger.getLogger(AddEducationalExperienceController.class.getName());
-
     @FXML
     public AnchorPane anchorPane;
 
@@ -41,6 +40,8 @@ public class AddEducationalExperienceController {
 
     @FXML
     private ComboBox<Professor> professorComboBox;
+    @FXML
+    private ComboBox<String> periodcomboBox;
 
     @FXML
     private void initialize() {
@@ -104,6 +105,7 @@ public class AddEducationalExperienceController {
         educationalExperience.setNrc(nrcTextField.getText().trim());
         educationalExperience.setName(nameTextField.getText().trim());
         educationalExperience.setIdProfessor(professorComboBox.getValue().getId());
+        educationalExperience.setPeriod(periodcomboBox.getValue());
         return educationalExperience;
     }
 
@@ -127,6 +129,13 @@ public class AddEducationalExperienceController {
             showAlert("Error de validación", "Error al cargar los profesores.",
                     Alert.AlertType.ERROR);
         }
+    }
+
+    private void loadPeriodCombobox(){
+        String year = String.valueOf(java.time.LocalDate.now().getYear());
+
+        periodcomboBox.getItems().add("FEB-JUL-" + year);
+        periodcomboBox.getItems().add("AUG-ENE-" + year);
     }
 
     private boolean isAnyFieldEmpty() {

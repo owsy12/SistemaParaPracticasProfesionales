@@ -4,6 +4,7 @@ public class EducationalExperience {
     private String nrc;
     private String name;
     private int idProfessor;
+    private String period;
 
     public EducationalExperience() {
     }
@@ -36,6 +37,14 @@ public class EducationalExperience {
 
     public void setIdProfessor(int idProfessor) {
         this.idProfessor = idProfessor;
+    }
+
+    public String getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(String period) {
+        this.period = period;
     }
 
     @Override
