@@ -9,12 +9,13 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 public class DataBaseConnection {
 
-    private static final Dotenv dotenv = Dotenv.load();
+    private static final Logger LOGGER = Logger.getLogger(DataBaseConnection.class.getName());
+
+    private static final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
     private static final String DB_URL = get("DB_URL");
     private static final String DB_USER = get("DB_USER");
     private static final String DB_PASSWORD = get("DB_PASSWORD");
-    private static final Logger LOGGER = Logger.getLogger(DataBaseConnection.class.getName());
 
     private DataBaseConnection() {
     }
@@ -40,7 +41,8 @@ public class DataBaseConnection {
     private static void validateConnectionParameters() throws SQLException {
         if (DB_URL == null || DB_URL.isBlank()) {
             LOGGER.log(Level.SEVERE, "Variable de entorno DB_URL no configurada.");
-            throw new SQLException("La variable de entorno DB_URL no está configurada.");
+            throw new SQLException("La variable de entorno DB_URL no está configurada. "
+                    + "Verifique que el archivo .env exista en el directorio de trabajo.");
         }
         if (DB_USER == null || DB_USER.isBlank()) {
             LOGGER.log(Level.SEVERE, "Variable de entorno DB_USER no configurada.");
