@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -51,7 +51,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             "El ID del responsable técnico debe ser mayor a cero. ID recibido: ";
 
     @Override
-    public boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible)
+    public boolean saveTechnicalResponsible(TechnicalResponsible technicalResponsible)
             throws ServiceException, ValidationException {
         boolean isSaved = false;
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -79,19 +79,19 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public TechnicalSupervisor findById(int idTecnico)
+    public TechnicalResponsible findById(int idTecnico)
             throws ServiceException, ValidationException {
         if (idTecnico <= 0) {
             throw new ValidationException(VALIDATION_ID_TECHNICAL + idTecnico);
         }
-        TechnicalSupervisor technicalResult = null;
+        TechnicalResponsible technicalResult = null;
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
             preparedStatement.setInt(1, idTecnico);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    technicalResult = mapTechnicalSupervisor(resultSet);
+                    technicalResult = mapTechnicalResponsible(resultSet);
                 }
             }
         } catch (SQLException sqlException) {
@@ -108,14 +108,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public List<TechnicalSupervisor> findAll() throws ServiceException {
-        List<TechnicalSupervisor> technicalList = new ArrayList<>();
+    public List<TechnicalResponsible> findAll() throws ServiceException {
+        List<TechnicalResponsible> technicalList = new ArrayList<>();
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_TECHNICAL_SUPERVISORS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
-                technicalList.add(mapTechnicalSupervisor(resultSet));
+                technicalList.add(mapTechnicalResponsible(resultSet));
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
@@ -131,21 +131,21 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public List<TechnicalSupervisor> findByOrganization(int idOrganizacion)
+    public List<TechnicalResponsible> findByOrganization(int idOrganizacion)
             throws ServiceException, ValidationException {
         if (idOrganizacion <= 0) {
             throw new ValidationException(
                     "El ID de la organización debe ser mayor a cero. ID recibido: "
                             + idOrganizacion);
         }
-        List<TechnicalSupervisor> technicalList = new ArrayList<>();
+        List<TechnicalResponsible> technicalList = new ArrayList<>();
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(
                      SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL)) {
             preparedStatement.setInt(1, idOrganizacion);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    technicalList.add(mapTechnicalSupervisor(resultSet));
+                    technicalList.add(mapTechnicalResponsible(resultSet));
                 }
             }
         } catch (SQLException sqlException) {
@@ -163,11 +163,11 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public boolean update(TechnicalSupervisor technicalResponsible)
+    public boolean update(TechnicalResponsible technicalResponsible)
             throws ServiceException, ValidationException {
-        if (technicalResponsible.getIdTechnicalSupervisor() <= 0) {
+        if (technicalResponsible.getIdTechnicalResponsible() <= 0) {
             throw new ValidationException(
-                    VALIDATION_ID_TECHNICAL + technicalResponsible.getIdTechnicalSupervisor());
+                    VALIDATION_ID_TECHNICAL + technicalResponsible.getIdTechnicalResponsible());
         }
         boolean isUpdated = false;
         try (Connection connection = DataBaseConnection.connectDatabase();
@@ -178,14 +178,14 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             preparedStatement.setString(3, technicalResponsible.getSecondLastName());
             preparedStatement.setString(4, technicalResponsible.geteMail());
             preparedStatement.setString(5, technicalResponsible.getPosition());
-            preparedStatement.setInt(6, technicalResponsible.getIdTechnicalSupervisor());
+            preparedStatement.setInt(6, technicalResponsible.getIdTechnicalResponsible());
             if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error al actualizar responsable técnico con ID {0}: {1}",
-                    new Object[]{technicalResponsible.getIdTechnicalSupervisor(),
+                    new Object[]{technicalResponsible.getIdTechnicalResponsible(),
                             sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -228,7 +228,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             throw new ValidationException(VALIDATION_ID_TECHNICAL + idTecnico);
         }
         boolean isDeleted = false;
-        TechnicalSupervisor technicalSupervisor = findById(idTecnico);
+        TechnicalResponsible technicalSupervisor = findById(idTecnico);
         LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
         if (linkedOrganizationDAO.hasAssociatedProjects(
                 technicalSupervisor.getIdOrganization())) {
@@ -239,8 +239,8 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         return isDeleted;
     }
 
-    private TechnicalSupervisor mapTechnicalSupervisor(ResultSet resultSet) throws SQLException {
-        return new TechnicalSupervisor(
+    private TechnicalResponsible mapTechnicalResponsible(ResultSet resultSet) throws SQLException {
+        return new TechnicalResponsible(
                 resultSet.getInt("id_tecnico"),
                 resultSet.getInt("id_organizacion"),
                 resultSet.getString("nombre"),

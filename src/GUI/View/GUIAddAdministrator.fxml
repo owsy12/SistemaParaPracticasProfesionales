@@ -28,7 +28,7 @@
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddCoordinadorStyles.css"/>
+        <URL value="@css/GUIAddCoordinatorStyles.css"/>
     </stylesheets>
 
     <content>

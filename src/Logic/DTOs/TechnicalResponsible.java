@@ -1,7 +1,7 @@
 package Logic.DTOs;
 
-public class TechnicalSupervisor {
-    private int idTechnicalSupervisor;
+public class TechnicalResponsible {
+    private int idTechnicalResponsible;
     private int idOrganization;
     private String name;
     private String lastName;
@@ -10,8 +10,8 @@ public class TechnicalSupervisor {
     private String position;
 
 
-    public TechnicalSupervisor(int idTechnicalSupervisor, int idOrganization, String name, String lastName, String secondLastName, String eMail, String position) {
-        this.idTechnicalSupervisor = idTechnicalSupervisor;
+    public TechnicalResponsible(int idTechnicalResponsible, int idOrganization, String name, String lastName, String secondLastName, String eMail, String position) {
+        this.idTechnicalResponsible = idTechnicalResponsible;
         this.idOrganization = idOrganization;
         this.name = name;
         this.lastName = lastName;
@@ -21,15 +21,15 @@ public class TechnicalSupervisor {
     }
 
 
-    public TechnicalSupervisor() {
+    public TechnicalResponsible() {
     }
 
-    public int getIdTechnicalSupervisor() {
-        return idTechnicalSupervisor;
+    public int getIdTechnicalResponsible() {
+        return idTechnicalResponsible;
     }
 
-    public void setIdTechnicalSupervisor(int idTechnicalSupervisor) {
-        this.idTechnicalSupervisor = idTechnicalSupervisor;
+    public void setIdTechnicalResponsible(int idTechnicalResponsible) {
+        this.idTechnicalResponsible = idTechnicalResponsible;
     }
 
     public int getIdOrganization() {
@@ -97,8 +97,8 @@ public class TechnicalSupervisor {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        TechnicalSupervisor other = (TechnicalSupervisor) object;
-        return idTechnicalSupervisor == other.idTechnicalSupervisor
+        TechnicalResponsible other = (TechnicalResponsible) object;
+        return idTechnicalResponsible == other.idTechnicalResponsible
                 && idOrganization == other.idOrganization
                 && java.util.Objects.equals(name, other.name)
                 && java.util.Objects.equals(lastName, other.lastName)
@@ -109,6 +109,6 @@ public class TechnicalSupervisor {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idTechnicalSupervisor, idOrganization, name, lastName, secondLastName, eMail, position);
+        return java.util.Objects.hash(idTechnicalResponsible, idOrganization, name, lastName, secondLastName, eMail, position);
     }
 }

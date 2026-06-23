@@ -6,7 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public final class TechnicalSupervisorTestDataBuilder {
+public final class TechnicalResponsibleTestDataBuilder {
 
     private static final String INSERT_SQL =
             "INSERT INTO tecnico_responsable (id_organizacion, nombre, apellido_paterno, " +
@@ -25,27 +25,27 @@ public final class TechnicalSupervisorTestDataBuilder {
     private String email = DEFAULT_EMAIL;
     private String position = DEFAULT_POSITION;
 
-    public TechnicalSupervisorTestDataBuilder withOrganizationId(int idOrganization) {
+    public TechnicalResponsibleTestDataBuilder withOrganizationId(int idOrganization) {
         this.idOrganization = idOrganization;
         return this;
     }
 
-    public TechnicalSupervisorTestDataBuilder withFirstName(String firstName) {
+    public TechnicalResponsibleTestDataBuilder withFirstName(String firstName) {
         this.firstName = firstName;
         return this;
     }
 
-    public TechnicalSupervisorTestDataBuilder withLastName(String lastName) {
+    public TechnicalResponsibleTestDataBuilder withLastName(String lastName) {
         this.lastName = lastName;
         return this;
     }
 
-    public TechnicalSupervisorTestDataBuilder withEmail(String email) {
+    public TechnicalResponsibleTestDataBuilder withEmail(String email) {
         this.email = email;
         return this;
     }
 
-    public TechnicalSupervisorTestDataBuilder withPosition(String position) {
+    public TechnicalResponsibleTestDataBuilder withPosition(String position) {
         this.position = position;
         return this;
     }

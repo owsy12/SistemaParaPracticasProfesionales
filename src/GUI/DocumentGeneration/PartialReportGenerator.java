@@ -50,7 +50,7 @@ public class PartialReportGenerator {
         String storagePath = buildStoragePath(report, context.getRegistrationNumber());
         saveFile(pdfBytes, storagePath);
 
-        String fileName = "Reporte_Parcial_" + report.getReportNumber() + ".pdf";
+        String fileName = "partial_report_" + report.getReportNumber() + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;

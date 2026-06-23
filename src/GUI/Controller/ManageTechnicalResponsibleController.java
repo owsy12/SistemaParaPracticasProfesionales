@@ -1,7 +1,7 @@
 package GUI.Controller;
 
 import Logic.DAO.TechnicalResponsibleDAO;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
@@ -25,22 +25,22 @@ public class ManageTechnicalResponsibleController {
     private AnchorPane anchorPane;
 
     @FXML
-    private TableView<TechnicalSupervisor> technicalResponsibleTableView;
+    private TableView<TechnicalResponsible> technicalResponsibleTableView;
 
     @FXML
-    private TableColumn<TechnicalSupervisor, String> nameColumn;
+    private TableColumn<TechnicalResponsible, String> nameColumn;
 
     @FXML
-    private TableColumn<TechnicalSupervisor, String> lastNameColumn;
+    private TableColumn<TechnicalResponsible, String> lastNameColumn;
 
     @FXML
-    private TableColumn<TechnicalSupervisor, String> secondLastNameColumn;
+    private TableColumn<TechnicalResponsible, String> secondLastNameColumn;
 
     @FXML
-    private TableColumn<TechnicalSupervisor, String> emailColumn;
+    private TableColumn<TechnicalResponsible, String> emailColumn;
 
     @FXML
-    private TableColumn<TechnicalSupervisor, String> positionColumn;
+    private TableColumn<TechnicalResponsible, String> positionColumn;
 
     @FXML
     private void initialize() {
@@ -54,7 +54,7 @@ public class ManageTechnicalResponsibleController {
 
     @FXML
     public void deleteTechnicalResponsible(ActionEvent actionEvent) {
-        TechnicalSupervisor selectedTechnical = technicalResponsibleTableView.getSelectionModel().getSelectedItem();
+        TechnicalResponsible selectedTechnical = technicalResponsibleTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedTechnical == null;
         if (isSelectionMissing) {
             showAlert("Sin selección",
@@ -70,7 +70,7 @@ public class ManageTechnicalResponsibleController {
 
             boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
             if (isUserConfirmed) {
-                deleteTechnicalResponsibleProcess(selectedTechnical.getIdTechnicalSupervisor());
+                deleteTechnicalResponsibleProcess(selectedTechnical.getIdTechnicalResponsible());
             }
         }
     }
@@ -78,7 +78,7 @@ public class ManageTechnicalResponsibleController {
     private void loadTechnicalResponsibles() {
         try {
             TechnicalResponsibleDAO technicalResponsibleDao = new TechnicalResponsibleDAO();
-            List<TechnicalSupervisor> technicalList = technicalResponsibleDao.findAll();
+            List<TechnicalResponsible> technicalList = technicalResponsibleDao.findAll();
 
             if (technicalList.isEmpty()) {
                 showAlert("Sin registros",
@@ -96,10 +96,10 @@ public class ManageTechnicalResponsibleController {
         }
     }
 
-    private void deleteTechnicalResponsibleProcess(int idTechnicalSupervisor) {
+    private void deleteTechnicalResponsibleProcess(int idTechnicalResponsible) {
         try {
             TechnicalResponsibleDAO technicalResponsibleDao = new TechnicalResponsibleDAO();
-            technicalResponsibleDao.deleteWithOrganizationValidation(idTechnicalSupervisor);
+            technicalResponsibleDao.deleteWithOrganizationValidation(idTechnicalResponsible);
             showAlert("Eliminación exitosa",
                     "El técnico responsable fue eliminado exitosamente.",
                     Alert.AlertType.INFORMATION);

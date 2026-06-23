@@ -24,9 +24,9 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.util.List;
 import java.util.Optional;
 
-public class AddProfesorController {
+public class AddProfessorController {
 
-    private static final Logger LOGGER = Logger.getLogger(AddProfesorController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AddProfessorController.class.getName());
     private static final String STATUS_ACTIVE = "Activo";
 
 

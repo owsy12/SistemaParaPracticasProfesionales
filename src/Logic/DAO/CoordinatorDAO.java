@@ -1,5 +1,6 @@
 package Logic.DAO;
 
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.Coordinator;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
@@ -12,19 +13,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static Logic.Utils.Connection.createdConnection;
-
 public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(CoordinatorDAO.class.getName());
 
-    private Connection connection;
-
     public CoordinatorDAO() throws ServiceException {
         super();
-       connection = createdConnection();
     }
-
 
     @Override
     public boolean save(Coordinator coordinator) throws ServiceException, ValidationException {
@@ -32,33 +27,20 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             throw new ValidationException("Ya existe un coordinador activo en el sistema.");
         }
         boolean isSaved = false;
-        try {
-            connection.setAutoCommit(false);
-            int userId = super.saveUser(coordinator);
-            if (userId > 0) {
-                String sql = "INSERT INTO coordinador (id_usuario) VALUES (?)";
-                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                    preparedStatement.setInt(1, userId);
-                    if (preparedStatement.executeUpdate() > 0) {
-                        connection.commit();
-                        isSaved = true;
-                    } else {
-                        connection.rollback();
-                    }
+        int userId = super.saveUser(coordinator);
+        if (userId > 0) {
+            String sql = "INSERT INTO coordinador (id_usuario) VALUES (?)";
+            try (Connection connection = DataBaseConnection.connectDatabase();
+                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setInt(1, userId);
+                if (preparedStatement.executeUpdate() > 0) {
+                    isSaved = true;
                 }
-            } else {
-                connection.rollback();
+            } catch (SQLException sqlException) {
+                LOGGER.log(Level.SEVERE, "Error al registrar coordinador: {0}",
+                        sqlException.getMessage());
+                throw new ServiceException("Error al registrar coordinador.", sqlException);
             }
-        } catch (SQLException sqlException) {
-
-            try {
-                connection.rollback();
-            } catch (SQLException rollbackEx) { LOGGER.log(Level.SEVERE, "erro en registrar en base e datos");}
-            throw new ServiceException("Error al registrar coordinador.", sqlException);
-        } finally {
-            try {
-                connection.setAutoCommit(true);
-            } catch (SQLException sqlException) { LOGGER.log(Level.SEVERE, "Error al restaurar autoCommit: {0}", sqlException.getMessage()); }
         }
         return isSaved;
     }
@@ -86,7 +68,8 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                 "JOIN coordinador c ON u.id_usuario = c.id_usuario " +
                 "WHERE u.id_usuario = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setInt(1, id);
 
@@ -118,7 +101,8 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         String sql = "SELECT u.* FROM usuario u " +
                 "JOIN coordinador c ON u.id_usuario = c.id_usuario";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -156,8 +140,9 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                 "    AND ur2.rol <> 'Coordinador'" +
                 "    AND ur2.estado = 'Activo')";
 
-        try (PreparedStatement ppreparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = ppreparedStatement.executeQuery()) {
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 list.add(mapCoordinator(resultSet));
@@ -173,21 +158,18 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     @Override
     public List<Coordinator> findActiveCoordinators() throws ServiceException {
         List<Coordinator> coordinators = new ArrayList<>();
+        String sql = "SELECT u.* " +
+                "FROM usuario u " +
+                "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
+                "WHERE ur.estado = 'Activo' " +
+                "AND ur.rol = 'Coordinador' ";
 
-        try {
-            String sql = "SELECT u.* " +
-                    "FROM usuario u " +
-                    "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
-                    "WHERE ur.estado = 'Activo' " +
-                    "AND ur.rol = 'Coordinador' ";
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            try(PreparedStatement preparedStatement = connection.prepareStatement(sql);
-                ResultSet resultSet = preparedStatement.executeQuery()) {
-
-                while (resultSet.next()) {
-                    coordinators.add(mapCoordinator(resultSet));
-                }
-
+            while (resultSet.next()) {
+                coordinators.add(mapCoordinator(resultSet));
             }
 
         } catch (SQLException sqlException) {
@@ -199,7 +181,8 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
     private int countActiveCoordinators() throws ServiceException {
         int count = 0;
         String sql = "SELECT COUNT(*) FROM usuario_rol WHERE rol = 'Coordinador' AND estado = 'Activo'";
-        try (PreparedStatement statement = connection.prepareStatement(sql);
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
                 count = resultSet.getInt(1);

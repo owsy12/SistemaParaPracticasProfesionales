@@ -19,7 +19,7 @@
             prefHeight="560.0" prefWidth="760.0"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="GUI.Controller.DeactivateInterController">
+            fx:controller="GUI.Controller.DeactivateInternController">
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>

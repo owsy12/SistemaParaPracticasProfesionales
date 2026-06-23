@@ -4,7 +4,7 @@ import GUI.SessionManager.SessionManager;
 import Logic.DAO.LinkedOrganizationDAO;
 import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.LinkedOrganization;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -98,7 +98,7 @@ public class AddTechnicalResponsibleController {
 
     private void processRegistration() {
         try {
-            TechnicalSupervisor technicalSupervisor = new TechnicalSupervisor();
+            TechnicalResponsible technicalSupervisor = new TechnicalResponsible();
             technicalSupervisor.setName(nameField.getText());
             technicalSupervisor.seteMail(emailField.getText());
             technicalSupervisor.setLastName(lastNameField.getText());

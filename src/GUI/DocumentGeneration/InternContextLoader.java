@@ -14,7 +14,7 @@ import Logic.DTOs.Intern;
 import Logic.DTOs.LinkedOrganization;
 import Logic.DTOs.Professor;
 import Logic.DTOs.Project;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 
@@ -62,7 +62,7 @@ public class InternContextLoader {
         LinkedOrganization organization = orgDAO.findById(project.getIdOrganization());
 
         TechnicalResponsibleDAO techDAO = new TechnicalResponsibleDAO();
-        TechnicalSupervisor supervisor = techDAO.findById(project.getIdTechnicalSupervisor());
+        TechnicalResponsible supervisor = techDAO.findById(project.getIdTechnicalResponsible());
 
         ProfessorDAO professorDAO = new ProfessorDAO();
         Professor professor = professorDAO.findById(project.getIdProfessor());

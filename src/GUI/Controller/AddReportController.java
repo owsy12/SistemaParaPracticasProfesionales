@@ -43,12 +43,12 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
 import java.util.Optional;
 
-public class ControllerAddReportController implements EventHandler<DragEvent>, ChangeListener<Report> {
+public class AddReportController implements EventHandler<DragEvent>, ChangeListener<Report> {
     private static final String STATUS_PENDING = "Pendiente";
 
 
     private static final Logger LOGGER =
-            Logger.getLogger(ControllerAddReportController.class.getName());
+            Logger.getLogger(AddReportController.class.getName());
 
     @FXML
     private AnchorPane anchorPane;
@@ -260,9 +260,8 @@ public class ControllerAddReportController implements EventHandler<DragEvent>, C
     private String copySignedFile() throws IOException {
         String internRegistrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
         String folder = "storage/intern_" + internRegistrationNumber + "/project_" + selectedReport.getIdProject()
-                + "/reportes_generados";
-        String fileName = "reporte_" + selectedReport.getReportType().toLowerCase()
-                + "_" + selectedReport.getIdReport() + "_firmado";
+                + "/reports";
+        String fileName = "report_" + selectedReport.getIdReport() + "_signed";
 
         Path folderPath = Paths.get(folder);
         Files.createDirectories(folderPath);

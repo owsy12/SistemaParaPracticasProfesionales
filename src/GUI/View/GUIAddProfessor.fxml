@@ -22,11 +22,11 @@
         vbarPolicy="AS_NEEDED"
         xmlns="http://javafx.com/javafx/21"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="GUI.Controller.AddProfesorController">
+        fx:controller="GUI.Controller.AddProfessorController">
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddProfesorStyles.css"/>
+        <URL value="@css/GUIAddProfessorStyles.css"/>
     </stylesheets>
 
     <content>

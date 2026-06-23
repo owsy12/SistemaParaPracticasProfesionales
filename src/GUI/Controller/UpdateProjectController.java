@@ -16,7 +16,7 @@ import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.Intern;
 import Logic.DTOs.Professor;
 import Logic.DTOs.Project;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.value.ChangeListener;
@@ -73,7 +73,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     private RestrictedTextField nameTextField;
 
     @FXML
-    private ComboBox<TechnicalSupervisor> technicalComboBox;
+    private ComboBox<TechnicalResponsible> technicalComboBox;
 
     @FXML
     private RestrictedTextField descriptionTextField;
@@ -213,8 +213,8 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                 project.setMaximumPlaces(newCapacity);
                 project.setAvaliablePlaces(newCapacity - currentInternCount);
                 project.setIdProfessor(professorComboBox.getValue().getId());
-                project.setIdTechnicalSupervisor(
-                        technicalComboBox.getValue().getIdTechnicalSupervisor());
+                project.setIdTechnicalResponsible(
+                        technicalComboBox.getValue().getIdTechnicalResponsible());
 
                 if (project.equals(originalSnapshot)) {
                     showAlert("Sin cambios",
@@ -251,7 +251,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         snapshot.setMaximumPlaces(project.getMaximumPlaces());
         snapshot.setAvaliablePlaces(project.getAvaliablePlaces());
         snapshot.setIdProfessor(project.getIdProfessor());
-        snapshot.setIdTechnicalSupervisor(project.getIdTechnicalSupervisor());
+        snapshot.setIdTechnicalResponsible(project.getIdTechnicalResponsible());
         return snapshot;
     }
 
@@ -289,7 +289,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         professorComboBox.getItems().setAll(getProfessorList());
         technicalComboBox.getItems().setAll(getProjectTechnicalList(project.getIdOrganization()));
 
-        preselectTechnicalSupervisor();
+        preselectTechnicalResponsible();
         preselectProfessor();
 
         endDate.setDisable(true);
@@ -321,11 +321,11 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         }
     }
 
-    private void preselectTechnicalSupervisor() {
-        List<TechnicalSupervisor> technicalList = technicalComboBox.getItems();
-        for (TechnicalSupervisor technicalSupervisor : technicalList) {
+    private void preselectTechnicalResponsible() {
+        List<TechnicalResponsible> technicalList = technicalComboBox.getItems();
+        for (TechnicalResponsible technicalSupervisor : technicalList) {
             boolean matchesProject =
-                    technicalSupervisor.getIdTechnicalSupervisor() == project.getIdTechnicalSupervisor();
+                    technicalSupervisor.getIdTechnicalResponsible() == project.getIdTechnicalResponsible();
             if (matchesProject) {
                 technicalComboBox.getSelectionModel().select(technicalSupervisor);
                 break;
@@ -344,8 +344,8 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         }
     }
 
-    private List<TechnicalSupervisor> getProjectTechnicalList(int idOrganization) {
-        List<TechnicalSupervisor> technicalSupervisorsList = null;
+    private List<TechnicalResponsible> getProjectTechnicalList(int idOrganization) {
+        List<TechnicalResponsible> technicalSupervisorsList = null;
 
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();

@@ -6,8 +6,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class DocumentManngemt {
+public class DocumentManagement {
+
+    private static final Logger LOGGER = Logger.getLogger(DocumentManagement.class.getName());
+
+    private DocumentManagement() {
+    }
+
     public static void saveFile(File sourceFile, String relativeFolder, String newFileName) {
 
         try {
@@ -21,7 +29,8 @@ public class DocumentManngemt {
             Files.copy(sourceFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException ioException) {
-
+            LOGGER.log(Level.SEVERE, "Error al guardar el documento {0} en {1}: {2}",
+                    new Object[]{newFileName, relativeFolder, ioException.getMessage()});
         }
     }
 }

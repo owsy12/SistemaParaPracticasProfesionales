@@ -22,7 +22,7 @@ import Logic.DTOs.Professor;
 import Logic.DTOs.Project;
 import Logic.DTOs.ReportActivity;
 import Logic.DTOs.ReportDeliverable;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -171,7 +171,7 @@ public class GenerateReportController {
     private Intern currentIntern;
     private Project currentProject;
     private LinkedOrganization currentOrganization;
-    private TechnicalSupervisor currentSupervisor;
+    private TechnicalResponsible currentSupervisor;
     private Professor currentProfessor;
     private int approvedHours;
 
@@ -1104,7 +1104,7 @@ public class GenerateReportController {
         return fullName;
     }
 
-    private String buildFullName(TechnicalSupervisor supervisor) {
+    private String buildFullName(TechnicalResponsible supervisor) {
         String fullName = "";
         if (supervisor != null) {
             fullName = supervisor.getName() + " " + supervisor.getLastName()

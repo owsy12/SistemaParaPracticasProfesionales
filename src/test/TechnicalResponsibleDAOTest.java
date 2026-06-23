@@ -1,6 +1,6 @@
 import DataAccess.DataBaseConnection;
 import Logic.DAO.TechnicalResponsibleDAO;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
@@ -26,8 +26,8 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
 
     private final TechnicalResponsibleDAO dao = new TechnicalResponsibleDAO();
 
-    private TechnicalSupervisor buildSupervisor(int idOrganization) {
-        TechnicalSupervisor supervisor = new TechnicalSupervisor();
+    private TechnicalResponsible buildSupervisor(int idOrganization) {
+        TechnicalResponsible supervisor = new TechnicalResponsible();
         supervisor.setIdOrganization(idOrganization);
         supervisor.setName(TECH_FIRST_NAME);
         supervisor.setLastName(TECH_LAST_NAME);
@@ -47,7 +47,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
-        TechnicalSupervisor retrieved = dao.findById(idTechnical);
+        TechnicalResponsible retrieved = dao.findById(idTechnical);
         assertNotNull(retrieved);
     }
 
@@ -63,20 +63,20 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        TechnicalSupervisor retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        TechnicalResponsible retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<TechnicalSupervisor> all = dao.findAll();
+        List<TechnicalResponsible> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testFindAllAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistSupervisorViaBuilders();
-        List<TechnicalSupervisor> all = dao.findAll();
+        List<TechnicalResponsible> all = dao.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
@@ -84,13 +84,13 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     void testFindByOrganizationReturnsOneElement() throws ServiceException, ValidationException {
         int idOrganization = persistOrganization();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
-            new TechnicalSupervisorTestDataBuilder()
+            new TechnicalResponsibleTestDataBuilder()
                     .withOrganizationId(idOrganization)
                     .persist(connection);
         } catch (SQLException sqlException) {
             throw new ServiceException("Failed to access test database connection", sqlException);
         }
-        List<TechnicalSupervisor> byOrg = dao.findByOrganization(idOrganization);
+        List<TechnicalResponsible> byOrg = dao.findByOrganization(idOrganization);
         assertEquals(TestConstants.SINGLE_RESULT, byOrg.size());
     }
 
@@ -107,7 +107,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     @Test
     void testUpdateSupervisorReturnsTrue() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
-        TechnicalSupervisor supervisor = dao.findById(idTechnical);
+        TechnicalResponsible supervisor = dao.findById(idTechnical);
         supervisor.setPosition(UPDATED_TECH_POSITION);
         boolean result = dao.update(supervisor);
         assertTrue(result);
@@ -144,7 +144,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
         int idTechnical;
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             int idOrganization = new OrganizationTestDataBuilder().persist(connection);
-            idTechnical = new TechnicalSupervisorTestDataBuilder()
+            idTechnical = new TechnicalResponsibleTestDataBuilder()
                     .withOrganizationId(idOrganization)
                     .persist(connection);
         } catch (SQLException sqlException) {

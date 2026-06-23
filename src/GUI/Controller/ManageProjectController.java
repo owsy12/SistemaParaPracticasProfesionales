@@ -26,9 +26,9 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class ManegeProjectController {
+public class ManageProjectController {
 
-    private static final Logger LOGGER = Logger.getLogger(ManegeProjectController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ManageProjectController.class.getName());
 
     @FXML
     private TableColumn<Project, String> capacityColumn;

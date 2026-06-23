@@ -47,7 +47,7 @@ public class MonthlyReportGenerator {
         saveFile(pdfBytes, storagePath);
 
         String monthLabel = safe(report.getMonth()) + "_" + report.getYear();
-        String fileName = "Reporte_Mensual_" + monthLabel + ".pdf";
+        String fileName = "monthly_report_" + monthLabel + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;

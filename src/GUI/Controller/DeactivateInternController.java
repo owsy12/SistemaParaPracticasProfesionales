@@ -23,9 +23,9 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class DeactivateInterController {
+public class DeactivateInternController {
 
-    private static final Logger LOGGER = Logger.getLogger(DeactivateInterController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DeactivateInternController.class.getName());
 
     @FXML
     private TableView<User> internsTableView;

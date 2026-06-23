@@ -49,7 +49,7 @@ public class FinalReportGenerator {
         String storagePath = buildStoragePath(report, context.getRegistrationNumber());
         saveFile(pdfBytes, storagePath);
 
-        String fileName = "Reporte_Final_" + report.getReportNumber() + ".pdf";
+        String fileName = "final_report_" + report.getReportNumber() + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;

@@ -8,7 +8,7 @@ import Logic.DAO.TechnicalResponsibleDAO;
 import Logic.DTOs.EducationalExperience;
 import Logic.DTOs.LinkedOrganization;
 import Logic.DTOs.Project;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
@@ -53,7 +53,7 @@ public class AddProjectController {
     private RestrictedTextField nameTextField;
 
     @FXML
-    private ComboBox<TechnicalSupervisor> technicalComboBox;
+    private ComboBox<TechnicalResponsible> technicalComboBox;
 
     @FXML
     private RestrictedTextField descriptionTextField;
@@ -146,7 +146,7 @@ public class AddProjectController {
         project.setName(nameTextField.getText().trim());
         project.setDescription(descriptionTextField.getText().trim());
         project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
-        project.setIdTechnicalSupervisor(technicalComboBox.getValue().getIdTechnicalSupervisor());
+        project.setIdTechnicalResponsible(technicalComboBox.getValue().getIdTechnicalResponsible());
         project.setIdProfessor(selectedEE.getIdProfessor());
         project.setStartDate(startDate.getValue());
         project.setEndDate(endDate.getValue());
@@ -170,7 +170,7 @@ public class AddProjectController {
     private void loadTechnicians(int organizationId) {
         try {
             TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
-            List<TechnicalSupervisor> technicalSupervisorsList =
+            List<TechnicalResponsible> technicalSupervisorsList =
                     technicalResponsibleDAO.findByOrganization(organizationId);
             technicalComboBox.getItems().setAll(technicalSupervisorsList);
         } catch (ValidationException | ServiceException loadException) {

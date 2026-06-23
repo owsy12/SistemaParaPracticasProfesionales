@@ -1,13 +1,12 @@
 package Logic.DAO;
 
+import DataAccess.DataBaseConnection;
 import Logic.DTOs.Professor;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ValidationException;
 import Logic.Interface.IProfessorDAO;
 
-import static Logic.Utils.Connection.connection;
-import static Logic.Utils.Connection.createdConnection;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,54 +28,30 @@ public class ProfessorDAO implements IProfessorDAO {
     private static final String UPDATE_PROFESSOR_STATUS_SQL =
             "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
 
-    private Connection databaseConnection;
-
     public ProfessorDAO() throws ValidationException, ServiceException {
-     databaseConnection = createdConnection();
     }
 
     @Override
     public boolean saveProfessor(Professor professor) throws ServiceException, ValidationException {
         boolean isSaved = false;
+        UserDAO userDAO = new UserDAO();
+        int userId = userDAO.saveUser(professor);
 
-        try {
-            databaseConnection.setAutoCommit(false);
-            UserDAO userDAO = new UserDAO();
-            int userId = userDAO.saveUser(professor);
+        if (userId > 0) {
+            try (Connection databaseConnection = DataBaseConnection.connectDatabase();
+                 PreparedStatement preparedStatement =
+                         databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
+                preparedStatement.setInt(1, userId);
+                preparedStatement.setString(2, professor.getAcademicArea());
 
-            if (userId > 0) {
-
-                try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(INSERT_PROFESSOR_SQL)) {
-                    preparedStatement.setInt(1, userId);
-                    preparedStatement.setString(2, professor.getAcademicArea());
-
-                    if (preparedStatement.executeUpdate() > 0) {
-                        databaseConnection.commit();
-                        isSaved = true;
-                    } else {
-                        databaseConnection.rollback();
-                    }
-
+                if (preparedStatement.executeUpdate() > 0) {
+                    isSaved = true;
                 }
 
-            } else {
-                databaseConnection.rollback();
-            }
-
-        } catch (SQLException sqlException) {
-            try {
-                databaseConnection.rollback();
-            } catch (SQLException rollbackException) {
-                LOGGER.log(Level.SEVERE, "Error al revertir la transacción de profesor: {0}",
-                        rollbackException.getMessage());
-            }
-            throw new ServiceException("Error al registrar profesor.", sqlException);
-        } finally {
-            try {
-                databaseConnection.setAutoCommit(true);
-            } catch (SQLException autoCommitException) {
-                LOGGER.log(Level.SEVERE, "Error al restaurar auto-commit de profesor: {0}",
-                        autoCommitException.getMessage());
+            } catch (SQLException sqlException) {
+                LOGGER.log(Level.SEVERE, "Error al registrar profesor: {0}",
+                        sqlException.getMessage());
+                throw new ServiceException("Error al registrar profesor.", sqlException);
             }
         }
 
@@ -91,13 +66,15 @@ public class ProfessorDAO implements IProfessorDAO {
         }
         Professor professorResult = null;
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_PROFESSOR_BY_ID_SQL)) {
+        try (Connection databaseConnection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     databaseConnection.prepareStatement(SELECT_PROFESSOR_BY_ID_SQL)) {
 
             preparedStatement.setInt(1, id);
 
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                if (rs.next()) {
-                    professorResult = mapProfessor(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    professorResult = mapProfessor(resultSet);
                 }
             }
 
@@ -119,7 +96,9 @@ public class ProfessorDAO implements IProfessorDAO {
     public List<Professor> findAll() throws ServiceException {
         List<Professor> professorList = new ArrayList<>();
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
+        try (Connection databaseConnection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     databaseConnection.prepareStatement(SELECT_ALL_PROFESSORS_SQL);
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
@@ -148,7 +127,9 @@ public class ProfessorDAO implements IProfessorDAO {
         }
         boolean isDeactivated = false;
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(UPDATE_PROFESSOR_STATUS_SQL)) {
+        try (Connection databaseConnection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement =
+                     databaseConnection.prepareStatement(UPDATE_PROFESSOR_STATUS_SQL)) {
 
             preparedStatement.setInt(1, id);
 
@@ -188,7 +169,8 @@ public class ProfessorDAO implements IProfessorDAO {
                 "    AND ur2.rol <> 'Profesor'" +
                 "    AND ur2.estado = 'Activo')";
 
-        try (PreparedStatement preparedStatement = databaseConnection.prepareStatement(sql);
+        try (Connection databaseConnection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = databaseConnection.prepareStatement(sql);
              ResultSet resultSet = preparedStatement.executeQuery()) {
             while (resultSet.next()) {
                 professorList.add(mapProfessor(resultSet));
@@ -210,14 +192,15 @@ public class ProfessorDAO implements IProfessorDAO {
                 "WHERE ur.estado = 'Activo' " +
                 "AND ur.rol = 'Profesor'";
 
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-            ResultSet resultSet = preparedStatement.executeQuery();
+        try (Connection databaseConnection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = databaseConnection.prepareStatement(sql);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 professorList.add(mapProfessor(resultSet));
             }
 
-        }catch (SQLException sqlException) {
+        } catch (SQLException sqlException) {
             throw new ServiceException("Error al recuperar profesores activos.", sqlException);
         }
 

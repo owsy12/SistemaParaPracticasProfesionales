@@ -16,7 +16,7 @@ import Logic.DTOs.Intern;
 import Logic.DTOs.LinkedOrganization;
 import Logic.DTOs.Project;
 import Logic.DTOs.SelfEvaluation;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -94,7 +94,7 @@ public class GenerateSelfEvaluationController {
     private Intern currentIntern;
     private Project currentProject;
     private LinkedOrganization currentOrganization;
-    private TechnicalSupervisor currentSupervisor;
+    private TechnicalResponsible currentSupervisor;
 
     @FXML
     private void initialize() {
@@ -192,7 +192,7 @@ public class GenerateSelfEvaluationController {
         currentOrganization = organizationDAO.findById(currentProject.getIdOrganization());
 
         TechnicalResponsibleDAO supervisorDAO = new TechnicalResponsibleDAO();
-        currentSupervisor = supervisorDAO.findById(currentProject.getIdTechnicalSupervisor());
+        currentSupervisor = supervisorDAO.findById(currentProject.getIdTechnicalResponsible());
 
         String prerequisiteMessage = EvaluationPrerequisiteChecker.check(
                 currentIntern.getId(), currentProject);
@@ -369,7 +369,7 @@ public class GenerateSelfEvaluationController {
         return fullName;
     }
 
-    private String buildSupervisorFullName(TechnicalSupervisor supervisor) {
+    private String buildSupervisorFullName(TechnicalResponsible supervisor) {
         String fullName = supervisor.getName() + " " + supervisor.getLastName()
                 + " " + supervisor.getSecondLastName();
         return fullName;

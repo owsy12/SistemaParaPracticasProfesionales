@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.sql.Date.valueOf;
+import static java.sql.Types.DATE;
+
 public class ActivityDAO implements IActivityDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ActivityDAO.class.getName());
@@ -65,17 +68,17 @@ public class ActivityDAO implements IActivityDAO {
             statement.setString(2, activity.getName());
             statement.setString(3, activity.getDescription());
             if (activity.getStartDate() != null) {
-                statement.setDate(4, java.sql.Date.valueOf(activity.getStartDate()));
+                statement.setDate(4, valueOf(activity.getStartDate()));
             } else {
-                statement.setNull(4, java.sql.Types.DATE);
+                statement.setNull(4, DATE);
             }
             if (activity.getEndDate() != null) {
-                statement.setDate(5, java.sql.Date.valueOf(activity.getEndDate()));
+                statement.setDate(5, valueOf(activity.getEndDate()));
             } else {
-                statement.setNull(5, java.sql.Types.DATE);
+                statement.setNull(5, DATE);
             }
             statement.setDate (6, activity.getCreationDate() != null
-                    ? java.sql.Date.valueOf(activity.getCreationDate())
+                    ? valueOf(activity.getCreationDate())
                     : new java.sql.Date(System.currentTimeMillis()));
             statement.setString(7, activity.getStatus() != null ? activity.getStatus() : "Activa");
 
@@ -178,14 +181,14 @@ public class ActivityDAO implements IActivityDAO {
             statement.setString(1, activity.getName());
             statement.setString(2, activity.getDescription());
             if (activity.getStartDate() != null) {
-                statement.setDate(3, java.sql.Date.valueOf(activity.getStartDate()));
+                statement.setDate(3, valueOf(activity.getStartDate()));
             } else {
-                statement.setNull(3, java.sql.Types.DATE);
+                statement.setNull(3, DATE);
             }
             if (activity.getEndDate() != null) {
-                statement.setDate(4, java.sql.Date.valueOf(activity.getEndDate()));
+                statement.setDate(4, valueOf(activity.getEndDate()));
             } else {
-                statement.setNull(4, java.sql.Types.DATE);
+                statement.setNull(4, DATE);
             }
             statement.setString(5, activity.getStatus());
             statement.setInt (6, activity.getIdActivity());

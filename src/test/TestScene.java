@@ -118,7 +118,7 @@ public final class TestScene {
     }
 
     private static int persistTechnical(Connection connection, int idOrganization) throws ServiceException {
-        return new TechnicalSupervisorTestDataBuilder()
+        return new TechnicalResponsibleTestDataBuilder()
                 .withOrganizationId(idOrganization)
                 .persist(connection);
     }

@@ -20,9 +20,9 @@ import java.util.List;
 
 import static GUI.Utils.Alert.showAlert;
 
-public class AddCoordinadorController {
+public class AddCoordinatorController {
 
-    private static final Logger LOGGER = Logger.getLogger(AddCoordinadorController.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(AddCoordinatorController.class.getName());
 
     @FXML
     private Label statusLabel;

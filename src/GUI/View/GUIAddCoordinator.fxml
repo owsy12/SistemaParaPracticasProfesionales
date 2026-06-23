@@ -20,11 +20,11 @@
         vbarPolicy="AS_NEEDED"
         xmlns="http://javafx.com/javafx/21"
         xmlns:fx="http://javafx.com/fxml/1"
-        fx:controller="GUI.Controller.AddCoordinadorController">
+        fx:controller="GUI.Controller.AddCoordinatorController">
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddCoordinadorStyles.css"/>
+        <URL value="@css/GUIAddCoordinatorStyles.css"/>
     </stylesheets>
 
     <content>

@@ -39,7 +39,7 @@ class ProjectDAOTest extends BaseDAOTest {
     private Project buildProject(ProjectContext context, String name) {
         Project project = new Project();
         project.setIdOrganization(context.idOrganization);
-        project.setIdTechnicalSupervisor(context.idTechnical);
+        project.setIdTechnicalResponsible(context.idTechnical);
         project.setIdProfessor(context.idProfessor);
         project.setName(name);
         project.setDescription(NEW_PROJECT_DESCRIPTION);
@@ -206,7 +206,7 @@ class ProjectDAOTest extends BaseDAOTest {
                     .withRole(TestConstants.ROLE_PROFESSOR)
                     .persist(connection);
             new ProfessorTestDataBuilder().withUserId(context.idProfessor).persist(connection);
-            context.idTechnical = new TechnicalSupervisorTestDataBuilder()
+            context.idTechnical = new TechnicalResponsibleTestDataBuilder()
                     .withOrganizationId(context.idOrganization)
                     .persist(connection);
             new EducationalExperienceTestDataBuilder()

@@ -96,7 +96,7 @@ public class ProjectDAO implements IProjectDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(
                      INSERT_PROJECT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, project.getIdOrganization());
-            preparedStatement.setInt(2, project.getIdTechnicalSupervisor());
+            preparedStatement.setInt(2, project.getIdTechnicalResponsible());
             preparedStatement.setInt(3, project.getIdProfessor());
             preparedStatement.setString(4, project.getName());
             preparedStatement.setString(5, project.getDescription());
@@ -181,7 +181,7 @@ public class ProjectDAO implements IProjectDAO {
 
                 project.setIdProject(resultSet.getInt("id_proyecto"));
                 project.setIdOrganization(resultSet.getInt("id_organizacion"));
-                project.setIdTechnicalSupervisor(resultSet.getInt("id_tecnico"));
+                project.setIdTechnicalResponsible(resultSet.getInt("id_tecnico"));
                 project.setIdProfessor(resultSet.getInt("id_profesor"));
                 project.setName(resultSet.getString("nombre"));
                 project.setDescription(resultSet.getString("descripcion"));
@@ -284,7 +284,7 @@ public class ProjectDAO implements IProjectDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_PROJECT_SQL)) {
 
             preparedStatement.setInt (1, project.getIdOrganization());
-            preparedStatement.setInt (2, project.getIdTechnicalSupervisor());
+            preparedStatement.setInt (2, project.getIdTechnicalResponsible());
             preparedStatement.setString(3, project.getName());
             preparedStatement.setString(4, project.getDescription());
             preparedStatement.setString(5, project.getObjetivo());

@@ -28,7 +28,7 @@ import java.util.List;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
-import static GUI.DocumentGeneration.DocumentManngemt.saveFile;
+import static GUI.DocumentGeneration.DocumentManagement.saveFile;
 
 public class UploadInitialDocumentsController implements EventHandler<DragEvent> {
 

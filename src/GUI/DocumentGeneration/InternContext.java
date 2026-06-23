@@ -5,7 +5,7 @@ import Logic.DTOs.Intern;
 import Logic.DTOs.LinkedOrganization;
 import Logic.DTOs.Professor;
 import Logic.DTOs.Project;
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 
 import java.util.List;
 
@@ -14,14 +14,14 @@ public class InternContext {
     private final Intern intern;
     private final Project project;
     private final LinkedOrganization organization;
-    private final TechnicalSupervisor supervisor;
+    private final TechnicalResponsible supervisor;
     private final Professor professor;
     private final int approvedHours;
     private final List<Activity> activities;
     private final boolean hasAssignment;
 
     public InternContext(Intern intern, Project project, LinkedOrganization organization,
-                         TechnicalSupervisor supervisor, Professor professor,
+                         TechnicalResponsible supervisor, Professor professor,
                          int approvedHours, List<Activity> activities, boolean hasAssignment) {
         this.intern = intern;
         this.project = project;
@@ -45,7 +45,7 @@ public class InternContext {
         return organization;
     }
 
-    public TechnicalSupervisor getSupervisor() {
+    public TechnicalResponsible getSupervisor() {
         return supervisor;
     }
 

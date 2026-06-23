@@ -206,8 +206,8 @@ public class MainMenuController implements EventHandler<ActionEvent> {
     }
 
     private void loadAdministratorActions() {
-        addButton("Asignar coordinador", "/GUI/View/GUIAddCoordinador.fxml");
-        addButton("Registrar profesor", "/GUI/View/GUIAddProfesor.fxml");
+        addButton("Asignar coordinador", "/GUI/View/GUIAddCoordinator.fxml");
+        addButton("Registrar profesor", "/GUI/View/GUIAddProfessor.fxml");
         addButton("Inactivar coordinador", "/GUI/View/GUIDeactivateCoordinator.fxml");
 
     }
@@ -228,7 +228,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
         addButton("Inactivar Practicante", "/GUI/View/GUIDeactivateIntern.fxml");
         addButton("Consultar Organizaciones Vinculadas", "/GUI/View/GUIManageLinkedOrganization.fxml");
         addButton("Consultar técnicos responsables", "/GUI/View/GUIManageTechnicalResponsible.fxml");
-        addButton("Registrar profesor", "/GUI/View/GUIAddProfesor.fxml");
+        addButton("Registrar profesor", "/GUI/View/GUIAddProfessor.fxml");
         addButton("Inactivar profesor", "/GUI/View/GUIDeactivateProfessor.fxml");
     }
 
@@ -236,9 +236,9 @@ public class MainMenuController implements EventHandler<ActionEvent> {
         addButton("Subir Documentos Iniciales", "/GUI/View/GUIUploadInitialDocuments.fxml");
         addButton("Solicitar Proyecto", "/GUI/View/GUIRequestProject.fxml");
         addButton("Generar Reporte", "/GUI/View/GUIGenerateReport.fxml");
-        addButton("Añadir Reporte", "/GUI/View/GUIAddRerport.fxml");
+        addButton("Añadir Reporte", "/GUI/View/GUIAddReport.fxml");
         addButton("Generar Autoevaluación", "/GUI/View/GUIGenerateSelfEvaluation.fxml");
-        addButton("Añadir Autoevaluación", "/GUI/View/GUIAddSerlEvaluation.fxml");
+        addButton("Añadir Autoevaluación", "/GUI/View/GUIAddSelfEvaluation.fxml");
         addButton("Añadir Evaluación OV", "/GUI/View/GUIAddOVEvaluation.fxml");
         addButton("Retroalimentación", "/GUI/View/GUIInternFeedback.fxml");
     }

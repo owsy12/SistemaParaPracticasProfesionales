@@ -46,7 +46,7 @@ public class SelfEvaluationGenerator {
         String storagePath = buildStoragePath(evaluation, context.getRegistrationNumber());
         saveFile(pdfBytes, storagePath);
 
-        String fileName = "Autoevaluacion_" + context.getRegistrationNumber() + ".pdf";
+        String fileName = "self_evaluation_" + context.getRegistrationNumber() + ".pdf";
         showSaveDialog(pdfBytes, fileName, context.getOwnerWindow());
 
         return storagePath;
@@ -166,7 +166,7 @@ public class SelfEvaluationGenerator {
     private static String buildStoragePath(SelfEvaluation evaluation, String matricula) {
         String path = "storage/intern_" + matricula
                 + "/project_" + evaluation.getIdProject()
-                + "/reports/selfevaluation_" + evaluation.getIdSelfEvalation() + ".pdf";
+                + "/self_evaluation/self_evaluation_" + evaluation.getIdSelfEvalation() + ".pdf";
         return path;
     }
 

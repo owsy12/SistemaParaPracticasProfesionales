@@ -5,6 +5,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -14,14 +17,14 @@
 <?import java.net.URL?>
 
 <AnchorPane fx:id="anchorPane"
-            prefHeight="540.0" prefWidth="640.0"
+            prefHeight="780.0" prefWidth="820.0"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="GUI.Controller.AddSelfEvaluationController">
+            fx:controller="GUI.Controller.AddReportController">
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddSerlEvaluationStyles.css"/>
+        <URL value="@css/GUIAddReportStyles.css"/>
     </stylesheets>
 
     <children>
@@ -37,10 +40,10 @@
                     <VBox styleClass="viewHeaderVBox" spacing="5.0">
                         <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
                             <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
-                            <Label text="PRACTICANTE · AUTOEVALUACIÓN" styleClass="viewBreadcrumbLabel"/>
+                            <Label text="PRACTICANTE · REPORTES" styleClass="viewBreadcrumbLabel"/>
                         </HBox>
-                        <Label text="Entregar Autoevaluación" styleClass="viewTitleLabel"/>
-                        <Label text="Sube el PDF firmado de tu autoevaluación para cerrar el proceso de la práctica."
+                        <Label text="Entregar Reporte Firmado" styleClass="viewTitleLabel"/>
+                        <Label text="Sube el PDF firmado del reporte que generaste para que tu profesor pueda evaluarlo."
                                styleClass="viewSubtitleLabel"/>
                     </VBox>
 
@@ -51,35 +54,56 @@
                         <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
                             <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
                             <StackPane styleClass="formSectionIconStackPane">
-                                <Label text="&#8682;" styleClass="formSectionIconLabel"/>
+                                <Label text="&#9776;" styleClass="formSectionIconLabel"/>
                             </StackPane>
-                            <Label text="Documento de autoevaluación" styleClass="formSectionTitleLabel"/>
+                            <Label text="Reportes generados" styleClass="formSectionTitleLabel"/>
                         </HBox>
 
                         <VBox spacing="14.0">
                             <padding><Insets top="22.0" right="36.0" bottom="22.0" left="36.0"/></padding>
 
-                            <Label fx:id="evaluationInfoLabel"
-                                   text=""
-                                   styleClass="infoValueLabel"
-                                   wrapText="true"/>
+                            <TableView fx:id="reportsTableView"
+                                       styleClass="mainDataTableView"
+                                       prefHeight="220.0">
+                                <columns>
+                                    <TableColumn fx:id="reportTypeColumn" prefWidth="180.0" text="Tipo">
+                                        <cellValueFactory><PropertyValueFactory property="typeWithMonth"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="periodColumn" prefWidth="200.0" text="Período">
+                                        <cellValueFactory><PropertyValueFactory property="period"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="statusColumn" prefWidth="140.0" text="Estado">
+                                        <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
+                                    </TableColumn>
+                                    <TableColumn fx:id="dateColumn" prefWidth="220.0" text="Fecha entrega">
+                                        <cellValueFactory><PropertyValueFactory property="dateDisplay"/></cellValueFactory>
+                                    </TableColumn>
+                                </columns>
+                            </TableView>
+                        </VBox>
 
-                            <Label text="Selecciona el PDF firmado de tu autoevaluación:"
-                                   styleClass="fieldLabelText"/>
+                        <Separator styleClass="formDashedSeparator">
+                            <VBox.margin><Insets top="0.0" right="36.0" bottom="0.0" left="36.0"/></VBox.margin>
+                        </Separator>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="36.0" bottom="22.0" left="36.0"/></padding>
+
+                            <Label text="Documento firmado (PDF):" styleClass="fieldLabelText"/>
 
                             <Pane fx:id="dropZone"
                                   styleClass="dropZonePane"
-                                  prefHeight="140.0"
+                                  prefHeight="120.0"
                                   onMouseClicked="#openFileChooser"/>
 
-                            <Label text="Arrastra un PDF aquí o haz clic en el área para seleccionar"
+                            <Label text="Haz clic en el área para seleccionar el PDF firmado"
                                    styleClass="dropZoneLabel"/>
 
                             <Label fx:id="labelFileName"
-                                   text="Ningún archivo seleccionado"
+                                   text=""
                                    styleClass="fileNameLabel"/>
 
-                            <Label fx:id="statusLabel"
+                            <Label fx:id="labelStatus"
                                    text=""
                                    styleClass="uploadStatusLabel"/>
                         </VBox>
@@ -89,8 +113,9 @@
                             <Region HBox.hgrow="ALWAYS"/>
                             <Button text="Limpiar" styleClass="cancelActionButton"
                                     onAction="#cancelAction" mnemonicParsing="false"/>
-                            <Button text="&#10003;  Entregar autoevaluación" styleClass="primaryActionButton"
-                                    onAction="#uploadSelfEvaluation" mnemonicParsing="false"/>
+                            <Button fx:id="uploadButton"
+                                    text="&#10003;  Subir Reporte Firmado" styleClass="primaryActionButton"
+                                    onAction="#uploadSignedReport" mnemonicParsing="false"/>
                         </HBox>
 
                     </VBox>

@@ -1,19 +1,19 @@
 package Logic.Interface;
 
-import Logic.DTOs.TechnicalSupervisor;
+import Logic.DTOs.TechnicalResponsible;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 
 import java.util.List;
 
 public interface ITechnicalResponsibleDAO {
-    boolean saveTechnicalResponsible(TechnicalSupervisor technicalResponsible)
+    boolean saveTechnicalResponsible(TechnicalResponsible technicalResponsible)
             throws ServiceException, ValidationException;
-    TechnicalSupervisor findById(int idTecnico) throws ServiceException, ValidationException;
-    List<TechnicalSupervisor> findAll() throws ServiceException;
-    List<TechnicalSupervisor> findByOrganization(int idOrganizacion)
+    TechnicalResponsible findById(int idTecnico) throws ServiceException, ValidationException;
+    List<TechnicalResponsible> findAll() throws ServiceException;
+    List<TechnicalResponsible> findByOrganization(int idOrganizacion)
             throws ServiceException, ValidationException;
-    boolean update(TechnicalSupervisor technicalResponsible)
+    boolean update(TechnicalResponsible technicalResponsible)
             throws ServiceException, ValidationException;
     boolean delete(int idTecnico) throws ServiceException, ValidationException;
 }

@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Project {
     private int idProject;
     private int idOrganization;
-    private int idTechnicalSupervisor;
+    private int idTechnicalResponsible;
     private int IdProfessor;
     private String name;
     private String description;
@@ -21,10 +21,10 @@ public class Project {
     private String nrc;
 
 
-    public Project(int idProject, int idOrganization, int idTechnicalSupervisor, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
+    public Project(int idProject, int idOrganization, int idTechnicalResponsible, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
         this.idProject = idProject;
         this.idOrganization = idOrganization;
-        this.idTechnicalSupervisor = idTechnicalSupervisor;
+        this.idTechnicalResponsible = idTechnicalResponsible;
         this.name = name;
         this.description = description;
         this.startDate = startDate;
@@ -52,12 +52,12 @@ public class Project {
         this.idOrganization = idOrganization;
     }
 
-    public int getIdTechnicalSupervisor() {
-        return idTechnicalSupervisor;
+    public int getIdTechnicalResponsible() {
+        return idTechnicalResponsible;
     }
 
-    public void setIdTechnicalSupervisor(int idTechnicalSupervisor) {
-        this.idTechnicalSupervisor = idTechnicalSupervisor;
+    public void setIdTechnicalResponsible(int idTechnicalResponsible) {
+        this.idTechnicalResponsible = idTechnicalResponsible;
     }
 
     public String getName() {
@@ -261,7 +261,7 @@ public class Project {
         Project otherProject = (Project) other;
         boolean isEqual = idProject == otherProject.idProject
                 && idOrganization == otherProject.idOrganization
-                && idTechnicalSupervisor == otherProject.idTechnicalSupervisor
+                && idTechnicalResponsible == otherProject.idTechnicalResponsible
                 && IdProfessor == otherProject.IdProfessor
                 && avaliablePlaces == otherProject.avaliablePlaces
                 && maximumPlaces == otherProject.maximumPlaces
@@ -278,7 +278,7 @@ public class Project {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idProject, idOrganization, idTechnicalSupervisor,
+        return Objects.hash(idProject, idOrganization, idTechnicalResponsible,
                 IdProfessor, avaliablePlaces, maximumPlaces, name, description,
                 startDate, endDate, organizationName, status, objetivo, nrc);
     }
