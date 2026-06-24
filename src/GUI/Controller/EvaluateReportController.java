@@ -456,6 +456,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
             internComboBox.setItems(FXCollections.observableArrayList(interns));
             internComboBox.setDisable(false);
             reportsTableView.getItems().clear();
+            initialFormatsTableView.getItems().clear();
             clearForm();
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
@@ -647,7 +648,6 @@ public class EvaluateReportController implements ChangeListener<Object> {
         observationsTextArea.clear();
         gradeTextField.clear();
         activitiesTableView.getItems().clear();
-        initialFormatsTableView.getItems().clear();
         reportsTableView.getSelectionModel().clearSelection();
     }
 }

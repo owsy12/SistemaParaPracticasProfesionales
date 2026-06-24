@@ -176,11 +176,12 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
             String relativeFolder = "storage/intern_" + registrationNumber + "/project_" + idProject + "/initial_formats";
             String documentTypeName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase();
             String newFileName = documentTypeName + registrationNumber;
+            String relativeFilePath = relativeFolder + "/" + newFileName + ".pdf";
 
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
             InitialFormat initialFormat = new InitialFormat();
             initialFormat.setFormatType(comboBoxDocumentType.getValue());
-            initialFormat.setFilePath(relativeFolder);
+            initialFormat.setFilePath(relativeFilePath);
             initialFormat.setIdProject(pendingDocuments.get(0).getIdProject());
             initialFormat.setIdInitialFormat(pendingDocuments.get(0).getIdInitialFormat());
             initialFormat.setSubmissionDate(
