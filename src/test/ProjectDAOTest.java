@@ -172,7 +172,7 @@ class ProjectDAOTest extends BaseDAOTest {
 
     @Test
     void testExistsByNrcReturnsFalseForUnusedNrc() throws ServiceException, ValidationException {
-        boolean exists = dao.existsByNrc(TestConstants.UNUSED_NRC);
+        boolean exists = dao.existsByNrcAndPeriod(TestConstants.UNUSED_NRC, TestConstants.DEFAULT_PERIOD);
         assertFalse(exists);
     }
 
@@ -181,7 +181,7 @@ class ProjectDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.existsByNrc(TestConstants.BLANK_TEXT);
+                dao.existsByNrcAndPeriod(TestConstants.BLANK_TEXT, TestConstants.DEFAULT_PERIOD);
             }
         });
     }

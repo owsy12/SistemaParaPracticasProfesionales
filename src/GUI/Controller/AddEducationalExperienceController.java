@@ -91,7 +91,8 @@ public class AddEducationalExperienceController {
                         Alert.AlertType.ERROR);
             }
         } catch (DuplicateEntryException duplicateEntryException) {
-            showAlert("NRC duplicado", "Ya existe una experiencia educativa con ese NRC.",
+            showAlert("Experiencia educativa duplicada",
+                    "Ya existe una experiencia educativa con ese NRC en ese periodo.",
                     Alert.AlertType.WARNING);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);

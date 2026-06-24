@@ -3,11 +3,11 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
-import Logic.DAO.SelfEvaluationDAO;
+import Logic.DAO.ReportDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.Project;
-import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -15,7 +15,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
@@ -38,33 +37,26 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class AddSelfEvaluationController implements EventHandler<DragEvent> {
+public class UploadClosureRecordController implements EventHandler<DragEvent> {
 
     private static final Logger LOGGER =
-            Logger.getLogger(AddSelfEvaluationController.class.getName());
-    private static final String DELIVERED_STATUS = "Entregada";
+            Logger.getLogger(UploadClosureRecordController.class.getName());
 
     @FXML
     private AnchorPane anchorPane;
 
     @FXML
-    private Label evaluationInfoLabel;
-
-    @FXML
     private Label statusLabel;
-
-    @FXML
-    private Pane dropZone;
 
     @FXML
     private Label labelFileName;
 
     @FXML
-    private Button uploadButton;
+    private Pane dropZone;
 
     private File selectedFile;
-    private SelfEvaluation selfEvaluation;
     private int internId;
+    private int projectId;
     private String internRegistrationNumber;
 
     @FXML
@@ -76,7 +68,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     @FXML
     public void openFileChooser(MouseEvent mouseEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Seleccionar autoevaluación firmada");
+        fileChooser.setTitle("Seleccionar acta de cierre");
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("PDF Files", "*.pdf"));
         File file = fileChooser.showOpenDialog(dropZone.getScene().getWindow());
@@ -86,10 +78,10 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     }
 
     @FXML
-    public void uploadSelfEvaluation(ActionEvent actionEvent) {
+    public void uploadClosureRecord(ActionEvent actionEvent) {
         boolean isFileMissing = selectedFile == null;
         if (isFileMissing) {
-            showStatus("Seleccione el PDF firmado de la autoevaluación.", true);
+            showStatus("Seleccione el PDF del acta de cierre.", true);
         } else {
             uploadProcess();
         }
@@ -97,7 +89,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
 
     @FXML
     public void cancelAction(ActionEvent actionEvent) {
-        clearSelection();
+        openWelcomePage(anchorPane);
     }
 
     private void configureDropZone() {
@@ -142,7 +134,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
 
             if (activeAssignment == null) {
                 showAlert("Sin proyecto asignado",
-                        "No tiene un proyecto activo asignado. No puede entregar la autoevaluación.",
+                        "No tiene un proyecto activo asignado. No puede subir el acta de cierre.",
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
             } else {
@@ -150,10 +142,12 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             }
 
         } catch (ValidationException validationException) {
-            showAlert("Error de validación", "Datos de sesión inválidos.", Alert.AlertType.ERROR);
+            showAlert("Error de validación",
+                    "Datos de sesión inválidos.", Alert.AlertType.ERROR);
             openWelcomePage(anchorPane);
         } catch (DuplicateEntryException duplicateEntryException) {
-            showAlert("Conflicto de datos", "Error al recuperar su información.", Alert.AlertType.ERROR);
+            showAlert("Conflicto de datos",
+                    "Error al recuperar su información.", Alert.AlertType.ERROR);
             openWelcomePage(anchorPane);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error al cargar datos del practicante {0}: {1}",
@@ -165,37 +159,28 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
         }
     }
 
-    private void loadProjectAndPrerequisites(Assignment activeAssignment) throws ValidationException, ServiceException {
+    private void loadProjectAndPrerequisites(Assignment activeAssignment)
+            throws ValidationException, DuplicateEntryException, ServiceException {
         ProjectDAO projectDAO = new ProjectDAO();
         Project currentProject = projectDAO.findById(activeAssignment.getIdProject());
+        projectId = currentProject.getIdProject();
 
-        String prerequisiteMessage = EvaluationPrerequisiteChecker.check(internId, currentProject);
+        PracticeDAO practiceDAO = new PracticeDAO();
+        boolean alreadyConcluded = practiceDAO.hasConcludedPractice(internId);
+        boolean evaluationsComplete =
+                EvaluationPrerequisiteChecker.isPracticeComplete(internId, projectId);
 
-        if (prerequisiteMessage != null) {
-            showAlert("Requisitos no cumplidos", prerequisiteMessage, Alert.AlertType.WARNING);
+        if (alreadyConcluded) {
+            showAlert("Práctica concluida",
+                    "Su práctica ya está concluida; no es necesario subir el acta de cierre.",
+                    Alert.AlertType.INFORMATION);
             openWelcomePage(anchorPane);
-        } else {
-            loadSelfEvaluation();
-        }
-    }
-
-    private void loadSelfEvaluation() throws ServiceException, ValidationException {
-        SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
-        selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
-
-        boolean isNotAvailable = selfEvaluation == null
-                || DELIVERED_STATUS.equals(selfEvaluation.getStatus());
-
-        if (isNotAvailable) {
-            String message = selfEvaluation == null
-                    ? "No ha generado su autoevaluación aún. Genérela primero."
-                    : "Su autoevaluación ya fue entregada anteriormente.";
-            showAlert("Autoevaluación no disponible", message, Alert.AlertType.INFORMATION);
+        } else if (!evaluationsComplete) {
+            showAlert("Cierre no disponible",
+                    "Aún no puede subir el acta de cierre. Debe completar todos los reportes, "
+                    + "la autoevaluación y la evaluación de la organización vinculada.",
+                    Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
-        } else {
-            String infoText = "Autoevaluación: " + selfEvaluation.getPeriod()
-                    + "  |  Estado: " + selfEvaluation.getStatus();
-            evaluationInfoLabel.setText(infoText);
         }
     }
 
@@ -212,24 +197,23 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
 
     private void uploadProcess() {
         try {
-            String filePath = copySignedFile();
-            SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
+            String filePath = copyFile();
+            ReportDAO reportDAO = new ReportDAO();
+            Double practiceGrade = reportDAO.getAveragePracticeGrade(internId);
+            PracticeDAO practiceDAO = new PracticeDAO();
+            boolean concluded = practiceDAO.concludeWithClosureRecord(internId, filePath, practiceGrade);
 
-            boolean pathUpdated = selfEvaluationDAO.updateDocumentPath(selfEvaluation.getIdSelfEvalation(), filePath);
-            boolean statusUpdated = selfEvaluationDAO.updateStatus(selfEvaluation.getIdSelfEvalation(), DELIVERED_STATUS);
-
-            if (pathUpdated && statusUpdated) {
+            if (concluded) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} entregó la autoevaluación firmada {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(),
-                                selfEvaluation.getIdSelfEvalation()});
-                showAlert("Autoevaluación entregada",
-                        "Su autoevaluación firmada fue registrada correctamente.",
+                        "Usuario {0} subió el acta de cierre del proyecto {1}; práctica concluida",
+                        new Object[]{internId, projectId});
+                showAlert("Práctica concluida",
+                        "El acta de cierre fue registrada y la práctica fue marcada como Concluida.",
                         Alert.AlertType.INFORMATION);
                 openWelcomePage(anchorPane);
             } else {
                 showAlert("Error",
-                        "No se pudo registrar la autoevaluación. Intente nuevamente.",
+                        "No se pudo registrar el acta de cierre. Intente nuevamente.",
                         Alert.AlertType.ERROR);
             }
 
@@ -238,13 +222,13 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar autoevaluación firmada del practicante {0}: {1}",
+                    "Error al guardar acta de cierre del practicante {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo guardar el documento. Intente más tarde.",
                     Alert.AlertType.ERROR);
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al copiar archivo de autoevaluación: {0}",
+            LOGGER.log(Level.SEVERE, "Error al copiar archivo del acta de cierre: {0}",
                     ioException.getMessage());
             showAlert("Error de archivo",
                     "No se pudo copiar el archivo al almacenamiento.",
@@ -252,9 +236,10 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
         }
     }
 
-    private String copySignedFile() throws IOException {
-        String folder = "storage/intern_" + internRegistrationNumber + "/project_" + selfEvaluation.getIdProject() + "/self_evaluation";
-        String fileName = "self_evaluation_" + selfEvaluation.getIdSelfEvalation() + "_signed";
+    private String copyFile() throws IOException {
+        String folder = "storage/intern_" + internRegistrationNumber
+                + "/project_" + projectId + "/closure";
+        String fileName = "closure_record_" + internId + "_project_" + projectId;
         Path folderPath = Paths.get(folder);
         Files.createDirectories(folderPath);
         Path destination = folderPath.resolve(fileName + ".pdf");

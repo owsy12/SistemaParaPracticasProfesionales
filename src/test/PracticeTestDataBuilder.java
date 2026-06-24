@@ -10,13 +10,14 @@ import java.time.LocalDate;
 public final class PracticeTestDataBuilder {
 
     private static final String INSERT_SQL =
-            "INSERT INTO practica (nrc, id_practicante, fecha_inicio, fecha_fin, estado) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+            "INSERT INTO practica (nrc, periodo, id_practicante, fecha_inicio, fecha_fin, estado) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
 
     private static final LocalDate DEFAULT_START = LocalDate.of(2025, 1, 15);
     private static final LocalDate DEFAULT_END = LocalDate.of(2025, 7, 15);
 
     private String nrc = TestConstants.DEFAULT_NRC;
+    private String period = TestConstants.DEFAULT_PERIOD;
     private int idIntern;
     private LocalDate startDate = DEFAULT_START;
     private LocalDate endDate = DEFAULT_END;
@@ -42,10 +43,11 @@ public final class PracticeTestDataBuilder {
         try (PreparedStatement statement = connection.prepareStatement(
                 INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, nrc);
-            statement.setInt(2, idIntern);
-            statement.setDate(3, java.sql.Date.valueOf(startDate));
-            statement.setDate(4, java.sql.Date.valueOf(endDate));
-            statement.setString(5, status);
+            statement.setString(2, period);
+            statement.setInt(3, idIntern);
+            statement.setDate(4, java.sql.Date.valueOf(startDate));
+            statement.setDate(5, java.sql.Date.valueOf(endDate));
+            statement.setString(6, status);
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {

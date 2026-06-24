@@ -19,6 +19,7 @@ public class Project {
     private String status;
     private String objetivo;
     private String nrc;
+    private String period;
 
 
     public Project(int idProject, int idOrganization, int idTechnicalResponsible, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
@@ -145,6 +146,14 @@ public class Project {
 
     public void setNrc(String nrc) {
         this.nrc = nrc;
+    }
+
+    public String getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(String period) {
+        this.period = period;
     }
 
     private static final DateTimeFormatter DISPLAY_DATE_FORMAT =

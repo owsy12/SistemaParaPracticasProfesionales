@@ -10,9 +10,9 @@ import java.time.LocalDate;
 public final class ProjectTestDataBuilder {
 
     private static final String INSERT_SQL =
-            "INSERT INTO proyecto (id_organizacion, id_tecnico, id_profesor, nrc, nombre, " +
+            "INSERT INTO proyecto (id_organizacion, id_tecnico, id_profesor, nrc, periodo, nombre, " +
                     "descripcion, fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String DEFAULT_NAME = "Sistema de Inventario";
     private static final String DEFAULT_DESCRIPTION = "Sistema web de inventario.";
@@ -23,6 +23,7 @@ public final class ProjectTestDataBuilder {
     private int idTechnical;
     private int idProfessor;
     private String nrc = TestConstants.DEFAULT_NRC;
+    private String period = TestConstants.DEFAULT_PERIOD;
     private String name = DEFAULT_NAME;
     private String description = DEFAULT_DESCRIPTION;
     private LocalDate startDate = DEFAULT_START;
@@ -74,13 +75,14 @@ public final class ProjectTestDataBuilder {
             statement.setInt(2, idTechnical);
             statement.setInt(3, idProfessor);
             statement.setString(4, nrc);
-            statement.setString(5, name);
-            statement.setString(6, description);
-            statement.setDate(7, java.sql.Date.valueOf(startDate));
-            statement.setDate(8, java.sql.Date.valueOf(endDate));
-            statement.setInt(9, maxSlots);
-            statement.setInt(10, availableSlots);
-            statement.setString(11, status);
+            statement.setString(5, period);
+            statement.setString(6, name);
+            statement.setString(7, description);
+            statement.setDate(8, java.sql.Date.valueOf(startDate));
+            statement.setDate(9, java.sql.Date.valueOf(endDate));
+            statement.setInt(10, maxSlots);
+            statement.setInt(11, availableSlots);
+            statement.setString(12, status);
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
                 if (keys.next()) {

@@ -29,6 +29,7 @@ class PracticeDAOTest extends BaseDAOTest {
     private Practice buildPractice(int idIntern, String nrc) {
         Practice practice = new Practice();
         practice.setNrc(nrc);
+        practice.setPeriod(TestConstants.DEFAULT_PERIOD);
         practice.setIdIntern(idIntern);
         practice.setStartDate(PRACTICE_START);
         practice.setEndDate(PRACTICE_END);

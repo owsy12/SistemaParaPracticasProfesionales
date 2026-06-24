@@ -1,7 +1,6 @@
 package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
-import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
 import Logic.DAO.OVEvaluationDAO;
@@ -323,6 +322,38 @@ public class EvaluateReportController implements ChangeListener<Object> {
         }
     }
 
+    @FXML
+    public void openClosureRecord(ActionEvent actionEvent) {
+        Intern selectedIntern = internComboBox.getSelectionModel().getSelectedItem();
+        if (selectedIntern == null) {
+            showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
+        } else {
+            tryOpenClosureRecord(selectedIntern.getId());
+        }
+    }
+
+    private void tryOpenClosureRecord(int internId) {
+        try {
+            PracticeDAO practiceDAO = new PracticeDAO();
+            String documentPath = practiceDAO.findClosureRecordPath(internId);
+            boolean hasDocument = documentPath != null && !documentPath.isBlank();
+            if (!hasDocument) {
+                showAlert("Sin acta de cierre",
+                        "El practicante aún no ha subido el acta de cierre.",
+                        Alert.AlertType.INFORMATION);
+            } else {
+                tryOpenFile(documentPath);
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al recuperar el acta de cierre del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo recuperar el acta de cierre.", Alert.AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
     private void tryOpenFile(String filePath) {
         File file = new File(filePath);
         boolean fileExists = file.exists();
@@ -522,10 +553,6 @@ public class EvaluateReportController implements ChangeListener<Object> {
                     loadReportsForIntern(currentIntern);
                 }
                 clearForm();
-                boolean hasContext = currentIntern != null && currentProject != null;
-                if (isEvaluated && hasContext) {
-                    tryConcludePractice(currentIntern.getId(), currentProject.getIdProject());
-                }
             } else {
                 showAlert("Error", "No se pudo actualizar el estado del reporte.",
                         Alert.AlertType.ERROR);
@@ -544,38 +571,12 @@ public class EvaluateReportController implements ChangeListener<Object> {
         }
     }
 
-    private void tryConcludePractice(int internId, int projectId)
-            throws ServiceException, ValidationException {
-        if (EvaluationPrerequisiteChecker.isPracticeComplete(internId, projectId)) {
-            ReportDAO reportDAO = new ReportDAO();
-            Double practiceGrade = reportDAO.getAveragePracticeGrade(internId);
-            PracticeDAO practiceDAO = new PracticeDAO();
-            boolean concluded = practiceDAO.concludeActiveByIntern(internId, practiceGrade);
-            if (concluded) {
-            LOGGER.log(Level.INFO,
-                    "Usuario {0} concluyó la práctica del practicante {1} con calificación {2}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), internId, formatGrade(practiceGrade)});
-                showAlert("Práctica concluida",
-                        "El practicante cumplió todos los requisitos. La práctica fue concluida "
-                        + "con calificación " + formatGrade(practiceGrade) + ".",
-                        Alert.AlertType.INFORMATION);
-            }
-        }
-    }
-
     private void saveReportGrade(int reportId, Double grade)
             throws ServiceException, ValidationException {
         ReportDAO reportDAO = new ReportDAO();
         reportDAO.updateGrade(reportId, grade, LocalDate.now());
     }
 
-    private String formatGrade(Double grade) {
-        String text = "no disponible";
-        if (grade != null) {
-            text = String.format("%.2f", grade);
-        }
-        return text;
-    }
 
     private Double parseGrade(String gradeText) {
         Double grade = null;

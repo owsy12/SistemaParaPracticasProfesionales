@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class Practice {
     private int idPractice;
     private String nrc;
+    private String period;
     private int idIntern;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -28,6 +29,14 @@ public class Practice {
 
     public void setNrc(String nrc) {
         this.nrc = nrc;
+    }
+
+    public String getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(String period) {
+        this.period = period;
     }
 
     public int getIdIntern() {
@@ -82,6 +91,7 @@ public class Practice {
         Practice other = (Practice) object;
         return idPractice == other.idPractice
                 && java.util.Objects.equals(nrc, other.nrc)
+                && java.util.Objects.equals(period, other.period)
                 && idIntern == other.idIntern
                 && java.util.Objects.equals(startDate, other.startDate)
                 && java.util.Objects.equals(endDate, other.endDate)
@@ -91,6 +101,6 @@ public class Practice {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idPractice, nrc, idIntern, startDate, endDate, status, grade);
+        return java.util.Objects.hash(idPractice, nrc, period, idIntern, startDate, endDate, status, grade);
     }
 }

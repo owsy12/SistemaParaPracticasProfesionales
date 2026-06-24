@@ -49,7 +49,11 @@ public class EducationalExperience {
 
     @Override
     public String toString() {
-        return nrc + " - " + name;
+        String label = nrc + " - " + name;
+        if (period != null && !period.isBlank()) {
+            label = label + " (" + period + ")";
+        }
+        return label;
     }
 
     @Override
@@ -62,12 +66,13 @@ public class EducationalExperience {
         }
         EducationalExperience other = (EducationalExperience) object;
         return java.util.Objects.equals(nrc, other.nrc)
+                && java.util.Objects.equals(period, other.period)
                 && java.util.Objects.equals(name, other.name)
                 && idProfessor == other.idProfessor;
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(nrc, name, idProfessor);
+        return java.util.Objects.hash(nrc, period, name, idProfessor);
     }
 }

@@ -23,13 +23,13 @@ public class ProjectDAO implements IProjectDAO {
     private static final String INSERT_PROJECT_SQL =
             "INSERT INTO proyecto " +
                     "(id_organizacion, id_tecnico, id_profesor, nombre, descripcion, objetivo, " +
-                    "fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado, nrc) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "fecha_inicio, fecha_fin, cupo_maximo, cupo_disponible, estado, nrc, periodo) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SELECT_PROJECT_BY_ID_SQL =
             "SELECT p.id_proyecto, p.id_organizacion, p.id_tecnico, p.id_profesor, " +
             "       p.nombre, p.descripcion, p.objetivo, p.fecha_inicio, p.fecha_fin, " +
-            "       p.cupo_maximo, p.cupo_disponible, p.estado, p.nrc, " +
+            "       p.cupo_maximo, p.cupo_disponible, p.estado, p.nrc, p.periodo, " +
             "       ov.nombre_organizacion " +
             "FROM proyecto p " +
             "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
@@ -37,7 +37,7 @@ public class ProjectDAO implements IProjectDAO {
     private static final String SELECT_ALL_PROJECTS_SQL =
             "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
                     "p.nombre, p.descripcion, p.objetivo, p.fecha_inicio, p.fecha_fin, " +
-                    "p.cupo_maximo, p.cupo_disponible, p.estado, p.nrc, " +
+                    "p.cupo_maximo, p.cupo_disponible, p.estado, p.nrc, p.periodo, " +
                     "ov.id_organizacion, ov.nombre_organizacion " +
                     "FROM proyecto p " +
                     "JOIN spp.organizacion_vinculada ov " +
@@ -78,7 +78,7 @@ public class ProjectDAO implements IProjectDAO {
             "WHERE p.id_profesor = ? AND p.estado = 'Disponible'";
 
     private static final String SQL_EXISTS_BY_NRC =
-            "SELECT COUNT(*) AS total FROM proyecto WHERE nrc = ?";
+            "SELECT COUNT(*) AS total FROM proyecto WHERE nrc = ? AND periodo = ?";
 
     private static final String SQL_INCREMENT_AVAILABLE_SLOT =
             "UPDATE proyecto " +
@@ -107,6 +107,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setInt(10, project.getAvaliablePlaces());
             preparedStatement.setString(11, STATUS_AVAILABLE);
             preparedStatement.setString(12, project.getNrc());
+            preparedStatement.setString(13, project.getPeriod());
 
             if (preparedStatement.executeUpdate() > 0) {
                 try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
@@ -192,6 +193,7 @@ public class ProjectDAO implements IProjectDAO {
                 project.setAvaliablePlaces(resultSet.getInt("cupo_disponible"));
                 project.setStatus(resultSet.getString("estado"));
                 project.setNrc(resultSet.getString("nrc"));
+                project.setPeriod(resultSet.getString("periodo"));
                 project.setOrganizationName(resultSet.getString("nombre_organizacion"));
 
                 projectList.add(project);
@@ -441,9 +443,13 @@ public class ProjectDAO implements IProjectDAO {
         return isIncremented;
     }
 
-    public boolean existsByNrc(String nrc) throws ServiceException, ValidationException {
+    public boolean existsByNrcAndPeriod(String nrc, String period)
+            throws ServiceException, ValidationException {
         if (nrc == null || nrc.isBlank()) {
             throw new ValidationException("El NRC de la experiencia educativa no puede estar vacío.");
+        }
+        if (period == null || period.isBlank()) {
+            throw new ValidationException("El periodo de la experiencia educativa no puede estar vacío.");
         }
 
         boolean exists = false;
@@ -452,6 +458,7 @@ public class ProjectDAO implements IProjectDAO {
              PreparedStatement statement = connection.prepareStatement(SQL_EXISTS_BY_NRC)) {
 
             statement.setString(1, nrc);
+            statement.setString(2, period);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -461,8 +468,8 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar existencia de proyecto por NRC {0}: {1}",
-                    new Object[]{nrc, sqlException.getMessage()});
+                    "Error al verificar existencia de proyecto por NRC {0} y periodo {1}: {2}",
+                    new Object[]{nrc, period, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al verificar el NRC de la experiencia educativa.", sqlException);
         }
@@ -526,6 +533,10 @@ public class ProjectDAO implements IProjectDAO {
         }
         try {
             project.setNrc(resultSet.getString("nrc"));
+        } catch (SQLException ignored) {
+        }
+        try {
+            project.setPeriod(resultSet.getString("periodo"));
         } catch (SQLException ignored) {
         }
         try {

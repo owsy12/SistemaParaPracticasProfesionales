@@ -4,9 +4,7 @@ import GUI.SessionManager.SessionManager;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.OVEvaluationDAO;
-import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
-import Logic.DAO.ReportDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.OVEvaluation;
 import Logic.DTOs.Project;
@@ -219,7 +217,6 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
                 showAlert("Evaluación OV entregada",
                         "La evaluación OV fue registrada correctamente.",
                         Alert.AlertType.INFORMATION);
-                concludePracticeIfComplete(internId, projectId);
                 openWelcomePage(anchorPane);
             } else {
                 showAlert("Error",
@@ -269,31 +266,6 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
         Path destination = folderPath.resolve(fileName + ".pdf");
         Files.copy(selectedFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
         return destination.toString();
-    }
-
-    private void concludePracticeIfComplete(int internIdentifier, int projectIdentifier) {
-        try {
-            if (EvaluationPrerequisiteChecker.isPracticeComplete(internIdentifier, projectIdentifier)) {
-                ReportDAO reportDAO = new ReportDAO();
-                Double practiceGrade = reportDAO.getAveragePracticeGrade(internIdentifier);
-                PracticeDAO practiceDAO = new PracticeDAO();
-                boolean concluded = practiceDAO.concludeActiveByIntern(internIdentifier, practiceGrade);
-                if (concluded) {
-                LOGGER.log(Level.INFO,
-                        "Usuario {0} concluyó la práctica del practicante {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), internIdentifier});
-                    showAlert("Práctica concluida",
-                            "El practicante cumplió todos los requisitos; su práctica fue marcada como Concluida.",
-                            Alert.AlertType.INFORMATION);
-                }
-            }
-        } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al evaluar el cierre de la práctica del practicante {0}: {1}",
-                    new Object[]{internIdentifier, serviceException.getMessage()});
-        } catch (ValidationException validationException) {
-            LOGGER.log(Level.WARNING, "Validación al cerrar la práctica: {0}",
-                    validationException.getMessage());
-        }
     }
 
     private void showStatus(String message, boolean isError) {

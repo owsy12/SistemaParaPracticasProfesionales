@@ -10,6 +10,7 @@ import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Application;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.InitialFormat;
+import Logic.DTOs.Practice;
 import Logic.DTOs.Project;
 import Logic.DTOs.ProjectApplication;
 import Logic.DTOs.User;
@@ -283,8 +284,13 @@ public class ViewInternProjectSelection {
         } else {
 
             try {
+                Practice practice = new Practice();
+                practice.setIdIntern(user.getId());
+                practice.setNrc(nrc);
+                practice.setPeriod(project.getPeriod());
+                practice.setStartDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
                 PracticeDAO practiceDAO = new PracticeDAO();
-                practiceDAO.reactivateOrCreate(user.getId(), nrc, LocalDate.now(ZoneId.of("America/Mexico_City")));
+                practiceDAO.reactivateOrCreate(practice);
             } catch (ServiceException serviceException) {
                 LOGGER.log(Level.SEVERE, "Error al gestionar práctica para practicante {0}: {1}",
                         new Object[]{user.getId(), serviceException.getMessage()});

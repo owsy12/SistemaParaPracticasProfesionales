@@ -7,13 +7,14 @@ import java.sql.SQLException;
 public final class EducationalExperienceTestDataBuilder {
 
     private static final String INSERT_SQL =
-            "INSERT INTO experiencia_educativa (nrc, nombre, id_profesor) VALUES (?, ?, ?)";
+            "INSERT INTO experiencia_educativa (nrc, nombre, id_profesor, periodo) VALUES (?, ?, ?, ?)";
 
     private static final String DEFAULT_NAME = "Prácticas Profesionales";
 
     private String nrc = TestConstants.DEFAULT_NRC;
     private String name = DEFAULT_NAME;
     private int idProfessor;
+    private String period = TestConstants.DEFAULT_PERIOD;
 
     public EducationalExperienceTestDataBuilder withNrc(String nrc) {
         this.nrc = nrc;
@@ -35,6 +36,7 @@ public final class EducationalExperienceTestDataBuilder {
             statement.setString(1, nrc);
             statement.setString(2, name);
             statement.setInt(3, idProfessor);
+            statement.setString(4, period);
             statement.executeUpdate();
         } catch (SQLException sqlException) {
             throw new ServiceException("Failed to persist educational experience test data", sqlException);

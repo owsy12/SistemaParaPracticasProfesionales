@@ -69,10 +69,11 @@ create table coordinador
 
 create table experiencia_educativa
 (
-    nrc         varchar(10)  not null
-        primary key,
+    nrc         varchar(10)  not null,
     nombre      varchar(150) not null,
     id_profesor int          not null,
+    periodo     varchar(20)  not null,
+    primary key (nrc, periodo),
     constraint fk_ee_profesor
         foreign key (id_profesor) references usuario (id_usuario)
             on update cascade
@@ -94,15 +95,17 @@ create table practica
     id_practica    int auto_increment
         primary key,
     nrc            varchar(10)                                                not null,
+    periodo        varchar(20)                                                not null,
     id_practicante int                                                        not null,
     fecha_inicio   date                                                       not null,
     fecha_fin      date                                                       null,
     estado         enum ('Activa', 'Concluida', 'Cancelada') default 'Activa' not null,
     calificacion   decimal(4, 2)                                              null,
-    constraint uq_practica_nrc_practicante
-        unique (nrc, id_practicante),
+    ruta_acta_cierre varchar(500)                                             null comment 'Ruta del PDF del acta de cierre emitida externamente; su carga concluye la practica',
+    constraint uq_practica_nrc_periodo_practicante
+        unique (nrc, periodo, id_practicante),
     constraint fk_practica_ee
-        foreign key (nrc) references experiencia_educativa (nrc)
+        foreign key (nrc, periodo) references experiencia_educativa (nrc, periodo)
             on update cascade,
     constraint fk_practica_practicante
         foreign key (id_practicante) references practicante (id_usuario)
@@ -140,10 +143,11 @@ create table proyecto
     estado          enum ('Disponible', 'Lleno', 'Concluido', 'Cancelado') default 'Disponible' not null,
     id_profesor     int                                                                         null,
     nrc             varchar(10)                                                                 null,
+    periodo         varchar(20)                                                                 null,
     constraint uq_proy_nombre_org
         unique (nombre, id_organizacion),
     constraint fk_proy_ee
-        foreign key (nrc) references experiencia_educativa (nrc)
+        foreign key (nrc, periodo) references experiencia_educativa (nrc, periodo)
             on update cascade,
     constraint fk_proy_org
         foreign key (id_organizacion) references organizacion_vinculada (id_organizacion)

@@ -111,7 +111,7 @@ public class AddProjectController {
         try {
             Project project = buildProject();
             ProjectDAO projectDAO = new ProjectDAO();
-            boolean nrcAlreadyUsed = projectDAO.existsByNrc(project.getNrc());
+            boolean nrcAlreadyUsed = projectDAO.existsByNrcAndPeriod(project.getNrc(), project.getPeriod());
 
             if (nrcAlreadyUsed) {
                 showAlert("EE con proyecto existente",
@@ -143,6 +143,7 @@ public class AddProjectController {
         EducationalExperience selectedEE = educationalExperienceComboBox.getValue();
         Project project = new Project();
         project.setNrc(selectedEE.getNrc());
+        project.setPeriod(selectedEE.getPeriod());
         project.setName(nameTextField.getText().trim());
         project.setDescription(descriptionTextField.getText().trim());
         project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
@@ -188,7 +189,8 @@ public class AddProjectController {
             List<EducationalExperience> availableExperiences = new ArrayList<>();
 
             for (EducationalExperience experience : allExperiences) {
-                boolean hasActiveProject = projectDAO.existsByNrc(experience.getNrc());
+                boolean hasActiveProject =
+                        projectDAO.existsByNrcAndPeriod(experience.getNrc(), experience.getPeriod());
                 if (!hasActiveProject) {
                     availableExperiences.add(experience);
                 }

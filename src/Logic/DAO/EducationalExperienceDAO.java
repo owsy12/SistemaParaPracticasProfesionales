@@ -24,13 +24,13 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             "INSERT INTO experiencia_educativa (nrc, nombre, id_profesor, periodo) VALUES (?, ?, ?, ?)";
 
     private static final String SQL_SELECT_BY_NRC =
-            "SELECT nrc, nombre, id_profesor FROM experiencia_educativa WHERE nrc = ?";
+            "SELECT nrc, nombre, id_profesor, periodo FROM experiencia_educativa WHERE nrc = ?";
 
     private static final String SQL_SELECT_ALL =
-            "SELECT nrc, nombre, id_profesor FROM experiencia_educativa";
+            "SELECT nrc, nombre, id_profesor, periodo FROM experiencia_educativa";
 
     private static final String SQL_UPDATE =
-            "UPDATE experiencia_educativa SET nombre = ?, id_profesor = ? WHERE nrc = ?";
+            "UPDATE experiencia_educativa SET nombre = ?, id_profesor = ? WHERE nrc = ? AND periodo = ?";
 
     private static final String SQL_DELETE =
             "DELETE FROM experiencia_educativa WHERE nrc = ?";
@@ -58,7 +58,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
                     new Object[]{educationalExperience.getNrc(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
-                        "Ya existe una experiencia educativa con ese NRC.",
+                        "Ya existe una experiencia educativa con ese NRC en ese periodo.",
                         sqlException);
             }
             throw new ServiceException("Error al guardar la experiencia educativa.", sqlException);
@@ -128,6 +128,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             statement.setString(1, educationalExperience.getName());
             statement.setInt(2, educationalExperience.getIdProfessor());
             statement.setString(3, educationalExperience.getNrc());
+            statement.setString(4, educationalExperience.getPeriod());
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -175,6 +176,9 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
         if (educationalExperience.getName() == null || educationalExperience.getName().isBlank()) {
             throw new ValidationException("El nombre de la experiencia educativa no puede estar vacío.");
         }
+        if (educationalExperience.getPeriod() == null || educationalExperience.getPeriod().isBlank()) {
+            throw new ValidationException("El periodo de la experiencia educativa no puede estar vacío.");
+        }
         if (educationalExperience.getIdProfessor() <= 0) {
             throw new ValidationException(
                     "El ID del profesor debe ser mayor a cero. ID recibido: " + educationalExperience.getIdProfessor());
@@ -186,6 +190,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
         educationalExperience.setNrc(resultSet.getString("nrc"));
         educationalExperience.setName(resultSet.getString("nombre"));
         educationalExperience.setIdProfessor(resultSet.getInt("id_profesor"));
+        educationalExperience.setPeriod(resultSet.getString("periodo"));
         return educationalExperience;
     }
 }
