@@ -56,6 +56,7 @@ import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 public class EvaluateReportController implements ChangeListener<Report> {
     private static final String STATUS_APPROVED = "Aprobado";
     private static final String STATUS_EVALUATED = "Evaluado";
+    private static final String STATUS_REJECTED = "Rechazado";
     private static final String STATUS_DOCUMENT_EVALUATED = "Evaluada";
     private static final java.util.regex.Pattern GRADE_PATTERN =
             java.util.regex.Pattern.compile("^(?:10|[0-9])(?:\\.[0-9]{1,2})?$");
@@ -194,6 +195,28 @@ public class EvaluateReportController implements ChangeListener<Report> {
                     Alert.AlertType.WARNING);
         } else {
             updateReportStatus(STATUS_EVALUATED);
+        }
+    }
+
+    @FXML
+    public void rejectReport(ActionEvent actionEvent) {
+        boolean isReportMissing = selectedReport == null;
+        boolean isStatusInvalid = selectedReport != null
+                && !"En revision".equals(selectedReport.getStatus());
+        boolean isObservationEmpty = observationsTextArea.getText().isBlank();
+
+        if (isReportMissing) {
+            showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
+        } else if (isStatusInvalid) {
+            showAlert("Estado inválido",
+                    "Solo puede rechazar reportes en estado En revision.",
+                    Alert.AlertType.WARNING);
+        } else if (isObservationEmpty) {
+            showAlert("Motivo requerido",
+                    "Debe indicar en las observaciones el motivo del rechazo.",
+                    Alert.AlertType.WARNING);
+        } else {
+            updateReportStatus(STATUS_REJECTED);
         }
     }
 
@@ -801,6 +824,9 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 break;
             case STATUS_EVALUATED:
                 message = "Reporte evaluado. Las horas han sido contabilizadas.";
+                break;
+            case STATUS_REJECTED:
+                message = "Reporte rechazado. El practicante podrá subir nuevamente el documento.";
                 break;
             default:
                 message = "Estado actualizado a: " + status;

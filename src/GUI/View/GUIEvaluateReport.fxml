@@ -164,6 +164,8 @@
                                     onAction="#goBack" mnemonicParsing="false"/>
                             <Button fx:id="markInReviewButton" text="&#10003;  Evaluar" styleClass="approveActionButton"
                                     onAction="#evaluateReport" mnemonicParsing="false"/>
+                            <Button text="&#10007;  Rechazar" styleClass="rejectActionButton"
+                                    onAction="#rejectReport" mnemonicParsing="false"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Button text="Limpiar" styleClass="cancelActionButton"
                                     onAction="#clearSelection" mnemonicParsing="false"/>

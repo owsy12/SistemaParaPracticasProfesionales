@@ -45,6 +45,7 @@ import java.util.Optional;
 
 public class AddReportController implements EventHandler<DragEvent>, ChangeListener<Report> {
     private static final String STATUS_PENDING = "Pendiente";
+    private static final String STATUS_REJECTED = "Rechazado";
 
 
     private static final Logger LOGGER =
@@ -107,14 +108,15 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
         boolean isReportMissing = selectedReport == null;
         boolean isFileMissing = selectedFile == null;
         boolean isStatusInvalid = selectedReport != null
-                && !STATUS_PENDING.equals(selectedReport.getStatus());
+                && !STATUS_PENDING.equals(selectedReport.getStatus())
+                && !STATUS_REJECTED.equals(selectedReport.getStatus());
 
         if (isReportMissing) {
             showStatus("Seleccione un reporte de la tabla.", true);
         } else if (isFileMissing) {
             showStatus("Seleccione el PDF firmado.", true);
         } else if (isStatusInvalid) {
-            showStatus("Solo puede subir el documento firmado de reportes en estado Pendiente.", true);
+            showStatus("Solo puede subir el documento firmado de reportes en estado Pendiente o Rechazado.", true);
         } else {
             if (isLateDelivery()) {
                 showAlert("Entrega tardía",
@@ -186,8 +188,9 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
             List<Report> pendingReports = new ArrayList<>();
 
             for (Report report : allReports) {
-                boolean isPending = STATUS_PENDING.equals(report.getStatus());
-                if (isPending) {
+                boolean isUploadable = STATUS_PENDING.equals(report.getStatus())
+                        || STATUS_REJECTED.equals(report.getStatus());
+                if (isUploadable) {
                     pendingReports.add(report);
                 }
             }
