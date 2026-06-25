@@ -233,6 +233,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
         addButton("Consultar técnicos responsables", "/GUI/View/GUIManageTechnicalResponsible.fxml");
         addButton("Registrar profesor", "/GUI/View/GUIAddProfessor.fxml");
         addButton("Inactivar profesor", "/GUI/View/GUIDeactivateProfessor.fxml");
+        addButton("Validar Actas de Cierre", "/GUI/View/GUIValidateClosureRecords.fxml");
     }
 
     private void loadInternActions() {

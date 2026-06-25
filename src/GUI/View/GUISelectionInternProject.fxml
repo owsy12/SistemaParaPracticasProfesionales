@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -57,6 +58,18 @@
 
                         <VBox spacing="14.0">
                             <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <Label text="Tipo de documento:" styleClass="fieldLabelText"/>
+                                <ComboBox fx:id="documentTypeComboBox"
+                                          styleClass="formComboBox" prefWidth="200.0"
+                                          onAction="#applyFilters"/>
+                                <Region prefWidth="20.0"/>
+                                <Label text="Estado del documento:" styleClass="fieldLabelText"/>
+                                <ComboBox fx:id="statusComboBox"
+                                          styleClass="formComboBox" prefWidth="200.0"
+                                          onAction="#applyFilters"/>
+                            </HBox>
 
                             <TableView fx:id="internsTable"
                                        styleClass="mainDataTableView"

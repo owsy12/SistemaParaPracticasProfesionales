@@ -70,6 +70,10 @@ public class PracticeDAO implements IPracticeDAO {
             "UPDATE practica SET estado = 'Concluida', calificacion = ?, ruta_acta_cierre = ?, " +
             "fecha_fin = ? WHERE id_practicante = ? AND estado = 'Activa'";
 
+    private static final String SQL_MARK_ACTA_PENDING =
+            "UPDATE practica SET ruta_acta_cierre = ? " +
+            "WHERE id_practicante = ? AND estado = 'Activa'";
+
     private static final String SQL_UPDATE =
             "UPDATE practica SET nrc = ?, periodo = ?, id_practicante = ?, fecha_inicio = ?, " +
                     "fecha_fin = ?, estado = ?, calificacion = ? WHERE id_practica = ?";
@@ -386,6 +390,35 @@ public class PracticeDAO implements IPracticeDAO {
         }
 
         return documentPath;
+    }
+
+    public boolean markClosureRecordPending(int internId, String documentPath)
+            throws ServiceException, ValidationException {
+        if (internId <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + internId);
+        }
+        if (documentPath == null || documentPath.isBlank()) {
+            throw new ValidationException("La ruta del acta de cierre no puede estar vacía.");
+        }
+
+        boolean updated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_MARK_ACTA_PENDING)) {
+
+            statement.setString(1, documentPath);
+            statement.setInt(2, internId);
+            updated = statement.executeUpdate() > 0;
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al registrar el acta de cierre pendiente del practicante {0}: {1}",
+                    new Object[]{internId, sqlException.getMessage()});
+            throw new ServiceException("Error al registrar el acta de cierre.", sqlException);
+        }
+
+        return updated;
     }
 
     public boolean concludeWithClosureRecord(int internId, String documentPath, Double grade)

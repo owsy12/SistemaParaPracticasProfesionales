@@ -5,7 +5,6 @@ import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
-import Logic.DAO.ReportDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.Project;
 import Logic.Exceptions.DuplicateEntryException;
@@ -198,17 +197,16 @@ public class UploadClosureRecordController implements EventHandler<DragEvent> {
     private void uploadProcess() {
         try {
             String filePath = copyFile();
-            ReportDAO reportDAO = new ReportDAO();
-            Double practiceGrade = reportDAO.getAveragePracticeGrade(internId);
             PracticeDAO practiceDAO = new PracticeDAO();
-            boolean concluded = practiceDAO.concludeWithClosureRecord(internId, filePath, practiceGrade);
+            boolean registered = practiceDAO.markClosureRecordPending(internId, filePath);
 
-            if (concluded) {
+            if (registered) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} subió el acta de cierre del proyecto {1}; práctica concluida",
+                        "Usuario {0} subió el acta de cierre del proyecto {1}; pendiente de validación",
                         new Object[]{internId, projectId});
-                showAlert("Práctica concluida",
-                        "El acta de cierre fue registrada y la práctica fue marcada como Concluida.",
+                showAlert("Acta enviada",
+                        "El acta de cierre fue enviada y está pendiente de validación por el "
+                        + "coordinador. La práctica se cerrará cuando el coordinador la valide.",
                         Alert.AlertType.INFORMATION);
                 openWelcomePage(anchorPane);
             } else {

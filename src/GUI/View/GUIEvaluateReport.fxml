@@ -212,6 +212,15 @@
                                 <Button text="Ver Acta de Cierre"
                                         onAction="#openClosureRecord" mnemonicParsing="false"/>
                             </HBox>
+
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <Button text="&#10003;  Marcar autoevaluación evaluada"
+                                        styleClass="approveActionButton"
+                                        onAction="#evaluateSelfEvaluation" mnemonicParsing="false"/>
+                                <Button text="&#10003;  Marcar evaluación OV evaluada"
+                                        styleClass="approveActionButton"
+                                        onAction="#evaluateOVEvaluation" mnemonicParsing="false"/>
+                            </HBox>
                         </VBox>
 
                     </VBox>

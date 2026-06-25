@@ -20,8 +20,7 @@ import java.util.List;
 public class EvaluationPrerequisiteChecker {
     private static final String STATUS_COMPLETED = "Completada";
     private static final String STATUS_EVALUATED = "Evaluado";
-    private static final String STATUS_SUBMITTED = "Entregada";
-    private static final String STATUS_SELF_EVALUATION_DELIVERED = "Entregada";
+    private static final String STATUS_DOCUMENT_EVALUATED = "Evaluada";
 
 
     private static final int REQUIRED_HOURS = 420;
@@ -37,8 +36,8 @@ public class EvaluationPrerequisiteChecker {
         boolean complete = hasEvaluatedReportOfType(internId, REPORT_TYPE_MONTHLY)
                 && hasEvaluatedReportOfType(internId, REPORT_TYPE_PARTIAL)
                 && hasEvaluatedReportOfType(internId, REPORT_TYPE_FINAL)
-                && isSelfEvaluationDelivered(internId)
-                && isOVEvaluationDelivered(internId, projectId);
+                && isSelfEvaluationEvaluated(internId)
+                && isOVEvaluationEvaluated(internId, projectId);
         return complete;
     }
 
@@ -57,22 +56,22 @@ public class EvaluationPrerequisiteChecker {
         return found;
     }
 
-    private static boolean isSelfEvaluationDelivered(int internId)
+    private static boolean isSelfEvaluationEvaluated(int internId)
             throws ServiceException, ValidationException {
         SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
         SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
-        boolean delivered = selfEvaluation != null
-                && STATUS_SELF_EVALUATION_DELIVERED.equals(selfEvaluation.getStatus());
-        return delivered;
+        boolean evaluated = selfEvaluation != null
+                && STATUS_DOCUMENT_EVALUATED.equals(selfEvaluation.getStatus());
+        return evaluated;
     }
 
-    private static boolean isOVEvaluationDelivered(int internId, int projectId)
+    private static boolean isOVEvaluationEvaluated(int internId, int projectId)
             throws ServiceException, ValidationException {
         OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
         OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
-        boolean delivered = ovEvaluation != null
-                && STATUS_SUBMITTED.equals(ovEvaluation.getStatus());
-        return delivered;
+        boolean evaluated = ovEvaluation != null
+                && STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus());
+        return evaluated;
     }
 
     public static String check(int internId, Project project)

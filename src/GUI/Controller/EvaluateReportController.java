@@ -56,6 +56,7 @@ import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 public class EvaluateReportController implements ChangeListener<Report> {
     private static final String STATUS_APPROVED = "Aprobado";
     private static final String STATUS_EVALUATED = "Evaluado";
+    private static final String STATUS_DOCUMENT_EVALUATED = "Evaluada";
     private static final java.util.regex.Pattern GRADE_PATTERN =
             java.util.regex.Pattern.compile("^(?:10|[0-9])(?:\\.[0-9]{1,2})?$");
     private static final java.util.regex.Pattern GRADE_INPUT_PATTERN =
@@ -370,6 +371,107 @@ public class EvaluateReportController implements ChangeListener<Report> {
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo recuperar la evaluación OV.", Alert.AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void evaluateSelfEvaluation(ActionEvent actionEvent) {
+        Intern selectedIntern = currentIntern;
+        if (selectedIntern == null) {
+            showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
+        } else {
+            tryEvaluateSelfEvaluation(selectedIntern.getId());
+        }
+    }
+
+    private void tryEvaluateSelfEvaluation(int internId) {
+        try {
+            SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
+            SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
+            boolean isMissing = selfEvaluation == null
+                    || selfEvaluation.getDocumentPath() == null
+                    || selfEvaluation.getDocumentPath().isBlank();
+            boolean isAlreadyEvaluated = !isMissing
+                    && STATUS_DOCUMENT_EVALUATED.equals(selfEvaluation.getStatus());
+
+            if (isMissing) {
+                showAlert("Sin autoevaluación",
+                        "El practicante no tiene una autoevaluación entregada.",
+                        Alert.AlertType.INFORMATION);
+            } else if (isAlreadyEvaluated) {
+                showAlert("Autoevaluación ya evaluada",
+                        "La autoevaluación del practicante ya fue marcada como evaluada.",
+                        Alert.AlertType.INFORMATION);
+            } else {
+                selfEvaluationDAO.updateStatus(
+                        selfEvaluation.getIdSelfEvalation(), STATUS_DOCUMENT_EVALUATED);
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} marcó como evaluada la autoevaluación del practicante {1}",
+                        new Object[]{currentProfessorId, internId});
+                showAlert("Autoevaluación evaluada",
+                        "La autoevaluación fue marcada como evaluada.",
+                        Alert.AlertType.INFORMATION);
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al evaluar la autoevaluación del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo evaluar la autoevaluación.", Alert.AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void evaluateOVEvaluation(ActionEvent actionEvent) {
+        Intern selectedIntern = currentIntern;
+        Project selectedProject = currentProject;
+        boolean isSelectionMissing = selectedIntern == null || selectedProject == null;
+        if (isSelectionMissing) {
+            showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
+                    Alert.AlertType.WARNING);
+        } else {
+            tryEvaluateOVEvaluation(selectedIntern.getId(), selectedProject.getIdProject());
+        }
+    }
+
+    private void tryEvaluateOVEvaluation(int internId, int projectId) {
+        try {
+            OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
+            OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+            boolean isMissing = ovEvaluation == null
+                    || ovEvaluation.getDocumentPath() == null
+                    || ovEvaluation.getDocumentPath().isBlank();
+            boolean isAlreadyEvaluated = !isMissing
+                    && STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus());
+
+            if (isMissing) {
+                showAlert("Sin evaluación OV",
+                        "El practicante no tiene una evaluación OV entregada para este proyecto.",
+                        Alert.AlertType.INFORMATION);
+            } else if (isAlreadyEvaluated) {
+                showAlert("Evaluación OV ya evaluada",
+                        "La evaluación OV del practicante ya fue marcada como evaluada.",
+                        Alert.AlertType.INFORMATION);
+            } else {
+                ovEvaluationDAO.updateStatus(
+                        ovEvaluation.getIdOVEvaluation(), STATUS_DOCUMENT_EVALUATED);
+                LOGGER.log(Level.INFO,
+                        "Usuario {0} marcó como evaluada la evaluación OV del practicante {1}",
+                        new Object[]{currentProfessorId, internId});
+                showAlert("Evaluación OV evaluada",
+                        "La evaluación OV fue marcada como evaluada.",
+                        Alert.AlertType.INFORMATION);
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al evaluar la evaluación OV del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo evaluar la evaluación OV.", Alert.AlertType.ERROR);
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
         }

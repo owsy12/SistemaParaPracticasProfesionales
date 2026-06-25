@@ -1,10 +1,19 @@
 package GUI.Controller;
 
+import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
+import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
+import Logic.DAO.ReportDAO;
+import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.EducationalExperience;
+import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
+import Logic.DTOs.OVEvaluation;
 import Logic.DTOs.Project;
+import Logic.DTOs.Report;
+import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -15,6 +24,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellDataFeatures;
@@ -24,9 +34,11 @@ import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,6 +51,20 @@ public class SelectionInternProjectController
 
     private static final Logger LOGGER =
             Logger.getLogger(SelectionInternProjectController.class.getName());
+
+    private static final String FILTER_ALL = "Todos";
+    private static final String DOCUMENT_TYPE_SELF_EVALUATION = "Autoevaluación";
+    private static final String DOCUMENT_TYPE_OV_EVALUATION = "Evaluación OV";
+    private static final String DOCUMENT_TYPE_CLOSURE_RECORD = "Acta de cierre";
+    private static final String STATUS_SUBMITTED = "Entregado";
+    private static final int DOCUMENT_TYPE_INDEX = 0;
+    private static final int DOCUMENT_STATUS_INDEX = 1;
+
+    @FXML
+    private ComboBox<String> documentTypeComboBox;
+
+    @FXML
+    private ComboBox<String> statusComboBox;
 
     @FXML
     private Label experienceContextLabel;
@@ -57,6 +83,8 @@ public class SelectionInternProjectController
 
     private EducationalExperience currentExperience;
     private final Map<Integer, Project> internProjectMap = new HashMap<>();
+    private final Map<Integer, List<String[]>> internDocumentsMap = new HashMap<>();
+    private List<Intern> allInterns = new ArrayList<>();
 
     @FXML
     private void initialize() {
@@ -105,17 +133,20 @@ public class SelectionInternProjectController
             List<Project> projects = projectDAO.findByEducationalExperience(
                     experience.getNrc(), experience.getPeriod());
 
-            List<Intern> allInterns = new ArrayList<>();
+            allInterns = new ArrayList<>();
             internProjectMap.clear();
+            internDocumentsMap.clear();
             for (Project project : projects) {
                 List<Intern> interns = internDAO.findByProject(project.getIdProject());
                 for (Intern intern : interns) {
                     internProjectMap.put(intern.getId(), project);
+                    internDocumentsMap.put(intern.getId(), collectInternDocuments(intern, project));
                     allInterns.add(intern);
                 }
             }
 
-            internsTable.setItems(FXCollections.observableArrayList(allInterns));
+            populateFilterOptions();
+            filterInterns();
         } catch (ValidationException validationException) {
             showAlert("Error de validación",
                     validationException.getMessage(), Alert.AlertType.ERROR);
@@ -126,6 +157,126 @@ public class SelectionInternProjectController
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los practicantes. Intente más tarde.",
                     Alert.AlertType.ERROR);
+        }
+    }
+
+    @FXML
+    public void applyFilters(ActionEvent actionEvent) {
+        filterInterns();
+    }
+
+    private void filterInterns() {
+        String selectedType = documentTypeComboBox.getValue();
+        String selectedStatus = statusComboBox.getValue();
+        List<Intern> filteredInterns = new ArrayList<>();
+
+        for (Intern intern : allInterns) {
+            boolean matchesFilters = internHasMatchingDocument(intern, selectedType, selectedStatus);
+            if (matchesFilters) {
+                filteredInterns.add(intern);
+            }
+        }
+
+        internsTable.setItems(FXCollections.observableArrayList(filteredInterns));
+    }
+
+    private boolean internHasMatchingDocument(Intern intern, String selectedType, String selectedStatus) {
+        boolean typeFilterActive = selectedType != null && !FILTER_ALL.equals(selectedType);
+        boolean statusFilterActive = selectedStatus != null && !FILTER_ALL.equals(selectedStatus);
+        boolean hasMatch = !typeFilterActive && !statusFilterActive;
+
+        List<String[]> documents = internDocumentsMap.get(intern.getId());
+        boolean shouldInspectDocuments = !hasMatch && documents != null;
+        if (shouldInspectDocuments) {
+            for (String[] document : documents) {
+                boolean matchesType = !typeFilterActive
+                        || selectedType.equals(document[DOCUMENT_TYPE_INDEX]);
+                boolean matchesStatus = !statusFilterActive
+                        || selectedStatus.equals(document[DOCUMENT_STATUS_INDEX]);
+                if (matchesType && matchesStatus) {
+                    hasMatch = true;
+                }
+            }
+        }
+
+        return hasMatch;
+    }
+
+    private List<String[]> collectInternDocuments(Intern intern, Project project)
+            throws ServiceException, ValidationException {
+        List<String[]> documents = new ArrayList<>();
+
+        ReportDAO reportDAO = new ReportDAO();
+        List<Report> reports = reportDAO.getByInternAndProject(intern.getId(), project.getIdProject());
+        for (Report report : reports) {
+            documents.add(new String[]{report.getReportType(), report.getStatus()});
+        }
+
+        InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
+        List<InitialFormat> initialFormats = initialFormatDAO.getByIdIntern(intern.getId());
+        for (InitialFormat initialFormat : initialFormats) {
+            documents.add(new String[]{initialFormat.getFormatType(), initialFormat.getStatus()});
+        }
+
+        SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
+        SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(intern.getId());
+        if (selfEvaluation != null) {
+            documents.add(new String[]{DOCUMENT_TYPE_SELF_EVALUATION, selfEvaluation.getStatus()});
+        }
+
+        OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
+        OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
+                intern.getId(), project.getIdProject());
+        if (ovEvaluation != null) {
+            documents.add(new String[]{DOCUMENT_TYPE_OV_EVALUATION, ovEvaluation.getStatus()});
+        }
+
+        PracticeDAO practiceDAO = new PracticeDAO();
+        String closureRecordPath = practiceDAO.findClosureRecordPath(intern.getId());
+        boolean isClosureRecordSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
+        if (isClosureRecordSubmitted) {
+            documents.add(new String[]{DOCUMENT_TYPE_CLOSURE_RECORD, STATUS_SUBMITTED});
+        }
+
+        return documents;
+    }
+
+    private void populateFilterOptions() {
+        TreeSet<String> documentTypes = new TreeSet<>();
+        TreeSet<String> documentStatuses = new TreeSet<>();
+
+        for (List<String[]> documents : internDocumentsMap.values()) {
+            for (String[] document : documents) {
+                String documentType = document[DOCUMENT_TYPE_INDEX];
+                boolean hasType = documentType != null && !documentType.isBlank();
+                if (hasType) {
+                    documentTypes.add(documentType);
+                }
+                String documentStatus = document[DOCUMENT_STATUS_INDEX];
+                boolean hasStatus = documentStatus != null && !documentStatus.isBlank();
+                if (hasStatus) {
+                    documentStatuses.add(documentStatus);
+                }
+            }
+        }
+
+        refreshFilterComboBox(documentTypeComboBox, documentTypes);
+        refreshFilterComboBox(statusComboBox, documentStatuses);
+    }
+
+    private void refreshFilterComboBox(ComboBox<String> comboBox, Collection<String> values) {
+        String previousSelection = comboBox.getValue();
+        List<String> options = new ArrayList<>();
+        options.add(FILTER_ALL);
+        options.addAll(values);
+
+        comboBox.getItems().setAll(options);
+
+        boolean keepsSelection = previousSelection != null && options.contains(previousSelection);
+        if (keepsSelection) {
+            comboBox.setValue(previousSelection);
+        } else {
+            comboBox.setValue(FILTER_ALL);
         }
     }
 

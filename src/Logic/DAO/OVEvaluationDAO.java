@@ -33,6 +33,9 @@ public class OVEvaluationDAO {
             "FROM evaluacion_ov " +
             "WHERE id_practicante = ? AND id_proyecto = ?";
 
+    private static final String SQL_UPDATE_STATUS =
+            "UPDATE evaluacion_ov SET estado = ? WHERE id_evaluacion_ov = ?";
+
     public int save(OVEvaluation ovEvaluation) throws ServiceException, ValidationException {
         if (ovEvaluation.getIdIntern() <= 0) {
             throw new ValidationException(
@@ -120,6 +123,38 @@ public class OVEvaluationDAO {
         }
 
         return ovEvaluation;
+    }
+
+    public boolean updateStatus(int idOVEvaluation, String status)
+            throws ServiceException, ValidationException {
+        if (idOVEvaluation <= 0) {
+            throw new ValidationException(
+                    "El ID de la evaluación OV debe ser mayor a cero. ID recibido: " + idOVEvaluation);
+        }
+        if (status == null || status.isBlank()) {
+            throw new ValidationException("El estado no puede estar vacío.");
+        }
+
+        boolean isUpdated = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_STATUS)) {
+
+            statement.setString(1, status);
+            statement.setInt (2, idOVEvaluation);
+
+            if (statement.executeUpdate() > 0) {
+                isUpdated = true;
+            }
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al actualizar estado de la evaluación OV {0}: {1}",
+                    new Object[]{idOVEvaluation, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al actualizar el estado de la evaluación OV.", sqlException);
+        }
+
+        return isUpdated;
     }
 
     private OVEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
