@@ -27,6 +27,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -44,10 +45,12 @@ import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
 import static GUI.Utils.ViewsUtils.findContentPane;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
@@ -58,6 +61,9 @@ public class EvaluateReportController implements ChangeListener<Report> {
     private static final String STATUS_EVALUATED = "Evaluado";
     private static final String STATUS_REJECTED = "Rechazado";
     private static final String STATUS_DOCUMENT_EVALUATED = "Evaluada";
+    private static final String CLOSURE_NOT_SUBMITTED = "No entregada";
+    private static final String CLOSURE_PENDING = "Pendiente de validación";
+    private static final String CLOSURE_VALIDATED = "Validada";
     private static final java.util.regex.Pattern GRADE_PATTERN =
             java.util.regex.Pattern.compile("^(?:10|[0-9])(?:\\.[0-9]{1,2})?$");
     private static final java.util.regex.Pattern GRADE_INPUT_PATTERN =
@@ -145,6 +151,9 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     private Label ovEvaluationStatusLabel;
 
+    @FXML
+    private Label closureRecordStatusLabel;
+
     private Report selectedReport;
     private EducationalExperience currentExperience;
     private Project currentProject;
@@ -170,6 +179,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         loadInitialFormatsForIntern(intern);
         refreshSelfEvaluationStatus();
         refreshOVEvaluationStatus();
+        refreshClosureRecordStatus();
     }
 
     @FXML
@@ -602,11 +612,104 @@ public class EvaluateReportController implements ChangeListener<Report> {
         }
     }
 
+    @FXML
+    public void validateClosureRecord(ActionEvent actionEvent) {
+        Intern selectedIntern = currentIntern;
+        if (selectedIntern == null) {
+            showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
+        } else {
+            confirmAndValidateClosure(selectedIntern.getId());
+        }
+    }
+
+    private void confirmAndValidateClosure(int internId) {
+        Optional<ButtonType> confirmationResponse = showAlertAndWait("Validar acta de cierre",
+                "¿Validar el acta de cierre? Esto concluirá la práctica del practicante.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = confirmationResponse.isPresent()
+                && confirmationResponse.get() == ButtonType.OK;
+        if (isConfirmed) {
+            tryValidateClosure(internId);
+        }
+    }
+
+    private void tryValidateClosure(int internId) {
+        try {
+            PracticeDAO practiceDAO = new PracticeDAO();
+            String closureRecordPath = practiceDAO.findClosureRecordPath(internId);
+            boolean isSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
+            boolean isAlreadyConcluded = isSubmitted && practiceDAO.hasConcludedPractice(internId);
+
+            if (!isSubmitted) {
+                showAlert("Sin acta de cierre",
+                        "El practicante aún no ha subido el acta de cierre.",
+                        Alert.AlertType.INFORMATION);
+            } else if (isAlreadyConcluded) {
+                showAlert("Acta ya validada",
+                        "El acta de cierre ya fue validada y la práctica está concluida.",
+                        Alert.AlertType.INFORMATION);
+            } else {
+                ReportDAO reportDAO = new ReportDAO();
+                Double practiceGrade = reportDAO.getAveragePracticeGrade(internId);
+                boolean concluded = practiceDAO.concludeWithClosureRecord(
+                        internId, closureRecordPath, practiceGrade);
+                if (concluded) {
+                    LOGGER.log(Level.INFO,
+                            "Usuario {0} validó el acta de cierre del practicante {1}; práctica concluida",
+                            new Object[]{currentProfessorId, internId});
+                    showAlert("Práctica concluida",
+                            "El acta de cierre fue validada y la práctica fue marcada como Concluida.",
+                            Alert.AlertType.INFORMATION);
+                } else {
+                    showAlert("Error",
+                            "No se pudo validar el acta de cierre. Intente nuevamente.",
+                            Alert.AlertType.ERROR);
+                }
+                refreshClosureRecordStatus();
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al validar el acta de cierre del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo validar el acta de cierre. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación",
+                    validationException.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    private void refreshClosureRecordStatus() {
+        String statusText = "—";
+        try {
+            PracticeDAO practiceDAO = new PracticeDAO();
+            String closureRecordPath = practiceDAO.findClosureRecordPath(currentIntern.getId());
+            boolean isSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
+            boolean isConcluded = isSubmitted && practiceDAO.hasConcludedPractice(currentIntern.getId());
+            if (!isSubmitted) {
+                statusText = CLOSURE_NOT_SUBMITTED;
+            } else if (isConcluded) {
+                statusText = CLOSURE_VALIDATED;
+            } else {
+                statusText = CLOSURE_PENDING;
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al consultar el estado del acta de cierre: {0}",
+                    serviceException.getMessage());
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error de validación al consultar el acta de cierre: {0}",
+                    validationException.getMessage());
+        }
+        closureRecordStatusLabel.setText(statusText);
+    }
+
     private void tryOpenFile(String filePath) {
         File file = new File(filePath);
         boolean fileExists = file.exists();
         if (!fileExists) {
-            showAlert("Archivo no encontrado", "El documento no fue encontrado en: " + filePath,
+            showAlert("Archivo no encontrado", "El documento no fue encontrado ",
                     Alert.AlertType.WARNING);
         } else {
             try {
@@ -624,7 +727,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         boolean fileExists = sourceFile.exists();
         if (!fileExists) {
             showAlert("Archivo no encontrado",
-                    "El documento no fue encontrado en: " + filePath,
+                    "El documento no fue encontrado ",
                     Alert.AlertType.WARNING);
         } else {
             FileChooser fileChooser = new FileChooser();

@@ -236,6 +236,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
             showAlert("Error de validación",
                     "No se pudo validar la información del proyecto.",
                     Alert.AlertType.ERROR);
+
         } catch (ServiceException serviceException) {
             showAlert("Servicio no disponible",
                     "No se pudo actualizar el proyecto. Intente más tarde.",

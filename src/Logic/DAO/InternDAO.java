@@ -43,15 +43,6 @@ public class InternDAO extends UserDAO implements IInternDAO {
             "WHERE a.id_proyecto = ? " +
             "ORDER BY u.apellido_paterno, u.nombre";
 
-    private static final String SELECT_PENDING_CLOSURE_SQL =
-            "SELECT DISTINCT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
-            "u.apellido_materno, u.contrasenia " +
-            "FROM usuario u " +
-            "JOIN practicante p ON p.id_usuario = u.id_usuario " +
-            "JOIN practica pr ON pr.id_practicante = u.id_usuario " +
-            "WHERE pr.estado = 'Activa' AND pr.ruta_acta_cierre IS NOT NULL " +
-            "ORDER BY u.apellido_paterno, u.nombre";
-
     public InternDAO() throws ServiceException {
     }
 
@@ -262,30 +253,6 @@ public class InternDAO extends UserDAO implements IInternDAO {
             }
             throw new ServiceException(
                     "Error al recuperar los practicantes del proyecto.", sqlException);
-        }
-
-        return internList;
-    }
-
-    public List<Intern> findWithPendingClosureValidation() throws ServiceException {
-        List<Intern> internList = new ArrayList<>();
-
-        try (Connection connection = DataBaseConnection.connectDatabase();
-             PreparedStatement preparedStatement =
-                     connection.prepareStatement(SELECT_PENDING_CLOSURE_SQL);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
-
-            while (resultSet.next()) {
-                internList.add(mapIntern(resultSet));
-            }
-
-        } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE,
-                    "Error al recuperar practicantes con acta de cierre pendiente: {0}",
-                    sqlException.getMessage());
-            throw new ServiceException(
-                    "Error al recuperar los practicantes con acta de cierre pendiente.",
-                    sqlException);
         }
 
         return internList;

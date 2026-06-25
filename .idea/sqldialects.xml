@@ -2,6 +2,7 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/clean_test_database.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/migracion_reporte_rechazado.sql" dialect="MySQL" />
     <file url="file://$PROJECT_DIR$/scrip.sql" dialect="MySQL" />
   </component>
 </project>

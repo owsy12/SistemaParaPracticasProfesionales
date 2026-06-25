@@ -232,6 +232,15 @@
                                 <Label fx:id="ovEvaluationStatusLabel" text="—"
                                        styleClass="infoValueLabel"/>
                             </HBox>
+
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                <Button text="&#10003;  Validar acta de cierre"
+                                        styleClass="approveActionButton"
+                                        onAction="#validateClosureRecord" mnemonicParsing="false"/>
+                                <Label text="Estado:" styleClass="infoKeyLabel"/>
+                                <Label fx:id="closureRecordStatusLabel" text="—"
+                                       styleClass="infoValueLabel"/>
+                            </HBox>
                         </VBox>
 
                     </VBox>
