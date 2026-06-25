@@ -138,6 +138,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     private Label internContextLabel;
 
+    @FXML
+    private Label selfEvaluationStatusLabel;
+
+    @FXML
+    private Label ovEvaluationStatusLabel;
+
     private Report selectedReport;
     private EducationalExperience currentExperience;
     private Project currentProject;
@@ -161,6 +167,8 @@ public class EvaluateReportController implements ChangeListener<Report> {
         internContextLabel.setText("Practicante: " + intern.getFullName());
         loadReportsForIntern(intern);
         loadInitialFormatsForIntern(intern);
+        refreshSelfEvaluationStatus();
+        refreshOVEvaluationStatus();
     }
 
     @FXML
@@ -413,6 +421,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 showAlert("Autoevaluación evaluada",
                         "La autoevaluación fue marcada como evaluada.",
                         Alert.AlertType.INFORMATION);
+                refreshSelfEvaluationStatus();
             }
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
@@ -465,6 +474,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 showAlert("Evaluación OV evaluada",
                         "La evaluación OV fue marcada como evaluada.",
                         Alert.AlertType.INFORMATION);
+                refreshOVEvaluationStatus();
             }
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
@@ -475,6 +485,66 @@ public class EvaluateReportController implements ChangeListener<Report> {
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(), Alert.AlertType.ERROR);
         }
+    }
+
+    private void refreshSelfEvaluationStatus() {
+        String statusText = "—";
+        try {
+            SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
+            SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(currentIntern.getId());
+            String documentPath = null;
+            String status = null;
+            if (selfEvaluation != null) {
+                documentPath = selfEvaluation.getDocumentPath();
+                status = selfEvaluation.getStatus();
+            }
+            statusText = describeDocumentStatus(documentPath, status);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al consultar el estado de la autoevaluación: {0}",
+                    serviceException.getMessage());
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error de validación al consultar la autoevaluación: {0}",
+                    validationException.getMessage());
+        }
+        selfEvaluationStatusLabel.setText(statusText);
+    }
+
+    private void refreshOVEvaluationStatus() {
+        String statusText = "—";
+        try {
+            OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
+            OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
+                    currentIntern.getId(), currentProject.getIdProject());
+            String documentPath = null;
+            String status = null;
+            if (ovEvaluation != null) {
+                documentPath = ovEvaluation.getDocumentPath();
+                status = ovEvaluation.getStatus();
+            }
+            statusText = describeDocumentStatus(documentPath, status);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al consultar el estado de la evaluación OV: {0}",
+                    serviceException.getMessage());
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error de validación al consultar la evaluación OV: {0}",
+                    validationException.getMessage());
+        }
+        ovEvaluationStatusLabel.setText(statusText);
+    }
+
+    private String describeDocumentStatus(String documentPath, String status) {
+        String description;
+        boolean isDelivered = documentPath != null && !documentPath.isBlank();
+        if (!isDelivered) {
+            description = "No entregada";
+        } else if (STATUS_DOCUMENT_EVALUATED.equals(status)) {
+            description = "Evaluada";
+        } else {
+            description = "Entregada (por evaluar)";
+        }
+        return description;
     }
 
     @FXML

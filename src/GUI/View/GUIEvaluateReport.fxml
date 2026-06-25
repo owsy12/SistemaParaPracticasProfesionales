@@ -217,9 +217,18 @@
                                 <Button text="&#10003;  Marcar autoevaluación evaluada"
                                         styleClass="approveActionButton"
                                         onAction="#evaluateSelfEvaluation" mnemonicParsing="false"/>
+                                <Label text="Estado:" styleClass="infoKeyLabel"/>
+                                <Label fx:id="selfEvaluationStatusLabel" text="—"
+                                       styleClass="infoValueLabel"/>
+                            </HBox>
+
+                            <HBox spacing="10.0" alignment="CENTER_LEFT">
                                 <Button text="&#10003;  Marcar evaluación OV evaluada"
                                         styleClass="approveActionButton"
                                         onAction="#evaluateOVEvaluation" mnemonicParsing="false"/>
+                                <Label text="Estado:" styleClass="infoKeyLabel"/>
+                                <Label fx:id="ovEvaluationStatusLabel" text="—"
+                                       styleClass="infoValueLabel"/>
                             </HBox>
                         </VBox>
 

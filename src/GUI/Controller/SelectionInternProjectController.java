@@ -56,7 +56,8 @@ public class SelectionInternProjectController
     private static final String DOCUMENT_TYPE_SELF_EVALUATION = "Autoevaluación";
     private static final String DOCUMENT_TYPE_OV_EVALUATION = "Evaluación OV";
     private static final String DOCUMENT_TYPE_CLOSURE_RECORD = "Acta de cierre";
-    private static final String STATUS_SUBMITTED = "Entregado";
+    private static final String STATUS_CLOSURE_PENDING = "Pendiente de validación";
+    private static final String STATUS_CLOSURE_VALIDATED = "Validada";
     private static final int DOCUMENT_TYPE_INDEX = 0;
     private static final int DOCUMENT_STATUS_INDEX = 1;
 
@@ -235,7 +236,12 @@ public class SelectionInternProjectController
         String closureRecordPath = practiceDAO.findClosureRecordPath(intern.getId());
         boolean isClosureRecordSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
         if (isClosureRecordSubmitted) {
-            documents.add(new String[]{DOCUMENT_TYPE_CLOSURE_RECORD, STATUS_SUBMITTED});
+            String closureStatus = STATUS_CLOSURE_PENDING;
+            boolean isPracticeConcluded = practiceDAO.hasConcludedPractice(intern.getId());
+            if (isPracticeConcluded) {
+                closureStatus = STATUS_CLOSURE_VALIDATED;
+            }
+            documents.add(new String[]{DOCUMENT_TYPE_CLOSURE_RECORD, closureStatus});
         }
 
         return documents;
