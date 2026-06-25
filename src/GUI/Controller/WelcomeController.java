@@ -5,11 +5,13 @@ import Logic.DAO.AssignmentDAO;
 import Logic.DAO.CoordinatorDAO;
 import Logic.DAO.EducationalExperienceDAO;
 import Logic.DAO.InternDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportDAO;
 import Logic.DTOs.Assignment;
 import Logic.DTOs.EducationalExperience;
+import Logic.DTOs.Practice;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.User;
@@ -121,10 +123,11 @@ public class WelcomeController {
                 "Aquí tienes un resumen de tus prácticas profesionales y oportunidades activas.");
 
         Assignment activeAssignment = loadActiveAssignment(user.getId());
+        boolean isPracticeConcluded = loadIsPracticeConcluded(user.getId());
         List<Report> myReports = loadReportsByIntern(user.getId());
         List<Report> myPendingReports = filterByStatus(myReports, STATUS_PENDING);
 
-        populatePracticeStatusCard(activeAssignment);
+        populatePracticeStatusCard(activeAssignment, isPracticeConcluded, user.getId());
         populatePendingReportsCard(myPendingReports);
         populateTutorEvalCard(myReports);
     }
@@ -156,8 +159,54 @@ public class WelcomeController {
         return filtered;
     }
 
-    private void populatePracticeStatusCard(Assignment assignment) {
-        if (assignment == null) {
+    private String buildConcludedDetail(int internId) {
+        String detail = "Tu práctica ha finalizado. Acta de cierre registrada.";
+        try {
+            PracticeDAO practiceDAO = new PracticeDAO();
+            List<Practice> practices = practiceDAO.findByIntern(internId);
+            Double finalGrade = null;
+            for (Practice practice : practices) {
+                boolean hasGrade = practice.getGrade() != null;
+                if (hasGrade) {
+                    finalGrade = practice.getGrade();
+                }
+            }
+            if (finalGrade != null) {
+                detail = detail + "\nCalificación final: " + String.format("%.2f", finalGrade);
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar la calificación final del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.WARNING, "Validación al cargar la calificación final: {0}",
+                    validationException.getMessage());
+        }
+        return detail;
+    }
+
+    private boolean loadIsPracticeConcluded(int internId) {
+        boolean isConcluded = false;
+        try {
+            PracticeDAO practiceDAO = new PracticeDAO();
+            isConcluded = practiceDAO.hasConcludedPractice(internId);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al verificar práctica concluida del practicante {0}: {1}",
+                    new Object[]{internId, serviceException.getMessage()});
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.WARNING, "Validación al verificar práctica concluida: {0}",
+                    validationException.getMessage());
+        }
+        return isConcluded;
+    }
+
+    private void populatePracticeStatusCard(Assignment assignment, boolean isConcluded, int internId) {
+        if (isConcluded) {
+            internPracticeStatusBadgeLabel.setText("CONCLUIDA");
+            internPracticeStatusBadgeLabel.getStyleClass().removeAll("statusPendingLabel");
+            internPracticeStatusBadgeLabel.getStyleClass().add("statusActiveLabel");
+            internPracticeStatusValueLabel.setText("Práctica Concluida");
+            internPracticeStatusSubLabel.setText(buildConcludedDetail(internId));
+        } else if (assignment == null) {
             internPracticeStatusBadgeLabel.setText("BUSCANDO");
             internPracticeStatusBadgeLabel.getStyleClass().removeAll("statusActiveLabel");
             internPracticeStatusBadgeLabel.getStyleClass().add("statusPendingLabel");

@@ -164,6 +164,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
 
     public void loadMenuByRole() {
         menuVBox.getChildren().clear();
+        addButton("Inicio", "/GUI/View/GUIWelcome.fxml");
 
         for (String role : currentUser.getRoles()) {
             switch (role) {

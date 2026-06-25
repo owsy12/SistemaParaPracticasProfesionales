@@ -3,6 +3,7 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.ActivityDAO;
 import Logic.DAO.AssignmentDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DTOs.Activity;
@@ -284,9 +285,16 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             AssignmentDAO assignmentDAO = new AssignmentDAO();
             Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
             boolean hasAssignment = assignment != null;
+            PracticeDAO practiceDAO = new PracticeDAO();
+            boolean isPracticeConcluded = hasAssignment && practiceDAO.hasConcludedPractice(internId);
             if (!hasAssignment) {
                 showAlert("Sin proyecto asignado",
                         "No tiene un proyecto asignado. No puede gestionar actividades.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else if (isPracticeConcluded) {
+                showAlert("Práctica concluida",
+                        "Tu práctica ya fue concluida. No puedes gestionar actividades.",
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
             } else {

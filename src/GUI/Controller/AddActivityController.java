@@ -3,6 +3,7 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.ActivityDAO;
 import Logic.DAO.AssignmentDAO;
+import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Activity;
 import Logic.DTOs.Assignment;
@@ -12,7 +13,7 @@ import Logic.Exceptions.ValidationException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.DatePicker;
 import GUI.Utils.RestrictedTextArea;
 import GUI.Utils.RestrictedTextField;
@@ -36,7 +37,9 @@ public class AddActivityController {
     public AnchorPane anchorPane;
 
     @FXML
-    private ComboBox<Project> projectComboBox;
+    private Label projectNameLabel;
+
+    private Project assignedProject;
 
     @FXML
     private RestrictedTextField nameTextField;
@@ -129,7 +132,7 @@ public class AddActivityController {
 
     private Activity buildActivity() {
         Activity activity = new Activity();
-        activity.setIdProject(projectComboBox.getValue().getIdProject());
+        activity.setIdProject(assignedProject.getIdProject());
         activity.setIdIntern(SessionManager.getInstance().getUser().getId());
         activity.setName(nameTextField.getText().trim());
         activity.setDescription(descriptionTextArea.getText().trim());
@@ -146,9 +149,16 @@ public class AddActivityController {
             AssignmentDAO assignmentDAO = new AssignmentDAO();
             Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
             boolean hasAssignment = assignment != null;
+            PracticeDAO practiceDAO = new PracticeDAO();
+            boolean isPracticeConcluded = hasAssignment && practiceDAO.hasConcludedPractice(internId);
             if (!hasAssignment) {
                 showAlert("Sin proyecto asignado",
                         "No tiene un proyecto asignado. No puede registrar actividades.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else if (isPracticeConcluded) {
+                showAlert("Práctica concluida",
+                        "Tu práctica ya fue concluida. No puedes registrar actividades.",
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
             } else {
@@ -156,8 +166,8 @@ public class AddActivityController {
                 Project project = projectDAO.findById(assignment.getIdProject());
                 boolean hasProject = project != null;
                 if (hasProject) {
-                    projectComboBox.getItems().setAll(project);
-                    projectComboBox.getSelectionModel().select(project);
+                    assignedProject = project;
+                    projectNameLabel.setText(project.getName());
                 }
             }
 
@@ -174,7 +184,7 @@ public class AddActivityController {
     }
 
     private boolean isInputInvalid() {
-        boolean isProjectMissing = projectComboBox.getValue() == null;
+        boolean isProjectMissing = assignedProject == null;
         boolean isNameEmpty = nameTextField.getText().isBlank();
         boolean hasInvalidInput = isProjectMissing || isNameEmpty;
         return hasInvalidInput;
@@ -189,7 +199,7 @@ public class AddActivityController {
     }
 
     private boolean areDatesOutsideProjectRange() {
-        Project project = projectComboBox.getValue();
+        Project project = assignedProject;
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
 

@@ -57,6 +57,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
+import static GUI.Utils.Alert.showAlertAndWait;
 import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
 import static GUI.Utils.ValidationUtils.applyTextFieldRestriction;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
@@ -280,7 +281,14 @@ public class GenerateReportController {
 
     @FXML
     public void cancelAction(ActionEvent actionEvent) {
-        clearForm();
+        Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
+                "¿Desea salir? La información del reporte no generado se perderá.",
+                Alert.AlertType.CONFIRMATION);
+        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        if (isConfirmed) {
+            clearForm();
+            openWelcomePage(rootPane);
+        }
     }
 
     @FXML
