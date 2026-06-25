@@ -171,6 +171,7 @@ create table actividad
     id_actividad       int auto_increment
         primary key,
     id_proyecto        int                                             not null,
+    id_practicante     int                                             null,
     nombre             varchar(200)                                    not null,
     descripcion        text                                            null,
     semana_inicio_plan int                         default 1           not null,
@@ -181,6 +182,9 @@ create table actividad
     fecha_fin          date                                            null,
     constraint fk_actividad_proyecto
         foreign key (id_proyecto) references proyecto (id_proyecto)
+            on update cascade on delete cascade,
+    constraint fk_actividad_practicante
+        foreign key (id_practicante) references practicante (id_usuario)
             on update cascade on delete cascade
 );
 

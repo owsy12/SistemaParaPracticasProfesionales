@@ -41,7 +41,7 @@
                     <VBox styleClass="viewHeaderVBox" spacing="5.0">
                         <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
                             <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
-                            <Label text="PROFESOR · ACTIVIDADES" styleClass="viewBreadcrumbLabel"/>
+                            <Label text="PRACTICANTE · ACTIVIDADES" styleClass="viewBreadcrumbLabel"/>
                         </HBox>
                         <Label text="Agregar Actividad al Proyecto" styleClass="viewTitleLabel"/>
                         <Label text="Define una nueva actividad dentro del proyecto seleccionado y su período de ejecución."

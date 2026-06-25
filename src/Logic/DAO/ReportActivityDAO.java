@@ -38,6 +38,9 @@ public class ReportActivityDAO implements IReportActivityDAO {
             "JOIN reporte r ON r.id_reporte = ra.id_reporte " +
             "WHERE r.id_practicante = ? AND r.tipo_reporte = 'Mensual'";
 
+    private static final String SQL_EXISTS_BY_ACTIVITY =
+            "SELECT COUNT(*) AS total FROM reporte_actividad WHERE id_actividad = ?";
+
     private static final String SQL_INSERT_DELIVERABLE =
             "INSERT INTO reporte_entregable " +
             "(id_reporte, resultado, descripcion, porcentaje_avance, observaciones) " +
@@ -220,6 +223,35 @@ public class ReportActivityDAO implements IReportActivityDAO {
             throw new ServiceException(
                     "Error al buscar las actividades de reportes mensuales.", sqlException);
         }
+    }
+
+    public boolean existsByActivity(int idActivity) throws ServiceException, ValidationException {
+        if (idActivity <= 0) {
+            throw new ValidationException(
+                    "El ID de la actividad debe ser mayor a cero. ID recibido: " + idActivity);
+        }
+
+        boolean exists = false;
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_EXISTS_BY_ACTIVITY)) {
+
+            statement.setInt(1, idActivity);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    exists = resultSet.getInt("total") > 0;
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al verificar si la actividad {0} pertenece a un reporte: {1}",
+                    new Object[]{idActivity, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al verificar la actividad en reportes.", sqlException);
+        }
+
+        return exists;
     }
 
     private ReportActivity mapActivity(ResultSet rs) throws SQLException {

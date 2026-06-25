@@ -67,6 +67,9 @@
                                        styleClass="mainDataTableView"
                                        prefHeight="340.0" minHeight="340.0">
                                 <columns>
+                                    <TableColumn fx:id="nrcColumn" prefWidth="70.0" text="NRC">
+                                        <cellValueFactory><PropertyValueFactory property="nrc"/></cellValueFactory>
+                                    </TableColumn>
                                     <TableColumn fx:id="projetcNameColumn" prefWidth="180.0" text="Proyecto">
                                         <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
                                     </TableColumn>

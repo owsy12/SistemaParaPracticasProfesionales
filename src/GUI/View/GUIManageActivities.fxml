@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import java.net.URL?>
 
-<AnchorPane prefHeight="780.0" prefWidth="820.0"
+<AnchorPane fx:id="anchorPane" prefHeight="780.0" prefWidth="820.0"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.ManageActivitiesController">
@@ -42,10 +42,10 @@
                     <VBox styleClass="viewHeaderVBox" spacing="5.0">
                         <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
                             <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
-                            <Label text="PROFESOR · ACTIVIDADES" styleClass="viewBreadcrumbLabel"/>
+                            <Label text="PRACTICANTE · ACTIVIDADES" styleClass="viewBreadcrumbLabel"/>
                         </HBox>
                         <Label text="Gestión de Actividades del Proyecto" styleClass="viewTitleLabel"/>
-                        <Label text="Carga las actividades del proyecto y administra sus datos, fechas y prórrogas."
+                        <Label text="Carga tus actividades del proyecto y administra sus datos y fechas."
                                styleClass="viewSubtitleLabel"/>
                     </VBox>
 
@@ -133,8 +133,6 @@
                             <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
                             <Button text="Actualizar" styleClass="primaryActionButton"
                                     onAction="#updateActivity" mnemonicParsing="false"/>
-                            <Button text="Otorgar Prórroga" styleClass="warnActionButton"
-                                    onAction="#grantExtension" mnemonicParsing="false"/>
                             <Button text="Eliminar" styleClass="rejectActionButton"
                                     onAction="#deleteActivity" mnemonicParsing="false"/>
                             <Region HBox.hgrow="ALWAYS"/>

@@ -22,7 +22,6 @@ import GUI.Utils.RestrictedTextArea;
 import GUI.Utils.RestrictedTextField;
 import javafx.scene.layout.AnchorPane;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static GUI.Utils.Alert.showAlert;
@@ -111,14 +110,8 @@ public class AddProjectController {
         try {
             Project project = buildProject();
             ProjectDAO projectDAO = new ProjectDAO();
-            boolean nrcAlreadyUsed = projectDAO.existsByNrcAndPeriod(project.getNrc(), project.getPeriod());
 
-            if (nrcAlreadyUsed) {
-                showAlert("EE con proyecto existente",
-                        "Ya existe un proyecto registrado para esta Experiencia Educativa. "
-                        + "No es posible registrar otro simultáneamente.",
-                        Alert.AlertType.WARNING);
-            } else if (projectDAO.saveProject(project)) {
+            if (projectDAO.saveProject(project)) {
                 LOGGER.log(Level.INFO,
                         "Usuario {0} registró el proyecto {1}",
                         new Object[]{SessionManager.getInstance().getUser().getId(), project.getName()});
@@ -184,24 +177,10 @@ public class AddProjectController {
     private void loadEducationalExperiences() {
         try {
             EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
-            ProjectDAO projectDAO = new ProjectDAO();
             List<EducationalExperience> allExperiences = educationalExperienceDAO.findAll();
-            List<EducationalExperience> availableExperiences = new ArrayList<>();
-
-            for (EducationalExperience experience : allExperiences) {
-                boolean hasActiveProject =
-                        projectDAO.existsByNrcAndPeriod(experience.getNrc(), experience.getPeriod());
-                if (!hasActiveProject) {
-                    availableExperiences.add(experience);
-                }
-            }
-
-            educationalExperienceComboBox.getItems().setAll(availableExperiences);
+            educationalExperienceComboBox.getItems().setAll(allExperiences);
         } catch (ServiceException serviceException) {
             showAlert("Error", "No se pueden cargar las experiencias educativas.",
-                    Alert.AlertType.ERROR);
-        } catch (ValidationException validationException) {
-            showAlert("Error de validación", "Error al filtrar las experiencias educativas.",
                     Alert.AlertType.ERROR);
         }
     }

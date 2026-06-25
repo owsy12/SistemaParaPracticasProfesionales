@@ -51,7 +51,7 @@
                   <Label fx:id="internPracticeStatusValueLabel"
                          text="Cargando..." styleClass="cardMainValueLabel" wrapText="true"/>
                   <Label fx:id="internPracticeStatusSubLabel"
-                         text="" styleClass="cardSubtitleLabel"/>
+                         text="" styleClass="cardSubtitleLabel" wrapText="true"/>
                </VBox>
 
                <VBox styleClass="dashboardCardVBox" HBox.hgrow="ALWAYS" spacing="10.0">
@@ -124,6 +124,15 @@
                </VBox>
 
             </HBox>
+
+            <VBox styleClass="dashboardCardVBox" spacing="10.0">
+               <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+               <Label text="MIS EXPERIENCIAS EDUCATIVAS ACTUALES" styleClass="cardCategoryLabel"/>
+               <Label fx:id="profEducationalExperiencesCountLabel" text="0"
+                      styleClass="cardMainValueLabel"/>
+               <Label fx:id="profEducationalExperiencesDetailLabel" text=""
+                      styleClass="cardSubtitleLabel" wrapText="true"/>
+            </VBox>
          </VBox>
 
 

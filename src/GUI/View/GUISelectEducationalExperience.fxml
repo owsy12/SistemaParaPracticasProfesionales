@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import java.net.URL?>
+
+<AnchorPane prefHeight="560.0" prefWidth="820.0"
+            xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="GUI.Controller.SelectEducationalExperienceController">
+
+    <stylesheets>
+        <URL value="@css/SGPPTheme.css"/>
+        <URL value="@css/GUISelectProjectForActivityStyles.css"/>
+    </stylesheets>
+
+    <children>
+        <ScrollPane styleClass="subViewScrollPane"
+                    fitToWidth="true" fitToHeight="true"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
+                    AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+            <content>
+                <VBox styleClass="subViewContentVBox" spacing="20.0">
+                    <padding><Insets top="28.0" right="32.0" bottom="32.0" left="32.0"/></padding>
+
+                    <VBox styleClass="viewHeaderVBox" spacing="5.0">
+                        <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
+                            <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
+                            <Label text="PROFESOR · REVISIÓN" styleClass="viewBreadcrumbLabel"/>
+                        </HBox>
+                        <Label text="Mis Experiencias Educativas" styleClass="viewTitleLabel"/>
+                        <Label text="Selecciona una experiencia educativa para revisar a sus practicantes y reportes."
+                               styleClass="viewSubtitleLabel"/>
+                    </VBox>
+
+                    <Separator styleClass="viewTopAccentSeparator"/>
+
+                    <VBox styleClass="formCardVBox">
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9776;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Experiencias educativas actuales" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                            <FlowPane fx:id="experienceCardsPane" hgap="16.0" vgap="16.0"/>
+                            <Label fx:id="emptyLabel" text="" styleClass="viewSubtitleLabel"/>
+                        </VBox>
+                    </VBox>
+
+                    <VBox fx:id="historicalSection" styleClass="formCardVBox">
+                        <HBox styleClass="formSectionHeaderHBox" alignment="CENTER_LEFT" spacing="10.0">
+                            <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <StackPane styleClass="formSectionIconStackPane">
+                                <Label text="&#9778;" styleClass="formSectionIconLabel"/>
+                            </StackPane>
+                            <Label text="Períodos anteriores" styleClass="formSectionTitleLabel"/>
+                        </HBox>
+
+                        <VBox spacing="14.0">
+                            <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
+                            <FlowPane fx:id="historicalCardsPane" hgap="16.0" vgap="16.0"/>
+                        </VBox>
+                    </VBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

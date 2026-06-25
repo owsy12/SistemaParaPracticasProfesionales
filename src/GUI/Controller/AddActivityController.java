@@ -2,8 +2,10 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.ActivityDAO;
+import Logic.DAO.AssignmentDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Activity;
+import Logic.DTOs.Assignment;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -91,14 +93,6 @@ public class AddActivityController {
         }
     }
 
-    public void setProject(Project project) {
-        for (Project projectItem : projectComboBox.getItems()) {
-            if (projectItem.getIdProject() == project.getIdProject()) {
-                projectComboBox.getSelectionModel().select(projectItem);
-            }
-        }
-    }
-
     private void saveProcess() {
         try {
             Activity activity = buildActivity();
@@ -136,6 +130,7 @@ public class AddActivityController {
     private Activity buildActivity() {
         Activity activity = new Activity();
         activity.setIdProject(projectComboBox.getValue().getIdProject());
+        activity.setIdIntern(SessionManager.getInstance().getUser().getId());
         activity.setName(nameTextField.getText().trim());
         activity.setDescription(descriptionTextArea.getText().trim());
         activity.setStartDate(startDatePicker.getValue());
@@ -147,19 +142,33 @@ public class AddActivityController {
 
     private void loadProjects() {
         try {
-            int professorId = SessionManager.getInstance().getUser().getId();
-            ProjectDAO projectDAO = new ProjectDAO();
-            List<Project> projects = projectDAO.findByProfessorAvailable(professorId);
-            projectComboBox.getItems().setAll(projects);
+            int internId = SessionManager.getInstance().getUser().getId();
+            AssignmentDAO assignmentDAO = new AssignmentDAO();
+            Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
+            boolean hasAssignment = assignment != null;
+            if (!hasAssignment) {
+                showAlert("Sin proyecto asignado",
+                        "No tiene un proyecto asignado. No puede registrar actividades.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else {
+                ProjectDAO projectDAO = new ProjectDAO();
+                Project project = projectDAO.findById(assignment.getIdProject());
+                boolean hasProject = project != null;
+                if (hasProject) {
+                    projectComboBox.getItems().setAll(project);
+                    projectComboBox.getSelectionModel().select(project);
+                }
+            }
 
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar proyectos del profesor: {0}",
+            LOGGER.log(Level.SEVERE, "Error al cargar el proyecto del practicante: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
-                    "No se pudieron cargar los proyectos. Intente más tarde.",
+                    "No se pudo cargar su proyecto. Intente más tarde.",
                     Alert.AlertType.ERROR);
         }
     }

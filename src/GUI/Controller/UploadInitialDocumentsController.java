@@ -158,44 +158,56 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
         if (errorMessage != null) {
             showError(errorMessage);
         } else {
-            saveDocumentProcess();
-            showInfo("Documento guardado correctamente");
-
-            if (pendingDocuments.isEmpty()) {
-                showAlert("Éxito", "Ya no tiene más documentos pendientes, será redirigido",
-                        Alert.AlertType.INFORMATION);
-                openWelcomePage(anchorPane);
+            boolean wasSaved = saveDocumentProcess();
+            if (wasSaved) {
+                clearSelectedFile();
+                comboBoxDocumentType.getSelectionModel().clearSelection();
+                if (pendingDocuments.isEmpty()) {
+                    showAlert("Éxito",
+                            "Ha subido todos los documentos iniciales requeridos. Será redirigido.",
+                            Alert.AlertType.INFORMATION);
+                    openWelcomePage(anchorPane);
+                } else {
+                    showInfo("Documento guardado. Documentos pendientes: " + pendingDocuments.size());
+                }
             }
         }
     }
 
-    private void saveDocumentProcess() {
+    private boolean saveDocumentProcess() {
+        boolean wasSaved = false;
         try {
-            String registrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
-            int idProject = pendingDocuments.get(0).getIdProject();
-            String relativeFolder = "storage/intern_" + registrationNumber + "/project_" + idProject + "/initial_formats";
-            String documentTypeName = comboBoxDocumentType.getValue().replaceAll(" ", "_").toLowerCase();
-            String newFileName = documentTypeName + registrationNumber;
-            String relativeFilePath = relativeFolder + "/" + newFileName + ".pdf";
+            String selectedType = comboBoxDocumentType.getValue();
+            InitialFormat targetDocument = findPendingByType(selectedType);
+            if (targetDocument == null) {
+                showError("El documento seleccionado ya no está pendiente.");
+            } else {
+                String registrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
+                int idProject = targetDocument.getIdProject();
+                String relativeFolder = "storage/intern_" + registrationNumber + "/project_" + idProject + "/initial_formats";
+                String documentTypeName = selectedType.replaceAll(" ", "_").toLowerCase();
+                String newFileName = documentTypeName + registrationNumber;
+                String relativeFilePath = relativeFolder + "/" + newFileName + ".pdf";
 
-            InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
-            InitialFormat initialFormat = new InitialFormat();
-            initialFormat.setFormatType(comboBoxDocumentType.getValue());
-            initialFormat.setFilePath(relativeFilePath);
-            initialFormat.setIdProject(pendingDocuments.get(0).getIdProject());
-            initialFormat.setIdInitialFormat(pendingDocuments.get(0).getIdInitialFormat());
-            initialFormat.setSubmissionDate(
-                    LocalDate.from(LocalDateTime.now(ZoneId.of("America/Mexico_City"))));
+                InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
+                InitialFormat initialFormat = new InitialFormat();
+                initialFormat.setFormatType(selectedType);
+                initialFormat.setFilePath(relativeFilePath);
+                initialFormat.setIdProject(targetDocument.getIdProject());
+                initialFormat.setIdInitialFormat(targetDocument.getIdInitialFormat());
+                initialFormat.setSubmissionDate(
+                        LocalDate.from(LocalDateTime.now(ZoneId.of("America/Mexico_City"))));
 
-            comboBoxDocumentType.getItems().remove(comboBoxDocumentType.getValue());
-
-            boolean updateSucceeded = initialFormatDAO.updateStatus(initialFormat) > 0;
-            if (updateSucceeded) {
-                pendingDocuments.remove(pendingDocuments.get(0));
-                saveFile(selectedFile, relativeFolder, newFileName);
-                LOGGER.log(Level.INFO,
-                        "Usuario {0} subió el formato inicial {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), initialFormat.getFormatType()});
+                boolean updateSucceeded = initialFormatDAO.updateStatus(initialFormat) > 0;
+                if (updateSucceeded) {
+                    saveFile(selectedFile, relativeFolder, newFileName);
+                    pendingDocuments.remove(targetDocument);
+                    comboBoxDocumentType.getItems().remove(selectedType);
+                    LOGGER.log(Level.INFO,
+                            "Usuario {0} subió el formato inicial {1}",
+                            new Object[]{SessionManager.getInstance().getUser().getId(), initialFormat.getFormatType()});
+                    wasSaved = true;
+                }
             }
 
         } catch (ValidationException validationException) {
@@ -203,6 +215,19 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
         } catch (ServiceException serviceException) {
             showError("Error al guardar el documento, Servicio no disponible");
         }
+        return wasSaved;
+    }
+
+    private InitialFormat findPendingByType(String documentType) {
+        InitialFormat match = null;
+        for (InitialFormat document : pendingDocuments) {
+            boolean isSameType = match == null && documentType != null
+                    && documentType.equals(document.getFormatType());
+            if (isSameType) {
+                match = document;
+            }
+        }
+        return match;
     }
 
     private void clearSelectedFile() {

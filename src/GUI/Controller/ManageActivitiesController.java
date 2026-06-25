@@ -2,8 +2,11 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.ActivityDAO;
+import Logic.DAO.AssignmentDAO;
 import Logic.DAO.ProjectDAO;
+import Logic.DAO.ReportActivityDAO;
 import Logic.DTOs.Activity;
+import Logic.DTOs.Assignment;
 import Logic.DTOs.Project;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -12,19 +15,16 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
 import GUI.Utils.RestrictedTextField;
-import javafx.scene.layout.GridPane;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -34,12 +34,14 @@ import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.setTypeAndLength;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class ManageActivitiesController implements ChangeListener<Activity> {
-    private static final String STATUS_AVAILABLE = "Disponible";
-
 
     private static final Logger LOGGER = Logger.getLogger(ManageActivitiesController.class.getName());
+
+    @FXML
+    private AnchorPane anchorPane;
 
     @FXML
     private ComboBox<Project> projectComboBox;
@@ -93,9 +95,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     @FXML
     public void updateActivity(ActionEvent actionEvent) {
         boolean isActivityMissing = selectedActivity == null;
-        boolean isProjectNotAvailable = projectComboBox.getValue() == null
-                || !STATUS_AVAILABLE.equals(projectComboBox.getValue().getStatus());
-        boolean isExpired = selectedActivity != null && isActivityExpired();
+        boolean isProjectMissing = projectComboBox.getValue() == null;
         boolean isNameEmpty = nameTextField.getText().isBlank();
         boolean areDatesWrong = areDatesInvalid();
         boolean areDatesOutsideProject = areDatesOutsideProjectRange();
@@ -104,13 +104,9 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             showAlert("Sin selección",
                     "Seleccione una actividad de la tabla para editar.",
                     Alert.AlertType.WARNING);
-        } else if (isProjectNotAvailable) {
-            showAlert("Proyecto no disponible",
-                    "Solo puede modificar actividades de proyectos en estado Disponible.",
-                    Alert.AlertType.WARNING);
-        } else if (isExpired) {
-            showAlert("Actividad vencida",
-                    "Esta actividad ya venció. Para modificarla debe otorgar una prórroga.",
+        } else if (isProjectMissing) {
+            showAlert("Sin proyecto",
+                    "Seleccione un proyecto primero.",
                     Alert.AlertType.WARNING);
         } else if (isNameEmpty) {
             showAlert("Campo requerido",
@@ -131,49 +127,53 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     @FXML
     public void deleteActivity(ActionEvent actionEvent) {
-        boolean isProjectNotAvailable = projectComboBox.getValue() == null
-                || !STATUS_AVAILABLE.equals(projectComboBox.getValue().getStatus());
+        boolean isProjectMissing = projectComboBox.getValue() == null;
         if (selectedActivity == null) {
             showAlert("Sin selección",
                     "Seleccione una actividad para eliminar.",
-                    Alert.AlertType.WARNING);
-        } else if (isProjectNotAvailable) {
-            showAlert("Proyecto no disponible",
-                    "Solo puede eliminar actividades de proyectos en estado Disponible.",
-                    Alert.AlertType.WARNING);
-        } else {
-            Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar la actividad \"" + selectedActivity.getName() + "\"?",
-                    ButtonType.YES, ButtonType.NO);
-            Optional<ButtonType> confirmationResult = confirmation.showAndWait();
-
-            boolean isDeletionConfirmed = confirmationResult.isPresent()
-                    && confirmationResult.get() == ButtonType.YES;
-            if (isDeletionConfirmed) {
-                deleteProcess();
-            }
-        }
-    }
-
-    @FXML
-    public void grantExtension(ActionEvent actionEvent) {
-        boolean isActivityMissing = selectedActivity == null;
-        boolean isProjectMissing = projectComboBox.getValue() == null;
-        boolean isDateMissing = selectedActivity != null && selectedActivity.getEndDate() == null;
-
-        if (isActivityMissing) {
-            showAlert("Sin selección",
-                    "Seleccione una actividad para otorgar la prórroga.",
                     Alert.AlertType.WARNING);
         } else if (isProjectMissing) {
             showAlert("Sin proyecto",
                     "Seleccione un proyecto primero.",
                     Alert.AlertType.WARNING);
-        } else if (isDateMissing) {
-            showAlert("Fecha inválida",
-                    "La actividad seleccionada no tiene fecha de fin registrada.",
-                    Alert.AlertType.WARNING);
         } else {
-            processExtensionDialog();
+            attemptDelete();
+        }
+    }
+
+    private void attemptDelete() {
+        try {
+            ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
+            boolean isInReport = reportActivityDAO.existsByActivity(selectedActivity.getIdActivity());
+            if (isInReport) {
+                showAlert("No se puede eliminar",
+                        "Esta actividad ya forma parte de un reporte registrado y no puede eliminarse.",
+                        Alert.AlertType.WARNING);
+            } else {
+                confirmAndDelete();
+            }
+        } catch (ValidationException validationException) {
+            showAlert("Error de validación", validationException.getMessage(),
+                    Alert.AlertType.ERROR);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al verificar la actividad {0} en reportes: {1}",
+                    new Object[]{selectedActivity.getIdActivity(), serviceException.getMessage()});
+            showAlert("Servicio no disponible",
+                    "No se pudo verificar la actividad. Intente más tarde.",
+                    Alert.AlertType.ERROR);
+        }
+    }
+
+    private void confirmAndDelete() {
+        Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar la actividad \"" + selectedActivity.getName() + "\"?",
+                ButtonType.YES, ButtonType.NO);
+        Optional<ButtonType> confirmationResult = confirmation.showAndWait();
+
+        boolean isDeletionConfirmed = confirmationResult.isPresent()
+                && confirmationResult.get() == ButtonType.YES;
+        if (isDeletionConfirmed) {
+            deleteProcess();
         }
     }
 
@@ -182,112 +182,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         clearForm();
     }
 
-    public void setProject(Project project) {
-        for (Project projectItem : projectComboBox.getItems()) {
-            if (projectItem.getIdProject() == project.getIdProject()) {
-                projectComboBox.getSelectionModel().select(projectItem);
-                refreshActivities(projectItem.getIdProject());
-            }
-        }
-    }
-
     private void configureListeners() {
         activitiesTableView.getSelectionModel().selectedItemProperty().addListener(this);
-    }
-
-    private void processExtensionDialog() {
-        Optional<LocalDate> dialogResult = showExtensionDialog();
-        boolean dateProvided = dialogResult.isPresent();
-        if (dateProvided) {
-            saveExtensionProcess(dialogResult.get());
-        }
-    }
-
-    private Optional<LocalDate> showExtensionDialog() {
-        Dialog<ButtonType> dialog = new Dialog<>();
-        dialog.setTitle("Otorgar Prórroga");
-        dialog.setHeaderText("Actividad: " + selectedActivity.getName());
-
-        ButtonType confirmType = new ButtonType("Guardar", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(confirmType, ButtonType.CANCEL);
-
-        GridPane grid = new GridPane();
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(20, 150, 10, 10));
-
-        DatePicker newDatePicker = new DatePicker();
-        grid.add(new Label("Nueva fecha límite:"), 0, 0);
-        grid.add(newDatePicker, 1, 0);
-        dialog.getDialogPane().setContent(grid);
-
-        Optional<ButtonType> response = dialog.showAndWait();
-        Optional<LocalDate> result = Optional.empty();
-        boolean isConfirmed = response.isPresent() && response.get() == confirmType;
-        if (isConfirmed) {
-            result = Optional.ofNullable(newDatePicker.getValue());
-        }
-        return result;
-    }
-
-    private void saveExtensionProcess(LocalDate newEndDate) {
-        boolean isNewDateNull = newEndDate == null;
-
-        Project project = projectComboBox.getValue();
-        boolean hasProjectEnd = project != null && project.getEndDate() != null;
-        boolean isNewDateBeyondProject = hasProjectEnd && newEndDate != null
-                && newEndDate.isAfter(project.getEndDate());
-        boolean isNewDateNotFuture = newEndDate != null
-                && !newEndDate.isAfter(LocalDate.now());
-
-        if (isNewDateNull) {
-            showAlert("Fecha requerida",
-                    "Seleccione la nueva fecha límite para la prórroga.",
-                    Alert.AlertType.WARNING);
-        } else if (isNewDateNotFuture) {
-            showAlert("Fecha inválida",
-                    "La nueva fecha límite debe ser una fecha futura.",
-                    Alert.AlertType.WARNING);
-        } else if (isNewDateBeyondProject) {
-            showAlert("Fecha fuera del rango del proyecto",
-                    "La nueva fecha límite no puede superar la fecha de fin del proyecto.",
-                    Alert.AlertType.WARNING);
-        } else {
-            executeExtension(newEndDate);
-        }
-    }
-
-    private void executeExtension(LocalDate newEndDate) {
-        try {
-            selectedActivity.setEndDate(newEndDate);
-            ActivityDAO activityDAO = new ActivityDAO();
-            boolean updated = activityDAO.update(selectedActivity);
-
-            if (updated) {
-                LOGGER.log(Level.INFO,
-                        "Usuario {0} otorgó prórroga a la actividad {1} con nueva fecha fin {2}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(),
-                                selectedActivity.getIdActivity(), String.valueOf(newEndDate)});
-                showAlert("Prórroga otorgada",
-                        "La nueva fecha límite de la actividad fue registrada correctamente.",
-                        Alert.AlertType.INFORMATION);
-                refreshActivities(projectComboBox.getValue().getIdProject());
-                clearForm();
-            } else {
-                showAlert("Error",
-                        "No se pudo otorgar la prórroga. Intente nuevamente.",
-                        Alert.AlertType.ERROR);
-            }
-        } catch (ValidationException validationException) {
-            showAlert("Error de validación", validationException.getMessage(),
-                    Alert.AlertType.ERROR);
-        } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al otorgar prórroga para actividad {0}: {1}",
-                    new Object[]{selectedActivity.getIdActivity(), serviceException.getMessage()});
-            showAlert("Servicio no disponible",
-                    "No se pudo otorgar la prórroga. Intente más tarde.",
-                    Alert.AlertType.ERROR);
-        }
     }
 
     private void updateProcess() {
@@ -357,13 +253,6 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         }
     }
 
-    private boolean isActivityExpired() {
-        LocalDate endDate = selectedActivity.getEndDate();
-        boolean hasDeadline = endDate != null;
-        boolean isExpired = hasDeadline && endDate.isBefore(LocalDate.now());
-        return isExpired;
-    }
-
     private boolean areDatesInvalid() {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
@@ -391,26 +280,42 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     private void loadProjects() {
         try {
-            int professorId = SessionManager.getInstance().getUser().getId();
-            ProjectDAO projectDao = new ProjectDAO();
-            List<Project> projectList = projectDao.findByProfessorAvailable(professorId);
-            projectComboBox.getItems().setAll(projectList);
+            int internId = SessionManager.getInstance().getUser().getId();
+            AssignmentDAO assignmentDAO = new AssignmentDAO();
+            Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
+            boolean hasAssignment = assignment != null;
+            if (!hasAssignment) {
+                showAlert("Sin proyecto asignado",
+                        "No tiene un proyecto asignado. No puede gestionar actividades.",
+                        Alert.AlertType.WARNING);
+                openWelcomePage(anchorPane);
+            } else {
+                ProjectDAO projectDao = new ProjectDAO();
+                Project project = projectDao.findById(assignment.getIdProject());
+                boolean hasProject = project != null;
+                if (hasProject) {
+                    projectComboBox.getItems().setAll(project);
+                    projectComboBox.getSelectionModel().select(project);
+                    refreshActivities(project.getIdProject());
+                }
+            }
 
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar proyectos del profesor: {0}",
+            LOGGER.log(Level.SEVERE, "Error al cargar el proyecto del practicante: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
-                    "No se pudieron cargar los proyectos.", Alert.AlertType.ERROR);
+                    "No se pudo cargar su proyecto.", Alert.AlertType.ERROR);
         }
     }
 
     private void refreshActivities(int idProject) {
         try {
+            int internId = SessionManager.getInstance().getUser().getId();
             ActivityDAO activityDao = new ActivityDAO();
-            List<Activity> activities = activityDao.findByProject(idProject);
+            List<Activity> activities = activityDao.findByInternAndProject(internId, idProject);
             activitiesTableView.setItems(FXCollections.observableArrayList(activities));
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),

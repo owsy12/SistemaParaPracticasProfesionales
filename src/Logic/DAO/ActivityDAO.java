@@ -21,20 +21,27 @@ public class ActivityDAO implements IActivityDAO {
     private static final Logger LOGGER = Logger.getLogger(ActivityDAO.class.getName());
 
     private static final String SQL_INSERT =
-            "INSERT INTO actividad (id_proyecto, nombre, descripcion, " +
+            "INSERT INTO actividad (id_proyecto, id_practicante, nombre, descripcion, " +
             "fecha_inicio, fecha_fin, fecha_creacion, estado) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_SELECT_BY_ID =
-            "SELECT id_actividad, id_proyecto, nombre, descripcion, " +
+            "SELECT id_actividad, id_proyecto, id_practicante, nombre, descripcion, " +
             "fecha_inicio, fecha_fin, fecha_creacion, estado " +
             "FROM actividad WHERE id_actividad = ?";
 
     private static final String SQL_SELECT_BY_PROJECT =
-            "SELECT id_actividad, id_proyecto, nombre, descripcion, " +
+            "SELECT id_actividad, id_proyecto, id_practicante, nombre, descripcion, " +
             "fecha_inicio, fecha_fin, fecha_creacion, estado " +
             "FROM actividad WHERE id_proyecto = ? " +
-            "AND (estado = 'Activa' OR estado = 'En prórroga') " +
+            "AND estado = 'Activa' " +
+            "ORDER BY fecha_creacion ASC";
+
+    private static final String SQL_SELECT_BY_INTERN_AND_PROJECT =
+            "SELECT id_actividad, id_proyecto, id_practicante, nombre, descripcion, " +
+            "fecha_inicio, fecha_fin, fecha_creacion, estado " +
+            "FROM actividad WHERE id_practicante = ? AND id_proyecto = ? " +
+            "AND estado = 'Activa' " +
             "ORDER BY fecha_creacion ASC";
 
     private static final String SQL_UPDATE =
@@ -54,6 +61,10 @@ public class ActivityDAO implements IActivityDAO {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + activity.getIdProject());
         }
+        if (activity.getIdIntern() <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + activity.getIdIntern());
+        }
         if (activity.getName() == null || activity.getName().isBlank()) {
             throw new ValidationException("El nombre de la actividad no puede estar vacío.");
         }
@@ -65,22 +76,23 @@ public class ActivityDAO implements IActivityDAO {
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt (1, activity.getIdProject());
-            statement.setString(2, activity.getName());
-            statement.setString(3, activity.getDescription());
+            statement.setInt (2, activity.getIdIntern());
+            statement.setString(3, activity.getName());
+            statement.setString(4, activity.getDescription());
             if (activity.getStartDate() != null) {
-                statement.setDate(4, valueOf(activity.getStartDate()));
-            } else {
-                statement.setNull(4, DATE);
-            }
-            if (activity.getEndDate() != null) {
-                statement.setDate(5, valueOf(activity.getEndDate()));
+                statement.setDate(5, valueOf(activity.getStartDate()));
             } else {
                 statement.setNull(5, DATE);
             }
-            statement.setDate (6, activity.getCreationDate() != null
+            if (activity.getEndDate() != null) {
+                statement.setDate(6, valueOf(activity.getEndDate()));
+            } else {
+                statement.setNull(6, DATE);
+            }
+            statement.setDate (7, activity.getCreationDate() != null
                     ? valueOf(activity.getCreationDate())
                     : new java.sql.Date(System.currentTimeMillis()));
-            statement.setString(7, activity.getStatus() != null ? activity.getStatus() : "Activa");
+            statement.setString(8, activity.getStatus() != null ? activity.getStatus() : "Activa");
 
             statement.executeUpdate();
 
@@ -157,6 +169,43 @@ public class ActivityDAO implements IActivityDAO {
             LOGGER.log(Level.SEVERE, "Error al recuperar actividades del proyecto {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
             throw new ServiceException("Error al recuperar las actividades del proyecto.", sqlException);
+        }
+
+        return activities;
+    }
+
+    public List<Activity> findByInternAndProject(int idIntern, int idProject)
+            throws ServiceException, ValidationException {
+        if (idIntern <= 0) {
+            throw new ValidationException(
+                    "El ID del practicante debe ser mayor a cero. ID recibido: " + idIntern);
+        }
+        if (idProject <= 0) {
+            throw new ValidationException(
+                    "El ID del proyecto debe ser mayor a cero. ID recibido: " + idProject);
+        }
+
+        List<Activity> activities = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(
+                     SQL_SELECT_BY_INTERN_AND_PROJECT)) {
+
+            statement.setInt(1, idIntern);
+            statement.setInt(2, idProject);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    activities.add(mapResultSet(resultSet));
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al recuperar actividades del practicante {0} en el proyecto {1}: {2}",
+                    new Object[]{idIntern, idProject, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar las actividades del practicante.", sqlException);
         }
 
         return activities;
@@ -264,6 +313,7 @@ public class ActivityDAO implements IActivityDAO {
         Activity activity = new Activity();
         activity.setIdActivity (resultSet.getInt ("id_actividad"));
         activity.setIdProject (resultSet.getInt ("id_proyecto"));
+        activity.setIdIntern (resultSet.getInt ("id_practicante"));
         activity.setName (resultSet.getString("nombre"));
         activity.setDescription(resultSet.getString("descripcion"));
         activity.setStatus (resultSet.getString("estado"));

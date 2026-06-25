@@ -29,6 +29,10 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
     private static final String SQL_SELECT_ALL =
             "SELECT nrc, nombre, id_profesor, periodo FROM experiencia_educativa";
 
+    private static final String SQL_SELECT_BY_PROFESSOR =
+            "SELECT nrc, nombre, id_profesor, periodo FROM experiencia_educativa "
+                    + "WHERE id_profesor = ? ORDER BY periodo DESC, nrc ASC";
+
     private static final String SQL_UPDATE =
             "UPDATE experiencia_educativa SET nombre = ?, id_profesor = ? WHERE nrc = ? AND periodo = ?";
 
@@ -111,6 +115,36 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             LOGGER.log(Level.SEVERE, "Error al recuperar experiencias educativas: {0}",
                     sqlException.getMessage());
             throw new ServiceException("Error al recuperar las experiencias educativas.", sqlException);
+        }
+
+        return list;
+    }
+
+    public List<EducationalExperience> findByProfessor(int professorId) throws ServiceException, ValidationException {
+        if (professorId <= 0) {
+            throw new ValidationException(
+                    "El ID del profesor debe ser mayor a cero. ID recibido: " + professorId);
+        }
+
+        List<EducationalExperience> list = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_PROFESSOR)) {
+
+            statement.setInt(1, professorId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    list.add(mapResultSet(resultSet));
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al recuperar experiencias educativas del profesor {0}: {1}",
+                    new Object[]{professorId, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar las experiencias educativas del profesor.", sqlException);
         }
 
         return list;

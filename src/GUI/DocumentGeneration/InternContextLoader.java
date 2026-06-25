@@ -70,21 +70,21 @@ public class InternContextLoader {
         ReportDAO reportDAO = new ReportDAO();
         int approvedHours = reportDAO.getTotalApprovedHoursByIntern(internId);
 
-        List<Activity> activities = loadActivities(project.getIdProject());
+        List<Activity> activities = loadActivities(internId, project.getIdProject());
 
         InternContext context = new InternContext(intern, project, organization, supervisor, professor, approvedHours, activities, true);
         return context;
     }
 
-    private static List<Activity> loadActivities(int projectId) {
+    private static List<Activity> loadActivities(int internId, int projectId) {
         List<Activity> activities = new ArrayList<>();
         try {
             ActivityDAO activityDAO = new ActivityDAO();
-            activities = activityDAO.findByProject(projectId);
+            activities = activityDAO.findByInternAndProject(internId, projectId);
         } catch (ValidationException | ServiceException persistenceException) {
             LOGGER.log(Level.WARNING,
-                    "No se pudieron cargar actividades del proyecto {0}: {1}",
-                    new Object[]{projectId, persistenceException.getMessage()});
+                    "No se pudieron cargar actividades del practicante {0} en el proyecto {1}: {2}",
+                    new Object[]{internId, projectId, persistenceException.getMessage()});
         }
         return activities;
     }

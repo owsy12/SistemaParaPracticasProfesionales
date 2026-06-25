@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -17,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import java.net.URL?>
 
-<AnchorPane prefHeight="1020.0" prefWidth="900.0"
+<AnchorPane fx:id="anchorPane" prefHeight="1020.0" prefWidth="900.0"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="GUI.Controller.EvaluateReportController">
@@ -45,6 +44,9 @@
                         <Label text="Evaluar Reportes de Practicantes" styleClass="viewTitleLabel"/>
                         <Label text="Revisa los reportes entregados por tus practicantes y registra tu evaluación o las observations correspondientes."
                                styleClass="viewSubtitleLabel"/>
+                        <Label fx:id="experienceContextLabel" text="EE: —" styleClass="viewSubtitleLabel"/>
+                        <Label fx:id="projectContextLabel" text="Proyecto: —" styleClass="viewSubtitleLabel"/>
+                        <Label fx:id="internContextLabel" text="Practicante: —" styleClass="viewSubtitleLabel"/>
                     </VBox>
 
                     <Separator styleClass="viewTopAccentSeparator"/>
@@ -61,20 +63,6 @@
 
                         <VBox spacing="14.0">
                             <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
-
-                            <HBox spacing="16.0">
-                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Proyecto" styleClass="fieldLabelText"/>
-                                    <ComboBox fx:id="projectComboBox"
-                                              styleClass="formComboBox" maxWidth="Infinity"/>
-                                </VBox>
-                                <VBox spacing="6.0" HBox.hgrow="ALWAYS">
-                                    <Label text="Practicante" styleClass="fieldLabelText"/>
-                                    <ComboBox fx:id="internComboBox"
-                                              disable="true"
-                                              styleClass="formComboBox" maxWidth="Infinity"/>
-                                </VBox>
-                            </HBox>
 
                             <TableView fx:id="reportsTableView"
                                        styleClass="mainDataTableView"
@@ -172,11 +160,15 @@
 
                         <HBox styleClass="formActionBarHBox" alignment="CENTER_LEFT" spacing="10.0">
                             <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Button text="Regresar" styleClass="secondaryActionButton"
+                                    onAction="#goBack" mnemonicParsing="false"/>
                             <Button fx:id="markInReviewButton" text="&#10003;  Evaluar" styleClass="approveActionButton"
                                     onAction="#evaluateReport" mnemonicParsing="false"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Button text="Limpiar" styleClass="cancelActionButton"
                                     onAction="#clearSelection" mnemonicParsing="false"/>
+                            <Button text="Salir" styleClass="cancelActionButton"
+                                    onAction="#goHome" mnemonicParsing="false"/>
                         </HBox>
 
                     </VBox>

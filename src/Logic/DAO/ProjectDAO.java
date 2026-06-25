@@ -9,6 +9,7 @@ import Logic.Exceptions.ValidationException;
 import Logic.Interface.IProjectDAO;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,7 +46,7 @@ public class ProjectDAO implements IProjectDAO {
     private static final String SELECT_ALL_AVAILABLE_PROJECTS_SQL =
             "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
                     "p.nombre, p.descripcion, p.fecha_inicio, p.fecha_fin, p.cupo_maximo, " +
-                    "p.cupo_disponible, ov.id_organizacion, ov.nombre_organizacion " +
+                    "p.cupo_disponible, p.nrc, p.periodo, ov.id_organizacion, ov.nombre_organizacion " +
                     "FROM proyecto p " +
                     "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
                     "WHERE p.estado = 'Disponible' AND p.cupo_disponible > 0";
@@ -77,6 +78,16 @@ public class ProjectDAO implements IProjectDAO {
             "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
             "WHERE p.id_profesor = ? AND p.estado = 'Disponible'";
 
+    private static final String SQL_SELECT_BY_EDUCATIONAL_EXPERIENCE =
+            "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
+                    "p.nombre, p.descripcion, p.objetivo, p.fecha_inicio, p.fecha_fin, " +
+                    "p.cupo_maximo, p.cupo_disponible, p.estado, p.nrc, p.periodo, " +
+                    "ov.id_organizacion, ov.nombre_organizacion " +
+                    "FROM proyecto p " +
+                    "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
+                    "WHERE p.nrc = ? AND p.periodo = ? " +
+                    "ORDER BY p.nombre ASC";
+
     private static final String SQL_EXISTS_BY_NRC =
             "SELECT COUNT(*) AS total FROM proyecto WHERE nrc = ? AND periodo = ?";
 
@@ -85,6 +96,8 @@ public class ProjectDAO implements IProjectDAO {
             "SET cupo_disponible = cupo_disponible + 1, " +
             "    estado = CASE WHEN estado = 'Lleno' THEN 'Disponible' ELSE estado END " +
             "WHERE id_proyecto = ?";
+
+
 
     @Override
     public boolean saveProject(Project project) throws ServiceException, ValidationException {
@@ -415,6 +428,44 @@ public class ProjectDAO implements IProjectDAO {
         return projectList;
     }
 
+    public List<Project> findByEducationalExperience(String nrc, String period)
+            throws ServiceException, ValidationException {
+        if (nrc == null || nrc.isBlank()) {
+            throw new ValidationException("El NRC de la experiencia educativa no puede estar vacío.");
+        }
+        if (period == null || period.isBlank()) {
+            throw new ValidationException("El periodo de la experiencia educativa no puede estar vacío.");
+        }
+
+        List<Project> projectList = new ArrayList<>();
+
+        try (Connection connection = DataBaseConnection.connectDatabase();
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     SQL_SELECT_BY_EDUCATIONAL_EXPERIENCE)) {
+
+            preparedStatement.setString(1, nrc);
+            preparedStatement.setString(2, period);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Project project = mapProject(resultSet);
+                    project.setIdProfessor(resultSet.getInt("id_profesor"));
+                    project.setStatus(resultSet.getString("estado"));
+                    projectList.add(project);
+                }
+            }
+
+        } catch (SQLException sqlException) {
+            LOGGER.log(Level.SEVERE,
+                    "Error al recuperar proyectos de la experiencia educativa {0}-{1}: {2}",
+                    new Object[]{nrc, period, sqlException.getMessage()});
+            throw new ServiceException(
+                    "Error al recuperar los proyectos de la experiencia educativa.", sqlException);
+        }
+
+        return projectList;
+    }
+
     public boolean incrementAvailableSlot(int idProject)
             throws ServiceException, ValidationException {
         if (idProject <= 0) {
@@ -509,10 +560,49 @@ public class ProjectDAO implements IProjectDAO {
             throw new ValidationException(
                     "La fecha de inicio no puede ser posterior a la fecha de fin del proyecto.");
         }
+        if (!isWithinAcademicPeriod(project)) {
+            throw new ValidationException(
+                    "Las fechas del proyecto deben estar dentro del período académico de la experiencia educativa.");
+        }
         if (project.getMaximumPlaces() <= 0) {
             throw new ValidationException(
                     "El cupo máximo debe ser mayor a cero. Valor recibido: " + project.getMaximumPlaces());
         }
+    }
+
+    private boolean isWithinAcademicPeriod(Project project) {
+        boolean isWithin = true;
+        String period = project.getPeriod();
+        LocalDate periodStart = null;
+        LocalDate periodEnd = null;
+        if (period != null && period.startsWith("FEB-JUL-")) {
+            int year = parsePeriodYear(period, "FEB-JUL-");
+            if (year > 0) {
+                periodStart = LocalDate.of(year, 2, 1);
+                periodEnd = LocalDate.of(year, 7, 31);
+            }
+        } else if (period != null && period.startsWith("AUG-ENE-")) {
+            int year = parsePeriodYear(period, "AUG-ENE-");
+            if (year > 0) {
+                periodStart = LocalDate.of(year, 8, 1);
+                periodEnd = LocalDate.of(year + 1, 1, 31);
+            }
+        }
+        boolean hasBounds = periodStart != null && periodEnd != null;
+        if (hasBounds) {
+            isWithin = !project.getStartDate().isBefore(periodStart)
+                    && !project.getEndDate().isAfter(periodEnd);
+        }
+        return isWithin;
+    }
+
+    private int parsePeriodYear(String period, String prefix) {
+        int year = 0;
+        String yearText = period.substring(prefix.length()).trim();
+        if (yearText.matches("\\d{4}")) {
+            year = Integer.parseInt(yearText);
+        }
+        return year;
     }
 
     private Project mapProject(ResultSet resultSet) throws SQLException {

@@ -3,11 +3,14 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.AssignmentDAO;
 import Logic.DAO.CoordinatorDAO;
+import Logic.DAO.EducationalExperienceDAO;
 import Logic.DAO.InternDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportDAO;
 import Logic.DTOs.Assignment;
+import Logic.DTOs.EducationalExperience;
+import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.User;
 import Logic.Exceptions.ServiceException;
@@ -15,17 +18,21 @@ import Logic.Exceptions.ValidationException;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class WelcomeController {
 
     private static final Logger LOGGER = Logger.getLogger(WelcomeController.class.getName());
     private static final String STATUS_PENDING = "Pendiente";
+    private static final Pattern YEAR_PATTERN = Pattern.compile("(\\d{4})");
 
     @FXML private Label welcomeUserGreetingLabel;
     @FXML private Label welcomeSubtitleLabel;
@@ -46,6 +53,8 @@ public class WelcomeController {
     @FXML private Label profTotalReportsLabel;
     @FXML private Label profInternsCountLabel;
     @FXML private Label profEvalDoneLabel;
+    @FXML private Label profEducationalExperiencesCountLabel;
+    @FXML private Label profEducationalExperiencesDetailLabel;
 
     @FXML private VBox coordinadorContentVBox;
     @FXML private Label coordProjectsCountLabel;
@@ -159,9 +168,29 @@ public class WelcomeController {
             internPracticeStatusBadgeLabel.getStyleClass().removeAll("statusPendingLabel");
             internPracticeStatusBadgeLabel.getStyleClass().add("statusActiveLabel");
             internPracticeStatusValueLabel.setText("Práctica Activa");
-            String assignedProjectText = "Proyecto asignado · ID: " + assignment.getIdProject();
-            internPracticeStatusSubLabel.setText(assignedProjectText);
+            internPracticeStatusSubLabel.setText(buildAssignmentDetail(assignment));
         }
+    }
+
+    private String buildAssignmentDetail(Assignment assignment) {
+        String detail = "Proyecto asignado · ID: " + assignment.getIdProject();
+        try {
+            ProjectDAO projectDAO = new ProjectDAO();
+            Project project = projectDAO.findById(assignment.getIdProject());
+            if (project != null) {
+                detail = "Proyecto: " + project.getName()
+                        + "   ·   EE: " + project.getNrc() + " (" + project.getPeriod() + ")"
+                        + "   ·   Estado: " + assignment.getStatus()
+                        + "\nSolo puedes estar asignado a un proyecto a la vez.";
+            }
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.WARNING, "No se pudo cargar el proyecto asignado {0}: {1}",
+                    new Object[]{assignment.getIdProject(), serviceException.getMessage()});
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.WARNING, "Validación al cargar el proyecto asignado: {0}",
+                    validationException.getMessage());
+        }
+        return detail;
     }
 
     private void populatePendingReportsCard(List<Report> pendingReports) {
@@ -200,6 +229,49 @@ public class WelcomeController {
         List<Report> allReports = loadAllReports();
         List<Report> myTotalReports = filterByProfessor(allReports, user.getId());
         populateProfesorCards(myPendingReports, myTotalReports);
+        populateProfesorEducationalExperiences(user.getId());
+    }
+
+    private void populateProfesorEducationalExperiences(int professorId) {
+        try {
+            EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
+            List<EducationalExperience> experiences =
+                    educationalExperienceDAO.findByProfessor(professorId);
+
+            int currentYear = LocalDate.now().getYear();
+            List<String> currentExperiences = new ArrayList<>();
+            for (EducationalExperience experience : experiences) {
+                boolean isHistorical = isFromPreviousPeriod(experience.getPeriod(), currentYear);
+                if (!isHistorical) {
+                    currentExperiences.add(experience.getNrc() + " - " + experience.getName()
+                            + " (" + experience.getPeriod() + ")");
+                }
+            }
+
+            profEducationalExperiencesCountLabel.setText(String.valueOf(currentExperiences.size()));
+            String detail = "No tienes experiencias educativas en el período actual.";
+            if (!currentExperiences.isEmpty()) {
+                detail = String.join("\n", currentExperiences);
+            }
+            profEducationalExperiencesDetailLabel.setText(detail);
+        } catch (ServiceException serviceException) {
+            LOGGER.log(Level.SEVERE, "Error al cargar experiencias educativas del profesor {0}: {1}",
+                    new Object[]{professorId, serviceException.getMessage()});
+        } catch (ValidationException validationException) {
+            LOGGER.log(Level.WARNING, "Validación al cargar experiencias educativas: {0}",
+                    validationException.getMessage());
+        }
+    }
+
+    private boolean isFromPreviousPeriod(String period, int currentYear) {
+        int periodYear = 0;
+        if (period != null) {
+            Matcher matcher = YEAR_PATTERN.matcher(period);
+            while (matcher.find()) {
+                periodYear = Integer.parseInt(matcher.group(1));
+            }
+        }
+        return periodYear > 0 && periodYear < currentYear;
     }
 
     private List<Report> loadAllPendingReports() {

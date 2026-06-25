@@ -5,6 +5,7 @@ import java.time.LocalDate;
 public class Activity {
     private int idActivity;
     private int idProject;
+    private int idIntern;
     private String name;
     private String description;
     private LocalDate creationDate;
@@ -40,6 +41,14 @@ public class Activity {
 
     public void setIdProject(int idProject) {
         this.idProject = idProject;
+    }
+
+    public int getIdIntern() {
+        return idIntern;
+    }
+
+    public void setIdIntern(int idIntern) {
+        this.idIntern = idIntern;
     }
 
     public String getName() {

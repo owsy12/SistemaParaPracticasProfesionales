@@ -2,13 +2,12 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.InitialFormatDAO;
-import Logic.DAO.InternDAO;
 import Logic.DAO.OVEvaluationDAO;
 import Logic.DAO.PracticeDAO;
-import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DAO.ReportDAO;
 import Logic.DAO.SelfEvaluationDAO;
+import Logic.DTOs.EducationalExperience;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
 import Logic.DTOs.OVEvaluation;
@@ -24,12 +23,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
 import GUI.Utils.RestrictedTextArea;
 import GUI.Utils.RestrictedTextField;
 import javafx.stage.FileChooser;
@@ -41,15 +43,17 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.applyTextAreaRestriction;
+import static GUI.Utils.ViewsUtils.findContentPane;
+import static GUI.Utils.ViewsUtils.openWelcomePage;
+import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 
-public class EvaluateReportController implements ChangeListener<Object> {
+public class EvaluateReportController implements ChangeListener<Report> {
     private static final String STATUS_APPROVED = "Aprobado";
     private static final String STATUS_EVALUATED = "Evaluado";
     private static final java.util.regex.Pattern GRADE_PATTERN =
@@ -62,10 +66,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private static final Logger LOGGER = Logger.getLogger(EvaluateReportController.class.getName());
 
     @FXML
-    private ComboBox<Project> projectComboBox;
-
-    @FXML
-    private ComboBox<Intern> internComboBox;
+    private AnchorPane anchorPane;
 
     @FXML
     private TableView<Report> reportsTableView;
@@ -127,7 +128,19 @@ public class EvaluateReportController implements ChangeListener<Object> {
     @FXML
     private Button markInReviewButton;
 
+    @FXML
+    private Label experienceContextLabel;
+
+    @FXML
+    private Label projectContextLabel;
+
+    @FXML
+    private Label internContextLabel;
+
     private Report selectedReport;
+    private EducationalExperience currentExperience;
+    private Project currentProject;
+    private Intern currentIntern;
     private int currentProfessorId;
 
     @FXML
@@ -136,7 +149,17 @@ public class EvaluateReportController implements ChangeListener<Object> {
         applyTextAreaRestriction(observationsTextArea, 200);
         gradeTextField.setRestriction(GRADE_MAX_LENGTH, GRADE_INPUT_PATTERN);
         configureListeners();
-        loadProjects();
+    }
+
+    public void setReviewContext(EducationalExperience experience, Project project, Intern intern) {
+        currentExperience = experience;
+        currentProject = project;
+        currentIntern = intern;
+        experienceContextLabel.setText("EE: " + experience.toString());
+        projectContextLabel.setText("Proyecto: " + project.getName());
+        internContextLabel.setText("Practicante: " + intern.getFullName());
+        loadReportsForIntern(intern);
+        loadInitialFormatsForIntern(intern);
     }
 
     @FXML
@@ -168,6 +191,36 @@ public class EvaluateReportController implements ChangeListener<Object> {
     @FXML
     public void clearSelection(ActionEvent actionEvent) {
         clearForm();
+    }
+
+    @FXML
+    public void goHome(ActionEvent actionEvent) {
+        openWelcomePage(anchorPane);
+    }
+
+    @FXML
+    public void goBack(ActionEvent actionEvent) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/GUI/View/GUISelectionInternProject.fxml"));
+            Parent view = loader.load();
+
+            SelectionInternProjectController controller = loader.getController();
+            controller.setReviewContext(currentExperience);
+
+            Pane contentPane = findContentPane(reportsTableView);
+            if (contentPane == null) {
+                showAlert("Error de navegación",
+                        "No se pudo regresar a la lista de practicantes.", Alert.AlertType.ERROR);
+            } else {
+                contentPane.getChildren().setAll(wrapInScrollableContent(view));
+            }
+        } catch (IOException ioException) {
+            LOGGER.log(Level.SEVERE, "Error al regresar a la lista de practicantes: {0}",
+                    ioException.getMessage());
+            showAlert("Error de navegación",
+                    "No se pudo regresar a la lista de practicantes.", Alert.AlertType.ERROR);
+        }
     }
 
     @FXML
@@ -255,7 +308,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
     @FXML
     public void openSelfEvaluation(ActionEvent actionEvent) {
-        Intern selectedIntern = internComboBox.getSelectionModel().getSelectedItem();
+        Intern selectedIntern = currentIntern;
         if (selectedIntern == null) {
             showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
         } else {
@@ -288,8 +341,8 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
     @FXML
     public void openOVEvaluation(ActionEvent actionEvent) {
-        Intern selectedIntern = internComboBox.getSelectionModel().getSelectedItem();
-        Project selectedProject = projectComboBox.getValue();
+        Intern selectedIntern = currentIntern;
+        Project selectedProject = currentProject;
         boolean isSelectionMissing = selectedIntern == null || selectedProject == null;
         if (isSelectionMissing) {
             showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
@@ -324,7 +377,7 @@ public class EvaluateReportController implements ChangeListener<Object> {
 
     @FXML
     public void openClosureRecord(ActionEvent actionEvent) {
-        Intern selectedIntern = internComboBox.getSelectionModel().getSelectedItem();
+        Intern selectedIntern = currentIntern;
         if (selectedIntern == null) {
             showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
         } else {
@@ -404,77 +457,22 @@ public class EvaluateReportController implements ChangeListener<Object> {
     }
 
     private void configureListeners() {
-        projectComboBox.getSelectionModel().selectedItemProperty().addListener(this);
-        internComboBox.getSelectionModel().selectedItemProperty().addListener(this);
         reportsTableView.getSelectionModel().selectedItemProperty().addListener(this);
     }
 
     @Override
-    public void changed(ObservableValue<? extends Object> observable, Object oldValue, Object newValue) {
+    public void changed(ObservableValue<? extends Report> observable, Report oldValue, Report newValue) {
         if (newValue != null) {
-            if (observable == projectComboBox.getSelectionModel().selectedItemProperty()) {
-                loadInternsForProject((Project) newValue);
-            } else if (observable == internComboBox.getSelectionModel().selectedItemProperty()) {
-                loadReportsForIntern((Intern) newValue);
-                loadInitialFormatsForIntern((Intern) newValue);
-            } else if (observable == reportsTableView.getSelectionModel().selectedItemProperty()) {
-                selectedReport = (Report) newValue;
-                populateReportDetail((Report) newValue);
-                loadActivitiesForReport((Report) newValue);
-            }
-        }
-    }
-
-    private void loadProjects() {
-        try {
-            ProjectDAO projectDAO = new ProjectDAO();
-            List<Project> allProjects = projectDAO.findAll();
-            List<Project> professorProjects = new ArrayList<>();
-
-            for (Project project : allProjects) {
-                if (project.getIdProfessor() == currentProfessorId) {
-                    professorProjects.add(project);
-                }
-            }
-
-            projectComboBox.setItems(FXCollections.observableArrayList(professorProjects));
-            internComboBox.setDisable(true);
-
-        } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar proyectos del profesor {0}: {1}",
-                    new Object[]{currentProfessorId, serviceException.getMessage()});
-            showAlert("Servicio no disponible",
-                    "No se pudieron cargar los proyectos. Intente más tarde.",
-                    Alert.AlertType.ERROR);
-        }
-    }
-
-    private void loadInternsForProject(Project project) {
-        try {
-            InternDAO internDAO = new InternDAO();
-            List<Intern> interns = internDAO.findByProject(project.getIdProject());
-            internComboBox.setItems(FXCollections.observableArrayList(interns));
-            internComboBox.setDisable(false);
-            reportsTableView.getItems().clear();
-            initialFormatsTableView.getItems().clear();
-            clearForm();
-        } catch (ValidationException validationException) {
-            showAlert("Error de validación",
-                    validationException.getMessage(), Alert.AlertType.ERROR);
-        } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar practicantes del proyecto {0}: {1}",
-                    new Object[]{project.getIdProject(), serviceException.getMessage()});
-            showAlert("Servicio no disponible",
-                    "No se pudieron cargar los practicantes. Intente más tarde.",
-                    Alert.AlertType.ERROR);
+            selectedReport = newValue;
+            populateReportDetail(newValue);
+            loadActivitiesForReport(newValue);
         }
     }
 
     private void loadReportsForIntern(Intern intern) {
         try {
-            Project selectedProject = projectComboBox.getValue();
             ReportDAO reportDAO = new ReportDAO();
-            List<Report> reportList = reportDAO.getByInternAndProject(intern.getId(), selectedProject.getIdProject());
+            List<Report> reportList = reportDAO.getByInternAndProject(intern.getId(), currentProject.getIdProject());
 
             reportsTableView.setItems(FXCollections.observableArrayList(reportList));
             clearForm();
@@ -523,8 +521,6 @@ public class EvaluateReportController implements ChangeListener<Object> {
     private void updateReportStatus(String newStatus) {
         int reportId = selectedReport.getIdReport();
         Double reportGrade = parseGrade(gradeTextField.getText().trim());
-        Intern currentIntern = internComboBox.getValue();
-        Project currentProject = projectComboBox.getValue();
         try {
             ReportDAO reportDAO = new ReportDAO();
             String observations = observationsTextArea.getText().trim();

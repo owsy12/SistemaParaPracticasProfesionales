@@ -18,7 +18,7 @@
 <AnchorPane prefHeight="560.0" prefWidth="820.0"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="GUI.Controller.SelectProjectForActivityController">
+            fx:controller="GUI.Controller.SelectionInternProjectController">
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
@@ -38,11 +38,10 @@
                     <VBox styleClass="viewHeaderVBox" spacing="5.0">
                         <HBox styleClass="viewBreadcrumbHBox" spacing="6.0" alignment="CENTER_LEFT">
                             <Label text="&#9711;" styleClass="viewBreadcrumbIconLabel"/>
-                            <Label text="PROFESOR · ACTIVIDADES" styleClass="viewBreadcrumbLabel"/>
+                            <Label text="PROFESOR · REVISIÓN" styleClass="viewBreadcrumbLabel"/>
                         </HBox>
-                        <Label text="Seleccionar Proyecto para Actividades" styleClass="viewTitleLabel"/>
-                        <Label text="Elige un proyecto del listado para agregar o administrar sus actividades."
-                               styleClass="viewSubtitleLabel"/>
+                        <Label text="Practicantes de la Experiencia Educativa" styleClass="viewTitleLabel"/>
+                        <Label fx:id="experienceContextLabel" text="EE: —" styleClass="viewSubtitleLabel"/>
                     </VBox>
 
                     <Separator styleClass="viewTopAccentSeparator"/>
@@ -53,43 +52,35 @@
                             <StackPane styleClass="formSectionIconStackPane">
                                 <Label text="&#9776;" styleClass="formSectionIconLabel"/>
                             </StackPane>
-                            <Label text="Proyectos activos" styleClass="formSectionTitleLabel"/>
+                            <Label text="Practicantes asignados" styleClass="formSectionTitleLabel"/>
                         </HBox>
 
                         <VBox spacing="14.0">
                             <padding><Insets top="22.0" right="22.0" bottom="22.0" left="22.0"/></padding>
 
-                            <TableView fx:id="projectsTable"
+                            <TableView fx:id="internsTable"
                                        styleClass="mainDataTableView"
-                                       prefHeight="320.0" minHeight="320.0">
+                                       prefHeight="300.0" minHeight="300.0">
                                 <columns>
-                                    <TableColumn fx:id="columnName" prefWidth="240.0" text="Nombre del proyecto">
-                                        <cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+                                    <TableColumn fx:id="registrationNumberColumn" prefWidth="130.0" text="Matrícula">
+                                        <cellValueFactory><PropertyValueFactory property="registrationNumber"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="columnOrganization" prefWidth="220.0" text="Organización">
-                                        <cellValueFactory><PropertyValueFactory property="organizationNameDisplay"/></cellValueFactory>
+                                    <TableColumn fx:id="fullNameColumn" prefWidth="290.0" text="Nombre">
+                                        <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="columnStatus" prefWidth="120.0" text="Estado">
-                                        <cellValueFactory><PropertyValueFactory property="status"/></cellValueFactory>
-                                    </TableColumn>
-                                    <TableColumn fx:id="columnPeriod" prefWidth="160.0" text="Período">
-                                        <cellValueFactory><PropertyValueFactory property="periodDisplay"/></cellValueFactory>
-                                    </TableColumn>
+                                    <TableColumn fx:id="projectColumn" prefWidth="200.0" text="Proyecto"/>
                                 </columns>
                             </TableView>
                         </VBox>
 
                         <HBox styleClass="formActionBarHBox" alignment="CENTER_RIGHT" spacing="10.0">
                             <padding><Insets top="14.0" right="22.0" bottom="14.0" left="22.0"/></padding>
+                            <Button text="Regresar" styleClass="secondaryActionButton"
+                                    onAction="#goBack" mnemonicParsing="false"/>
                             <Region HBox.hgrow="ALWAYS"/>
-                            <Button fx:id="addActivityButton"
-                                    text="Agregar Actividad" styleClass="secondaryActionButton"
-                                    disable="true"
-                                    onAction="#openAddActivity" mnemonicParsing="false"/>
-                            <Button fx:id="manageActivitiesButton"
-                                    text="Gestionar Actividades" styleClass="primaryActionButton"
-                                    disable="true"
-                                    onAction="#openManageActivities" mnemonicParsing="false"/>
+                            <Button fx:id="seeReportsButton"
+                                    text="Ver reportes y actividades" styleClass="primaryActionButton"
+                                    onAction="#openInternReports" mnemonicParsing="false"/>
                         </HBox>
                     </VBox>
                 </VBox>
