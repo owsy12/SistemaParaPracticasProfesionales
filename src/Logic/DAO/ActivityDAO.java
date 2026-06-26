@@ -64,10 +64,6 @@ public class ActivityDAO implements IActivityDAO {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + activity.getIdProject());
         }
-        if (activity.getIdIntern() <= 0) {
-            throw new ValidationException(
-                    "El ID del practicante debe ser mayor a cero. ID recibido: " + activity.getIdIntern());
-        }
         if (activity.getName() == null || activity.getName().isBlank()) {
             throw new ValidationException("El nombre de la actividad no puede estar vacío.");
         }
@@ -78,8 +74,12 @@ public class ActivityDAO implements IActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt (1, activity.getIdProject());
-            statement.setInt (2, activity.getIdIntern());
+            statement.setInt(1, activity.getIdProject());
+            if (activity.getIdIntern() > 0) {
+                statement.setInt(2, activity.getIdIntern());
+            } else {
+                statement.setNull(2, java.sql.Types.INTEGER);
+            }
             statement.setString(3, activity.getName());
             statement.setString(4, activity.getDescription());
             if (activity.getStartDate() != null) {

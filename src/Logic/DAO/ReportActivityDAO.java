@@ -55,11 +55,11 @@ public class ReportActivityDAO implements IReportActivityDAO {
             "WHERE id_reporte = ? ORDER BY id_reporte_entregable ASC";
 
     @Override
-    public int save(ReportActivity ra) throws ServiceException, ValidationException {
-        if (ra == null) {
+    public int save(ReportActivity reportActivity) throws ServiceException, ValidationException {
+        if (reportActivity == null) {
             throw new ValidationException("La actividad del reporte no puede ser nula.");
         }
-        if (ra.getIdReport() <= 0 || ra.getIdActivity() <= 0) {
+        if (reportActivity.getIdReport() <= 0 || reportActivity.getIdActivity() <= 0) {
             throw new ValidationException(
                     "El ID de reporte e ID de actividad deben ser mayores a cero.");
         }
@@ -68,18 +68,18 @@ public class ReportActivityDAO implements IReportActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT_ACTIVITY, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt (1, ra.getIdReport());
-            statement.setInt (2, ra.getIdActivity());
-            statement.setString(3, ra.getPeriod());
-            statement.setString(4, ra.getWeeklyPlan());
-            statement.setString(5, ra.getRealWeeks());
-            statement.setInt (6, ra.getAdvancePercentage());
-            statement.setString(7, ra.getObservations());
+            statement.setInt (1, reportActivity.getIdReport());
+            statement.setInt (2, reportActivity.getIdActivity());
+            statement.setString(3, reportActivity.getPeriod());
+            statement.setString(4, reportActivity.getWeeklyPlan());
+            statement.setString(5, reportActivity.getRealWeeks());
+            statement.setInt (6, reportActivity.getAdvancePercentage());
+            statement.setString(7, reportActivity.getObservations());
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
                 try (ResultSet keys = statement.getGeneratedKeys()) {
-                    if (keys.next()) ra.setIdReportActivity(keys.getInt(1));
+                    if (keys.next()) reportActivity.setIdReportActivity(keys.getInt(1));
                 }
             }
             return rows;
@@ -87,7 +87,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error saving report activity {0}: {1}",
-                    new Object[]{ra.getIdReport(), sqlException.getMessage()});
+                    new Object[]{reportActivity.getIdReport(), sqlException.getMessage()});
             throw new ServiceException(
                     "Error al guardar la actividad del reporte.", sqlException);
         }
@@ -124,16 +124,16 @@ public class ReportActivityDAO implements IReportActivityDAO {
     }
 
     @Override
-    public int saveDeliverable(ReportDeliverable rd)
+    public int saveDeliverable(ReportDeliverable reportDeliverable)
             throws ServiceException, ValidationException {
 
-        if (rd == null) {
+        if (reportDeliverable == null) {
             throw new ValidationException("El entregable del reporte no puede ser nulo.");
         }
-        if (rd.getIdReport() <= 0) {
+        if (reportDeliverable.getIdReport() <= 0) {
             throw new ValidationException("El ID de reporte debe ser mayor a cero.");
         }
-        if (rd.getResult() == null || rd.getResult().isBlank()) {
+        if (reportDeliverable.getResult() == null || reportDeliverable.getResult().isBlank()) {
             throw new ValidationException("El resultado del entregable es obligatorio.");
         }
 
@@ -141,16 +141,16 @@ public class ReportActivityDAO implements IReportActivityDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT_DELIVERABLE, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt (1, rd.getIdReport());
-            statement.setString(2, rd.getResult());
-            statement.setString(3, rd.getDescription());
-            statement.setInt (4, rd.getAdvancePercentage());
-            statement.setString(5, rd.getObservations());
+            statement.setInt (1, reportDeliverable.getIdReport());
+            statement.setString(2, reportDeliverable.getResult());
+            statement.setString(3, reportDeliverable.getDescription());
+            statement.setInt (4, reportDeliverable.getAdvancePercentage());
+            statement.setString(5, reportDeliverable.getObservations());
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
                 try (ResultSet keys = statement.getGeneratedKeys()) {
-                    if (keys.next()) rd.setIdReportDeliverable(keys.getInt(1));
+                    if (keys.next()) reportDeliverable.setIdReportDeliverable(keys.getInt(1));
                 }
             }
             return rows;
@@ -158,7 +158,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error saving report deliverable {0}: {1}",
-                    new Object[]{rd.getIdReport(), sqlException.getMessage()});
+                    new Object[]{reportDeliverable.getIdReport(), sqlException.getMessage()});
             throw new ServiceException(
                     "Error al guardar el entregable del reporte.", sqlException);
         }
@@ -256,28 +256,28 @@ public class ReportActivityDAO implements IReportActivityDAO {
         return exists;
     }
 
-    private ReportActivity mapActivity(ResultSet rs) throws SQLException {
-        ReportActivity ra = new ReportActivity();
-        ra.setIdReportActivity(rs.getInt ("id_reporte_actividad"));
-        ra.setIdReport (rs.getInt ("id_reporte"));
-        ra.setIdActivity (rs.getInt ("id_actividad"));
-        ra.setActivityName (rs.getString("actividad_nombre"));
-        ra.setPeriod (rs.getString("periodo"));
-        ra.setWeeklyPlan(rs.getString("plan_semanas"));
-        ra.setRealWeeks(rs.getString("real_semanas"));
-        ra.setAdvancePercentage (rs.getInt ("porcentaje_avance"));
-        ra.setObservations(rs.getString("observaciones"));
-        return ra;
+    private ReportActivity mapActivity(ResultSet resultSet) throws SQLException {
+        ReportActivity reportActivity = new ReportActivity();
+        reportActivity.setIdReportActivity(resultSet.getInt ("id_reporte_actividad"));
+        reportActivity.setIdReport (resultSet.getInt ("id_reporte"));
+        reportActivity.setIdActivity (resultSet.getInt ("id_actividad"));
+        reportActivity.setActivityName (resultSet.getString("actividad_nombre"));
+        reportActivity.setPeriod (resultSet.getString("periodo"));
+        reportActivity.setWeeklyPlan(resultSet.getString("plan_semanas"));
+        reportActivity.setRealWeeks(resultSet.getString("real_semanas"));
+        reportActivity.setAdvancePercentage (resultSet.getInt ("porcentaje_avance"));
+        reportActivity.setObservations(resultSet.getString("observaciones"));
+        return reportActivity;
     }
 
-    private ReportDeliverable mapDeliverable(ResultSet rs) throws SQLException {
-        ReportDeliverable rd = new ReportDeliverable();
-        rd.setIdReportDeliverable(rs.getInt ("id_reporte_entregable"));
-        rd.setIdReport (rs.getInt ("id_reporte"));
-        rd.setResult (rs.getString("resultado"));
-        rd.setDescription (rs.getString("descripcion"));
-        rd.setAdvancePercentage (rs.getInt ("porcentaje_avance"));
-        rd.setObservations (rs.getString("observaciones"));
-        return rd;
+    private ReportDeliverable mapDeliverable(ResultSet resultSet) throws SQLException {
+        ReportDeliverable reportDeliverable = new ReportDeliverable();
+        reportDeliverable.setIdReportDeliverable(resultSet.getInt ("id_reporte_entregable"));
+        reportDeliverable.setIdReport (resultSet.getInt ("id_reporte"));
+        reportDeliverable.setResult (resultSet.getString("resultado"));
+        reportDeliverable.setDescription (resultSet.getString("descripcion"));
+        reportDeliverable.setAdvancePercentage (resultSet.getInt ("porcentaje_avance"));
+        reportDeliverable.setObservations (resultSet.getString("observaciones"));
+        return reportDeliverable;
     }
 }

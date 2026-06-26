@@ -31,7 +31,7 @@ public class ProfessorDAO implements IProfessorDAO {
             "SELECT u.*, p.academica FROM usuario u " +
                     "JOIN profesor p ON u.id_usuario = p.id_usuario";
     private static final String UPDATE_PROFESSOR_STATUS_SQL =
-            "UPDATE usuario SET estado = '" + STATUS_INACTIVE + "' WHERE id_usuario = ?";
+            "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
 
     public ProfessorDAO() throws ValidationException, ServiceException {
     }

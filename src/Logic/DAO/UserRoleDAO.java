@@ -25,8 +25,7 @@ public class UserRoleDAO implements IUserRoleDAO {
     private static final Logger LOGGER = Logger.getLogger(UserRoleDAO.class.getName());
 
     private static final String INSERT_USER_ROLE_SQL =
-            "INSERT INTO usuario_rol (id_usuario, rol, estado) VALUES (?, ?, ?) " +
-            "ON DUPLICATE KEY UPDATE estado = VALUES(estado)";
+            "INSERT INTO usuario_rol (id_usuario, rol, estado) VALUES (?, ?, ?)";
     private static final String SELECT_ROLES_BY_USER_ID_SQL =
             "SELECT id_usuario, rol, estado FROM usuario_rol WHERE id_usuario = ?";
     private static final String SELECT_USERS_BY_ROLE_SQL =

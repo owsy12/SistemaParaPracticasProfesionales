@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReportObservationDAOTest extends BaseDAOTest {
 
-    private final ReportObservationDAO dao = new ReportObservationDAO();
+    private final ReportObservationDAO reportObservationDAO = new ReportObservationDAO();
 
     private ReportObservation buildObservation(int idReport, int idProfessor) {
         ReportObservation observation = new ReportObservation();
@@ -31,7 +31,7 @@ class ReportObservationDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidObservationReturnsTrue() throws ServiceException, ValidationException {
         ObservationContext context = persistContext();
-        boolean result = dao.save(buildObservation(context.idReport, context.idProfessor));
+        boolean result = reportObservationDAO.save(buildObservation(context.idReport, context.idProfessor));
         assertTrue(result);
     }
 
@@ -42,7 +42,7 @@ class ReportObservationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(observation);
+                reportObservationDAO.save(observation);
             }
         });
     }
@@ -50,15 +50,15 @@ class ReportObservationDAOTest extends BaseDAOTest {
     @Test
     void testFindByReportAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         ObservationContext context = persistContext();
-        dao.save(buildObservation(context.idReport, context.idProfessor));
-        List<ReportObservation> observations = dao.findByReport(context.idReport);
+        reportObservationDAO.save(buildObservation(context.idReport, context.idProfessor));
+        List<ReportObservation> observations = reportObservationDAO.findByReport(context.idReport);
         assertEquals(TestConstants.SINGLE_RESULT, observations.size());
     }
 
     @Test
     void testFindByReportWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
         ObservationContext context = persistContext();
-        List<ReportObservation> observations = dao.findByReport(context.idReport);
+        List<ReportObservation> observations = reportObservationDAO.findByReport(context.idReport);
         assertTrue(observations.isEmpty());
     }
 
@@ -67,7 +67,7 @@ class ReportObservationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findByReport(TestConstants.INVALID_ID_ZERO);
+                reportObservationDAO.findByReport(TestConstants.INVALID_ID_ZERO);
             }
         });
     }

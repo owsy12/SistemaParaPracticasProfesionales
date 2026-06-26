@@ -630,6 +630,10 @@ public class ProjectDAO implements IProjectDAO {
         } catch (SQLException ignored) {
         }
         try {
+            project.setStatus(resultSet.getString("estado"));
+        } catch (SQLException ignored) {
+        }
+        try {
             project.setNrc(resultSet.getString("nrc"));
         } catch (SQLException ignored) {
         }

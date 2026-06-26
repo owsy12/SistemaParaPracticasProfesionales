@@ -23,15 +23,16 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
 
     private static final String SQL_INSERT_SPECIFIC =
             "INSERT INTO reporte_mensual " +
-                    "(id_reporte_mensual, mes, anio, horas_reportadas, bloque, seccion) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+                    "(id_reporte_mensual, mes, anio, horas_reportadas, bloque, seccion, numero_reporte) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
     private static final String SQL_SELECT_BASE =
             "SELECT r.id_reporte, r.id_practicante, r.id_proyecto, r.id_profesor, " +
                     "       r.tipo_reporte, r.periodo, r.ruta_documento, r.ruta_documento_firmado, " +
                     "       r.estado, r.horas_reportadas, r.observaciones_profesor, " +
                     "       r.fecha_revision, r.fecha_entrega, " +
-                    "       m.mes, m.anio, m.horas_reportadas AS horas_mensual, m.bloque, m.seccion " +
+                    "       m.mes, m.anio, m.horas_reportadas AS horas_mensual, m.bloque, m.seccion, " +
+                    "       m.numero_reporte " +
                     "FROM reporte r " +
                     "JOIN reporte_mensual m ON m.id_reporte_mensual = r.id_reporte";
 
@@ -89,6 +90,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     preparedStatement.setInt (4, monthlyReport.getMonthlyHours());
                     preparedStatement.setString(5, monthlyReport.getBlock());
                     preparedStatement.setString(6, monthlyReport.getSection());
+                    preparedStatement.setInt (7, monthlyReport.getReportNumber());
                     preparedStatement.executeUpdate();
                 }
 
@@ -223,6 +225,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
         report.setReportedHours (monthlyHours);
         report.setBlock (resultSet.getString("bloque"));
         report.setSection (resultSet.getString("seccion"));
+        report.setReportNumber(resultSet.getInt("numero_reporte"));
 
         return report;
     }

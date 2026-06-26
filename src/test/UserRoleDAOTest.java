@@ -22,7 +22,7 @@ class UserRoleDAOTest extends BaseDAOTest {
     private static final String NEW_USER_REGISTRATION_NUMBER = "X50000001";
     private static final String NEW_USER_EMAIL = "rol.test@uv.mx";
 
-    private final UserRoleDAO dao = new UserRoleDAO();
+    private final UserRoleDAO activeRolsByUserId = new UserRoleDAO();
 
     private User buildUserWithIdAndRole(int idUser, String role) {
         User user = new User();
@@ -38,7 +38,7 @@ class UserRoleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.saveUserRole(user);
+                activeRolsByUserId.saveUserRole(user);
             }
         });
     }
@@ -46,18 +46,18 @@ class UserRoleDAOTest extends BaseDAOTest {
     @Test
     void testSaveUserRoleValidReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        boolean result = dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        boolean result = activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         assertTrue(result);
     }
 
     @Test
     void testSaveDuplicateUserRoleThrowsDuplicateEntryException() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         assertThrows(DuplicateEntryException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+                activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
             }
         });
     }
@@ -65,8 +65,8 @@ class UserRoleDAOTest extends BaseDAOTest {
     @Test
     void testFindRolesByUserIdAfterSaveReturnsOneRole() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
-        List<String> roles = dao.findRolesByUserId(idUser);
+        activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        List<String> roles = activeRolsByUserId.findRolesByUserId(idUser);
         assertEquals(TestConstants.SINGLE_RESULT, roles.size());
     }
 
@@ -75,7 +75,7 @@ class UserRoleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findRolesByUserId(TestConstants.INVALID_ID_ZERO);
+                activeRolsByUserId.findRolesByUserId(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -85,7 +85,7 @@ class UserRoleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findRolesByUserId(TestConstants.INVALID_ID_NEGATIVE);
+                activeRolsByUserId.findRolesByUserId(TestConstants.INVALID_ID_NEGATIVE);
             }
         });
     }
@@ -93,22 +93,22 @@ class UserRoleDAOTest extends BaseDAOTest {
     @Test
     void testFindUsersByRoleReturnsOneUser() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
-        List<Map<String, Object>> users = dao.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
+        activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        List<Map<String, Object>> users = activeRolsByUserId.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
         assertEquals(TestConstants.SINGLE_RESULT, users.size());
     }
 
     @Test
     void testFindUsersByRoleWithUnusedRoleReturnsEmptyList() throws ServiceException, ValidationException {
-        List<Map<String, Object>> users = dao.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
+        List<Map<String, Object>> users = activeRolsByUserId.findUsersByRole(TestConstants.ROLE_ADMINISTRATOR);
         assertTrue(users.isEmpty());
     }
 
     @Test
     void testDeleteUserRoleReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
-        boolean result = dao.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
+        activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        boolean result = activeRolsByUserId.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
         assertTrue(result);
     }
 
@@ -117,7 +117,7 @@ class UserRoleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.deleteUserRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_INTERN);
+                activeRolsByUserId.deleteUserRole(TestConstants.INVALID_ID_ZERO, TestConstants.ROLE_INTERN);
             }
         });
     }
@@ -125,17 +125,17 @@ class UserRoleDAOTest extends BaseDAOTest {
     @Test
     void testDeleteNonExistentUserRoleReturnsFalse() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        boolean result = dao.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
+        boolean result = activeRolsByUserId.deleteUserRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
         assertFalse(result);
     }
 
     @Test
     void testUpdateUserRoleStatusReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         User user = buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
         user.setStatus(TestConstants.STATUS_INACTIVE_USER);
-        boolean result = dao.updateUserRolStatus(user);
+        boolean result = activeRolsByUserId.updateUserRolStatus(user);
         assertTrue(result);
     }
 
@@ -146,7 +146,7 @@ class UserRoleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.updateUserRolStatus(user);
+                activeRolsByUserId.updateUserRolStatus(user);
             }
         });
     }
@@ -154,19 +154,19 @@ class UserRoleDAOTest extends BaseDAOTest {
     @Test
     void testGetActiveRolesByUserIdReturnsOneActiveRole() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
-        List<String> active = dao.getActiveRolsByUserId(idUser);
+        activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        List<String> active = activeRolsByUserId.getActiveRolsByUserId(idUser);
         assertEquals(TestConstants.SINGLE_RESULT, active.size());
     }
 
     @Test
     void testGetActiveRolesByUserIdReturnsEmptyForInactiveRole() throws ServiceException, ValidationException {
         int idUser = persistStandaloneUser();
-        dao.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
+        activeRolsByUserId.saveUserRole(buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR));
         User user = buildUserWithIdAndRole(idUser, TestConstants.ROLE_ADMINISTRATOR);
         user.setStatus(TestConstants.STATUS_INACTIVE_USER);
-        dao.updateUserRolStatus(user);
-        List<String> active = dao.getActiveRolsByUserId(idUser);
+        activeRolsByUserId.updateUserRolStatus(user);
+        List<String> active = activeRolsByUserId.getActiveRolsByUserId(idUser);
         assertTrue(active.isEmpty());
     }
 

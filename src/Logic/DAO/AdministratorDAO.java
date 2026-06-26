@@ -19,12 +19,12 @@ public class AdministratorDAO implements IAdministratorDAO {
             "INSERT INTO administrador (id_usuario) VALUES (?)";
     private static final String SELECT_ADMINISTRATOR_BY_ID_SQL =
             "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
-                    "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
+                    "u.apellido_materno, u.contrasenia, u.correo FROM usuario u " +
                     "JOIN administrador a ON u.id_usuario = a.id_usuario " +
                     "WHERE u.id_usuario = ?";
     private static final String SELECT_ALL_ADMINISTRATORS_SQL =
             "SELECT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +
-                    "u.apellido_materno, u.contrasenia, u.estado FROM usuario u " +
+                    "u.apellido_materno, u.contrasenia, u.correo FROM usuario u " +
                     "JOIN administrador a ON u.id_usuario = a.id_usuario";
 
     @Override
@@ -124,7 +124,7 @@ public class AdministratorDAO implements IAdministratorDAO {
         administrator.setLastName(resultSet.getString("apellido_paterno"));
         administrator.setSecondLastName(resultSet.getString("apellido_materno"));
         administrator.setPassword(resultSet.getString("contrasenia"));
-        administrator.setStatus(resultSet.getString("estado"));
+        administrator.setEmail(resultSet.getString("correo"));
 
         return administrator;
     }

@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 public class EducationalExperienceDAO implements IEducationalExperienceDAO {
 
     private static final Logger LOGGER = Logger.getLogger(EducationalExperienceDAO.class.getName());
+    private static final String DEFAULT_PERIOD = "2025-01";
 
     private static final String SQL_INSERT =
             "INSERT INTO experiencia_educativa (nrc, nombre, id_profesor, periodo) VALUES (?, ?, ?, ?)";
@@ -41,6 +42,9 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
 
     @Override
     public boolean save(EducationalExperience educationalExperience) throws ServiceException, ValidationException {
+        if (educationalExperience.getPeriod() == null || educationalExperience.getPeriod().isBlank()) {
+            educationalExperience.setPeriod(DEFAULT_PERIOD);
+        }
         validateEducationalExperience(educationalExperience);
 
         boolean isSaved = false;
