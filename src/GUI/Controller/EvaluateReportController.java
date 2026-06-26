@@ -2,7 +2,7 @@ package GUI.Controller;
 
 import GUI.SessionManager.SessionManager;
 import Logic.DAO.InitialFormatDAO;
-import Logic.DAO.OvEvaluationDAO;
+import Logic.DAO.LinkedOrganizationEvaluationDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ReportActivityDAO;
 import Logic.DAO.ReportDAO;
@@ -10,7 +10,7 @@ import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.EducationalExperience;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
-import Logic.DTOs.OvEvaluation;
+import Logic.DTOs.LinkedOrganizationEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.ReportActivity;
@@ -150,7 +150,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
     private Label selfEvaluationStatusLabel;
 
     @FXML
-    private Label ovEvaluationStatusLabel;
+    private Label linkedOrganizationEvaluationStatusLabel;
 
     @FXML
     private Label closureRecordStatusLabel;
@@ -179,7 +179,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         loadReportsForIntern(intern);
         loadInitialFormatsForIntern(intern);
         refreshSelfEvaluationStatus();
-        refreshOvEvaluationStatus();
+        refreshLinkedOrganizationEvaluationStatus();
         refreshClosureRecordStatus();
     }
 
@@ -418,7 +418,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
     }
 
     @FXML
-    public void openOvEvaluation(ActionEvent actionEvent) {
+    public void openLinkedOrganizationEvaluation(ActionEvent actionEvent) {
         Intern selectedIntern = currentIntern;
         Project selectedProject = currentProject;
         boolean isSelectionMissing = false;
@@ -431,18 +431,18 @@ public class EvaluateReportController implements ChangeListener<Report> {
             showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
                     Alert.AlertType.WARNING);
         } else {
-            tryOpenOvEvaluation(selectedIntern.getIdUser(), selectedProject.getIdProject());
+            tryOpenLinkedOrganizationEvaluation(selectedIntern.getIdUser(), selectedProject.getIdProject());
         }
     }
 
-    private void tryOpenOvEvaluation(int internId, int projectId) {
+    private void tryOpenLinkedOrganizationEvaluation(int internId, int projectId) {
         try {
-            OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
-            OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+            LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
+            LinkedOrganizationEvaluation linkedOrganizationEvaluation = linkedOrganizationEvaluationDAO.findByInternAndProject(internId, projectId);
             boolean hasDocument = false;
-            if (ovEvaluation != null) {
-                if (ovEvaluation.getDocumentPath() != null) {
-                    if (!ovEvaluation.getDocumentPath().isBlank()) {
+            if (linkedOrganizationEvaluation != null) {
+                if (linkedOrganizationEvaluation.getDocumentPath() != null) {
+                    if (!linkedOrganizationEvaluation.getDocumentPath().isBlank()) {
                         hasDocument = true;
                     }
                 }
@@ -452,7 +452,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                         "El practicante no tiene una evaluación OV entregada para este proyecto.",
                         Alert.AlertType.INFORMATION);
             } else {
-                tryOpenFile(ovEvaluation.getDocumentPath());
+                tryOpenFile(linkedOrganizationEvaluation.getDocumentPath());
             }
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error retrieving OV evaluation for intern {0}: {1}",
@@ -524,7 +524,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
     }
 
     @FXML
-    public void evaluateOvEvaluation(ActionEvent actionEvent) {
+    public void evaluateLinkedOrganizationEvaluation(ActionEvent actionEvent) {
         Intern selectedIntern = currentIntern;
         Project selectedProject = currentProject;
         boolean isSelectionMissing = false;
@@ -537,25 +537,25 @@ public class EvaluateReportController implements ChangeListener<Report> {
             showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
                     Alert.AlertType.WARNING);
         } else {
-            tryEvaluateOvEvaluation(selectedIntern.getIdUser(), selectedProject.getIdProject());
+            tryEvaluateLinkedOrganizationEvaluation(selectedIntern.getIdUser(), selectedProject.getIdProject());
         }
     }
 
-    private void tryEvaluateOvEvaluation(int internId, int projectId) {
+    private void tryEvaluateLinkedOrganizationEvaluation(int internId, int projectId) {
         try {
-            OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
-            OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+            LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
+            LinkedOrganizationEvaluation linkedOrganizationEvaluation = linkedOrganizationEvaluationDAO.findByInternAndProject(internId, projectId);
             boolean isMissing = false;
-            if (ovEvaluation == null) {
+            if (linkedOrganizationEvaluation == null) {
                 isMissing = true;
-            } else if (ovEvaluation.getDocumentPath() == null) {
+            } else if (linkedOrganizationEvaluation.getDocumentPath() == null) {
                 isMissing = true;
-            } else if (ovEvaluation.getDocumentPath().isBlank()) {
+            } else if (linkedOrganizationEvaluation.getDocumentPath().isBlank()) {
                 isMissing = true;
             }
             boolean isAlreadyEvaluated = false;
             if (!isMissing) {
-                if (STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus())) {
+                if (STATUS_DOCUMENT_EVALUATED.equals(linkedOrganizationEvaluation.getStatus())) {
                     isAlreadyEvaluated = true;
                 }
             }
@@ -569,15 +569,15 @@ public class EvaluateReportController implements ChangeListener<Report> {
                         "La evaluación OV del practicante ya fue marcada como evaluada.",
                         Alert.AlertType.INFORMATION);
             } else {
-                ovEvaluationDAO.updateStatus(
-                        ovEvaluation.getIdOvEvaluation(), STATUS_DOCUMENT_EVALUATED);
+                linkedOrganizationEvaluationDAO.updateStatus(
+                        linkedOrganizationEvaluation.getIdLinkedOrganizationEvaluation(), STATUS_DOCUMENT_EVALUATED);
                 LOGGER.log(Level.INFO,
                         "User {0} marked the OV evaluation for intern {1} as evaluated",
                         new Object[]{currentProfessorId, internId});
                 showAlert("Evaluación OV evaluada",
                         "La evaluación OV fue marcada como evaluada.",
                         Alert.AlertType.INFORMATION);
-                refreshOvEvaluationStatus();
+                refreshLinkedOrganizationEvaluationStatus();
             }
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
@@ -613,17 +613,17 @@ public class EvaluateReportController implements ChangeListener<Report> {
         selfEvaluationStatusLabel.setText(statusText);
     }
 
-    private void refreshOvEvaluationStatus() {
+    private void refreshLinkedOrganizationEvaluationStatus() {
         String statusText = "—";
         try {
-            OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
-            OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
+            LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
+            LinkedOrganizationEvaluation linkedOrganizationEvaluation = linkedOrganizationEvaluationDAO.findByInternAndProject(
                     currentIntern.getIdUser(), currentProject.getIdProject());
             String documentPath = null;
             String status = null;
-            if (ovEvaluation != null) {
-                documentPath = ovEvaluation.getDocumentPath();
-                status = ovEvaluation.getStatus();
+            if (linkedOrganizationEvaluation != null) {
+                documentPath = linkedOrganizationEvaluation.getDocumentPath();
+                status = linkedOrganizationEvaluation.getStatus();
             }
             statusText = describeDocumentStatus(documentPath, status);
         } catch (ServiceException serviceException) {
@@ -634,7 +634,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                     "Validation error while querying OV evaluation: {0}",
                     validationException.getMessage());
         }
-        ovEvaluationStatusLabel.setText(statusText);
+        linkedOrganizationEvaluationStatusLabel.setText(statusText);
     }
 
     private String describeDocumentStatus(String documentPath, String status) {

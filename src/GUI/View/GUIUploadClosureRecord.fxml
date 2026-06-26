@@ -21,7 +21,7 @@
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddOvEvaluationStyles.css"/>
+        <URL value="@css/GUIDocumentUploadStyles.css"/>
     </stylesheets>
 
     <children>

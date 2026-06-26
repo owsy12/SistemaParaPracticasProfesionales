@@ -210,7 +210,7 @@
                                 <Button text="Ver Autoevaluación"
                                         onAction="#openSelfEvaluation" mnemonicParsing="false"/>
                                 <Button text="Ver Evaluación OV"
-                                        onAction="#openOvEvaluation" mnemonicParsing="false"/>
+                                        onAction="#openLinkedOrganizationEvaluation" mnemonicParsing="false"/>
                                 <Button text="Ver Acta de Cierre"
                                         onAction="#openClosureRecord" mnemonicParsing="false"/>
                             </HBox>
@@ -227,9 +227,9 @@
                             <HBox spacing="10.0" alignment="CENTER_LEFT">
                                 <Button text="&#10003;  Marcar evaluación OV evaluada"
                                         styleClass="approveActionButton"
-                                        onAction="#evaluateOvEvaluation" mnemonicParsing="false"/>
+                                        onAction="#evaluateLinkedOrganizationEvaluation" mnemonicParsing="false"/>
                                 <Label text="Estado:" styleClass="infoKeyLabel"/>
-                                <Label fx:id="ovEvaluationStatusLabel" text="—"
+                                <Label fx:id="linkedOrganizationEvaluationStatusLabel" text="—"
                                        styleClass="infoValueLabel"/>
                             </HBox>
 

@@ -17,11 +17,11 @@
             prefHeight="520.0" prefWidth="640.0"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="GUI.Controller.AddOvEvaluationController">
+            fx:controller="GUI.Controller.AddLinkedOrganizationEvaluationController">
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddOvEvaluationStyles.css"/>
+        <URL value="@css/GUIDocumentUploadStyles.css"/>
     </stylesheets>
 
     <children>
@@ -85,7 +85,7 @@
                             <Button text="Limpiar" styleClass="cancelActionButton"
                                     onAction="#cancelAction" mnemonicParsing="false"/>
                             <Button text="&#10003;  Entregar evaluación OV" styleClass="primaryActionButton"
-                                    onAction="#uploadOvEvaluation" mnemonicParsing="false"/>
+                                    onAction="#uploadLinkedOrganizationEvaluation" mnemonicParsing="false"/>
                         </HBox>
 
                     </VBox>

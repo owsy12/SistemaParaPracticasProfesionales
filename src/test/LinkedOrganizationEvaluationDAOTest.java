@@ -1,6 +1,6 @@
 import DataAccess.DataBaseConnection;
-import Logic.DAO.OvEvaluationDAO;
-import Logic.DTOs.OvEvaluation;
+import Logic.DAO.LinkedOrganizationEvaluationDAO;
+import Logic.DTOs.LinkedOrganizationEvaluation;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
 import org.junit.jupiter.api.Test;
@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class OvEvaluationDAOTest extends BaseDAOTest {
+class LinkedOrganizationEvaluationDAOTest extends BaseDAOTest {
 
-    private final OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
+    private final LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
 
-    private OvEvaluation buildOvEvaluation(int idIntern, int idProject) {
-        OvEvaluation evaluation = new OvEvaluation();
+    private LinkedOrganizationEvaluation buildLinkedOrganizationEvaluation(int idIntern, int idProject) {
+        LinkedOrganizationEvaluation evaluation = new LinkedOrganizationEvaluation();
         evaluation.setIdIntern(idIntern);
         evaluation.setIdProject(idProject);
         evaluation.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
@@ -31,71 +31,71 @@ class OvEvaluationDAOTest extends BaseDAOTest {
     }
 
     @Test
-    void testSaveValidOvEvaluationReturnsOneRowAffected() throws ServiceException, ValidationException {
-        OVEvalContext context = persistContext();
-        int result = ovEvaluationDAO.save(buildOvEvaluation(context.idIntern, context.idProject));
+    void testSaveValidLinkedOrganizationEvaluationReturnsOneRowAffected() throws ServiceException, ValidationException {
+        EvaluationContext context = persistContext();
+        int result = linkedOrganizationEvaluationDAO.save(buildLinkedOrganizationEvaluation(context.idIntern, context.idProject));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
-    void testSaveOvEvaluationWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
-        OVEvalContext context = persistContext();
-        OvEvaluation evaluation = buildOvEvaluation(TestConstants.INVALID_ID_ZERO, context.idProject);
+    void testSaveLinkedOrganizationEvaluationWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
+        EvaluationContext context = persistContext();
+        LinkedOrganizationEvaluation evaluation = buildLinkedOrganizationEvaluation(TestConstants.INVALID_ID_ZERO, context.idProject);
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                ovEvaluationDAO.save(evaluation);
+                linkedOrganizationEvaluationDAO.save(evaluation);
             }
         });
     }
 
     @Test
     void testFindByInternAndProjectAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
-        OVEvalContext context = persistContext();
-        ovEvaluationDAO.save(buildOvEvaluation(context.idIntern, context.idProject));
-        OvEvaluation retrieved = ovEvaluationDAO.findByInternAndProject(context.idIntern, context.idProject);
+        EvaluationContext context = persistContext();
+        linkedOrganizationEvaluationDAO.save(buildLinkedOrganizationEvaluation(context.idIntern, context.idProject));
+        LinkedOrganizationEvaluation retrieved = linkedOrganizationEvaluationDAO.findByInternAndProject(context.idIntern, context.idProject);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByInternAndProjectWithNonExistentReturnsNull() throws ServiceException, ValidationException {
-        OvEvaluation retrieved = ovEvaluationDAO.findByInternAndProject(
+        LinkedOrganizationEvaluation retrieved = linkedOrganizationEvaluationDAO.findByInternAndProject(
                 TestConstants.NON_EXISTENT_ID, TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindByInternAndProjectWithZeroInternIdThrowsValidationException() throws ServiceException, ValidationException {
-        OVEvalContext context = persistContext();
+        EvaluationContext context = persistContext();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                ovEvaluationDAO.findByInternAndProject(TestConstants.INVALID_ID_ZERO, context.idProject);
+                linkedOrganizationEvaluationDAO.findByInternAndProject(TestConstants.INVALID_ID_ZERO, context.idProject);
             }
         });
     }
 
     @Test
     void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
-        OVEvalContext context = persistContext();
-        ovEvaluationDAO.save(buildOvEvaluation(context.idIntern, context.idProject));
-        boolean result = ovEvaluationDAO.deleteByInternAndProject(context.idIntern, context.idProject);
+        EvaluationContext context = persistContext();
+        linkedOrganizationEvaluationDAO.save(buildLinkedOrganizationEvaluation(context.idIntern, context.idProject));
+        boolean result = linkedOrganizationEvaluationDAO.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 
     @Test
     void testDeleteByInternAndProjectWithZeroProjectIdThrowsValidationException() throws ServiceException, ValidationException {
-        OVEvalContext context = persistContext();
+        EvaluationContext context = persistContext();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                ovEvaluationDAO.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
+                linkedOrganizationEvaluationDAO.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
-    private OVEvalContext persistContext() throws ServiceException, ValidationException {
-        OVEvalContext context = new OVEvalContext();
+    private EvaluationContext persistContext() throws ServiceException, ValidationException {
+        EvaluationContext context = new EvaluationContext();
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
             context.idIntern = scene.getInternId();
@@ -106,7 +106,7 @@ class OvEvaluationDAOTest extends BaseDAOTest {
         return context;
     }
 
-    private static final class OVEvalContext {
+    private static final class EvaluationContext {
         int idIntern;
         int idProject;
     }

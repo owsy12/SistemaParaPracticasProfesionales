@@ -3,24 +3,24 @@ package Logic.DTOs;
 import java.util.Objects;
 import java.time.LocalDateTime;
 
-public class OvEvaluation {
+public class LinkedOrganizationEvaluation {
 
-    private int idOvEvaluation;
+    private int idLinkedOrganizationEvaluation;
     private int idIntern;
     private int idProject;
     private String documentPath;
     private String status;
     private LocalDateTime deliveryDate;
 
-    public OvEvaluation() {
+    public LinkedOrganizationEvaluation() {
     }
 
-    public int getIdOvEvaluation() {
-        return idOvEvaluation;
+    public int getIdLinkedOrganizationEvaluation() {
+        return idLinkedOrganizationEvaluation;
     }
 
-    public void setIdOvEvaluation(int idOvEvaluation) {
-        this.idOvEvaluation = idOvEvaluation;
+    public void setIdLinkedOrganizationEvaluation(int idLinkedOrganizationEvaluation) {
+        this.idLinkedOrganizationEvaluation = idLinkedOrganizationEvaluation;
     }
 
     public int getIdIntern() {
@@ -71,8 +71,8 @@ public class OvEvaluation {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        OvEvaluation other = (OvEvaluation) object;
-        return idOvEvaluation == other.idOvEvaluation
+        LinkedOrganizationEvaluation other = (LinkedOrganizationEvaluation) object;
+        return idLinkedOrganizationEvaluation == other.idLinkedOrganizationEvaluation
                 && idIntern == other.idIntern
                 && idProject == other.idProject
                 && Objects.equals(documentPath, other.documentPath)
@@ -82,6 +82,6 @@ public class OvEvaluation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idOvEvaluation, idIntern, idProject, documentPath, status, deliveryDate);
+        return Objects.hash(idLinkedOrganizationEvaluation, idIntern, idProject, documentPath, status, deliveryDate);
     }
 }

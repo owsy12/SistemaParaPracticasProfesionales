@@ -3,10 +3,10 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
-import Logic.DAO.OvEvaluationDAO;
+import Logic.DAO.LinkedOrganizationEvaluationDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Assignment;
-import Logic.DTOs.OvEvaluation;
+import Logic.DTOs.LinkedOrganizationEvaluation;
 import Logic.DTOs.Project;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
@@ -39,14 +39,13 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class AddOvEvaluationController implements EventHandler<DragEvent> {
+public class AddLinkedOrganizationEvaluationController implements EventHandler<DragEvent> {
     private static final String STATUS_SUBMITTED = "Entregada";
-
 
     private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
     private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
     private static final Logger LOGGER =
-            Logger.getLogger(AddOvEvaluationController.class.getName());
+            Logger.getLogger(AddLinkedOrganizationEvaluationController.class.getName());
 
     @FXML
     private AnchorPane anchorPane;
@@ -87,7 +86,7 @@ public class AddOvEvaluationController implements EventHandler<DragEvent> {
     }
 
     @FXML
-    public void uploadOvEvaluation(ActionEvent actionEvent) {
+    public void uploadLinkedOrganizationEvaluation(ActionEvent actionEvent) {
         boolean isFileMissing = selectedFile == null;
         if (isFileMissing) {
             showStatus("Seleccione el PDF de la evaluación OV.", true);
@@ -184,8 +183,8 @@ public class AddOvEvaluationController implements EventHandler<DragEvent> {
     }
 
     private void checkAlreadyDelivered() throws ServiceException, ValidationException {
-        OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
-        OvEvaluation existing = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+        LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
+        LinkedOrganizationEvaluation existing = linkedOrganizationEvaluationDAO.findByInternAndProject(internId, projectId);
 
         if (existing != null) {
             showAlert("Evaluación OV ya entregada", "Ya entregó su evaluación OV para este proyecto.",
@@ -208,9 +207,9 @@ public class AddOvEvaluationController implements EventHandler<DragEvent> {
     private void uploadProcess() {
         try {
             String filePath = copyFile();
-            OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
-            OvEvaluation ovEvaluation = buildOvEvaluation(filePath);
-            int rowsAffected = ovEvaluationDAO.save(ovEvaluation);
+            LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
+            LinkedOrganizationEvaluation linkedOrganizationEvaluation = buildLinkedOrganizationEvaluation(filePath);
+            int rowsAffected = linkedOrganizationEvaluationDAO.save(linkedOrganizationEvaluation);
 
             if (rowsAffected > 0) {
                 LOGGER.log(Level.INFO,
@@ -249,14 +248,14 @@ public class AddOvEvaluationController implements EventHandler<DragEvent> {
         }
     }
 
-    private OvEvaluation buildOvEvaluation(String filePath) {
-        OvEvaluation ovEvaluation = new OvEvaluation();
-        ovEvaluation.setIdIntern(internId);
-        ovEvaluation.setIdProject(projectId);
-        ovEvaluation.setDocumentPath(filePath);
-        ovEvaluation.setStatus(STATUS_SUBMITTED);
-        ovEvaluation.setDeliveryDate(LocalDateTime.now());
-        return ovEvaluation;
+    private LinkedOrganizationEvaluation buildLinkedOrganizationEvaluation(String filePath) {
+        LinkedOrganizationEvaluation linkedOrganizationEvaluation = new LinkedOrganizationEvaluation();
+        linkedOrganizationEvaluation.setIdIntern(internId);
+        linkedOrganizationEvaluation.setIdProject(projectId);
+        linkedOrganizationEvaluation.setDocumentPath(filePath);
+        linkedOrganizationEvaluation.setStatus(STATUS_SUBMITTED);
+        linkedOrganizationEvaluation.setDeliveryDate(LocalDateTime.now());
+        return linkedOrganizationEvaluation;
     }
 
     private String copyFile() throws IOException {

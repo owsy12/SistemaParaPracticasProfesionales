@@ -2,7 +2,7 @@ package GUI.Controller;
 
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
-import Logic.DAO.OvEvaluationDAO;
+import Logic.DAO.LinkedOrganizationEvaluationDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportDAO;
@@ -10,7 +10,7 @@ import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.EducationalExperience;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
-import Logic.DTOs.OvEvaluation;
+import Logic.DTOs.LinkedOrganizationEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.SelfEvaluation;
@@ -49,7 +49,7 @@ public class SelectionInternProjectController {
 
     private static final String FILTER_ALL = "Todos";
     private static final String DOCUMENT_TYPE_SELF_EVALUATION = "Autoevaluación";
-    private static final String DOCUMENT_TYPE_OV_EVALUATION = "Evaluación OV";
+    private static final String DOCUMENT_TYPE_LINKED_ORGANIZATION_EVALUATION = "Evaluación OV";
     private static final String DOCUMENT_TYPE_CLOSURE_RECORD = "Acta de cierre";
     private static final String STATUS_CLOSURE_PENDING = "Pendiente de validación";
     private static final String STATUS_CLOSURE_VALIDATED = "Validada";
@@ -233,11 +233,11 @@ public class SelectionInternProjectController {
             documents.add(new String[]{DOCUMENT_TYPE_SELF_EVALUATION, selfEvaluation.getStatus()});
         }
 
-        OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
-        OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
+        LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
+        LinkedOrganizationEvaluation linkedOrganizationEvaluation = linkedOrganizationEvaluationDAO.findByInternAndProject(
                 intern.getIdUser(), project.getIdProject());
-        if (ovEvaluation != null) {
-            documents.add(new String[]{DOCUMENT_TYPE_OV_EVALUATION, ovEvaluation.getStatus()});
+        if (linkedOrganizationEvaluation != null) {
+            documents.add(new String[]{DOCUMENT_TYPE_LINKED_ORGANIZATION_EVALUATION, linkedOrganizationEvaluation.getStatus()});
         }
 
         PracticeDAO practiceDAO = new PracticeDAO();

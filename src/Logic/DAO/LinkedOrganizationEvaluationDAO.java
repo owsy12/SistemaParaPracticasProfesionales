@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
-import Logic.DTOs.OvEvaluation;
+import Logic.DTOs.LinkedOrganizationEvaluation;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class OvEvaluationDAO {
+public class LinkedOrganizationEvaluationDAO {
     private static final String STATUS_SUBMITTED = "Entregada";
 
 
-    private static final Logger LOGGER = Logger.getLogger(OvEvaluationDAO.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LinkedOrganizationEvaluationDAO.class.getName());
 
     private static final String SQL_INSERT =
             "INSERT INTO evaluacion_ov " +
@@ -36,16 +36,16 @@ public class OvEvaluationDAO {
     private static final String SQL_UPDATE_STATUS =
             "UPDATE evaluacion_ov SET estado = ? WHERE id_evaluacion_ov = ?";
 
-    public int save(OvEvaluation ovEvaluation) throws ServiceException, ValidationException {
-        if (ovEvaluation.getIdIntern() <= 0) {
+    public int save(LinkedOrganizationEvaluation linkedOrganizationEvaluation) throws ServiceException, ValidationException {
+        if (linkedOrganizationEvaluation.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: "
-                    + ovEvaluation.getIdIntern());
+                    + linkedOrganizationEvaluation.getIdIntern());
         }
-        if (ovEvaluation.getIdProject() <= 0) {
+        if (linkedOrganizationEvaluation.getIdProject() <= 0) {
             throw new ValidationException(
                     "El ID del proyecto debe ser mayor a cero. ID recibido: "
-                    + ovEvaluation.getIdProject());
+                    + linkedOrganizationEvaluation.getIdProject());
         }
 
         int rowsAffected = 0;
@@ -54,28 +54,28 @@ public class OvEvaluationDAO {
              PreparedStatement statement = connection.prepareStatement(
                      SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.setInt (1, ovEvaluation.getIdIntern());
-            statement.setInt (2, ovEvaluation.getIdProject());
-            statement.setString(3, ovEvaluation.getDocumentPath());
-            statement.setString(4, ovEvaluation.getStatus() != null
-                    ? ovEvaluation.getStatus() : STATUS_SUBMITTED);
+            statement.setInt (1, linkedOrganizationEvaluation.getIdIntern());
+            statement.setInt (2, linkedOrganizationEvaluation.getIdProject());
+            statement.setString(3, linkedOrganizationEvaluation.getDocumentPath());
+            statement.setString(4, linkedOrganizationEvaluation.getStatus() != null
+                    ? linkedOrganizationEvaluation.getStatus() : STATUS_SUBMITTED);
             statement.setTimestamp(5, Timestamp.valueOf(
-                    ovEvaluation.getDeliveryDate() != null
-                    ? ovEvaluation.getDeliveryDate()
+                    linkedOrganizationEvaluation.getDeliveryDate() != null
+                    ? linkedOrganizationEvaluation.getDeliveryDate()
                     : LocalDateTime.now()));
 
             rowsAffected = statement.executeUpdate();
 
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    ovEvaluation.setIdOvEvaluation(generatedKeys.getInt(1));
+                    linkedOrganizationEvaluation.setIdLinkedOrganizationEvaluation(generatedKeys.getInt(1));
                 }
             }
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error saving OV evaluation for intern {0} in project {1}: {2}",
-                    new Object[]{ovEvaluation.getIdIntern(), ovEvaluation.getIdProject(),
+                    new Object[]{linkedOrganizationEvaluation.getIdIntern(), linkedOrganizationEvaluation.getIdProject(),
                                  sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -88,7 +88,7 @@ public class OvEvaluationDAO {
         return rowsAffected;
     }
 
-    public OvEvaluation findByInternAndProject(int internId, int projectId)
+    public LinkedOrganizationEvaluation findByInternAndProject(int internId, int projectId)
             throws ServiceException, ValidationException {
         if (internId <= 0) {
             throw new ValidationException(
@@ -99,7 +99,7 @@ public class OvEvaluationDAO {
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
         }
 
-        OvEvaluation ovEvaluation = null;
+        LinkedOrganizationEvaluation linkedOrganizationEvaluation = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement =
@@ -110,7 +110,7 @@ public class OvEvaluationDAO {
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    ovEvaluation = mapResultSet(resultSet);
+                    linkedOrganizationEvaluation = mapResultSet(resultSet);
                 }
             }
 
@@ -122,14 +122,14 @@ public class OvEvaluationDAO {
                     "Error al buscar la evaluación OV.", sqlException);
         }
 
-        return ovEvaluation;
+        return linkedOrganizationEvaluation;
     }
 
-    public boolean updateStatus(int idOvEvaluation, String status)
+    public boolean updateStatus(int evaluationId, String status)
             throws ServiceException, ValidationException {
-        if (idOvEvaluation <= 0) {
+        if (evaluationId <= 0) {
             throw new ValidationException(
-                    "El ID de la evaluación OV debe ser mayor a cero. ID recibido: " + idOvEvaluation);
+                    "El ID de la evaluación OV debe ser mayor a cero. ID recibido: " + evaluationId);
         }
         if (status == null || status.isBlank()) {
             throw new ValidationException("El estado no puede estar vacío.");
@@ -141,7 +141,7 @@ public class OvEvaluationDAO {
              PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_STATUS)) {
 
             statement.setString(1, status);
-            statement.setInt (2, idOvEvaluation);
+            statement.setInt (2, evaluationId);
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -149,7 +149,7 @@ public class OvEvaluationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error updating OV evaluation status {0}: {1}",
-                    new Object[]{idOvEvaluation, sqlException.getMessage()});
+                    new Object[]{evaluationId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al actualizar el estado de la evaluación OV.", sqlException);
         }
@@ -157,20 +157,20 @@ public class OvEvaluationDAO {
         return isUpdated;
     }
 
-    private OvEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
-        OvEvaluation ovEvaluation = new OvEvaluation();
-        ovEvaluation.setIdOvEvaluation(resultSet.getInt ("id_evaluacion_ov"));
-        ovEvaluation.setIdIntern (resultSet.getInt ("id_practicante"));
-        ovEvaluation.setIdProject (resultSet.getInt ("id_proyecto"));
-        ovEvaluation.setDocumentPath (resultSet.getString("ruta_documento"));
-        ovEvaluation.setStatus (resultSet.getString("estado"));
+    private LinkedOrganizationEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
+        LinkedOrganizationEvaluation linkedOrganizationEvaluation = new LinkedOrganizationEvaluation();
+        linkedOrganizationEvaluation.setIdLinkedOrganizationEvaluation(resultSet.getInt("id_evaluacion_ov"));
+        linkedOrganizationEvaluation.setIdIntern (resultSet.getInt ("id_practicante"));
+        linkedOrganizationEvaluation.setIdProject (resultSet.getInt ("id_proyecto"));
+        linkedOrganizationEvaluation.setDocumentPath (resultSet.getString("ruta_documento"));
+        linkedOrganizationEvaluation.setStatus (resultSet.getString("estado"));
 
         Timestamp deliveryDate = resultSet.getTimestamp("fecha_entrega");
         if (deliveryDate != null) {
-            ovEvaluation.setDeliveryDate(deliveryDate.toLocalDateTime());
+            linkedOrganizationEvaluation.setDeliveryDate(deliveryDate.toLocalDateTime());
         }
 
-        return ovEvaluation;
+        return linkedOrganizationEvaluation;
     }
 
     public boolean deleteByInternAndProject(int internId, int projectId)

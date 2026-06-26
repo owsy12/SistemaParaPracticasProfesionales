@@ -2,12 +2,12 @@ package GUI.Utils;
 
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternActivityDAO;
-import Logic.DAO.OvEvaluationDAO;
+import Logic.DAO.LinkedOrganizationEvaluationDAO;
 import Logic.DAO.ReportDAO;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.InternActivity;
-import Logic.DTOs.OvEvaluation;
+import Logic.DTOs.LinkedOrganizationEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.SelfEvaluation;
@@ -38,7 +38,7 @@ public class EvaluationPrerequisiteChecker {
             if (hasEvaluatedReportOfType(internId, REPORT_TYPE_PARTIAL)) {
                 if (hasEvaluatedReportOfType(internId, REPORT_TYPE_FINAL)) {
                     if (isSelfEvaluationEvaluated(internId)) {
-                        if (isOvEvaluationEvaluated(internId, projectId)) {
+                        if (isLinkedOrganizationEvaluationEvaluated(internId, projectId)) {
                             complete = true;
                         }
                     }
@@ -80,13 +80,13 @@ public class EvaluationPrerequisiteChecker {
         return evaluated;
     }
 
-    private static boolean isOvEvaluationEvaluated(int internId, int projectId)
+    private static boolean isLinkedOrganizationEvaluationEvaluated(int internId, int projectId)
             throws ServiceException, ValidationException {
-        OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
-        OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+        LinkedOrganizationEvaluationDAO linkedOrganizationEvaluationDAO = new LinkedOrganizationEvaluationDAO();
+        LinkedOrganizationEvaluation linkedOrganizationEvaluation = linkedOrganizationEvaluationDAO.findByInternAndProject(internId, projectId);
         boolean evaluated = false;
-        if (ovEvaluation != null) {
-            if (STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus())) {
+        if (linkedOrganizationEvaluation != null) {
+            if (STATUS_DOCUMENT_EVALUATED.equals(linkedOrganizationEvaluation.getStatus())) {
                 evaluated = true;
             }
         }
