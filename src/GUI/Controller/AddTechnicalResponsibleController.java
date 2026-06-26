@@ -100,7 +100,7 @@ public class AddTechnicalResponsibleController {
         try {
             TechnicalResponsible technicalSupervisor = new TechnicalResponsible();
             technicalSupervisor.setName(nameField.getText());
-            technicalSupervisor.seteMail(emailField.getText());
+            technicalSupervisor.setEmail(emailField.getText());
             technicalSupervisor.setLastName(lastNameField.getText());
             technicalSupervisor.setSecondLastName(lastNameMaterField.getText());
             technicalSupervisor.setPosition(cargoField.getText());
@@ -110,8 +110,8 @@ public class AddTechnicalResponsibleController {
 
             if (technicalResponsibleDAO.saveTechnicalResponsible(technicalSupervisor)) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} registró al responsable técnico {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), technicalSupervisor.getName()});
+                        "User {0} registered technical responsible {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), technicalSupervisor.getName()});
                 showAlert("Registro exitoso", "El responsable técnico ha sido registrado exitosamente.",
                         AlertType.INFORMATION);
                 clearFields();

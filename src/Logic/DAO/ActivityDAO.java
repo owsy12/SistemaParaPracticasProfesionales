@@ -104,7 +104,7 @@ public class ActivityDAO implements IActivityDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar actividad del proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving activity for project {0}: {1}",
                     new Object[]{activity.getIdProject(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -137,7 +137,7 @@ public class ActivityDAO implements IActivityDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar actividad con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding activity with ID {0}: {1}",
                     new Object[]{idActivity, sqlException.getMessage()});
             throw new ServiceException("Error al buscar la actividad por ID.", sqlException);
         }
@@ -166,7 +166,7 @@ public class ActivityDAO implements IActivityDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar actividades del proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving activities for project {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
             throw new ServiceException("Error al recuperar las actividades del proyecto.", sqlException);
         }
@@ -202,7 +202,7 @@ public class ActivityDAO implements IActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar actividades del practicante {0} en el proyecto {1}: {2}",
+                    "Error retrieving activities for intern {0} in project {1}: {2}",
                     new Object[]{idIntern, idProject, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar las actividades del practicante.", sqlException);
@@ -247,7 +247,7 @@ public class ActivityDAO implements IActivityDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar actividad con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating activity with ID {0}: {1}",
                     new Object[]{activity.getIdActivity(), sqlException.getMessage()});
             throw new ServiceException("Error al actualizar la actividad.", sqlException);
         }
@@ -274,7 +274,7 @@ public class ActivityDAO implements IActivityDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al desactivar actividad con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deactivating activity with ID {0}: {1}",
                     new Object[]{idActivity, sqlException.getMessage()});
             throw new ServiceException("Error al desactivar la actividad.", sqlException);
         }
@@ -301,7 +301,7 @@ public class ActivityDAO implements IActivityDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al eliminar actividad con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deleting activity with ID {0}: {1}",
                     new Object[]{idActivity, sqlException.getMessage()});
             throw new ServiceException("Error al eliminar la actividad.", sqlException);
         }

@@ -115,8 +115,8 @@ public class AddInternController {
 
             if (internDAO.saveIntern(intern)) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} registró al practicante con matrícula {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), intern.getRegistrationNumber()});
+                        "User {0} registered intern with registration number {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), intern.getRegistrationNumber()});
                 showAlert("Éxito", "Practicante registrado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();

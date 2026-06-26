@@ -95,8 +95,8 @@ public class AddCoordinatorController {
             professor.setRole("Coordinador");
             userRoleDAO.saveUserRole(professor);
             LOGGER.log(Level.INFO,
-                    "Usuario {0} asignó el rol de coordinador al profesor {1}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), professor.getId()});
+                    "User {0} assigned the coordinator role to professor {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getIdUser(), professor.getIdUser()});
             showAlert("Rol asignado",
                     "El profesor ha sido asignado como coordinador exitosamente.",
                     AlertType.INFORMATION);

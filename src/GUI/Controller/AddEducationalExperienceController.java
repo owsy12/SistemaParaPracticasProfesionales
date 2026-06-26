@@ -81,8 +81,8 @@ public class AddEducationalExperienceController {
 
             if (educationalExperienceDAO.save(educationalExperience)) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} registró la experiencia educativa con NRC {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), educationalExperience.getNrc()});
+                        "User {0} registered educational experience with NRC {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), educationalExperience.getNrc()});
                 showAlert("Éxito", "La experiencia educativa ha sido registrada exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();
@@ -106,7 +106,7 @@ public class AddEducationalExperienceController {
         EducationalExperience educationalExperience = new EducationalExperience();
         educationalExperience.setNrc(nrcTextField.getText().trim());
         educationalExperience.setName(nameTextField.getText().trim());
-        educationalExperience.setIdProfessor(professorComboBox.getValue().getId());
+        educationalExperience.setIdProfessor(professorComboBox.getValue().getIdUser());
         educationalExperience.setPeriod(periodcomboBox.getValue());
         return educationalExperience;
     }

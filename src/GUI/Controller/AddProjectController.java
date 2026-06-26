@@ -113,8 +113,8 @@ public class AddProjectController {
 
             if (projectDAO.saveProject(project)) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} registró el proyecto {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), project.getName()});
+                        "User {0} registered project {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), project.getName()});
                 showAlert("Éxito", "El proyecto ha sido guardado exitosamente.",
                         Alert.AlertType.INFORMATION);
                 clear();
@@ -145,7 +145,7 @@ public class AddProjectController {
         project.setStartDate(startDate.getValue());
         project.setEndDate(endDate.getValue());
         project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText().trim()));
-        project.setAvaliablePlaces(Integer.parseInt(capacityTextField.getText().trim()));
+        project.setAvailablePlaces(Integer.parseInt(capacityTextField.getText().trim()));
         project.setObjetivo(objetivoTextArea.getText().trim());
         return project;
     }

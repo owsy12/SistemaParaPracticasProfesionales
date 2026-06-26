@@ -40,6 +40,8 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class AddSelfEvaluationController implements EventHandler<DragEvent> {
 
+    private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
+    private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
     private static final Logger LOGGER =
             Logger.getLogger(AddSelfEvaluationController.class.getName());
     private static final String DELIVERED_STATUS = "Entregada";
@@ -129,7 +131,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
         } else {
-            internId = SessionManager.getInstance().getUser().getId();
+            internId = SessionManager.getInstance().getUser().getIdUser();
             internRegistrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
             loadInternData();
         }
@@ -156,7 +158,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             showAlert("Conflicto de datos", "Error al recuperar su información.", Alert.AlertType.ERROR);
             openWelcomePage(anchorPane);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar datos del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error loading data for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron recuperar sus datos. Intente más tarde.",
@@ -215,14 +217,14 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
             String filePath = copySignedFile();
             SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
 
-            boolean pathUpdated = selfEvaluationDAO.updateDocumentPath(selfEvaluation.getIdSelfEvalation(), filePath);
-            boolean statusUpdated = selfEvaluationDAO.updateStatus(selfEvaluation.getIdSelfEvalation(), DELIVERED_STATUS);
+            boolean pathUpdated = selfEvaluationDAO.updateDocumentPath(selfEvaluation.getIdSelfEvaluation(), filePath);
+            boolean statusUpdated = selfEvaluationDAO.updateStatus(selfEvaluation.getIdSelfEvaluation(), DELIVERED_STATUS);
 
             if (pathUpdated && statusUpdated) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} entregó la autoevaluación firmada {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(),
-                                selfEvaluation.getIdSelfEvalation()});
+                        "User {0} submitted signed self-evaluation {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(),
+                                selfEvaluation.getIdSelfEvaluation()});
                 showAlert("Autoevaluación entregada",
                         "Su autoevaluación firmada fue registrada correctamente.",
                         Alert.AlertType.INFORMATION);
@@ -238,13 +240,13 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar autoevaluación firmada del practicante {0}: {1}",
+                    "Error saving signed self-evaluation for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo guardar el documento. Intente más tarde.",
                     Alert.AlertType.ERROR);
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al copiar archivo de autoevaluación: {0}",
+            LOGGER.log(Level.SEVERE, "Error copying self-evaluation file: {0}",
                     ioException.getMessage());
             showAlert("Error de archivo",
                     "No se pudo copiar el archivo al almacenamiento.",
@@ -254,7 +256,7 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
 
     private String copySignedFile() throws IOException {
         String folder = "storage/intern_" + internRegistrationNumber + "/project_" + selfEvaluation.getIdProject() + "/self_evaluation";
-        String fileName = "self_evaluation_" + selfEvaluation.getIdSelfEvalation() + "_signed";
+        String fileName = "self_evaluation_" + selfEvaluation.getIdSelfEvaluation() + "_signed";
         Path folderPath = Paths.get(folder);
         Files.createDirectories(folderPath);
         Path destination = folderPath.resolve(fileName + ".pdf");
@@ -263,8 +265,9 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
     }
 
     private void showStatus(String message, boolean isError) {
-        String textFillStyle = isError ? "-fx-text-fill: red;" : "-fx-text-fill: green;";
-        statusLabel.setStyle(textFillStyle);
+        String styleClass = isError ? STATUS_ERROR_STYLE_CLASS : STATUS_SUCCESS_STYLE_CLASS;
+        statusLabel.getStyleClass().removeAll(STATUS_ERROR_STYLE_CLASS, STATUS_SUCCESS_STYLE_CLASS);
+        statusLabel.getStyleClass().add(styleClass);
         statusLabel.setText(message);
     }
 

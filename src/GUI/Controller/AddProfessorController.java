@@ -108,8 +108,8 @@ public class AddProfessorController {
                 if (result.isPresent()) {
                     addRolToCoordinator(result.get());
                     LOGGER.log(Level.INFO,
-                            "Usuario {0} asignó el rol de profesor al coordinador {1}",
-                            new Object[]{SessionManager.getInstance().getUser().getId(), result.get().getId()});
+                            "User {0} assigned the professor role to coordinator {1}",
+                            new Object[]{SessionManager.getInstance().getUser().getIdUser(), result.get().getIdUser()});
                     showAlert("Éxito", "El rol de profesor ha sido asignado al coordinador seleccionado.",
                             AlertType.INFORMATION);
                 }

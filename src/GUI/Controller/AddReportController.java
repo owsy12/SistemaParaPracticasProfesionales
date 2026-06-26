@@ -48,6 +48,8 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
     private static final String STATUS_REJECTED = "Rechazado";
 
 
+    private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
+    private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
     private static final Logger LOGGER =
             Logger.getLogger(AddReportController.class.getName());
 
@@ -182,7 +184,7 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
 
     private void loadPendingReports() {
         try {
-            int internId = SessionManager.getInstance().getUser().getId();
+            int internId = SessionManager.getInstance().getUser().getIdUser();
             ReportDAO reportDAO = new ReportDAO();
             List<Report> allReports = reportDAO.getByIdInternWithMonth(internId);
             List<Report> pendingReports = new ArrayList<>();
@@ -200,7 +202,7 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
             showAlert("Error de validación",
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar reportes del practicante: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading reports for intern: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los reportes. Intente más tarde.",
@@ -229,8 +231,8 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
                     reportDAO.markLateDelivery(selectedReport.getIdReport());
                 }
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} subió el documento firmado del reporte {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), selectedReport.getIdReport()});
+                        "User {0} uploaded the signed document for report {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), selectedReport.getIdReport()});
                 showAlert("Documento firmado subido",
                         "El PDF firmado fue registrado correctamente.",
                         Alert.AlertType.INFORMATION);
@@ -246,13 +248,13 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
             showAlert("Error de validación",
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar documento firmado del reporte {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving signed document for report {0}: {1}",
                     new Object[]{selectedReport.getIdReport(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo guardar el documento. Intente más tarde.",
                     Alert.AlertType.ERROR);
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al copiar archivo firmado: {0}",
+            LOGGER.log(Level.SEVERE, "Error copying signed file: {0}",
                     ioException.getMessage());
             showAlert("Error de archivo",
                     "No se pudo copiar el archivo firmado al almacenamiento.",
@@ -276,11 +278,9 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
     }
 
     private void showStatus(String message, boolean isError) {
-        String textFillStyle = "-fx-text-fill: green;";
-        if (isError) {
-            textFillStyle = "-fx-text-fill: red;";
-        }
-        labelStatus.setStyle(textFillStyle);
+        String styleClass = isError ? STATUS_ERROR_STYLE_CLASS : STATUS_SUCCESS_STYLE_CLASS;
+        labelStatus.getStyleClass().removeAll(STATUS_ERROR_STYLE_CLASS, STATUS_SUCCESS_STYLE_CLASS);
+        labelStatus.getStyleClass().add(styleClass);
         labelStatus.setText(message);
     }
 

@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.time.LocalDate;
 
 public class Activity {
@@ -139,17 +140,17 @@ public class Activity {
         Activity other = (Activity) object;
         return idActivity == other.idActivity
                 && idProject == other.idProject
-                && java.util.Objects.equals(name, other.name)
-                && java.util.Objects.equals(description, other.description)
-                && java.util.Objects.equals(creationDate, other.creationDate)
-                && java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(projectName, other.projectName)
-                && java.util.Objects.equals(startDate, other.startDate)
-                && java.util.Objects.equals(endDate, other.endDate);
+                && Objects.equals(name, other.name)
+                && Objects.equals(description, other.description)
+                && Objects.equals(creationDate, other.creationDate)
+                && Objects.equals(status, other.status)
+                && Objects.equals(projectName, other.projectName)
+                && Objects.equals(startDate, other.startDate)
+                && Objects.equals(endDate, other.endDate);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idActivity, idProject, name, description, creationDate, status, projectName, startDate, endDate);
+        return Objects.hash(idActivity, idProject, name, description, creationDate, status, projectName, startDate, endDate);
     }
 }

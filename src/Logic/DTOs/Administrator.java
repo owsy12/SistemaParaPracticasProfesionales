@@ -1,15 +1,17 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 
 public class Administrator extends User {
-    private int idAdmin;
+    private int idAdministrator;
 
-    public Administrator(int idAdmin, int idUser, String name, String firstLastName,
+    public Administrator(int idAdministrator, int idUser, String name, String firstLastName,
                          String secondLastName, String registrationNumber, String password,
                          String state) {
 
         super(idUser, registrationNumber, name, firstLastName, secondLastName, password, state);
-        this.idAdmin = idAdmin;
+        this.idAdministrator = idAdministrator;
     }
 
     public Administrator() {
@@ -20,12 +22,12 @@ public class Administrator extends User {
         super(idUser, registrationNumber, name, firstLastName, secondLastName, password, state);
     }
 
-    public int getIdAdmin() {
-        return idAdmin;
+    public int getIdAdministrator() {
+        return idAdministrator;
     }
 
-    public void setIdAdmin(int idAdmin) {
-        this.idAdmin = idAdmin;
+    public void setIdAdministrator(int idAdministrator) {
+        this.idAdministrator = idAdministrator;
     }
 
     @Override
@@ -40,11 +42,11 @@ public class Administrator extends User {
             return false;
         }
         Administrator other = (Administrator) object;
-        return idAdmin == other.idAdmin;
+        return idAdministrator == other.idAdministrator;
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), idAdmin);
+        return Objects.hash(super.hashCode(), idAdministrator);
     }
 }

@@ -86,8 +86,8 @@ public class AddLinkedOrganizationController {
 
             if (linkedOrganizationDAO.saveLinkedOrganization(organization)) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} registró la organización vinculada {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(),
+                        "User {0} registered linked organization {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(),
                                 organization.getName()});
                 showAlert("Registro exitoso", "La organización ha sido registrada exitosamente.",
                         AlertType.INFORMATION);

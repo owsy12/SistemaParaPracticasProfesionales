@@ -43,6 +43,8 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     private static final String STATUS_SUBMITTED = "Entregada";
 
 
+    private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
+    private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
     private static final Logger LOGGER =
             Logger.getLogger(AddOVEvaluationController.class.getName());
 
@@ -128,7 +130,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
         } else {
-            internId = SessionManager.getInstance().getUser().getId();
+            internId = SessionManager.getInstance().getUser().getIdUser();
             internRegistrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
             loadInternData();
         }
@@ -157,7 +159,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
                     "Error al recuperar su información.", Alert.AlertType.ERROR);
             openWelcomePage(anchorPane);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar datos del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error loading data for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron recuperar sus datos. Intente más tarde.",
@@ -212,8 +214,8 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
 
             if (rowsAffected > 0) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} entregó la evaluación OV del proyecto {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), projectId});
+                        "User {0} submitted the OV evaluation for project {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), projectId});
                 showAlert("Evaluación OV entregada",
                         "La evaluación OV fue registrada correctamente.",
                         Alert.AlertType.INFORMATION);
@@ -233,13 +235,13 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
                     Alert.AlertType.WARNING);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar evaluación OV del practicante {0}: {1}",
+                    "Error saving OV evaluation for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo guardar el documento. Intente más tarde.",
                     Alert.AlertType.ERROR);
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al copiar archivo de evaluación OV: {0}",
+            LOGGER.log(Level.SEVERE, "Error copying OV evaluation file: {0}",
                     ioException.getMessage());
             showAlert("Error de archivo",
                     "No se pudo copiar el archivo al almacenamiento.",
@@ -269,8 +271,9 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     }
 
     private void showStatus(String message, boolean isError) {
-        String textFillStyle = isError ? "-fx-text-fill: red;" : "-fx-text-fill: green;";
-        statusLabel.setStyle(textFillStyle);
+        String styleClass = isError ? STATUS_ERROR_STYLE_CLASS : STATUS_SUCCESS_STYLE_CLASS;
+        statusLabel.getStyleClass().removeAll(STATUS_ERROR_STYLE_CLASS, STATUS_SUCCESS_STYLE_CLASS);
+        statusLabel.getStyleClass().add(styleClass);
         statusLabel.setText(message);
     }
 

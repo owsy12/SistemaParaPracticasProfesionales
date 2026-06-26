@@ -104,8 +104,8 @@ public class AddActivityController {
 
             if (generatedId > 0) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} registró la actividad {1} en el proyecto {2}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(),
+                        "User {0} registered activity {1} in project {2}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(),
                                 generatedId, activity.getIdProject()});
                 showAlert("Actividad registrada",
                         "La actividad fue registrada exitosamente.",
@@ -122,7 +122,7 @@ public class AddActivityController {
                     validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar actividad: {0}",
+            LOGGER.log(Level.SEVERE, "Error saving activity: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudo registrar la actividad. Intente más tarde.",
@@ -133,7 +133,7 @@ public class AddActivityController {
     private Activity buildActivity() {
         Activity activity = new Activity();
         activity.setIdProject(assignedProject.getIdProject());
-        activity.setIdIntern(SessionManager.getInstance().getUser().getId());
+        activity.setIdIntern(SessionManager.getInstance().getUser().getIdUser());
         activity.setName(nameTextField.getText().trim());
         activity.setDescription(descriptionTextArea.getText().trim());
         activity.setStartDate(startDatePicker.getValue());
@@ -145,7 +145,7 @@ public class AddActivityController {
 
     private void loadProjects() {
         try {
-            int internId = SessionManager.getInstance().getUser().getId();
+            int internId = SessionManager.getInstance().getUser().getIdUser();
             AssignmentDAO assignmentDAO = new AssignmentDAO();
             Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
             boolean hasAssignment = assignment != null;
@@ -175,7 +175,7 @@ public class AddActivityController {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar el proyecto del practicante: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading intern project: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudo cargar su proyecto. Intente más tarde.",
