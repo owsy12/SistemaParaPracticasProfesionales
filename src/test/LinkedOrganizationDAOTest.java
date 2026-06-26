@@ -28,7 +28,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
     private static final String SECONDARY_ORG_NAME = "DataLabs Test";
     private static final String SECONDARY_ORG_EMAIL = "contacto@datalabs-test.mx";
 
-    private final LinkedOrganizationDAO dao = new LinkedOrganizationDAO();
+    private final LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
 
     private LinkedOrganization buildOrganization(String name, String email) {
         LinkedOrganization organization = new LinkedOrganization();
@@ -41,17 +41,17 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
 
     @Test
     void testSaveValidOrganizationReturnsTrue() throws ServiceException, ValidationException {
-        boolean result = dao.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, NEW_ORG_EMAIL));
+        boolean result = linkedOrganizationDAO.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, NEW_ORG_EMAIL));
         assertTrue(result);
     }
 
     @Test
     void testSaveDuplicateNameThrowsDuplicateEntryException() throws ServiceException, ValidationException {
-        dao.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, NEW_ORG_EMAIL));
+        linkedOrganizationDAO.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, NEW_ORG_EMAIL));
         assertThrows(DuplicateEntryException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, SECONDARY_ORG_EMAIL));
+                linkedOrganizationDAO.saveLinkedOrganization(buildOrganization(NEW_ORG_NAME, SECONDARY_ORG_EMAIL));
             }
         });
     }
@@ -59,7 +59,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idOrganization = persistOrganizationViaBuilder();
-        LinkedOrganization retrieved = dao.findById(idOrganization);
+        LinkedOrganization retrieved = linkedOrganizationDAO.findById(idOrganization);
         assertNotNull(retrieved);
     }
 
@@ -68,7 +68,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_ZERO);
+                linkedOrganizationDAO.findById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -78,35 +78,35 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+                linkedOrganizationDAO.findById(TestConstants.INVALID_ID_NEGATIVE);
             }
         });
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        LinkedOrganization retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        LinkedOrganization retrieved = linkedOrganizationDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<LinkedOrganization> all = dao.findAll();
-        assertTrue(all.isEmpty());
+        List<LinkedOrganization> linkedOrganizationList = linkedOrganizationDAO.findAll();
+        assertTrue(linkedOrganizationList.isEmpty());
     }
 
     @Test
     void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         persistOrganizationViaBuilder();
-        List<LinkedOrganization> all = dao.findAll();
-        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+        List<LinkedOrganization> linkedOrganizationList = linkedOrganizationDAO.findAll();
+        assertEquals(TestConstants.SINGLE_RESULT, linkedOrganizationList.size());
     }
 
     @Test
     void testFindAllActiveExcludesInactiveOrganizations() throws ServiceException, ValidationException {
         int activeId = persistOrganizationViaBuilder();
         int inactiveId = persistInactiveOrganizationViaBuilder();
-        List<LinkedOrganization> activeList = dao.findAllActive();
+        List<LinkedOrganization> activeList = linkedOrganizationDAO.findAllActive();
         assertEquals(TestConstants.SINGLE_RESULT, activeList.size());
         assertEquals(activeId, activeList.get(0).getIdLinkedOrganization());
         assertFalse(activeId == inactiveId);
@@ -115,19 +115,19 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
     @Test
     void testUpdateOrganizationReturnsTrue() throws ServiceException, ValidationException {
         int idOrganization = persistOrganizationViaBuilder();
-        LinkedOrganization organization = dao.findById(idOrganization);
+        LinkedOrganization organization = linkedOrganizationDAO.findById(idOrganization);
         organization.setName(UPDATED_ORG_NAME);
-        boolean result = dao.update(organization);
+        boolean result = linkedOrganizationDAO.update(organization);
         assertTrue(result);
     }
 
     @Test
     void testUpdateOrganizationPersistsNewName() throws ServiceException, ValidationException {
         int idOrganization = persistOrganizationViaBuilder();
-        LinkedOrganization organization = dao.findById(idOrganization);
+        LinkedOrganization organization = linkedOrganizationDAO.findById(idOrganization);
         organization.setName(UPDATED_ORG_NAME);
-        dao.update(organization);
-        LinkedOrganization retrieved = dao.findById(idOrganization);
+        linkedOrganizationDAO.update(organization);
+        LinkedOrganization retrieved = linkedOrganizationDAO.findById(idOrganization);
         assertEquals(UPDATED_ORG_NAME, retrieved.getName());
     }
 
@@ -139,7 +139,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.update(organization);
+                linkedOrganizationDAO.update(organization);
             }
         });
     }
@@ -147,15 +147,15 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
     @Test
     void testDeactivateOrganizationReturnsTrue() throws ServiceException, ValidationException {
         int idOrganization = persistOrganizationViaBuilder();
-        boolean result = dao.deactivateLinkedOrganization(idOrganization);
+        boolean result = linkedOrganizationDAO.deactivateLinkedOrganization(idOrganization);
         assertTrue(result);
     }
 
     @Test
     void testDeactivateOrganizationPersistsInactiveStatus() throws ServiceException, ValidationException {
         int idOrganization = persistOrganizationViaBuilder();
-        dao.deactivateLinkedOrganization(idOrganization);
-        LinkedOrganization retrieved = dao.findById(idOrganization);
+        linkedOrganizationDAO.deactivateLinkedOrganization(idOrganization);
+        LinkedOrganization retrieved = linkedOrganizationDAO.findById(idOrganization);
         assertEquals(TestConstants.STATUS_INACTIVE_ORG, retrieved.getStatus());
     }
 
@@ -164,7 +164,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.deactivateLinkedOrganization(TestConstants.INVALID_ID_ZERO);
+                linkedOrganizationDAO.deactivateLinkedOrganization(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -173,7 +173,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
     void testHasAssociatedProjectsReturnsTrueWhenProjectsExist() throws ServiceException, ValidationException {
         try (Connection connection = DataBaseConnection.connectDatabase()) {
             TestScene scene = TestScene.createFullScene(connection);
-            boolean hasProjects = dao.hasAssociatedProjects(scene.getOrganizationId());
+            boolean hasProjects = linkedOrganizationDAO.hasAssociatedProjects(scene.getOrganizationId());
             assertTrue(hasProjects);
         } catch (SQLException sqlException) {
             throw new ServiceException("Failed to access test database connection", sqlException);
@@ -183,7 +183,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
     @Test
     void testHasAssociatedProjectsReturnsFalseWhenNoProjects() throws ServiceException, ValidationException {
         int idOrganization = persistOrganizationViaBuilder();
-        boolean hasProjects = dao.hasAssociatedProjects(idOrganization);
+        boolean hasProjects = linkedOrganizationDAO.hasAssociatedProjects(idOrganization);
         assertFalse(hasProjects);
     }
 
@@ -194,7 +194,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
             assertThrows(ValidationException.class, new Executable() {
                 @Override
                 public void execute() throws Throwable {
-                    dao.deleteLinkedOrganization(scene.getOrganizationId());
+                    linkedOrganizationDAO.deleteLinkedOrganization(scene.getOrganizationId());
                 }
             });
         } catch (SQLException sqlException) {
@@ -205,7 +205,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
     @Test
     void testDeleteOrganizationWithoutProjectsReturnsTrue() throws ServiceException, ValidationException {
         int idOrganization = persistOrganizationViaBuilder();
-        boolean result = dao.deleteLinkedOrganization(idOrganization);
+        boolean result = linkedOrganizationDAO.deleteLinkedOrganization(idOrganization);
         assertTrue(result);
     }
 
@@ -214,7 +214,7 @@ class LinkedOrganizationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.deleteLinkedOrganization(TestConstants.INVALID_ID_ZERO);
+                linkedOrganizationDAO.deleteLinkedOrganization(TestConstants.INVALID_ID_ZERO);
             }
         });
     }

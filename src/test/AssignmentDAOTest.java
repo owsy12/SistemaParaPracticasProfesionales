@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AssignmentDAOTest extends BaseDAOTest {
 
-    private final AssignmentDAO dao = new AssignmentDAO();
+    private final AssignmentDAO assignmentDAO = new AssignmentDAO();
 
     private Assignment buildAssignment(AssignmentContext context) {
         Assignment assignment = new Assignment();
@@ -35,7 +35,7 @@ class AssignmentDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidAssignmentReturnsOneRowAffected() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
-        int result = dao.save(buildAssignment(context));
+        int result = assignmentDAO.save(buildAssignment(context));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
@@ -43,18 +43,18 @@ class AssignmentDAOTest extends BaseDAOTest {
     void testSaveValidAssignmentAssignsGeneratedId() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         Assignment assignment = buildAssignment(context);
-        dao.save(assignment);
+        assignmentDAO.save(assignment);
         assertTrue(assignment.getIdAssignment() > TestConstants.ZERO_RESULTS);
     }
 
     @Test
     void testSaveDuplicateInternThrowsServiceException() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
-        dao.save(buildAssignment(context));
+        assignmentDAO.save(buildAssignment(context));
         assertThrows(ServiceException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(buildAssignment(context));
+                assignmentDAO.save(buildAssignment(context));
             }
         });
     }
@@ -63,8 +63,8 @@ class AssignmentDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         Assignment assignment = buildAssignment(context);
-        dao.save(assignment);
-        Assignment retrieved = dao.getById(assignment.getIdAssignment());
+        assignmentDAO.save(assignment);
+        Assignment retrieved = assignmentDAO.getById(assignment.getIdAssignment());
         assertNotNull(retrieved);
     }
 
@@ -72,8 +72,8 @@ class AssignmentDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
         Assignment assignment = buildAssignment(context);
-        dao.save(assignment);
-        Assignment retrieved = dao.getById(assignment.getIdAssignment());
+        assignmentDAO.save(assignment);
+        Assignment retrieved = assignmentDAO.getById(assignment.getIdAssignment());
         assertEquals(assignment, retrieved);
     }
 
@@ -82,36 +82,36 @@ class AssignmentDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getById(TestConstants.INVALID_ID_ZERO);
+                assignmentDAO.getById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        Assignment retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
+        Assignment retrieved = assignmentDAO.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<Assignment> all = dao.getAll();
+        List<Assignment> all = assignmentDAO.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
-        dao.save(buildAssignment(context));
-        List<Assignment> all = dao.getAll();
+        assignmentDAO.save(buildAssignment(context));
+        List<Assignment> all = assignmentDAO.getAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
     void testGetByIdInternReturnsOneElement() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
-        dao.save(buildAssignment(context));
-        List<Assignment> byIntern = dao.getByIdIntern(context.idIntern);
+        assignmentDAO.save(buildAssignment(context));
+        List<Assignment> byIntern = assignmentDAO.getByIdIntern(context.idIntern);
         assertEquals(TestConstants.SINGLE_RESULT, byIntern.size());
     }
 
@@ -120,7 +120,7 @@ class AssignmentDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getByIdIntern(TestConstants.INVALID_ID_ZERO);
+                assignmentDAO.getByIdIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -128,24 +128,24 @@ class AssignmentDAOTest extends BaseDAOTest {
     @Test
     void testGetByIdProjectReturnsOneElement() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
-        dao.save(buildAssignment(context));
-        List<Assignment> byProject = dao.getByIdProject(context.idProject);
+        assignmentDAO.save(buildAssignment(context));
+        List<Assignment> byProject = assignmentDAO.getByIdProject(context.idProject);
         assertEquals(TestConstants.SINGLE_RESULT, byProject.size());
     }
 
     @Test
     void testGetActiveByIdInternReturnsNotNull() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
-        dao.save(buildAssignment(context));
-        Assignment active = dao.getActiveByIdIntern(context.idIntern);
+        assignmentDAO.save(buildAssignment(context));
+        Assignment active = assignmentDAO.getActiveByIdIntern(context.idIntern);
         assertNotNull(active);
     }
 
     @Test
     void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         AssignmentContext context = persistAssignmentDependencies();
-        dao.save(buildAssignment(context));
-        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
+        assignmentDAO.save(buildAssignment(context));
+        boolean result = assignmentDAO.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 

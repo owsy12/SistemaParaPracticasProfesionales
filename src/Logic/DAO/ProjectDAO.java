@@ -591,7 +591,12 @@ public class ProjectDAO implements IProjectDAO {
                 periodEnd = LocalDate.of(year + 1, 1, 31);
             }
         }
-        boolean hasBounds = periodStart != null && periodEnd != null;
+        boolean hasBounds = false;
+        if (periodStart != null) {
+            if (periodEnd != null) {
+                hasBounds = true;
+            }
+        }
         if (hasBounds) {
             isWithin = !project.getStartDate().isBefore(periodStart)
                     && !project.getEndDate().isAfter(periodEnd);

@@ -110,7 +110,12 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                 "Confirmar cancelación",
                 "¿Desea salir? Los cambios no guardados se perderán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             openWelcomePage(anchorPane);
         }
@@ -141,7 +146,17 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                     ButtonType.YES, ButtonType.NO);
             Optional<ButtonType> result = confirmation.showAndWait();
 
-            boolean isConfirmed = result.isPresent() && result.get() == ButtonType.YES;
+            boolean isConfirmed = false;
+
+            if (result.isPresent()) {
+
+                if (result.get() == ButtonType.YES) {
+
+                    isConfirmed = true;
+
+                }
+
+            }
             if (isConfirmed) {
                 removeInternProcess();
             }
@@ -395,8 +410,20 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         boolean isProfessorMissing = professorComboBox.getValue() == null;
         boolean isTechnicalMissing = technicalComboBox.getValue() == null;
 
-        boolean hasEmpty = isNameEmpty || isDescriptionEmpty || isCapacityEmpty || isObjectiveEmpty
-                || isProfessorMissing || isTechnicalMissing;
+        boolean hasEmpty = false;
+        if (isNameEmpty) {
+            hasEmpty = true;
+        } else if (isDescriptionEmpty) {
+            hasEmpty = true;
+        } else if (isCapacityEmpty) {
+            hasEmpty = true;
+        } else if (isObjectiveEmpty) {
+            hasEmpty = true;
+        } else if (isProfessorMissing) {
+            hasEmpty = true;
+        } else if (isTechnicalMissing) {
+            hasEmpty = true;
+        }
 
         return hasEmpty;
     }

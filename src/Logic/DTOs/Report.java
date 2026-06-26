@@ -163,7 +163,12 @@ public class Report {
     }
 
     public String getDisplayStatus() {
-        boolean isLateDelivery = lateDelivery && STATUS_SUBMITTED.equals(status);
+        boolean isLateDelivery = false;
+        if (lateDelivery) {
+            if (STATUS_SUBMITTED.equals(status)) {
+                isLateDelivery = true;
+            }
+        }
         String statusLabel;
         if (isLateDelivery) {
             statusLabel = "Entrega tardía";
@@ -238,8 +243,12 @@ public class Report {
 
     public String getObservationsDisplay() {
         String display = "Sin observaciones";
-        boolean hasObservations = professorObservations != null
-                && !professorObservations.isBlank();
+        boolean hasObservations = false;
+        if (professorObservations != null) {
+            if (!professorObservations.isBlank()) {
+                hasObservations = true;
+            }
+        }
         if (hasObservations) {
             display = professorObservations;
         }
@@ -249,8 +258,18 @@ public class Report {
     public String getTypeWithMonth() {
         String typeDisplay = reportType != null ? reportType : "";
         boolean isMonthly = "Mensual".equals(reportType);
-        boolean hasMonthName = monthName != null && !monthName.isBlank();
-        boolean shouldAppendMonth = isMonthly && hasMonthName;
+        boolean hasMonthName = false;
+        if (monthName != null) {
+            if (!monthName.isBlank()) {
+                hasMonthName = true;
+            }
+        }
+        boolean shouldAppendMonth = false;
+        if (isMonthly) {
+            if (hasMonthName) {
+                shouldAppendMonth = true;
+            }
+        }
         if (shouldAppendMonth) {
             typeDisplay = typeDisplay + " - " + monthName;
         }

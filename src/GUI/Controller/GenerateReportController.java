@@ -284,7 +284,12 @@ public class GenerateReportController {
         Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
                 "¿Desea salir? La información del reporte no generado se perderá.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             clearForm();
             openWelcomePage(rootPane);
@@ -355,15 +360,42 @@ public class GenerateReportController {
     }
 
     private boolean isActivityOutsideProjectRange(Activity activity) {
-        boolean hasProjectStart = currentProject != null && currentProject.getStartDate() != null;
-        boolean hasProjectEnd = currentProject != null && currentProject.getEndDate() != null;
+        boolean hasProjectStart = false;
+        if (currentProject != null) {
+            if (currentProject.getStartDate() != null) {
+                hasProjectStart = true;
+            }
+        }
+        boolean hasProjectEnd = false;
+        if (currentProject != null) {
+            if (currentProject.getEndDate() != null) {
+                hasProjectEnd = true;
+            }
+        }
 
-        boolean startBeforeProject = hasProjectStart && activity.getStartDate() != null
-                && activity.getStartDate().isBefore(currentProject.getStartDate());
-        boolean endAfterProject = hasProjectEnd && activity.getEndDate() != null
-                && activity.getEndDate().isAfter(currentProject.getEndDate());
+        boolean startBeforeProject = false;
+        if (hasProjectStart) {
+            if (activity.getStartDate() != null) {
+                if (activity.getStartDate().isBefore(currentProject.getStartDate())) {
+                    startBeforeProject = true;
+                }
+            }
+        }
+        boolean endAfterProject = false;
+        if (hasProjectEnd) {
+            if (activity.getEndDate() != null) {
+                if (activity.getEndDate().isAfter(currentProject.getEndDate())) {
+                    endAfterProject = true;
+                }
+            }
+        }
 
-        boolean isOutOfRange = startBeforeProject || endAfterProject;
+        boolean isOutOfRange = false;
+        if (startBeforeProject) {
+            isOutOfRange = true;
+        } else if (endAfterProject) {
+            isOutOfRange = true;
+        }
         return isOutOfRange;
     }
 
@@ -406,7 +438,12 @@ public class GenerateReportController {
     private void filterMonthsToProjectPeriod() {
         LocalDate projectStart = currentProject.getStartDate();
         LocalDate projectEnd = currentProject.getEndDate();
-        boolean hasValidRange = projectStart != null && projectEnd != null;
+        boolean hasValidRange = false;
+        if (projectStart != null) {
+            if (projectEnd != null) {
+                hasValidRange = true;
+            }
+        }
         if (hasValidRange) {
             List<String> validMonths = new ArrayList<>();
             YearMonth startYearMonth = YearMonth.from(projectStart);
@@ -455,11 +492,24 @@ public class GenerateReportController {
 
             List<Activity> dateFiltered = new ArrayList<>();
             for (Activity activity : allProjectActivities) {
-                boolean isStartBeforeMonthEnd = activity.getStartDate() == null
-                        || !activity.getStartDate().isAfter(lastDayOfMonth);
-                boolean isEndAfterMonthStart = activity.getEndDate() == null
-                        || !activity.getEndDate().isBefore(firstDayOfMonth);
-                boolean isInRange = isStartBeforeMonthEnd && isEndAfterMonthStart;
+                boolean isStartBeforeMonthEnd = false;
+                if (activity.getStartDate() == null) {
+                    isStartBeforeMonthEnd = true;
+                } else if (!activity.getStartDate().isAfter(lastDayOfMonth)) {
+                    isStartBeforeMonthEnd = true;
+                }
+                boolean isEndAfterMonthStart = false;
+                if (activity.getEndDate() == null) {
+                    isEndAfterMonthStart = true;
+                } else if (!activity.getEndDate().isBefore(firstDayOfMonth)) {
+                    isEndAfterMonthStart = true;
+                }
+                boolean isInRange = false;
+                if (isStartBeforeMonthEnd) {
+                    if (isEndAfterMonthStart) {
+                        isInRange = true;
+                    }
+                }
                 if (isInRange) {
                     dateFiltered.add(activity);
                 }
@@ -566,8 +616,12 @@ public class GenerateReportController {
         dialog.getDialogPane().setContent(grid);
 
         Optional<ButtonType> dialogResult = dialog.showAndWait();
-        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
-
+        boolean isConfirmed = false;
+        if (dialogResult.isPresent()) {
+            if (dialogResult.get() == confirmType) {
+                isConfirmed = true;
+            }
+        }
         Optional<ReportActivity> result = Optional.empty();
         if (isConfirmed) {
             result = Optional.of(
@@ -622,8 +676,12 @@ public class GenerateReportController {
         dialog.getDialogPane().setContent(grid);
 
         Optional<ButtonType> dialogResult = dialog.showAndWait();
-        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
-
+        boolean isConfirmed = false;
+        if (dialogResult.isPresent()) {
+            if (dialogResult.get() == confirmType) {
+                isConfirmed = true;
+            }
+        }
         Optional<ReportActivity> reportActivity = Optional.empty();
         if (isConfirmed) {
             String realWeeks = realStartWeekField.getText().trim()
@@ -663,8 +721,12 @@ public class GenerateReportController {
         dialog.getDialogPane().setContent(grid);
 
         Optional<ButtonType> dialogResult = dialog.showAndWait();
-        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
-
+        boolean isConfirmed = false;
+        if (dialogResult.isPresent()) {
+            if (dialogResult.get() == confirmType) {
+                isConfirmed = true;
+            }
+        }
         Optional<ReportActivity> reportActivity = Optional.empty();
         if (isConfirmed) {
             int advance = parseIntSafe(advancePercentField.getText().trim());
@@ -739,7 +801,12 @@ public class GenerateReportController {
         dialog.getDialogPane().setContent(grid);
 
         Optional<ButtonType> dialogResult = dialog.showAndWait();
-        boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
+        boolean isConfirmed = false;
+        if (dialogResult.isPresent()) {
+            if (dialogResult.get() == confirmType) {
+                isConfirmed = true;
+            }
+        }
         boolean isResultNotBlank = !resultField.getText().isBlank();
 
         Optional<ReportDeliverable> result = Optional.empty();
@@ -928,10 +995,20 @@ public class GenerateReportController {
         boolean isReportNumberBlank = reportNumberTextField.getText().isBlank();
         boolean isMethodologyBlank = methodologyTextArea.getText().isBlank();
         boolean isFinal = REPORT_TYPE_FINAL.equals(reportType);
-        boolean isObservationsBlank = isFinal && observationsTextArea.getText().isBlank();
+        boolean isObservationsBlank = false;
+        if (isFinal) {
+            if (observationsTextArea.getText().isBlank()) {
+                isObservationsBlank = true;
+            }
+        }
         boolean isValid = true;
 
-        boolean hasMissingBasicFields = isReportNumberBlank || isMethodologyBlank;
+        boolean hasMissingBasicFields = false;
+        if (isReportNumberBlank) {
+            hasMissingBasicFields = true;
+        } else if (isMethodologyBlank) {
+            hasMissingBasicFields = true;
+        }
         if (hasMissingBasicFields) {
             showAlert("Campos requeridos",
                     "Complete el número de informe y la metodología.",
@@ -1091,7 +1168,12 @@ public class GenerateReportController {
 
     private String buildAcademicPeriod(int year, String month) {
         int monthNumber = MONTHS.indexOf(month) + 1;
-        boolean isSpringMonth = monthNumber >= SPRING_FIRST_MONTH && monthNumber <= SPRING_LAST_MONTH;
+        boolean isSpringMonth = false;
+        if (monthNumber >= SPRING_FIRST_MONTH) {
+            if (monthNumber <= SPRING_LAST_MONTH) {
+                isSpringMonth = true;
+            }
+        }
         String period;
         if (isSpringMonth) {
             period = SPRING_PERIOD_LABEL + year;

@@ -186,7 +186,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     public void evaluateReport (ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean isStatusInvalid = selectedReport != null && !STATUS_UNDER_REVIEW.equals(selectedReport.getStatus());
+        boolean isStatusInvalid = false;
+        if (selectedReport != null) {
+            if (!STATUS_UNDER_REVIEW.equals(selectedReport.getStatus())) {
+                isStatusInvalid = true;
+            }
+        }
         boolean isObservationEmpty = observationsTextArea.getText().isBlank();
         boolean isGradeInvalid = parseGrade(gradeTextField.getText().trim()) == null;
 
@@ -212,8 +217,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     public void rejectReport(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean isStatusInvalid = selectedReport != null
-                && !STATUS_UNDER_REVIEW.equals(selectedReport.getStatus());
+        boolean isStatusInvalid = false;
+        if (selectedReport != null) {
+            if (!STATUS_UNDER_REVIEW.equals(selectedReport.getStatus())) {
+                isStatusInvalid = true;
+            }
+        }
         boolean isObservationEmpty = observationsTextArea.getText().isBlank();
 
         if (isReportMissing) {
@@ -269,8 +278,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     public void openDocument(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean hasNoDocument = selectedReport != null && (selectedReport.getDocumentPath() == null
-                    || selectedReport.getDocumentPath().isBlank());
+        boolean hasNoDocument = false;
+        if (selectedReport != null) {
+            if ((selectedReport.getDocumentPath() == null || selectedReport.getDocumentPath().isBlank())) {
+                hasNoDocument = true;
+            }
+        }
 
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
@@ -285,8 +298,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     public void saveDocumentCopy(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean hasNoDocument = selectedReport != null && (selectedReport.getDocumentPath() == null
-                    || selectedReport.getDocumentPath().isBlank());
+        boolean hasNoDocument = false;
+        if (selectedReport != null) {
+            if ((selectedReport.getDocumentPath() == null || selectedReport.getDocumentPath().isBlank())) {
+                hasNoDocument = true;
+            }
+        }
 
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
@@ -301,8 +318,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     public void openSignedDocument(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean hasNoSigned = selectedReport != null && (selectedReport.getSignedDocumentPath() == null
-                    || selectedReport.getSignedDocumentPath().isBlank());
+        boolean hasNoSigned = false;
+        if (selectedReport != null) {
+            if ((selectedReport.getSignedDocumentPath() == null || selectedReport.getSignedDocumentPath().isBlank())) {
+                hasNoSigned = true;
+            }
+        }
 
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
@@ -317,8 +338,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     public void saveSignedCopy(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean hasNoSigned = selectedReport != null && (selectedReport.getSignedDocumentPath() == null
-                    || selectedReport.getSignedDocumentPath().isBlank());
+        boolean hasNoSigned = false;
+        if (selectedReport != null) {
+            if ((selectedReport.getSignedDocumentPath() == null || selectedReport.getSignedDocumentPath().isBlank())) {
+                hasNoSigned = true;
+            }
+        }
 
         if (isReportMissing) {
             showAlert("Sin selección", "Seleccione un reporte.", Alert.AlertType.WARNING);
@@ -334,8 +359,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     public void openInitialDocument(ActionEvent actionEvent) {
         InitialFormat selectedFormat = initialFormatsTableView.getSelectionModel().getSelectedItem();
         boolean isSelectionMissing = selectedFormat == null;
-        boolean hasNoFile = selectedFormat != null && (selectedFormat.getFilePath() == null
-                || selectedFormat.getFilePath().isBlank());
+        boolean hasNoFile = false;
+        if (selectedFormat != null) {
+            if ((selectedFormat.getFilePath() == null || selectedFormat.getFilePath().isBlank())) {
+                hasNoFile = true;
+            }
+        }
 
         if (isSelectionMissing) {
             showAlert("Sin selección", "Seleccione un documento inicial de la tabla.",
@@ -363,8 +392,14 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
             SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
-            boolean hasDocument = selfEvaluation != null && selfEvaluation.getDocumentPath() != null
-                    && !selfEvaluation.getDocumentPath().isBlank();
+            boolean hasDocument = false;
+            if (selfEvaluation != null) {
+                if (selfEvaluation.getDocumentPath() != null) {
+                    if (!selfEvaluation.getDocumentPath().isBlank()) {
+                        hasDocument = true;
+                    }
+                }
+            }
             if (!hasDocument) {
                 showAlert("Sin autoevaluación",
                         "El practicante no tiene una autoevaluación entregada.",
@@ -386,7 +421,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     public void openOvEvaluation(ActionEvent actionEvent) {
         Intern selectedIntern = currentIntern;
         Project selectedProject = currentProject;
-        boolean isSelectionMissing = selectedIntern == null || selectedProject == null;
+        boolean isSelectionMissing = false;
+        if (selectedIntern == null) {
+            isSelectionMissing = true;
+        } else if (selectedProject == null) {
+            isSelectionMissing = true;
+        }
         if (isSelectionMissing) {
             showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
                     Alert.AlertType.WARNING);
@@ -399,8 +439,14 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
             OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
-            boolean hasDocument = ovEvaluation != null && ovEvaluation.getDocumentPath() != null
-                    && !ovEvaluation.getDocumentPath().isBlank();
+            boolean hasDocument = false;
+            if (ovEvaluation != null) {
+                if (ovEvaluation.getDocumentPath() != null) {
+                    if (!ovEvaluation.getDocumentPath().isBlank()) {
+                        hasDocument = true;
+                    }
+                }
+            }
             if (!hasDocument) {
                 showAlert("Sin evaluación OV",
                         "El practicante no tiene una evaluación OV entregada para este proyecto.",
@@ -432,11 +478,20 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
             SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
-            boolean isMissing = selfEvaluation == null
-                    || selfEvaluation.getDocumentPath() == null
-                    || selfEvaluation.getDocumentPath().isBlank();
-            boolean isAlreadyEvaluated = !isMissing
-                    && STATUS_DOCUMENT_EVALUATED.equals(selfEvaluation.getStatus());
+            boolean isMissing = false;
+            if (selfEvaluation == null) {
+                isMissing = true;
+            } else if (selfEvaluation.getDocumentPath() == null) {
+                isMissing = true;
+            } else if (selfEvaluation.getDocumentPath().isBlank()) {
+                isMissing = true;
+            }
+            boolean isAlreadyEvaluated = false;
+            if (!isMissing) {
+                if (STATUS_DOCUMENT_EVALUATED.equals(selfEvaluation.getStatus())) {
+                    isAlreadyEvaluated = true;
+                }
+            }
 
             if (isMissing) {
                 showAlert("Sin autoevaluación",
@@ -472,7 +527,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
     public void evaluateOvEvaluation(ActionEvent actionEvent) {
         Intern selectedIntern = currentIntern;
         Project selectedProject = currentProject;
-        boolean isSelectionMissing = selectedIntern == null || selectedProject == null;
+        boolean isSelectionMissing = false;
+        if (selectedIntern == null) {
+            isSelectionMissing = true;
+        } else if (selectedProject == null) {
+            isSelectionMissing = true;
+        }
         if (isSelectionMissing) {
             showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
                     Alert.AlertType.WARNING);
@@ -485,11 +545,20 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
             OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
-            boolean isMissing = ovEvaluation == null
-                    || ovEvaluation.getDocumentPath() == null
-                    || ovEvaluation.getDocumentPath().isBlank();
-            boolean isAlreadyEvaluated = !isMissing
-                    && STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus());
+            boolean isMissing = false;
+            if (ovEvaluation == null) {
+                isMissing = true;
+            } else if (ovEvaluation.getDocumentPath() == null) {
+                isMissing = true;
+            } else if (ovEvaluation.getDocumentPath().isBlank()) {
+                isMissing = true;
+            }
+            boolean isAlreadyEvaluated = false;
+            if (!isMissing) {
+                if (STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus())) {
+                    isAlreadyEvaluated = true;
+                }
+            }
 
             if (isMissing) {
                 showAlert("Sin evaluación OV",
@@ -570,7 +639,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
 
     private String describeDocumentStatus(String documentPath, String status) {
         String description;
-        boolean isDelivered = documentPath != null && !documentPath.isBlank();
+        boolean isDelivered = false;
+        if (documentPath != null) {
+            if (!documentPath.isBlank()) {
+                isDelivered = true;
+            }
+        }
         if (!isDelivered) {
             description = "No entregada";
         } else if (STATUS_DOCUMENT_EVALUATED.equals(status)) {
@@ -595,7 +669,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             PracticeDAO practiceDAO = new PracticeDAO();
             String documentPath = practiceDAO.findClosureRecordPath(internId);
-            boolean hasDocument = documentPath != null && !documentPath.isBlank();
+            boolean hasDocument = false;
+            if (documentPath != null) {
+                if (!documentPath.isBlank()) {
+                    hasDocument = true;
+                }
+            }
             if (!hasDocument) {
                 showAlert("Sin acta de cierre",
                         "El practicante aún no ha subido el acta de cierre.",
@@ -627,8 +706,12 @@ public class EvaluateReportController implements ChangeListener<Report> {
         Optional<ButtonType> confirmationResponse = showAlertAndWait("Validar acta de cierre",
                 "¿Validar el acta de cierre? Esto concluirá la práctica del practicante.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = confirmationResponse.isPresent()
-                && confirmationResponse.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (confirmationResponse.isPresent()) {
+            if (confirmationResponse.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             tryValidateClosure(internId);
         }
@@ -638,8 +721,18 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             PracticeDAO practiceDAO = new PracticeDAO();
             String closureRecordPath = practiceDAO.findClosureRecordPath(internId);
-            boolean isSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
-            boolean isAlreadyConcluded = isSubmitted && practiceDAO.hasConcludedPractice(internId);
+            boolean isSubmitted = false;
+            if (closureRecordPath != null) {
+                if (!closureRecordPath.isBlank()) {
+                    isSubmitted = true;
+                }
+            }
+            boolean isAlreadyConcluded = false;
+            if (isSubmitted) {
+                if (practiceDAO.hasConcludedPractice(internId)) {
+                    isAlreadyConcluded = true;
+                }
+            }
 
             if (!isSubmitted) {
                 showAlert("Sin acta de cierre",
@@ -686,8 +779,18 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             PracticeDAO practiceDAO = new PracticeDAO();
             String closureRecordPath = practiceDAO.findClosureRecordPath(currentIntern.getIdUser());
-            boolean isSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
-            boolean isConcluded = isSubmitted && practiceDAO.hasConcludedPractice(currentIntern.getIdUser());
+            boolean isSubmitted = false;
+            if (closureRecordPath != null) {
+                if (!closureRecordPath.isBlank()) {
+                    isSubmitted = true;
+                }
+            }
+            boolean isConcluded = false;
+            if (isSubmitted) {
+                if (practiceDAO.hasConcludedPractice(currentIntern.getIdUser())) {
+                    isConcluded = true;
+                }
+            }
             if (!isSubmitted) {
                 statusText = CLOSURE_NOT_SUBMITTED;
             } else if (isConcluded) {
@@ -876,10 +979,20 @@ public class EvaluateReportController implements ChangeListener<Report> {
 
     private Double parseGrade(String gradeText) {
         Double grade = null;
-        boolean hasValidFormat = gradeText != null && GRADE_PATTERN.matcher(gradeText).matches();
+        boolean hasValidFormat = false;
+        if (gradeText != null) {
+            if (GRADE_PATTERN.matcher(gradeText).matches()) {
+                hasValidFormat = true;
+            }
+        }
         if (hasValidFormat) {
             double value = Double.parseDouble(gradeText);
-            boolean isInRange = value >= 0 && value <= 10;
+            boolean isInRange = false;
+            if (value >= 0) {
+                if (value <= 10) {
+                    isInRange = true;
+                }
+            }
             if (isInRange) {
                 grade = value;
             }
@@ -900,15 +1013,24 @@ public class EvaluateReportController implements ChangeListener<Report> {
         reportDetailLabel.setText(detailText);
 
         String documentPathText = "—";
-        boolean hasDocumentPath = report.getDocumentPath() != null
-                && !report.getDocumentPath().isBlank();
+        boolean hasDocumentPath = false;
+        if (report.getDocumentPath() != null) {
+            if (!report.getDocumentPath().isBlank()) {
+                hasDocumentPath = true;
+            }
+        }
         if (hasDocumentPath) {
             documentPathText = "Documento disponible";
         }
         documentPathLabel.setText(documentPathText);
 
         String signedPathText = "—";
-        boolean hasSignedPath = report.getSignedDocumentPath() != null && !report.getSignedDocumentPath().isBlank();
+        boolean hasSignedPath = false;
+        if (report.getSignedDocumentPath() != null) {
+            if (!report.getSignedDocumentPath().isBlank()) {
+                hasSignedPath = true;
+            }
+        }
         if (hasSignedPath) {
             signedPathText = "Documento disponible";
         }

@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MonthlyReportDAOTest extends BaseDAOTest {
 
-    private final MonthlyReportDAO dao = new MonthlyReportDAO();
+    private final MonthlyReportDAO monthlyReportDAO = new MonthlyReportDAO();
 
     private MonthlyReport buildMonthlyReport(ReportSceneContext context) {
         MonthlyReport monthlyReport = new MonthlyReport();
@@ -45,7 +45,7 @@ class MonthlyReportDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidMonthlyReportReturnsOneRowAffected() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
-        int result = dao.save(buildMonthlyReport(context));
+        int result = monthlyReportDAO.save(buildMonthlyReport(context));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
@@ -57,7 +57,7 @@ class MonthlyReportDAOTest extends BaseDAOTest {
         assertThrows(ServiceException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(report);
+                monthlyReportDAO.save(report);
             }
         });
     }
@@ -66,8 +66,8 @@ class MonthlyReportDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         MonthlyReport report = buildMonthlyReport(context);
-        dao.save(report);
-        MonthlyReport retrieved = dao.getById(report.getIdReport());
+        monthlyReportDAO.save(report);
+        MonthlyReport retrieved = monthlyReportDAO.getById(report.getIdReport());
         assertNotNull(retrieved);
     }
 
@@ -75,8 +75,8 @@ class MonthlyReportDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         MonthlyReport report = buildMonthlyReport(context);
-        dao.save(report);
-        MonthlyReport retrieved = dao.getById(report.getIdReport());
+        monthlyReportDAO.save(report);
+        MonthlyReport retrieved = monthlyReportDAO.getById(report.getIdReport());
         assertEquals(report, retrieved);
     }
 
@@ -85,36 +85,37 @@ class MonthlyReportDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getById(TestConstants.INVALID_ID_ZERO);
+                monthlyReportDAO.getById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        MonthlyReport retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
+        MonthlyReport retrieved = monthlyReportDAO.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
-        dao.save(buildMonthlyReport(context));
-        List<Report> all = dao.getAll();
-        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+        monthlyReportDAO.save(buildMonthlyReport(context));
+        List<Report> areportListl = monthlyReportDAO.getAll();
+        assertEquals(TestConstants.SINGLE_RESULT, areportListl.size());
     }
 
     @Test
     void testGetAllWithNoDataReturnsEmptyList() throws ServiceException {
-        List<Report> all = dao.getAll();
-        assertTrue(all.isEmpty());
+        List<Report> reportList = monthlyReportDAO.getAll();
+        assertTrue(reportList.isEmpty());
     }
+
 
     @Test
     void testGetByStatusPendingReturnsOneElement() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
-        dao.save(buildMonthlyReport(context));
-        List<Report> pending = dao.getByStatusPending();
+        monthlyReportDAO.save(buildMonthlyReport(context));
+        List<Report> pending = monthlyReportDAO.getByStatusPending();
         assertEquals(TestConstants.SINGLE_RESULT, pending.size());
     }
 

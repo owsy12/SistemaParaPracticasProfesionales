@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OvEvaluationDAOTest extends BaseDAOTest {
 
-    private final OvEvaluationDAO dao = new OvEvaluationDAO();
+    private final OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
 
     private OvEvaluation buildOvEvaluation(int idIntern, int idProject) {
         OvEvaluation evaluation = new OvEvaluation();
@@ -33,7 +33,7 @@ class OvEvaluationDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidOvEvaluationReturnsOneRowAffected() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
-        int result = dao.save(buildOvEvaluation(context.idIntern, context.idProject));
+        int result = ovEvaluationDAO.save(buildOvEvaluation(context.idIntern, context.idProject));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
@@ -44,7 +44,7 @@ class OvEvaluationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(evaluation);
+                ovEvaluationDAO.save(evaluation);
             }
         });
     }
@@ -52,14 +52,14 @@ class OvEvaluationDAOTest extends BaseDAOTest {
     @Test
     void testFindByInternAndProjectAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
-        dao.save(buildOvEvaluation(context.idIntern, context.idProject));
-        OvEvaluation retrieved = dao.findByInternAndProject(context.idIntern, context.idProject);
+        ovEvaluationDAO.save(buildOvEvaluation(context.idIntern, context.idProject));
+        OvEvaluation retrieved = ovEvaluationDAO.findByInternAndProject(context.idIntern, context.idProject);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByInternAndProjectWithNonExistentReturnsNull() throws ServiceException, ValidationException {
-        OvEvaluation retrieved = dao.findByInternAndProject(
+        OvEvaluation retrieved = ovEvaluationDAO.findByInternAndProject(
                 TestConstants.NON_EXISTENT_ID, TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
@@ -70,7 +70,7 @@ class OvEvaluationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findByInternAndProject(TestConstants.INVALID_ID_ZERO, context.idProject);
+                ovEvaluationDAO.findByInternAndProject(TestConstants.INVALID_ID_ZERO, context.idProject);
             }
         });
     }
@@ -78,8 +78,8 @@ class OvEvaluationDAOTest extends BaseDAOTest {
     @Test
     void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         OVEvalContext context = persistContext();
-        dao.save(buildOvEvaluation(context.idIntern, context.idProject));
-        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
+        ovEvaluationDAO.save(buildOvEvaluation(context.idIntern, context.idProject));
+        boolean result = ovEvaluationDAO.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 
@@ -89,7 +89,7 @@ class OvEvaluationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
+                ovEvaluationDAO.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
             }
         });
     }

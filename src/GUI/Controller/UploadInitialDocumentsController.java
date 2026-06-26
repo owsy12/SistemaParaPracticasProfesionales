@@ -223,8 +223,14 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
     private InitialFormat findPendingByType(String documentType) {
         InitialFormat match = null;
         for (InitialFormat document : pendingDocuments) {
-            boolean isSameType = match == null && documentType != null
-                    && documentType.equals(document.getFormatType());
+            boolean isSameType = false;
+            if (match == null) {
+                if (documentType != null) {
+                    if (documentType.equals(document.getFormatType())) {
+                        isSameType = true;
+                    }
+                }
+            }
             if (isSameType) {
                 match = document;
             }

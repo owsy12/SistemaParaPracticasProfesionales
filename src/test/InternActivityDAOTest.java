@@ -22,7 +22,7 @@ class InternActivityDAOTest extends BaseDAOTest {
 
     private static final int UPDATED_HOURS = 12;
 
-    private final InternActivityDAO dao = new InternActivityDAO();
+    private final InternActivityDAO internActivityDAO = new InternActivityDAO();
 
     private InternActivity buildInternActivity(int idActivity, int idIntern) {
         InternActivity activity = new InternActivity();
@@ -38,7 +38,7 @@ class InternActivityDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidInternActivityReturnsPositiveId() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        int generatedId = dao.save(buildInternActivity(context.idActivity, context.idIntern));
+        int generatedId = internActivityDAO.save(buildInternActivity(context.idActivity, context.idIntern));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
@@ -49,7 +49,7 @@ class InternActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(activity);
+                internActivityDAO.save(activity);
             }
         });
     }
@@ -57,11 +57,11 @@ class InternActivityDAOTest extends BaseDAOTest {
     @Test
     void testSaveDuplicateInternActivityThrowsDuplicateEntryException() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        dao.save(buildInternActivity(context.idActivity, context.idIntern));
+        internActivityDAO.save(buildInternActivity(context.idActivity, context.idIntern));
         assertThrows(DuplicateEntryException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(buildInternActivity(context.idActivity, context.idIntern));
+                internActivityDAO.save(buildInternActivity(context.idActivity, context.idIntern));
             }
         });
     }
@@ -69,14 +69,14 @@ class InternActivityDAOTest extends BaseDAOTest {
     @Test
     void testFindByActivityAndInternAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        dao.save(buildInternActivity(context.idActivity, context.idIntern));
-        InternActivity retrieved = dao.findByActivityAndIntern(context.idActivity, context.idIntern);
+        internActivityDAO.save(buildInternActivity(context.idActivity, context.idIntern));
+        InternActivity retrieved = internActivityDAO.findByActivityAndIntern(context.idActivity, context.idIntern);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByActivityAndInternWhenNoRecordReturnsNull() throws ServiceException, ValidationException {
-        InternActivity retrieved = dao.findByActivityAndIntern(
+        InternActivity retrieved = internActivityDAO.findByActivityAndIntern(
                 TestConstants.NON_EXISTENT_ID, TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
@@ -87,7 +87,7 @@ class InternActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findByActivityAndIntern(TestConstants.INVALID_ID_ZERO, context.idIntern);
+                internActivityDAO.findByActivityAndIntern(TestConstants.INVALID_ID_ZERO, context.idIntern);
             }
         });
     }
@@ -95,23 +95,23 @@ class InternActivityDAOTest extends BaseDAOTest {
     @Test
     void testFindByInternAndProjectAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        dao.save(buildInternActivity(context.idActivity, context.idIntern));
-        List<InternActivity> activities = dao.findByInternAndProject(context.idIntern, context.idProject);
+        internActivityDAO.save(buildInternActivity(context.idActivity, context.idIntern));
+        List<InternActivity> activities = internActivityDAO.findByInternAndProject(context.idIntern, context.idProject);
         assertEquals(TestConstants.SINGLE_RESULT, activities.size());
     }
 
     @Test
     void testFindByInternAndProjectWithNoActivitiesReturnsEmptyList() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        List<InternActivity> activities = dao.findByInternAndProject(context.idIntern, context.idProject);
+        List<InternActivity> activities = internActivityDAO.findByInternAndProject(context.idIntern, context.idProject);
         assertTrue(activities.isEmpty());
     }
 
     @Test
     void testGetTotalHoursByInternAfterSaveReturnsDedicatedHours() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        dao.save(buildInternActivity(context.idActivity, context.idIntern));
-        int total = dao.getTotalHoursByIntern(context.idIntern);
+        internActivityDAO.save(buildInternActivity(context.idActivity, context.idIntern));
+        int total = internActivityDAO.getTotalHoursByIntern(context.idIntern);
         assertEquals(TestConstants.DEFAULT_DEDICATED_HOURS, total);
     }
 
@@ -120,7 +120,7 @@ class InternActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getTotalHoursByIntern(TestConstants.INVALID_ID_ZERO);
+                internActivityDAO.getTotalHoursByIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -129,10 +129,10 @@ class InternActivityDAOTest extends BaseDAOTest {
     void testUpdateInternActivityReturnsTrue() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
         InternActivity activity = buildInternActivity(context.idActivity, context.idIntern);
-        dao.save(activity);
+        internActivityDAO.save(activity);
         activity.setStatus(TestConstants.STATUS_INTERN_ACTIVITY_COMPLETED);
         activity.setDedicatedHours(UPDATED_HOURS);
-        boolean result = dao.update(activity);
+        boolean result = internActivityDAO.update(activity);
         assertTrue(result);
     }
 
@@ -144,7 +144,7 @@ class InternActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.update(activity);
+                internActivityDAO.update(activity);
             }
         });
     }
@@ -152,8 +152,8 @@ class InternActivityDAOTest extends BaseDAOTest {
     @Test
     void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         InternActivityContext context = persistContext();
-        dao.save(buildInternActivity(context.idActivity, context.idIntern));
-        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
+        internActivityDAO.save(buildInternActivity(context.idActivity, context.idIntern));
+        boolean result = internActivityDAO.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 
@@ -163,7 +163,7 @@ class InternActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
+                internActivityDAO.deleteByInternAndProject(context.idIntern, TestConstants.INVALID_ID_ZERO);
             }
         });
     }

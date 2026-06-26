@@ -98,7 +98,12 @@ public class MonthlyReportGenerator {
     }
 
     private static String expandActivityRows(String xml, List<ReportActivity> activities) {
-        boolean hasActivities = activities != null && !activities.isEmpty();
+        boolean hasActivities = false;
+        if (activities != null) {
+            if (!activities.isEmpty()) {
+                hasActivities = true;
+            }
+        }
         int markerPosition = -1;
         if (hasActivities) {
             markerPosition = xml.indexOf("{{activity_01}}");
@@ -163,7 +168,12 @@ public class MonthlyReportGenerator {
         while (scanning) {
             int openPosition = cleaned.indexOf("{{", position);
             int closePosition = (openPosition >= 0) ? cleaned.indexOf("}}", openPosition + 2) : -1;
-            boolean hasMarker = openPosition >= 0 && closePosition >= 0;
+            boolean hasMarker = false;
+            if (openPosition >= 0) {
+                if (closePosition >= 0) {
+                    hasMarker = true;
+                }
+            }
             if (!hasMarker) {
                 result.append(cleaned, position, cleaned.length());
                 scanning = false;

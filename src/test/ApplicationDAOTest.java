@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApplicationDAOTest extends BaseDAOTest {
 
-    private final ApplicationDAO dao = new ApplicationDAO();
+    private final ApplicationDAO applicationDAO = new ApplicationDAO();
 
     private Application buildApplication(int idIntern, String status) {
         Application application = new Application();
@@ -30,7 +30,7 @@ class ApplicationDAOTest extends BaseDAOTest {
     @Test
     void testCreateValidApplicationReturnsPositiveId() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        int generatedId = dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        int generatedId = applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
@@ -40,7 +40,7 @@ class ApplicationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.create(application);
+                applicationDAO.create(application);
             }
         });
     }
@@ -48,68 +48,68 @@ class ApplicationDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterCreateReturnsNotNull() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        int idApplication = dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
-        Application retrieved = dao.findById(idApplication);
+        int idApplication = applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        Application retrieved = applicationDAO.findById(idApplication);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        Application retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        Application retrieved = applicationDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindByInternAfterCreateReturnsLatestApplication() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
-        Application retrieved = dao.findByIntern(idIntern);
+        applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        Application retrieved = applicationDAO.findByIntern(idIntern);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<Application> all = dao.findAll();
+        List<Application> all = applicationDAO.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testFindAllAfterCreateReturnsOneElement() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
-        List<Application> all = dao.findAll();
+        applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        List<Application> all = applicationDAO.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
     void testFindByStatusReturnsOneElement() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
-        List<Application> pending = dao.findByStatus(TestConstants.STATUS_PENDING);
+        applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        List<Application> pending = applicationDAO.findByStatus(TestConstants.STATUS_PENDING);
         assertEquals(TestConstants.SINGLE_RESULT, pending.size());
     }
 
     @Test
     void testFindByStatusWithUnknownStatusReturnsEmptyList() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
-        List<Application> rejected = dao.findByStatus(TestConstants.STATUS_REJECTED);
+        applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        List<Application> rejected = applicationDAO.findByStatus(TestConstants.STATUS_REJECTED);
         assertTrue(rejected.isEmpty());
     }
 
     @Test
     void testUpdateStatusReturnsTrue() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        int idApplication = dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
-        boolean result = dao.updateStatus(idApplication, TestConstants.STATUS_ACCEPTED);
+        int idApplication = applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        boolean result = applicationDAO.updateStatus(idApplication, TestConstants.STATUS_ACCEPTED);
         assertTrue(result);
     }
 
     @Test
     void testFindActiveApplicationByInternReturnsApplication() throws ServiceException, ValidationException {
         int idIntern = persistInternUser();
-        dao.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
-        Application retrieved = dao.findActiveApplicationByIntern(idIntern);
+        applicationDAO.create(buildApplication(idIntern, TestConstants.STATUS_PENDING));
+        Application retrieved = applicationDAO.findActiveApplicationByIntern(idIntern);
         assertNotNull(retrieved);
     }
 
@@ -118,7 +118,7 @@ class ApplicationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.cancelAcceptedByIntern(TestConstants.INVALID_ID_ZERO);
+                applicationDAO.cancelAcceptedByIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }

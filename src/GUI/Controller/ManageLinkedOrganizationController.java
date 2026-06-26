@@ -67,7 +67,17 @@ public class ManageLinkedOrganizationController {
             Optional<ButtonType> response = showAlertAndWait(
                     "Confirmar eliminación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            boolean isUserConfirmed = false;
+
+            if (response.isPresent()) {
+
+                if (response.get() == ButtonType.OK) {
+
+                    isUserConfirmed = true;
+
+                }
+
+            }
             if (isUserConfirmed) {
                 deleteLinkedOrganizationProcess(selectedOrganization.getIdLinkedOrganization());
             }

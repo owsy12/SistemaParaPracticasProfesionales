@@ -42,14 +42,14 @@ class CoordinatorDAOTest extends BaseDAOTest {
 
     @Test
     void testSaveValidCoordinatorReturnsTrue() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDAO();
-        boolean result = dao.save(buildCoordinator());
+        CoordinatorDAO coordinatorDAO = buildDAO();
+        boolean result = coordinatorDAO.save(buildCoordinator());
         assertTrue(result);
     }
 
     @Test
     void testSaveSecondActiveCoordinatorThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDAO();
+        CoordinatorDAO coordinatorDAO = buildDAO();
         persistCoordinatorViaBuilders();
         Coordinator secondCoordinator = buildCoordinator();
         secondCoordinator.setRegistrationNumber("C70000002");
@@ -57,7 +57,7 @@ class CoordinatorDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(secondCoordinator);
+                coordinatorDAO.save(secondCoordinator);
             }
         });
     }
@@ -65,70 +65,70 @@ class CoordinatorDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDAO();
-        Coordinator retrieved = dao.findById(idUser);
+        CoordinatorDAO coordinatorDAO = buildDAO();
+        Coordinator retrieved = coordinatorDAO.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDAO();
+        CoordinatorDAO coordinatorDAO = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_ZERO);
+                coordinatorDAO.findById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDAO();
+        CoordinatorDAO coordinatorDAO = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+                coordinatorDAO.findById(TestConstants.INVALID_ID_NEGATIVE);
             }
         });
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDAO();
-        Coordinator retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        CoordinatorDAO coordinatorDAO = buildDAO();
+        Coordinator retrieved = coordinatorDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllCoordinatorsWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDAO();
-        List<Coordinator> all = dao.findAllCoordinators();
-        assertTrue(all.isEmpty());
+        CoordinatorDAO coordinatorDAO = buildDAO();
+        List<Coordinator> allCoordinators = coordinatorDAO.findAllCoordinators();
+        assertTrue(allCoordinators.isEmpty());
     }
 
     @Test
     void testFindAllCoordinatorsAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDAO();
-        List<Coordinator> all = dao.findAllCoordinators();
-        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+        CoordinatorDAO coordinatorDAO = buildDAO();
+        List<Coordinator> allCoordinators = coordinatorDAO.findAllCoordinators();
+        assertEquals(TestConstants.SINGLE_RESULT, allCoordinators.size());
     }
 
     @Test
     void testFindActiveCoordinatorsReturnsOnlyActive() throws ServiceException, ValidationException {
         persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDAO();
-        List<Coordinator> active = dao.findActiveCoordinators();
-        assertEquals(TestConstants.SINGLE_RESULT, active.size());
+        CoordinatorDAO coordinatorDAO = buildDAO();
+        List<Coordinator> activeCoordinators = coordinatorDAO.findActiveCoordinators();
+        assertEquals(TestConstants.SINGLE_RESULT, activeCoordinators.size());
     }
 
     @Test
     void testDeleteCoordinatorWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDAO();
+        CoordinatorDAO coordinatorDAO = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.delete(TestConstants.INVALID_ID_ZERO);
+                coordinatorDAO.delete(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -136,8 +136,8 @@ class CoordinatorDAOTest extends BaseDAOTest {
     @Test
     void testDeleteCoordinatorReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDAO();
-        boolean result = dao.delete(idUser);
+        CoordinatorDAO coordinatorDAO = buildDAO();
+        boolean result = coordinatorDAO.delete(idUser);
         assertTrue(result);
     }
 

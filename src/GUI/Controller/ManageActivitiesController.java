@@ -171,8 +171,12 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                 ButtonType.YES, ButtonType.NO);
         Optional<ButtonType> confirmationResult = confirmation.showAndWait();
 
-        boolean isDeletionConfirmed = confirmationResult.isPresent()
-                && confirmationResult.get() == ButtonType.YES;
+        boolean isDeletionConfirmed = false;
+        if (confirmationResult.isPresent()) {
+            if (confirmationResult.get() == ButtonType.YES) {
+                isDeletionConfirmed = true;
+            }
+        }
         if (isDeletionConfirmed) {
             deleteProcess();
         }
@@ -257,9 +261,20 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     private boolean areDatesInvalid() {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
-        boolean bothProvided = startDate != null && endDate != null;
-        boolean hasInvalidDateOrder = bothProvided && !endDate.isAfter(startDate);
-        return hasInvalidDateOrder;
+        boolean hasInvalidOrder = hasInvalidDateOrder(startDate, endDate);
+        return hasInvalidOrder;
+    }
+
+    private boolean hasInvalidDateOrder(LocalDate startDate, LocalDate endDate) {
+        boolean hasInvalidOrder = false;
+        if (startDate != null) {
+            if (endDate != null) {
+                if (!endDate.isAfter(startDate)) {
+                    hasInvalidOrder = true;
+                }
+            }
+        }
+        return hasInvalidOrder;
     }
 
     private boolean areDatesOutsideProjectRange() {
@@ -267,16 +282,57 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
 
-        boolean hasProjectStart = project != null && project.getStartDate() != null;
-        boolean hasProjectEnd = project != null && project.getEndDate() != null;
-
-        boolean startBeforeProject = hasProjectStart && startDate != null
-                && startDate.isBefore(project.getStartDate());
-        boolean endAfterProject = hasProjectEnd && endDate != null
-                && endDate.isAfter(project.getEndDate());
-
-        boolean isOutOfRange = startBeforeProject || endAfterProject;
+        boolean isOutOfRange = false;
+        if (isStartBeforeProjectStart(project, startDate)) {
+            isOutOfRange = true;
+        } else if (isEndAfterProjectEnd(project, endDate)) {
+            isOutOfRange = true;
+        }
         return isOutOfRange;
+    }
+
+    private boolean isProjectStartPresent(Project project) {
+        boolean isPresent = false;
+        if (project != null) {
+            if (project.getStartDate() != null) {
+                isPresent = true;
+            }
+        }
+        return isPresent;
+    }
+
+    private boolean isProjectEndPresent(Project project) {
+        boolean isPresent = false;
+        if (project != null) {
+            if (project.getEndDate() != null) {
+                isPresent = true;
+            }
+        }
+        return isPresent;
+    }
+
+    private boolean isStartBeforeProjectStart(Project project, LocalDate startDate) {
+        boolean isBefore = false;
+        if (isProjectStartPresent(project)) {
+            if (startDate != null) {
+                if (startDate.isBefore(project.getStartDate())) {
+                    isBefore = true;
+                }
+            }
+        }
+        return isBefore;
+    }
+
+    private boolean isEndAfterProjectEnd(Project project, LocalDate endDate) {
+        boolean isAfter = false;
+        if (isProjectEndPresent(project)) {
+            if (endDate != null) {
+                if (endDate.isAfter(project.getEndDate())) {
+                    isAfter = true;
+                }
+            }
+        }
+        return isAfter;
     }
 
     private void loadProjects() {
@@ -286,7 +342,12 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
             boolean hasAssignment = assignment != null;
             PracticeDAO practiceDAO = new PracticeDAO();
-            boolean isPracticeConcluded = hasAssignment && practiceDAO.hasConcludedPractice(internId);
+            boolean isPracticeConcluded = false;
+            if (hasAssignment) {
+                if (practiceDAO.hasConcludedPractice(internId)) {
+                    isPracticeConcluded = true;
+                }
+            }
             if (!hasAssignment) {
                 showAlert("Sin proyecto asignado",
                         "No tiene un proyecto asignado. No puede gestionar actividades.",

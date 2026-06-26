@@ -33,11 +33,18 @@ public class EvaluationPrerequisiteChecker {
 
     public static boolean isPracticeComplete(int internId, int projectId)
             throws ServiceException, ValidationException {
-        boolean complete = hasEvaluatedReportOfType(internId, REPORT_TYPE_MONTHLY)
-                && hasEvaluatedReportOfType(internId, REPORT_TYPE_PARTIAL)
-                && hasEvaluatedReportOfType(internId, REPORT_TYPE_FINAL)
-                && isSelfEvaluationEvaluated(internId)
-                && isOvEvaluationEvaluated(internId, projectId);
+        boolean complete = false;
+        if (hasEvaluatedReportOfType(internId, REPORT_TYPE_MONTHLY)) {
+            if (hasEvaluatedReportOfType(internId, REPORT_TYPE_PARTIAL)) {
+                if (hasEvaluatedReportOfType(internId, REPORT_TYPE_FINAL)) {
+                    if (isSelfEvaluationEvaluated(internId)) {
+                        if (isOvEvaluationEvaluated(internId, projectId)) {
+                            complete = true;
+                        }
+                    }
+                }
+            }
+        }
         return complete;
     }
 
@@ -47,8 +54,12 @@ public class EvaluationPrerequisiteChecker {
         List<Report> reports = reportDAO.getByIdIntern(internId);
         boolean found = false;
         for (Report report : reports) {
-            boolean matches = reportType.equals(report.getReportType())
-                    && STATUS_EVALUATED.equals(report.getStatus());
+            boolean matches = false;
+            if (reportType.equals(report.getReportType())) {
+                if (STATUS_EVALUATED.equals(report.getStatus())) {
+                    matches = true;
+                }
+            }
             if (matches) {
                 found = true;
             }
@@ -60,8 +71,12 @@ public class EvaluationPrerequisiteChecker {
             throws ServiceException, ValidationException {
         SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
         SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
-        boolean evaluated = selfEvaluation != null
-                && STATUS_DOCUMENT_EVALUATED.equals(selfEvaluation.getStatus());
+        boolean evaluated = false;
+        if (selfEvaluation != null) {
+            if (STATUS_DOCUMENT_EVALUATED.equals(selfEvaluation.getStatus())) {
+                evaluated = true;
+            }
+        }
         return evaluated;
     }
 
@@ -69,8 +84,12 @@ public class EvaluationPrerequisiteChecker {
             throws ServiceException, ValidationException {
         OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
         OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
-        boolean evaluated = ovEvaluation != null
-                && STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus());
+        boolean evaluated = false;
+        if (ovEvaluation != null) {
+            if (STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus())) {
+                evaluated = true;
+            }
+        }
         return evaluated;
     }
 
@@ -151,8 +170,18 @@ public class EvaluationPrerequisiteChecker {
 
     private static String checkProjectPeriod(LocalDate projectStart, LocalDate projectEnd) {
         LocalDate today = LocalDate.now();
-        boolean isBeforeStart = projectStart != null && today.isBefore(projectStart);
-        boolean isAfterEnd = projectEnd != null && today.isAfter(projectEnd);
+        boolean isBeforeStart = false;
+        if (projectStart != null) {
+            if (today.isBefore(projectStart)) {
+                isBeforeStart = true;
+            }
+        }
+        boolean isAfterEnd = false;
+        if (projectEnd != null) {
+            if (today.isAfter(projectEnd)) {
+                isAfterEnd = true;
+            }
+        }
         String message = null;
         if (isBeforeStart || isAfterEnd) {
             message = "El período del proyecto ha finalizado o aún no ha comenzado.";

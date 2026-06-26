@@ -65,7 +65,12 @@ public class AddTechnicalResponsibleController {
         Optional<ButtonType> response = showAlertAndWait(
                 "Confirmar cancelación", "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             clearFields();
             openWelcomePage(anchorPane);
@@ -150,7 +155,20 @@ public class AddTechnicalResponsibleController {
         boolean isCargoEmpty = cargoField.getText().isEmpty();
         boolean isOrganizationMissing = organizationComboBox.getValue() == null;
 
-        boolean hasEmpty = isNameEmpty || isEmailEmpty || isLastNameEmpty || isSecondLastNameEmpty || isCargoEmpty || isOrganizationMissing;
+        boolean hasEmpty = false;
+        if (isNameEmpty) {
+            hasEmpty = true;
+        } else if (isEmailEmpty) {
+            hasEmpty = true;
+        } else if (isLastNameEmpty) {
+            hasEmpty = true;
+        } else if (isSecondLastNameEmpty) {
+            hasEmpty = true;
+        } else if (isCargoEmpty) {
+            hasEmpty = true;
+        } else if (isOrganizationMissing) {
+            hasEmpty = true;
+        }
 
         return hasEmpty;
     }

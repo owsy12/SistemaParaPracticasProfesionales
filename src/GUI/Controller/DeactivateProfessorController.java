@@ -68,7 +68,17 @@ public class DeactivateProfessorController {
                     "¿Desea desactivar este profesor?",
                     Alert.AlertType.CONFIRMATION);
 
-            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            boolean isUserConfirmed = false;
+
+            if (response.isPresent()) {
+
+                if (response.get() == ButtonType.OK) {
+
+                    isUserConfirmed = true;
+
+                }
+
+            }
             if (isUserConfirmed) {
                 selectedUser.setStatus(STATUS_INACTIVE);
                 selectedUser.setRole("Profesor");

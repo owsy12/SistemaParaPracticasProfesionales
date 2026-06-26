@@ -58,8 +58,12 @@ public class ViewsUtils {
         Pane contentPane = null;
         Node currentNode = startNode;
         while (currentNode != null && contentPane == null) {
-            boolean isContentPane = currentNode instanceof StackPane
-                    && CONTENT_PANE_ID.equals(currentNode.getId());
+            boolean isContentPane = false;
+            if (currentNode instanceof StackPane) {
+                if (CONTENT_PANE_ID.equals(currentNode.getId())) {
+                    isContentPane = true;
+                }
+            }
             if (isContentPane) {
                 contentPane = (Pane) currentNode;
             }

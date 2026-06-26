@@ -85,8 +85,14 @@ public class InternFeedbackController {
     public void viewReport(ActionEvent actionEvent) {
         Report selected = reportsTableView.getSelectionModel().getSelectedItem();
         boolean hasSelection = selected != null;
-        boolean hasDocument = hasSelection && selected.getDocumentPath() != null
-                && !selected.getDocumentPath().isBlank();
+        boolean hasDocument = false;
+        if (hasSelection) {
+            if (selected.getDocumentPath() != null) {
+                if (!selected.getDocumentPath().isBlank()) {
+                    hasDocument = true;
+                }
+            }
+        }
         if (!hasSelection) {
             showAlert("Selecciona un reporte",
                     "Selecciona un reporte de la tabla para verlo.", Alert.AlertType.WARNING);
@@ -103,8 +109,14 @@ public class InternFeedbackController {
     public void downloadReport(ActionEvent actionEvent) {
         Report selected = reportsTableView.getSelectionModel().getSelectedItem();
         boolean hasSelection = selected != null;
-        boolean hasDocument = hasSelection && selected.getDocumentPath() != null
-                && !selected.getDocumentPath().isBlank();
+        boolean hasDocument = false;
+        if (hasSelection) {
+            if (selected.getDocumentPath() != null) {
+                if (!selected.getDocumentPath().isBlank()) {
+                    hasDocument = true;
+                }
+            }
+        }
         if (!hasSelection) {
             showAlert("Selecciona un reporte",
                     "Selecciona un reporte de la tabla para descargarlo.", Alert.AlertType.WARNING);
@@ -121,8 +133,14 @@ public class InternFeedbackController {
     public void viewSignedDocument(ActionEvent actionEvent) {
         Report selected = reportsTableView.getSelectionModel().getSelectedItem();
         boolean hasSelection = selected != null;
-        boolean hasSigned = hasSelection && selected.getSignedDocumentPath() != null
-                && !selected.getSignedDocumentPath().isBlank();
+        boolean hasSigned = false;
+        if (hasSelection) {
+            if (selected.getSignedDocumentPath() != null) {
+                if (!selected.getSignedDocumentPath().isBlank()) {
+                    hasSigned = true;
+                }
+            }
+        }
         if (!hasSelection) {
             showAlert("Selecciona un reporte",
                     "Selecciona un reporte de la tabla para ver su documento firmado.",
@@ -155,8 +173,12 @@ public class InternFeedbackController {
             Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
             String reasonText = NO_ACTIVE_ASSIGNMENT;
             if (assignment != null) {
-                boolean hasReason = assignment.getAssignmentReason() != null
-                        && !assignment.getAssignmentReason().isBlank();
+                boolean hasReason = false;
+                if (assignment.getAssignmentReason() != null) {
+                    if (!assignment.getAssignmentReason().isBlank()) {
+                        hasReason = true;
+                    }
+                }
                 if (hasReason) {
                     reasonText = assignment.getAssignmentReason();
                 } else {

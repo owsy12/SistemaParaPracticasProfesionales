@@ -138,8 +138,20 @@ public class AddAdministratorController {
         boolean isPasswordEmpty = passwordField.getText().isEmpty();
         boolean isConfirmPasswordEmpty = confirmPasswordField.getText().isEmpty();
 
-        boolean hasEmpty = isIdEmpty || isFirstNameEmpty || isLastNameEmpty
-                || isEmailEmpty || isPasswordEmpty || isConfirmPasswordEmpty;
+        boolean hasEmpty = false;
+        if (isIdEmpty) {
+            hasEmpty = true;
+        } else if (isFirstNameEmpty) {
+            hasEmpty = true;
+        } else if (isLastNameEmpty) {
+            hasEmpty = true;
+        } else if (isEmailEmpty) {
+            hasEmpty = true;
+        } else if (isPasswordEmpty) {
+            hasEmpty = true;
+        } else if (isConfirmPasswordEmpty) {
+            hasEmpty = true;
+        }
         return hasEmpty;
     }
 

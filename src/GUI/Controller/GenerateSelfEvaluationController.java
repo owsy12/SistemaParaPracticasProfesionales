@@ -230,8 +230,19 @@ public class GenerateSelfEvaluationController {
     }
 
     private boolean hasInternContext() {
-        boolean hasContext = currentIntern != null && currentProject != null && currentOrganization != null
-                && currentSupervisor != null;
+        boolean hasContext = true;
+        if (currentIntern == null) {
+            hasContext = false;
+        }
+        if (currentProject == null) {
+            hasContext = false;
+        }
+        if (currentOrganization == null) {
+            hasContext = false;
+        }
+        if (currentSupervisor == null) {
+            hasContext = false;
+        }
         return hasContext;
     }
 
@@ -247,7 +258,12 @@ public class GenerateSelfEvaluationController {
 
     private boolean isPlaceAndDateEmpty() {
         String value = placeAndDateTextField.getText();
-        boolean isEmpty = value == null || value.isBlank();
+        boolean isEmpty = false;
+        if (value == null) {
+            isEmpty = true;
+        } else if (value.isBlank()) {
+            isEmpty = true;
+        }
         return isEmpty;
     }
 
@@ -380,7 +396,12 @@ public class GenerateSelfEvaluationController {
         int year = now.getYear();
         String period;
 
-        boolean isSpringMonth = month >= FIRST_SPRING_MONTH && month <= LAST_SPRING_MONTH;
+        boolean isSpringMonth = false;
+        if (month >= FIRST_SPRING_MONTH) {
+            if (month <= LAST_SPRING_MONTH) {
+                isSpringMonth = true;
+            }
+        }
         if (isSpringMonth) {
             period = SPRING_PERIOD_START_LABEL + year;
         } else if (month == JANUARY_MONTH) {

@@ -62,7 +62,17 @@ public class DeactivateCoordinatorController {
                     "¿Desea desactivar este coordinador?",
                     Alert.AlertType.CONFIRMATION);
 
-            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            boolean isUserConfirmed = false;
+
+            if (response.isPresent()) {
+
+                if (response.get() == ButtonType.OK) {
+
+                    isUserConfirmed = true;
+
+                }
+
+            }
             if (isUserConfirmed) {
                 activeCoordinator.setStatus(STATUS_INACTIVE);
                 activeCoordinator.setRole("Coordinador");

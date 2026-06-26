@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InitialFormatDAOTest extends BaseDAOTest {
 
-    private final InitialFormatDAO dao = new InitialFormatDAO();
+    private final InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
 
     private InitialFormat buildInitialFormat(int idIntern, int idProject, String formatType) {
         InitialFormat initialFormat = new InitialFormat();
@@ -35,7 +35,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidInitialFormatReturnsPositiveId() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
-        int generatedId = dao.save(buildInitialFormat(
+        int generatedId = initialFormatDAO.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
@@ -48,7 +48,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(initialFormat);
+                initialFormatDAO.save(initialFormat);
             }
         });
     }
@@ -56,9 +56,9 @@ class InitialFormatDAOTest extends BaseDAOTest {
     @Test
     void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
-        int idInitialFormat = dao.save(buildInitialFormat(
+        int idInitialFormat = initialFormatDAO.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
-        InitialFormat retrieved = dao.getById(idInitialFormat);
+        InitialFormat retrieved = initialFormatDAO.getById(idInitialFormat);
         assertNotNull(retrieved);
     }
 
@@ -67,38 +67,38 @@ class InitialFormatDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getById(TestConstants.INVALID_ID_ZERO);
+                initialFormatDAO.getById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        InitialFormat retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
+        InitialFormat retrieved = initialFormatDAO.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
-        dao.save(buildInitialFormat(
+        initialFormatDAO.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
-        List<InitialFormat> all = dao.getAll();
+        List<InitialFormat> all = initialFormatDAO.getAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
     void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<InitialFormat> all = dao.getAll();
+        List<InitialFormat> all = initialFormatDAO.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testGetByIdInternAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
-        dao.save(buildInitialFormat(
+        initialFormatDAO.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
-        List<InitialFormat> formats = dao.getByIdIntern(context.idIntern);
+        List<InitialFormat> formats = initialFormatDAO.getByIdIntern(context.idIntern);
         assertEquals(TestConstants.SINGLE_RESULT, formats.size());
     }
 
@@ -107,7 +107,7 @@ class InitialFormatDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getByIdIntern(TestConstants.INVALID_ID_ZERO);
+                initialFormatDAO.getByIdIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -115,29 +115,29 @@ class InitialFormatDAOTest extends BaseDAOTest {
     @Test
     void testFindPendingByInternAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
-        dao.save(buildInitialFormat(
+        initialFormatDAO.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_ASSIGNMENT));
-        List<InitialFormat> pending = dao.findPendingByIntern(context.idIntern);
+        List<InitialFormat> pending = initialFormatDAO.findPendingByIntern(context.idIntern);
         assertEquals(TestConstants.SINGLE_RESULT, pending.size());
     }
 
     @Test
     void testUpdateStatusReturnsOneRowAffected() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
-        int idInitialFormat = dao.save(buildInitialFormat(
+        int idInitialFormat = initialFormatDAO.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_SCHEDULE));
-        InitialFormat updateData = dao.getById(idInitialFormat);
+        InitialFormat updateData = initialFormatDAO.getById(idInitialFormat);
         updateData.setStatus(TestConstants.STATUS_INITIAL_FORMAT_DELIVERED);
-        int result = dao.updateStatus(updateData);
+        int result = initialFormatDAO.updateStatus(updateData);
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
     @Test
     void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         InitialFormatContext context = persistContext();
-        dao.save(buildInitialFormat(
+        initialFormatDAO.save(buildInitialFormat(
                 context.idIntern, context.idProject, TestConstants.INITIAL_FORMAT_TYPE_CERTIFICATE));
-        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
+        boolean result = initialFormatDAO.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 

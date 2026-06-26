@@ -57,8 +57,12 @@ public class DeactivateInternController {
                     "¿Está seguro que desea inactivar este practicante?",
                     Alert.AlertType.CONFIRMATION);
 
-            boolean isUserConfirmed = confirmationResponse.isPresent()
-                    && confirmationResponse.get() == ButtonType.OK;
+            boolean isUserConfirmed = false;
+            if (confirmationResponse.isPresent()) {
+                if (confirmationResponse.get() == ButtonType.OK) {
+                    isUserConfirmed = true;
+                }
+            }
             if (isUserConfirmed) {
                 inactiveProcess(selectedUser);
                 loadActiveInterns();

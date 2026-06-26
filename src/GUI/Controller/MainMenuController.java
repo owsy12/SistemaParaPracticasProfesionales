@@ -112,7 +112,12 @@ public class MainMenuController implements EventHandler<ActionEvent> {
     private String buildPeriodLabel(LocalDate date) {
         int month = date.getMonthValue();
         int year = date.getYear();
-        boolean isSpringPeriod = month >= 2 && month <= 7;
+        boolean isSpringPeriod = false;
+        if (month >= 2) {
+            if (month <= 7) {
+                isSpringPeriod = true;
+            }
+        }
         String result;
         if (isSpringPeriod) {
             result = "Periodo Feb-Jul " + year;
@@ -136,8 +141,18 @@ public class MainMenuController implements EventHandler<ActionEvent> {
     }
 
     private String extractInitials(String firstName, String lastName) {
-        boolean isFirstNameEmpty = firstName == null || firstName.isEmpty();
-        boolean isLastNameEmpty = lastName == null || lastName.isEmpty();
+        boolean isFirstNameEmpty = false;
+        if (firstName == null) {
+            isFirstNameEmpty = true;
+        } else if (firstName.isEmpty()) {
+            isFirstNameEmpty = true;
+        }
+        boolean isLastNameEmpty = false;
+        if (lastName == null) {
+            isLastNameEmpty = true;
+        } else if (lastName.isEmpty()) {
+            isLastNameEmpty = true;
+        }
         String first = isFirstNameEmpty ? "" : String.valueOf(firstName.charAt(0));
         String last = isLastNameEmpty ? "" : String.valueOf(lastName.charAt(0));
         String initials = first + last;
@@ -155,7 +170,12 @@ public class MainMenuController implements EventHandler<ActionEvent> {
 
     private String resolveActiveRole(User user) {
         String result = "SIN ROL";
-        boolean hasRoles = user.getRoles() != null && !user.getRoles().isEmpty();
+        boolean hasRoles = false;
+        if (user.getRoles() != null) {
+            if (!user.getRoles().isEmpty()) {
+                hasRoles = true;
+            }
+        }
         if (hasRoles) {
             result = user.getRoles().get(0).toUpperCase();
         }

@@ -162,18 +162,46 @@ public class SelectionInternProjectController {
     }
 
     private boolean internHasMatchingDocument(Intern intern, String selectedType, String selectedStatus) {
-        boolean typeFilterActive = selectedType != null && !FILTER_ALL.equals(selectedType);
-        boolean statusFilterActive = selectedStatus != null && !FILTER_ALL.equals(selectedStatus);
-        boolean hasMatch = !typeFilterActive && !statusFilterActive;
+        boolean typeFilterActive = false;
+        if (selectedType != null) {
+            if (!FILTER_ALL.equals(selectedType)) {
+                typeFilterActive = true;
+            }
+        }
+        boolean statusFilterActive = false;
+        if (selectedStatus != null) {
+            if (!FILTER_ALL.equals(selectedStatus)) {
+                statusFilterActive = true;
+            }
+        }
+        boolean hasMatch = false;
+        if (!typeFilterActive) {
+            if (!statusFilterActive) {
+                hasMatch = true;
+            }
+        }
 
         List<String[]> documents = internDocumentsMap.get(intern.getIdUser());
-        boolean shouldInspectDocuments = !hasMatch && documents != null;
+        boolean shouldInspectDocuments = false;
+        if (!hasMatch) {
+            if (documents != null) {
+                shouldInspectDocuments = true;
+            }
+        }
         if (shouldInspectDocuments) {
             for (String[] document : documents) {
-                boolean matchesType = !typeFilterActive
-                        || selectedType.equals(document[DOCUMENT_TYPE_INDEX]);
-                boolean matchesStatus = !statusFilterActive
-                        || selectedStatus.equals(document[DOCUMENT_STATUS_INDEX]);
+                boolean matchesType = false;
+                if (!typeFilterActive) {
+                    matchesType = true;
+                } else if (selectedType.equals(document[DOCUMENT_TYPE_INDEX])) {
+                    matchesType = true;
+                }
+                boolean matchesStatus = false;
+                if (!statusFilterActive) {
+                    matchesStatus = true;
+                } else if (selectedStatus.equals(document[DOCUMENT_STATUS_INDEX])) {
+                    matchesStatus = true;
+                }
                 if (matchesType && matchesStatus) {
                     hasMatch = true;
                 }
@@ -214,7 +242,12 @@ public class SelectionInternProjectController {
 
         PracticeDAO practiceDAO = new PracticeDAO();
         String closureRecordPath = practiceDAO.findClosureRecordPath(intern.getIdUser());
-        boolean isClosureRecordSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
+        boolean isClosureRecordSubmitted = false;
+        if (closureRecordPath != null) {
+            if (!closureRecordPath.isBlank()) {
+                isClosureRecordSubmitted = true;
+            }
+        }
         if (isClosureRecordSubmitted) {
             String closureStatus = STATUS_CLOSURE_PENDING;
             boolean isPracticeConcluded = practiceDAO.hasConcludedPractice(intern.getIdUser());
@@ -234,12 +267,22 @@ public class SelectionInternProjectController {
         for (List<String[]> documents : internDocumentsMap.values()) {
             for (String[] document : documents) {
                 String documentType = document[DOCUMENT_TYPE_INDEX];
-                boolean hasType = documentType != null && !documentType.isBlank();
+                boolean hasType = false;
+                if (documentType != null) {
+                    if (!documentType.isBlank()) {
+                        hasType = true;
+                    }
+                }
                 if (hasType) {
                     documentTypes.add(documentType);
                 }
                 String documentStatus = document[DOCUMENT_STATUS_INDEX];
-                boolean hasStatus = documentStatus != null && !documentStatus.isBlank();
+                boolean hasStatus = false;
+                if (documentStatus != null) {
+                    if (!documentStatus.isBlank()) {
+                        hasStatus = true;
+                    }
+                }
                 if (hasStatus) {
                     documentStatuses.add(documentStatus);
                 }
@@ -258,7 +301,12 @@ public class SelectionInternProjectController {
 
         comboBox.getItems().setAll(options);
 
-        boolean keepsSelection = previousSelection != null && options.contains(previousSelection);
+        boolean keepsSelection = false;
+        if (previousSelection != null) {
+            if (options.contains(previousSelection)) {
+                keepsSelection = true;
+            }
+        }
         if (keepsSelection) {
             comboBox.setValue(previousSelection);
         } else {

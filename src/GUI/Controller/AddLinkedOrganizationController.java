@@ -67,7 +67,12 @@ public class AddLinkedOrganizationController {
         Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             clearFields();
             openWelcomePage(anchorPane);
@@ -112,7 +117,16 @@ public class AddLinkedOrganizationController {
         boolean isAddressEmpty = organizationAddressTextField.getText().isEmpty();
         boolean isSectorEmpty = sectorComboBox.getValue() == null;
 
-        boolean hasEmpty = isNameEmpty || isEmailEmpty || isAddressEmpty || isSectorEmpty;
+        boolean hasEmpty = false;
+        if (isNameEmpty) {
+            hasEmpty = true;
+        } else if (isEmailEmpty) {
+            hasEmpty = true;
+        } else if (isAddressEmpty) {
+            hasEmpty = true;
+        } else if (isSectorEmpty) {
+            hasEmpty = true;
+        }
 
         return hasEmpty;
     }

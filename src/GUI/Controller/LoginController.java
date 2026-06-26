@@ -108,8 +108,12 @@ public class LoginController {
                 if (!isPasswordValid) {
                     throw new ValidationException("Contraseña incorrecta");
                 } else {
-                    boolean hasActiveRole = currentUser.getRoles() != null
-                            && !currentUser.getRoles().isEmpty();
+                    boolean hasActiveRole = false;
+                    if (currentUser.getRoles() != null) {
+                        if (!currentUser.getRoles().isEmpty()) {
+                            hasActiveRole = true;
+                        }
+                    }
                     if (!hasActiveRole) {
                         LOGGER.log(Level.WARNING,
                                 "Access denied: user {0} has no active role.",

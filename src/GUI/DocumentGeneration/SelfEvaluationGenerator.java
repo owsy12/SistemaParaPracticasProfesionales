@@ -128,7 +128,12 @@ public class SelfEvaluationGenerator {
         while (scanning) {
             int openPosition = cleaned.indexOf("{{", position);
             int closePosition = (openPosition >= 0) ? cleaned.indexOf("}}", openPosition + 2) : -1;
-            boolean hasMarker = openPosition >= 0 && closePosition >= 0;
+            boolean hasMarker = false;
+            if (openPosition >= 0) {
+                if (closePosition >= 0) {
+                    hasMarker = true;
+                }
+            }
             if (!hasMarker) {
                 result.append(cleaned, position, cleaned.length());
                 scanning = false;

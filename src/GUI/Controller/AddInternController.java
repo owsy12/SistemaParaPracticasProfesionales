@@ -69,7 +69,12 @@ public class AddInternController {
                 "Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             clear();
             openWelcomePage(anchorPane);
@@ -164,8 +169,24 @@ public class AddInternController {
         boolean isConfirmPasswordEmpty =
                 confirmPasswordField.getText().isEmpty();
 
-        boolean hasEmptyFields = isIdEmpty || isLastNameEmpty || isSecondLastNameEmpty || isEmailEmpty
-                || isFirstNameEmpty || isPasswordEmpty || isConfirmPasswordEmpty || isCreditEmpty;
+        boolean hasEmptyFields = false;
+        if (isIdEmpty) {
+            hasEmptyFields = true;
+        } else if (isLastNameEmpty) {
+            hasEmptyFields = true;
+        } else if (isSecondLastNameEmpty) {
+            hasEmptyFields = true;
+        } else if (isEmailEmpty) {
+            hasEmptyFields = true;
+        } else if (isFirstNameEmpty) {
+            hasEmptyFields = true;
+        } else if (isPasswordEmpty) {
+            hasEmptyFields = true;
+        } else if (isConfirmPasswordEmpty) {
+            hasEmptyFields = true;
+        } else if (isCreditEmpty) {
+            hasEmptyFields = true;
+        }
 
         return hasEmptyFields;
     }

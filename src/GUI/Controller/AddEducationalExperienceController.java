@@ -67,7 +67,12 @@ public class AddEducationalExperienceController {
                 "Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             clear();
             openWelcomePage(anchorPane);
@@ -146,7 +151,16 @@ public class AddEducationalExperienceController {
         boolean isProfessorMissing = professorComboBox.getValue() == null;
         boolean isPeriodMissing = periodcomboBox.getValue() == null;
 
-        boolean hasEmptyFields = isNrcEmpty || isNameEmpty || isProfessorMissing || isPeriodMissing;
+        boolean hasEmptyFields = false;
+        if (isNrcEmpty) {
+            hasEmptyFields = true;
+        } else if (isNameEmpty) {
+            hasEmptyFields = true;
+        } else if (isProfessorMissing) {
+            hasEmptyFields = true;
+        } else if (isPeriodMissing) {
+            hasEmptyFields = true;
+        }
 
         return hasEmptyFields;
     }

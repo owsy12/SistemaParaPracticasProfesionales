@@ -82,7 +82,17 @@ public class ManageProjectController {
                     "¿Desea eliminar este proyecto? Esta acción es irreversible.",
                     Alert.AlertType.CONFIRMATION);
 
-            boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+            boolean isUserConfirmed = false;
+
+            if (response.isPresent()) {
+
+                if (response.get() == ButtonType.OK) {
+
+                    isUserConfirmed = true;
+
+                }
+
+            }
             if (isUserConfirmed) {
                 deleteProcess(selectedProject.getIdProject());
             }

@@ -66,13 +66,28 @@ public class ValidationUtils {
 
     public static boolean isAcceptedInput(String text, int maxLength, Pattern pattern) {
         boolean withinLength = text.length() <= maxLength;
-        boolean matchesPattern = pattern == null || pattern.matcher(text).matches();
-        boolean accepted = withinLength && matchesPattern;
+        boolean matchesPattern = false;
+        if (pattern == null) {
+            matchesPattern = true;
+        } else if (pattern.matcher(text).matches()) {
+            matchesPattern = true;
+        }
+        boolean accepted = false;
+        if (withinLength) {
+            if (matchesPattern) {
+                accepted = true;
+            }
+        }
         return accepted;
     }
 
     public static boolean isValidEmail(String email) {
-        boolean isEmailValid = email != null && VALID_EMAIL_PATTERN.matcher(email).matches();
+        boolean isEmailValid = false;
+        if (email != null) {
+            if (VALID_EMAIL_PATTERN.matcher(email).matches()) {
+                isEmailValid = true;
+            }
+        }
         return isEmailValid;
     }
 

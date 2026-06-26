@@ -185,8 +185,12 @@ public class AddSelfEvaluationController implements EventHandler<DragEvent> {
         SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
         selfEvaluation = selfEvaluationDAO.findByIdIntern(internId);
 
-        boolean isNotAvailable = selfEvaluation == null
-                || DELIVERED_STATUS.equals(selfEvaluation.getStatus());
+        boolean isNotAvailable = false;
+        if (selfEvaluation == null) {
+            isNotAvailable = true;
+        } else if (DELIVERED_STATUS.equals(selfEvaluation.getStatus())) {
+            isNotAvailable = true;
+        }
 
         if (isNotAvailable) {
             String message = selfEvaluation == null

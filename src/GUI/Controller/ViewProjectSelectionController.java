@@ -65,7 +65,12 @@ public class ViewProjectSelectionController {
                 "Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             openWelcomePage((AnchorPane) anchorPane.getParent());
         }
@@ -78,7 +83,17 @@ public class ViewProjectSelectionController {
                 "¿Seguro que desea seleccionar estos proyectos?",
                 Alert.AlertType.CONFIRMATION);
 
-        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isUserConfirmed = false;
+
+        if (response.isPresent()) {
+
+            if (response.get() == ButtonType.OK) {
+
+                isUserConfirmed = true;
+
+            }
+
+        }
         if (isUserConfirmed) {
             requestProjectProcess();
         }

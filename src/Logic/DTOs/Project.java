@@ -268,20 +268,49 @@ public class Project {
             return false;
         }
         Project otherProject = (Project) other;
-        boolean isEqual = idProject == otherProject.idProject
-                && idOrganization == otherProject.idOrganization
-                && idTechnicalResponsible == otherProject.idTechnicalResponsible
-                && IdProfessor == otherProject.IdProfessor
-                && availablePlaces == otherProject.availablePlaces
-                && maximumPlaces == otherProject.maximumPlaces
-                && Objects.equals(name, otherProject.name)
-                && Objects.equals(description, otherProject.description)
-                && Objects.equals(startDate, otherProject.startDate)
-                && Objects.equals(endDate, otherProject.endDate)
-                && Objects.equals(organizationName, otherProject.organizationName)
-                && Objects.equals(status, otherProject.status)
-                && Objects.equals(objective, otherProject.objective)
-                && Objects.equals(nrc, otherProject.nrc);
+        boolean isEqual = true;
+        if (idProject != otherProject.idProject) {
+            isEqual = false;
+        }
+        if (idOrganization != otherProject.idOrganization) {
+            isEqual = false;
+        }
+        if (idTechnicalResponsible != otherProject.idTechnicalResponsible) {
+            isEqual = false;
+        }
+        if (IdProfessor != otherProject.IdProfessor) {
+            isEqual = false;
+        }
+        if (availablePlaces != otherProject.availablePlaces) {
+            isEqual = false;
+        }
+        if (maximumPlaces != otherProject.maximumPlaces) {
+            isEqual = false;
+        }
+        if (!Objects.equals(name, otherProject.name)) {
+            isEqual = false;
+        }
+        if (!Objects.equals(description, otherProject.description)) {
+            isEqual = false;
+        }
+        if (!Objects.equals(startDate, otherProject.startDate)) {
+            isEqual = false;
+        }
+        if (!Objects.equals(endDate, otherProject.endDate)) {
+            isEqual = false;
+        }
+        if (!Objects.equals(organizationName, otherProject.organizationName)) {
+            isEqual = false;
+        }
+        if (!Objects.equals(status, otherProject.status)) {
+            isEqual = false;
+        }
+        if (!Objects.equals(objective, otherProject.objective)) {
+            isEqual = false;
+        }
+        if (!Objects.equals(nrc, otherProject.nrc)) {
+            isEqual = false;
+        }
         return isEqual;
     }
 

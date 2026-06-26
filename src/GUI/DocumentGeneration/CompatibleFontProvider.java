@@ -76,12 +76,20 @@ public class CompatibleFontProvider implements IFontProvider {
 
     private static boolean isSafeEncoding(String encoding) {
         String lower = encoding.toLowerCase();
-        boolean isCidEncoding = lower.contains("identity")
-                || lower.contains("cid")
-                || lower.contains("uni-")
-                || lower.contains("uni_")
-                || lower.equals("gbk")
-                || lower.equals("big5");
+        boolean isCidEncoding = false;
+        if (lower.contains("identity")) {
+            isCidEncoding = true;
+        } else if (lower.contains("cid")) {
+            isCidEncoding = true;
+        } else if (lower.contains("uni-")) {
+            isCidEncoding = true;
+        } else if (lower.contains("uni_")) {
+            isCidEncoding = true;
+        } else if (lower.equals("gbk")) {
+            isCidEncoding = true;
+        } else if (lower.equals("big5")) {
+            isCidEncoding = true;
+        }
         boolean isSafe = !isCidEncoding;
         return isSafe;
     }

@@ -109,9 +109,14 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
     public void uploadSignedReport(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
         boolean isFileMissing = selectedFile == null;
-        boolean isStatusInvalid = selectedReport != null
-                && !STATUS_PENDING.equals(selectedReport.getStatus())
-                && !STATUS_REJECTED.equals(selectedReport.getStatus());
+        boolean isStatusInvalid = false;
+        if (selectedReport != null) {
+            if (!STATUS_PENDING.equals(selectedReport.getStatus())) {
+                if (!STATUS_REJECTED.equals(selectedReport.getStatus())) {
+                    isStatusInvalid = true;
+                }
+            }
+        }
 
         if (isReportMissing) {
             showStatus("Seleccione un reporte de la tabla.", true);
@@ -135,7 +140,12 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
         Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             clearSelection();
             openWelcomePage(anchorPane);
@@ -143,8 +153,12 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
     }
 
     private boolean isLateDelivery() {
-        boolean isLate = selectedReport.getDeadline() != null
-                && LocalDate.now().isAfter(selectedReport.getDeadline());
+        boolean isLate = false;
+        if (selectedReport.getDeadline() != null) {
+            if (LocalDate.now().isAfter(selectedReport.getDeadline())) {
+                isLate = true;
+            }
+        }
         return isLate;
     }
 
@@ -190,8 +204,12 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
             List<Report> pendingReports = new ArrayList<>();
 
             for (Report report : allReports) {
-                boolean isUploadable = STATUS_PENDING.equals(report.getStatus())
-                        || STATUS_REJECTED.equals(report.getStatus());
+                boolean isUploadable = false;
+                if (STATUS_PENDING.equals(report.getStatus())) {
+                    isUploadable = true;
+                } else if (STATUS_REJECTED.equals(report.getStatus())) {
+                    isUploadable = true;
+                }
                 if (isUploadable) {
                     pendingReports.add(report);
                 }

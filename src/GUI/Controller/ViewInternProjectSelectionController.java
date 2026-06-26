@@ -140,7 +140,12 @@ public class ViewInternProjectSelectionController {
 
                 for (ProjectApplication projectApplication : projectApplications) {
                     Project project = projectDAO.findById(projectApplication.getIdProject());
-                    boolean isAvailable = project != null && project.getAvailablePlaces() > 0;
+                    boolean isAvailable = false;
+                    if (project != null) {
+                        if (project.getAvailablePlaces() > 0) {
+                            isAvailable = true;
+                        }
+                    }
                     if (isAvailable) {
                         project.setPreferenceLabel(LABEL_SELECTED);
                         projectList.add(project);
@@ -204,7 +209,17 @@ public class ViewInternProjectSelectionController {
                 + project.getName() + "\" a este practicante?";
         Optional<ButtonType> response = showAlertAndWait("Confirmación", confirmationMessage, Alert.AlertType.CONFIRMATION);
 
-        boolean isUserConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isUserConfirmed = false;
+
+        if (response.isPresent()) {
+
+            if (response.get() == ButtonType.OK) {
+
+                isUserConfirmed = true;
+
+            }
+
+        }
         if (isUserConfirmed) {
             assignProjectProcess(project, justification);
         }
@@ -277,7 +292,12 @@ public class ViewInternProjectSelectionController {
 
     private void createOrReactivatePractice(Project project) {
         String nrc = project.getNrc();
-        boolean hasNrc = nrc != null && !nrc.isBlank();
+        boolean hasNrc = false;
+        if (nrc != null) {
+            if (!nrc.isBlank()) {
+                hasNrc = true;
+            }
+        }
         if (!hasNrc) {
             LOGGER.log(Level.WARNING,
                     "Project {0} has no NRC: cannot create practice.", project.getIdProject());

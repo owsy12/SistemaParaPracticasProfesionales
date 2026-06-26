@@ -23,7 +23,7 @@ class AdministratorDAOTest extends BaseDAOTest {
     private static final String ADMIN_FIRST_NAME = "Rosa";
     private static final String ADMIN_LAST_NAME = "Mendoza";
 
-    private final AdministratorDAO dao = new AdministratorDAO();
+    private final AdministratorDAO administratorDAO = new AdministratorDAO();
 
     private Administrator buildAdministrator(int idUser) {
         Administrator administrator = new Administrator();
@@ -41,7 +41,7 @@ class AdministratorDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidAdministratorReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistUserOnly();
-        boolean result = dao.saveAdmin(buildAdministrator(idUser));
+        boolean result = administratorDAO.saveAdmin(buildAdministrator(idUser));
         assertTrue(result);
     }
 
@@ -51,7 +51,7 @@ class AdministratorDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.saveAdmin(administrator);
+                administratorDAO.saveAdmin(administrator);
             }
         });
     }
@@ -75,14 +75,14 @@ class AdministratorDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistAdministratorViaBuilders();
-        Administrator retrieved = dao.findById(idUser);
+        Administrator retrieved = administratorDAO.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws ServiceException, ValidationException {
         int idUser = persistAdministratorViaBuilders();
-        Administrator retrieved = dao.findById(idUser);
+        Administrator retrieved = administratorDAO.findById(idUser);
         assertEquals(ADMIN_REGISTRATION_NUMBER, retrieved.getRegistrationNumber());
     }
 
@@ -91,7 +91,7 @@ class AdministratorDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_ZERO);
+                administratorDAO.findById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -101,27 +101,27 @@ class AdministratorDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+                administratorDAO.findById(TestConstants.INVALID_ID_NEGATIVE);
             }
         });
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        Administrator retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        Administrator retrieved = administratorDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<Administrator> all = dao.findAll();
+        List<Administrator> all = administratorDAO.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         persistAdministratorViaBuilders();
-        List<Administrator> all = dao.findAll();
+        List<Administrator> all = administratorDAO.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 

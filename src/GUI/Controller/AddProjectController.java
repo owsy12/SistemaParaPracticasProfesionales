@@ -91,7 +91,12 @@ public class AddProjectController {
                 "Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = response.isPresent() && response.get() == ButtonType.OK;
+        boolean isConfirmed = false;
+        if (response.isPresent()) {
+            if (response.get() == ButtonType.OK) {
+                isConfirmed = true;
+            }
+        }
         if (isConfirmed) {
             clear();
             openWelcomePage(anchorPane);
@@ -195,9 +200,18 @@ public class AddProjectController {
         boolean isObjectiveEmpty = objectiveTextArea.getText().isBlank();
         boolean isStartDateMissing = startDate.getValue() == null;
         boolean isEndDateMissing = endDate.getValue() == null;
-        boolean hasAllDates = !isStartDateMissing && !isEndDateMissing;
-        boolean isDateOrderInvalid = hasAllDates
-                && !endDate.getValue().isAfter(startDate.getValue());
+        boolean hasAllDates = false;
+        if (!isStartDateMissing) {
+            if (!isEndDateMissing) {
+                hasAllDates = true;
+            }
+        }
+        boolean isDateOrderInvalid = false;
+        if (hasAllDates) {
+            if (!endDate.getValue().isAfter(startDate.getValue())) {
+                isDateOrderInvalid = true;
+            }
+        }
 
         if (isEEMissing) {
             showAlert("Experiencia Educativa requerida",
@@ -232,9 +246,37 @@ public class AddProjectController {
                     Alert.AlertType.WARNING);
         }
 
-        boolean isValid = !isEEMissing && !isOrganizationMissing && !isTechnicalMissing
-                && !isNameEmpty && !isDescriptionEmpty && !isCapacityEmpty && !isObjectiveEmpty
-                && !isStartDateMissing && !isEndDateMissing && !isDateOrderInvalid;
+        boolean isValid = true;
+        if (isEEMissing) {
+            isValid = false;
+        }
+        if (isOrganizationMissing) {
+            isValid = false;
+        }
+        if (isTechnicalMissing) {
+            isValid = false;
+        }
+        if (isNameEmpty) {
+            isValid = false;
+        }
+        if (isDescriptionEmpty) {
+            isValid = false;
+        }
+        if (isCapacityEmpty) {
+            isValid = false;
+        }
+        if (isObjectiveEmpty) {
+            isValid = false;
+        }
+        if (isStartDateMissing) {
+            isValid = false;
+        }
+        if (isEndDateMissing) {
+            isValid = false;
+        }
+        if (isDateOrderInvalid) {
+            isValid = false;
+        }
 
         return isValid;
     }
