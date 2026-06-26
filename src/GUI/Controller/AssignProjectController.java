@@ -110,10 +110,10 @@ public class AssignProjectController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/GUI/view/GUIViewInternProjectSelection.fxml"));
-            Parent vista = loader.load();
+            Parent view = loader.load();
             ViewInternProjectSelection controller = loader.getController();
             controller.setUser(user);
-            anchorPane.getChildren().setAll(vista);
+            anchorPane.getChildren().setAll(view);
         } catch (IOException ioException) {
             showAlert("Error", "No se logró cargar la vista.", Alert.AlertType.ERROR);
         }

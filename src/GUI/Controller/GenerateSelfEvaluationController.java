@@ -147,18 +147,18 @@ public class GenerateSelfEvaluationController {
         if (!hasActiveSession()) {
             disableGenerationButton();
         } else {
-            int internId = SessionManager.getInstance().getUser().getId();
+            int internId = SessionManager.getInstance().getUser().getIdUser();
             loadInternData(internId);
         }
     }
 
     private void loadInternData(int internId) {
         try {
-            InternDAO internDao = new InternDAO();
-            currentIntern = internDao.findById(internId);
+            InternDAO internDAO = new InternDAO();
+            currentIntern = internDAO.findById(internId);
 
-            AssignmentDAO assignmentDao = new AssignmentDAO();
-            Assignment activeAssignment = assignmentDao.getActiveByIdIntern(internId);
+            AssignmentDAO assignmentDAO = new AssignmentDAO();
+            Assignment activeAssignment = assignmentDAO.getActiveByIdIntern(internId);
 
             if (activeAssignment == null) {
                 disableGenerationDueToMissingAssignment();
@@ -185,8 +185,8 @@ public class GenerateSelfEvaluationController {
 
     private void loadProjectData(Assignment activeAssignment)
             throws ValidationException, DuplicateEntryException, ServiceException {
-        ProjectDAO projectDao = new ProjectDAO();
-        currentProject = projectDao.findById(activeAssignment.getIdProject());
+        ProjectDAO projectDAO = new ProjectDAO();
+        currentProject = projectDAO.findById(activeAssignment.getIdProject());
 
         LinkedOrganizationDAO organizationDAO = new LinkedOrganizationDAO();
         currentOrganization = organizationDAO.findById(currentProject.getIdOrganization());
@@ -195,7 +195,7 @@ public class GenerateSelfEvaluationController {
         currentSupervisor = supervisorDAO.findById(currentProject.getIdTechnicalResponsible());
 
         String prerequisiteMessage = EvaluationPrerequisiteChecker.check(
-                currentIntern.getId(), currentProject);
+                currentIntern.getIdUser(), currentProject);
 
         boolean hasPrerequisiteIssue = prerequisiteMessage != null;
         if (hasPrerequisiteIssue) {
@@ -256,17 +256,17 @@ public class GenerateSelfEvaluationController {
             SelfEvaluation selfEvaluation = buildSelfEvaluation();
             selfEvaluation.setDocumentPath("");
 
-            SelfEvaluationDAO selfEvaluationDao = new SelfEvaluationDAO();
-            int rowsAffected = selfEvaluationDao.save(selfEvaluation);
+            SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
+            int rowsAffected = selfEvaluationDAO.save(selfEvaluation);
 
             if (rowsAffected > 0) {
                 String internalPath = generateAndSavePdf(selfEvaluation);
-                selfEvaluationDao.updateDocumentPath(
-                        selfEvaluation.getIdSelfEvalation(), internalPath);
+                selfEvaluationDAO.updateDocumentPath(
+                        selfEvaluation.getIdSelfEvaluation(), internalPath);
 
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} generó la autoevaluación del practicante {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), selfEvaluation.getIdIntern()});
+                        "User {0} generated the self-evaluation for intern {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), selfEvaluation.getIdIntern()});
                 showAlert("Documento generado",
                         "Autoevaluación generada correctamente.",
                         AlertType.INFORMATION);
@@ -290,7 +290,7 @@ public class GenerateSelfEvaluationController {
                     AlertType.ERROR);
         } catch (IOException ioException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al generar el archivo de autoevaluación: {0}",
+                    "Error generating self-evaluation file: {0}",
                     ioException.getMessage());
             showAlert("Error al generar archivo",
                     "No se pudo crear el documento PDF.",
@@ -328,7 +328,7 @@ public class GenerateSelfEvaluationController {
 
     private SelfEvaluation buildSelfEvaluation() {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
-        selfEvaluation.setIdIntern(currentIntern.getId());
+        selfEvaluation.setIdIntern(currentIntern.getIdUser());
         selfEvaluation.setIdProject(currentProject.getIdProject());
         selfEvaluation.setPeriod(buildAcademicPeriod());
         selfEvaluation.setStatement01(getSelectedValue(question01ToggleGroup));

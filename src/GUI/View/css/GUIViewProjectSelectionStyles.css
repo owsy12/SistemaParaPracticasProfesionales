@@ -568,3 +568,17 @@
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
+
+.projectCardVBox {
+    -fx-background-color: white;
+    -fx-padding: 15;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: #ddd;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.projectNameLabel {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+}

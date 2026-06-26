@@ -37,7 +37,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                     isSaved = true;
                 }
             } catch (SQLException sqlException) {
-                LOGGER.log(Level.SEVERE, "Error al registrar coordinador: {0}",
+                LOGGER.log(Level.SEVERE, "Error registering coordinator: {0}",
                         sqlException.getMessage());
                 throw new ServiceException("Error al registrar coordinador.", sqlException);
             }
@@ -80,7 +80,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar coordinador con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding coordinator with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
 
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -110,7 +110,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar la lista de coordinadores: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving coordinator list: {0}",
                     sqlException.getMessage());
 
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -188,7 +188,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
                 count = resultSet.getInt(1);
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al contar coordinadores activos: {0}",
+            LOGGER.log(Level.SEVERE, "Error counting active coordinators: {0}",
                     sqlException.getMessage());
             throw new ServiceException("Error al verificar coordinadores activos.", sqlException);
         }
@@ -197,7 +197,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
     private Coordinator mapCoordinator(ResultSet resultSet) throws SQLException {
         Coordinator coordinator = new Coordinator();
-        coordinator.setId(resultSet.getInt("id_usuario"));
+        coordinator.setIdUser(resultSet.getInt("id_usuario"));
         coordinator.setRegistrationNumber(resultSet.getString("matricula"));
         coordinator.setFirstName(resultSet.getString("nombre"));
         coordinator.setLastName(resultSet.getString("apellido_paterno"));

@@ -29,7 +29,7 @@ public class DocumentManagement {
             Files.copy(sourceFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar el documento {0} en {1}: {2}",
+            LOGGER.log(Level.SEVERE, "Error saving document {0} to {1}: {2}",
                     new Object[]{newFileName, relativeFolder, ioException.getMessage()});
         }
     }

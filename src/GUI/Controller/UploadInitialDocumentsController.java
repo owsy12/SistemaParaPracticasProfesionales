@@ -33,6 +33,8 @@ import static GUI.DocumentGeneration.DocumentManagement.saveFile;
 public class UploadInitialDocumentsController implements EventHandler<DragEvent> {
 
     private static final Logger LOGGER = Logger.getLogger(UploadInitialDocumentsController.class.getName());
+    private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
+    private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
 
     public AnchorPane anchorPane;
 
@@ -60,7 +62,7 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
     private void validatePendingInitialDocuments() {
         try {
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
-            int currentUserId = SessionManager.getInstance().getUser().getId();
+            int currentUserId = SessionManager.getInstance().getUser().getIdUser();
             List<InitialFormat> obtainedPendingDocuments = initialFormatDAO.findPendingByIntern(currentUserId);
 
             if (obtainedPendingDocuments.isEmpty()) {
@@ -204,8 +206,8 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
                     pendingDocuments.remove(targetDocument);
                     comboBoxDocumentType.getItems().remove(selectedType);
                     LOGGER.log(Level.INFO,
-                            "Usuario {0} subió el formato inicial {1}",
-                            new Object[]{SessionManager.getInstance().getUser().getId(), initialFormat.getFormatType()});
+                            "User {0} uploaded initial format {1}",
+                            new Object[]{SessionManager.getInstance().getUser().getIdUser(), initialFormat.getFormatType()});
                     wasSaved = true;
                 }
             }
@@ -237,12 +239,14 @@ public class UploadInitialDocumentsController implements EventHandler<DragEvent>
     }
 
     private void showError(String message) {
-        labelStatus.setStyle("-fx-text-fill: red;");
+        labelStatus.getStyleClass().removeAll(STATUS_SUCCESS_STYLE_CLASS, STATUS_ERROR_STYLE_CLASS);
+        labelStatus.getStyleClass().add(STATUS_ERROR_STYLE_CLASS);
         labelStatus.setText(message);
     }
 
     private void showInfo(String message) {
-        labelStatus.setStyle("-fx-text-fill: green;");
+        labelStatus.getStyleClass().removeAll(STATUS_ERROR_STYLE_CLASS, STATUS_SUCCESS_STYLE_CLASS);
+        labelStatus.getStyleClass().add(STATUS_SUCCESS_STYLE_CLASS);
         labelStatus.setText(message);
     }
 

@@ -61,13 +61,13 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             preparedStatement.setString(2, technicalResponsible.getName());
             preparedStatement.setString(3, technicalResponsible.getLastName());
             preparedStatement.setString(4, technicalResponsible.getSecondLastName());
-            preparedStatement.setString(5, technicalResponsible.geteMail());
+            preparedStatement.setString(5, technicalResponsible.getEmail());
             preparedStatement.setString(6, technicalResponsible.getPosition());
             if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar responsable técnico '{0} {1}': {2}",
+            LOGGER.log(Level.SEVERE, "Error saving technical responsible '{0} {1}': {2}",
                     new Object[]{technicalResponsible.getName(),
                             technicalResponsible.getLastName(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -96,7 +96,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar responsable técnico con ID {0}: {1}",
+                    "Error finding technical responsible with ID {0}: {1}",
                     new Object[]{idTecnico, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -119,7 +119,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar todos los responsables técnicos: {0}",
+                    "Error retrieving all technical responsibles: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -150,7 +150,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar responsables técnicos de organización {0}: {1}",
+                    "Error finding technical responsibles for organization {0}: {1}",
                     new Object[]{idOrganizacion, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -176,7 +176,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             preparedStatement.setString(1, technicalResponsible.getName());
             preparedStatement.setString(2, technicalResponsible.getLastName());
             preparedStatement.setString(3, technicalResponsible.getSecondLastName());
-            preparedStatement.setString(4, technicalResponsible.geteMail());
+            preparedStatement.setString(4, technicalResponsible.getEmail());
             preparedStatement.setString(5, technicalResponsible.getPosition());
             preparedStatement.setInt(6, technicalResponsible.getIdTechnicalResponsible());
             if (preparedStatement.executeUpdate() > 0) {
@@ -184,7 +184,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar responsable técnico con ID {0}: {1}",
+                    "Error updating technical responsible with ID {0}: {1}",
                     new Object[]{technicalResponsible.getIdTechnicalResponsible(),
                             sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -211,7 +211,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar responsable técnico con ID {0}: {1}",
+                    "Error deleting technical responsible with ID {0}: {1}",
                     new Object[]{idTecnico, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);

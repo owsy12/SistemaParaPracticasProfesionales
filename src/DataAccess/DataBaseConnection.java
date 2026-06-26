@@ -33,7 +33,7 @@ public class DataBaseConnection {
         try {
             connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "No se pudo conectar a la base de datos en {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Could not connect to the database at {0}: {1}",
                     new Object[]{DB_URL, sqlException.getMessage()});
             throw new SQLException("No se pudo establecer la conexión con la base de datos. "
                     + "Verifique DB_URL y que el servidor MySQL esté disponible.", sqlException);
@@ -45,7 +45,7 @@ public class DataBaseConnection {
         try {
             Class.forName(DB_DRIVER);
         } catch (ClassNotFoundException classNotFoundException) {
-            LOGGER.log(Level.SEVERE, "Driver MySQL no encontrado ({0}): {1}",
+            LOGGER.log(Level.SEVERE, "MySQL driver not found ({0}): {1}",
                     new Object[]{DB_DRIVER, classNotFoundException.getMessage()});
             throw new SQLException("Driver MySQL no encontrado. Verifique DB_DRIVER y que el "
                     + "conector de MySQL esté en el classpath.", classNotFoundException);
@@ -54,20 +54,20 @@ public class DataBaseConnection {
 
     private static void validateConnectionParameters() throws SQLException {
         if (DB_URL == null || DB_URL.isBlank()) {
-            LOGGER.log(Level.SEVERE, "Variable de entorno DB_URL no configurada.");
+            LOGGER.log(Level.SEVERE, "Environment variable DB_URL not set.");
             throw new SQLException("La variable de entorno DB_URL no está configurada. "
                     + "Verifique que el archivo .env exista en el directorio de trabajo.");
         }
         if (DB_USER == null || DB_USER.isBlank()) {
-            LOGGER.log(Level.SEVERE, "Variable de entorno DB_USER no configurada.");
+            LOGGER.log(Level.SEVERE, "Environment variable DB_USER not set.");
             throw new SQLException("La variable de entorno DB_USER no está configurada.");
         }
         if (DB_PASSWORD == null) {
-            LOGGER.log(Level.SEVERE, "Variable de entorno DB_PASSWORD no configurada.");
+            LOGGER.log(Level.SEVERE, "Environment variable DB_PASSWORD not set.");
             throw new SQLException("La variable de entorno DB_PASSWORD no está configurada.");
         }
         if (DB_DRIVER == null || DB_DRIVER.isBlank()) {
-            LOGGER.log(Level.SEVERE, "Variable de entorno DB_DRIVER no configurada.");
+            LOGGER.log(Level.SEVERE, "Environment variable DB_DRIVER not set.");
             throw new SQLException("La variable de entorno DB_DRIVER no está configurada.");
         }
     }

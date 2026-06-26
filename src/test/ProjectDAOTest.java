@@ -47,7 +47,7 @@ class ProjectDAOTest extends BaseDAOTest {
         project.setStartDate(VALID_START);
         project.setEndDate(VALID_END);
         project.setMaximumPlaces(VALID_MAX_SLOTS);
-        project.setAvaliablePlaces(VALID_AVAILABLE_SLOTS);
+        project.setAvailablePlaces(VALID_AVAILABLE_SLOTS);
         project.setNrc(TestConstants.DEFAULT_NRC);
         return project;
     }

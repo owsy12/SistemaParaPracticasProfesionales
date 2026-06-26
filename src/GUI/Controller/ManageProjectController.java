@@ -125,10 +125,10 @@ public class ManageProjectController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/GUI/view/GUIUpdateProject.fxml"));
-            Parent vista = loader.load();
+            Parent view = loader.load();
             UpdateProjectController controller = loader.getController();
             controller.setProject(project);
-            anchorPane.getChildren().setAll(vista);
+            anchorPane.getChildren().setAll(view);
         } catch (IOException ioException) {
             showAlert("Error", "No se logró cargar la vista.", Alert.AlertType.ERROR);
         }
@@ -139,8 +139,8 @@ public class ManageProjectController {
             ProjectDAO projectDAO = new ProjectDAO();
             projectDAO.deleteProject(idProject);
             LOGGER.log(Level.INFO,
-                    "Usuario {0} eliminó el proyecto {1}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), idProject});
+                    "User {0} deleted project {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getIdUser(), idProject});
             loadProjectsOnTableView();
             showAlert("Éxito", "Proyecto eliminado exitosamente.", Alert.AlertType.INFORMATION);
         } catch (ReferentialIntegrityException referentialIntegrityException) {

@@ -88,10 +88,10 @@ public class DeactivateInternController {
     private void inactiveProcess(User user) {
         try {
             InternDAO internDAO = new InternDAO();
-            internDAO.deactivateIntern(user.getId());
+            internDAO.deactivateIntern(user.getIdUser());
             LOGGER.log(Level.INFO,
-                    "Usuario {0} inactivó al practicante {1}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), user.getId()});
+                    "User {0} deactivated intern {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getIdUser(), user.getIdUser()});
         } catch (ServiceException serviceException) {
             showAlert("Error", "Servicio no disponible por el momento, intente más tarde.",
                     Alert.AlertType.ERROR);

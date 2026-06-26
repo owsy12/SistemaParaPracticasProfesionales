@@ -27,7 +27,7 @@ public class DocxToPdfConverter {
             return pdfOutput.toByteArray();
 
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al convertir DOCX a PDF: {0}",
+            LOGGER.log(Level.SEVERE, "Error converting DOCX to PDF: {0}",
                     ioException.getMessage());
             throw ioException;
         }

@@ -12,7 +12,7 @@ public class ReferentialIntegrityException extends ServiceException {
 
     public ReferentialIntegrityException(String message, SQLException cause) {
         super(message, cause);
-        LOGGER.log(Level.WARNING, "Violación de integridad referencial detectada: {0}", message);
+        LOGGER.log(Level.WARNING, "Referential integrity violation detected: {0}", message);
     }
 
     public static boolean isForeignKeyViolation(SQLException sqlException) {

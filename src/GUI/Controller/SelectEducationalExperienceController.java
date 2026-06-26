@@ -62,7 +62,7 @@ public class SelectEducationalExperienceController implements EventHandler<Actio
 
     private void loadEducationalExperiences() {
         try {
-            int professorId = SessionManager.getInstance().getUser().getId();
+            int professorId = SessionManager.getInstance().getUser().getIdUser();
             EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
             List<EducationalExperience> experiences =
                     educationalExperienceDAO.findByProfessor(professorId);
@@ -98,7 +98,7 @@ public class SelectEducationalExperienceController implements EventHandler<Actio
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al cargar experiencias educativas del profesor: {0}",
+                    "Error loading educational experiences for professor: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudieron cargar las experiencias educativas. Intente más tarde.",
@@ -148,7 +148,7 @@ public class SelectEducationalExperienceController implements EventHandler<Actio
                 contentPane.getChildren().setAll(wrapInScrollableContent(view));
             }
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar la vista de practicantes: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading interns view: {0}",
                     ioException.getMessage());
             showAlert("Error de navegación",
                     "No se pudo abrir la vista de practicantes.", Alert.AlertType.ERROR);

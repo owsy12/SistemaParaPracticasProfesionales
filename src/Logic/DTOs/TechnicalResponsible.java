@@ -1,22 +1,24 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class TechnicalResponsible {
     private int idTechnicalResponsible;
     private int idOrganization;
     private String name;
     private String lastName;
     private String secondLastName;
-    private String eMail;
+    private String email;
     private String position;
 
 
-    public TechnicalResponsible(int idTechnicalResponsible, int idOrganization, String name, String lastName, String secondLastName, String eMail, String position) {
+    public TechnicalResponsible(int idTechnicalResponsible, int idOrganization, String name, String lastName, String secondLastName, String email, String position) {
         this.idTechnicalResponsible = idTechnicalResponsible;
         this.idOrganization = idOrganization;
         this.name = name;
         this.lastName = lastName;
         this.secondLastName = secondLastName;
-        this.eMail = eMail;
+        this.email = email;
         this.position = position;
     }
 
@@ -64,16 +66,12 @@ public class TechnicalResponsible {
         this.secondLastName = secondLastName;
     }
 
-    public String geteMail() {
-        return eMail;
-    }
-
-    public void seteMail(String eMail) {
-        this.eMail = eMail;
-    }
-
     public String getEmail() {
-        return eMail;
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPosition() {
@@ -100,15 +98,15 @@ public class TechnicalResponsible {
         TechnicalResponsible other = (TechnicalResponsible) object;
         return idTechnicalResponsible == other.idTechnicalResponsible
                 && idOrganization == other.idOrganization
-                && java.util.Objects.equals(name, other.name)
-                && java.util.Objects.equals(lastName, other.lastName)
-                && java.util.Objects.equals(secondLastName, other.secondLastName)
-                && java.util.Objects.equals(eMail, other.eMail)
-                && java.util.Objects.equals(position, other.position);
+                && Objects.equals(name, other.name)
+                && Objects.equals(lastName, other.lastName)
+                && Objects.equals(secondLastName, other.secondLastName)
+                && Objects.equals(email, other.email)
+                && Objects.equals(position, other.position);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idTechnicalResponsible, idOrganization, name, lastName, secondLastName, eMail, position);
+        return Objects.hash(idTechnicalResponsible, idOrganization, name, lastName, secondLastName, email, position);
     }
 }

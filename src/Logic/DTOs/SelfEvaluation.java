@@ -1,7 +1,9 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class SelfEvaluation {
-    private int idSelfEvalation;
+    private int idSelfEvaluation;
     private int idIntern;
     private int idProject;
     private String period;
@@ -21,8 +23,8 @@ public class SelfEvaluation {
     private String status;
 
 
-    public SelfEvaluation(int idSelfEvalation, int idIntern, int idProject, String period, int statement01, int statement02, int statement03, int statement04, int statement05, int statement06, int statement07, int statement08, int statement09, int statement10) {
-        this.idSelfEvalation = idSelfEvalation;
+    public SelfEvaluation(int idSelfEvaluation, int idIntern, int idProject, String period, int statement01, int statement02, int statement03, int statement04, int statement05, int statement06, int statement07, int statement08, int statement09, int statement10) {
+        this.idSelfEvaluation = idSelfEvaluation;
         this.idIntern = idIntern;
         this.idProject = idProject;
         this.period = period;
@@ -41,12 +43,12 @@ public class SelfEvaluation {
     public SelfEvaluation() {
     }
 
-    public int getIdSelfEvalation() {
-        return idSelfEvalation;
+    public int getIdSelfEvaluation() {
+        return idSelfEvaluation;
     }
 
-    public void setIdSelfEvalation(int idSelfEvalation) {
-        this.idSelfEvalation = idSelfEvalation;
+    public void setIdSelfEvaluation(int idSelfEvaluation) {
+        this.idSelfEvaluation = idSelfEvaluation;
     }
 
     public int getIdIntern() {
@@ -194,10 +196,10 @@ public class SelfEvaluation {
             return false;
         }
         SelfEvaluation other = (SelfEvaluation) object;
-        return idSelfEvalation == other.idSelfEvalation
+        return idSelfEvaluation == other.idSelfEvaluation
                 && idIntern == other.idIntern
                 && idProject == other.idProject
-                && java.util.Objects.equals(period, other.period)
+                && Objects.equals(period, other.period)
                 && statement01 == other.statement01
                 && statement02 == other.statement02
                 && statement03 == other.statement03
@@ -209,13 +211,13 @@ public class SelfEvaluation {
                 && statement09 == other.statement09
                 && statement10 == other.statement10
                 && finalScore == other.finalScore
-                && java.util.Objects.equals(placeAndDate, other.placeAndDate)
-                && java.util.Objects.equals(documentPath, other.documentPath)
-                && java.util.Objects.equals(status, other.status);
+                && Objects.equals(placeAndDate, other.placeAndDate)
+                && Objects.equals(documentPath, other.documentPath)
+                && Objects.equals(status, other.status);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idSelfEvalation, idIntern, idProject, period, statement01, statement02, statement03, statement04, statement05, statement06, statement07, statement08, statement09, statement10, finalScore, placeAndDate, documentPath, status);
+        return Objects.hash(idSelfEvaluation, idIntern, idProject, period, statement01, statement02, statement03, statement04, statement05, statement06, statement07, statement08, statement09, statement10, finalScore, placeAndDate, documentPath, status);
     }
 }

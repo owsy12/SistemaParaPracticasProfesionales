@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -93,14 +94,14 @@ public class Assignment {
                 && idIntern == other.idIntern
                 && idProject == other.idProject
                 && idApplication == other.idApplication
-                && java.util.Objects.equals(assignmentDate, other.assignmentDate)
-                && java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(assignmentReason, other.assignmentReason);
+                && Objects.equals(assignmentDate, other.assignmentDate)
+                && Objects.equals(status, other.status)
+                && Objects.equals(assignmentReason, other.assignmentReason);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idAssignment, idIntern, idProject, idApplication, assignmentDate, status, assignmentReason);
+        return Objects.hash(idAssignment, idIntern, idProject, idApplication, assignmentDate, status, assignmentReason);
     }
 }
 

@@ -95,15 +95,15 @@ public class LoginController {
         boolean isValidUser = false;
 
         try {
-            UserDAO userDao = new UserDAO();
-            currentUser = userDao.findByIdentifier(userTextField.getText());
+            UserDAO userDAO = new UserDAO();
+            currentUser = userDAO.findByIdentifier(userTextField.getText());
             if (currentUser == null) {
                 showAlert("Error de autenticación", "Usuario no encontrado. Verifica tu matrícula, correo o número de personal e inténtalo de nuevo.",
                         Alert.AlertType.ERROR);
                 clearFields();
             } else {
-                UserRoleDAO userRoleDao = new UserRoleDAO();
-                currentUser.setRoles(userRoleDao.getActiveRolsByUserId(currentUser.getId()));
+                UserRoleDAO userRoleDAO = new UserRoleDAO();
+                currentUser.setRoles(userRoleDAO.getActiveRolsByUserId(currentUser.getIdUser()));
                 boolean isPasswordValid = BCrypt.checkpw(passwordField.getText(), currentUser.getPassword());
                 if (!isPasswordValid) {
                     throw new ValidationException("Contraseña incorrecta");

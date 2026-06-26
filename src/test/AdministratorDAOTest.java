@@ -27,7 +27,7 @@ class AdministratorDAOTest extends BaseDAOTest {
 
     private Administrator buildAdministrator(int idUser) {
         Administrator administrator = new Administrator();
-        administrator.setId(idUser);
+        administrator.setIdUser(idUser);
         administrator.setRegistrationNumber(ADMIN_REGISTRATION_NUMBER);
         administrator.setFirstName(ADMIN_FIRST_NAME);
         administrator.setLastName(ADMIN_LAST_NAME);

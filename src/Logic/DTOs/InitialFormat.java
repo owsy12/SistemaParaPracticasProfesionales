@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -92,14 +93,14 @@ public class InitialFormat {
         return idInitialFormat == other.idInitialFormat
                 && idIntern == other.idIntern
                 && idProject == other.idProject
-                && java.util.Objects.equals(formatType, other.formatType)
-                && java.util.Objects.equals(filePath, other.filePath)
-                && java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(submissionDate, other.submissionDate);
+                && Objects.equals(formatType, other.formatType)
+                && Objects.equals(filePath, other.filePath)
+                && Objects.equals(status, other.status)
+                && Objects.equals(submissionDate, other.submissionDate);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idInitialFormat, idIntern, idProject, formatType, filePath, status, submissionDate);
+        return Objects.hash(idInitialFormat, idIntern, idProject, formatType, filePath, status, submissionDate);
     }
 }

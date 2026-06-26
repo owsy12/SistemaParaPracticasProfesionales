@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -18,14 +19,14 @@ public class Report {
     private int reportedHours;
     private String professorObservations;
     private LocalDate reviewDate;
-    private Date sumissionDate;
+    private Date submissionDate;
     private LocalDate deadline;
     private boolean entregaTardia;
     private String monthName;
     private Double grade;
     private LocalDate evaluationDate;
 
-    public Report(int idReport, int idIntern, int idProject, int idProfessor, String reportType, String period, String documentPath, String status, int grade, String feedback, Date sumissionDate, Date evaluationDate, int reportNumber, int coveredHours, String methodology, String obtainedResults, String observations, String month, int year, String block, String section) {
+    public Report(int idReport, int idIntern, int idProject, int idProfessor, String reportType, String period, String documentPath, String status, int grade, String feedback, Date submissionDate, Date evaluationDate, int reportNumber, int coveredHours, String methodology, String obtainedResults, String observations, String month, int year, String block, String section) {
         this.idReport = idReport;
         this.idIntern = idIntern;
         this.idProject = idProject;
@@ -34,7 +35,7 @@ public class Report {
         this.period = period;
         this.documentPath = documentPath;
         this.status = status;
-        this.sumissionDate = sumissionDate;
+        this.submissionDate = submissionDate;
     }
 
 
@@ -105,12 +106,12 @@ public class Report {
         this.status = status;
     }
 
-    public Date getSumissionDate() {
-        return sumissionDate;
+    public Date getSubmissionDate() {
+        return submissionDate;
     }
 
-    public void setSumissionDate(Date sumissionDate) {
-        this.sumissionDate = sumissionDate;
+    public void setSubmissionDate(Date submissionDate) {
+        this.submissionDate = submissionDate;
     }
 
     public String getSignedDocumentPath() {
@@ -174,8 +175,8 @@ public class Report {
 
     public String getDateDisplay() {
         String dateText = "";
-        if (sumissionDate != null) {
-            dateText = sumissionDate.toString();
+        if (submissionDate != null) {
+            dateText = submissionDate.toString();
         }
         return dateText;
     }
@@ -269,24 +270,24 @@ public class Report {
                 && idIntern == other.idIntern
                 && idProject == other.idProject
                 && idProfessor == other.idProfessor
-                && java.util.Objects.equals(reportType, other.reportType)
-                && java.util.Objects.equals(period, other.period)
-                && java.util.Objects.equals(documentPath, other.documentPath)
-                && java.util.Objects.equals(signedDocumentPath, other.signedDocumentPath)
-                && java.util.Objects.equals(status, other.status)
+                && Objects.equals(reportType, other.reportType)
+                && Objects.equals(period, other.period)
+                && Objects.equals(documentPath, other.documentPath)
+                && Objects.equals(signedDocumentPath, other.signedDocumentPath)
+                && Objects.equals(status, other.status)
                 && reportedHours == other.reportedHours
-                && java.util.Objects.equals(professorObservations, other.professorObservations)
-                && java.util.Objects.equals(reviewDate, other.reviewDate)
-                && java.util.Objects.equals(sumissionDate, other.sumissionDate)
-                && java.util.Objects.equals(deadline, other.deadline)
+                && Objects.equals(professorObservations, other.professorObservations)
+                && Objects.equals(reviewDate, other.reviewDate)
+                && Objects.equals(submissionDate, other.submissionDate)
+                && Objects.equals(deadline, other.deadline)
                 && entregaTardia == other.entregaTardia
-                && java.util.Objects.equals(monthName, other.monthName)
-                && java.util.Objects.equals(grade, other.grade)
-                && java.util.Objects.equals(evaluationDate, other.evaluationDate);
+                && Objects.equals(monthName, other.monthName)
+                && Objects.equals(grade, other.grade)
+                && Objects.equals(evaluationDate, other.evaluationDate);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idReport, idIntern, idProject, idProfessor, reportType, period, documentPath, signedDocumentPath, status, reportedHours, professorObservations, reviewDate, sumissionDate, deadline, entregaTardia, monthName, grade, evaluationDate);
+        return Objects.hash(idReport, idIntern, idProject, idProfessor, reportType, period, documentPath, signedDocumentPath, status, reportedHours, professorObservations, reviewDate, submissionDate, deadline, entregaTardia, monthName, grade, evaluationDate);
     }
 }

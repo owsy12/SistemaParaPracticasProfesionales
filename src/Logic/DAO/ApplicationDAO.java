@@ -72,7 +72,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al registrar solicitud para practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error registering application for intern {0}: {1}",
                     new Object[]{ application.getIdIntern(), sqlException.getMessage() });
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -101,7 +101,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar solicitud con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding application with ID {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -130,7 +130,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar solicitud para practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding application for intern {0}: {1}",
                     new Object[]{ internId, sqlException.getMessage() });
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -156,7 +156,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todas las solicitudes: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving all applications: {0}", sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -184,7 +184,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar solicitudes con estado {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding applications with status {0}: {1}",
                     new Object[]{ status, sqlException.getMessage() });
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -212,7 +212,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar estado de solicitud {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating application status {0}: {1}",
                     new Object[]{ applicationId, sqlException.getMessage() });
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -241,7 +241,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar solicitud pendiente del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding pending application for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al buscar la solicitud pendiente.", sqlException);
         }
@@ -267,7 +267,7 @@ public class ApplicationDAO implements IApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al cancelar solicitud aceptada del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error cancelling accepted application for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al cancelar la solicitud del practicante.", sqlException);
         }

@@ -496,3 +496,11 @@
 .helperLinkButton:hover {
     -fx-text-fill: #1976b8;
 }
+
+.statusErrorLabel {
+    -fx-text-fill: red;
+}
+
+.statusSuccessLabel {
+    -fx-text-fill: green;
+}

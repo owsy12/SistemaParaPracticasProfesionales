@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class MonthlyReport extends Report{
     private int idMonthlyReport;
     private String month;
@@ -89,16 +91,16 @@ public class MonthlyReport extends Report{
         }
         MonthlyReport other = (MonthlyReport) object;
         return idMonthlyReport == other.idMonthlyReport
-                && java.util.Objects.equals(month, other.month)
+                && Objects.equals(month, other.month)
                 && year == other.year
                 && monthlyHours == other.monthlyHours
-                && java.util.Objects.equals(block, other.block)
-                && java.util.Objects.equals(section, other.section)
+                && Objects.equals(block, other.block)
+                && Objects.equals(section, other.section)
                 && reportNumber == other.reportNumber;
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), idMonthlyReport, month, year, monthlyHours, block, section, reportNumber);
+        return Objects.hash(super.hashCode(), idMonthlyReport, month, year, monthlyHours, block, section, reportNumber);
     }
 }

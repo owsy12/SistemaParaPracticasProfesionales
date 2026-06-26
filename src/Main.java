@@ -33,7 +33,7 @@ public class Main extends Application {
             primaryStage.show();
 
         } catch (IOException exception) {
-            LOGGER.log(Level.SEVERE, "Error al cargar la aplicación: {0}", exception.getMessage());
+            LOGGER.log(Level.SEVERE, "Error loading the application: {0}", exception.getMessage());
             throw new RuntimeException("Error al cargar la aplicación", exception);
         }
     }

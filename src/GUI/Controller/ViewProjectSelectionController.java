@@ -51,8 +51,8 @@ public class ViewProjectSelectionController {
             AnchorPane parentPane = (AnchorPane) anchorPane.getParent();
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/GUI/view/GUIRequestProject.fxml"));
-            Parent vista = loader.load();
-            parentPane.getChildren().setAll(vista);
+            Parent view = loader.load();
+            parentPane.getChildren().setAll(view);
         } catch (IOException ioException) {
             showAlert("Error", "No se pudo regresar a la selección de proyectos.",
                     Alert.AlertType.ERROR);
@@ -89,7 +89,7 @@ public class ViewProjectSelectionController {
             ApplicationDAO applicationDAO = new ApplicationDAO();
             ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
 
-            int currentUserId = SessionManager.getInstance().getUser().getId();
+            int currentUserId = SessionManager.getInstance().getUser().getIdUser();
             Application pendingApplication = applicationDAO.findActiveApplicationByIntern(currentUserId);
 
             Application application;
@@ -111,8 +111,8 @@ public class ViewProjectSelectionController {
             }
 
             LOGGER.log(Level.INFO,
-                    "Usuario {0} registró la solicitud de proyecto {1}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), application.getIdApplication()});
+                    "User {0} registered project application {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getIdUser(), application.getIdApplication()});
             showAlert("Éxito", "Su solicitud ha sido creada.",
                     Alert.AlertType.INFORMATION);
             openWelcomePage((AnchorPane) anchorPane.getParent());
@@ -132,16 +132,10 @@ public class ViewProjectSelectionController {
     private VBox createCard(Project project) {
         VBox card = new VBox(8);
         card.setPrefWidth(250.0);
-        card.setStyle("""
-        -fx-background-color: white;
-        -fx-padding: 15;
-        -fx-background-radius: 15;
-        -fx-border-radius: 15;
-        -fx-border-color: #ddd;
-        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5,0,0,2);""");
+        card.getStyleClass().add("projectCardVBox");
 
         Label projectNameLabel = new Label(project.getName());
-        projectNameLabel.setStyle("-fx-font-size: 16; -fx-font-weight: bold;");
+        projectNameLabel.getStyleClass().add("projectNameLabel");
 
         Label descriptionLabel = new Label(project.getDescription());
         descriptionLabel.setWrapText(true);
@@ -149,7 +143,7 @@ public class ViewProjectSelectionController {
         Label datesLabel = new Label("Inicio: " + project.getStartDate()
                 + "\nFin: " + project.getEndDate());
 
-        Label capacityLabel = new Label("Cupo: " + project.getAvaliablePlaces());
+        Label capacityLabel = new Label("Cupo: " + project.getAvailablePlaces());
 
         Label organizationLabel = new Label("Org: " + project.getOrganizationName());
 

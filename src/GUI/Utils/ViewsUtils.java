@@ -17,6 +17,9 @@ import static GUI.Utils.Alert.showAlert;
 
 public class ViewsUtils {
 
+    private ViewsUtils() {
+    }
+
     public static final String CONTENT_PANE_ID = "contentPane";
 
     public static void openWindow(String fxmlPath, String windowTitle, Node sourceNode) {

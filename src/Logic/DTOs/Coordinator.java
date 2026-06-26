@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class Coordinator extends User {
     private int isProfessor;
 
@@ -43,6 +45,6 @@ public class Coordinator extends User {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), isProfessor);
+        return Objects.hash(super.hashCode(), isProfessor);
     }
 }

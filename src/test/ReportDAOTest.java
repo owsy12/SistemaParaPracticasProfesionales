@@ -36,7 +36,7 @@ class ReportDAOTest extends BaseDAOTest {
         report.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
         report.setStatus(TestConstants.STATUS_REPORT_PENDING);
         report.setReportedHours(TestConstants.DEFAULT_REPORTED_HOURS);
-        report.setSumissionDate(new java.util.Date());
+        report.setSubmissionDate(new java.util.Date());
         return report;
     }
 

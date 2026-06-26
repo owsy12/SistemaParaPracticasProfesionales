@@ -23,7 +23,7 @@ class CoordinatorDAOTest extends BaseDAOTest {
     private static final String COORD_FIRST_NAME = "Pedro";
     private static final String COORD_LAST_NAME = "Silva";
 
-    private CoordinatorDAO buildDao() throws ServiceException, ValidationException {
+    private CoordinatorDAO buildDAO() throws ServiceException, ValidationException {
         return new CoordinatorDAO();
     }
 
@@ -42,14 +42,14 @@ class CoordinatorDAOTest extends BaseDAOTest {
 
     @Test
     void testSaveValidCoordinatorReturnsTrue() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         boolean result = dao.save(buildCoordinator());
         assertTrue(result);
     }
 
     @Test
     void testSaveSecondActiveCoordinatorThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         persistCoordinatorViaBuilders();
         Coordinator secondCoordinator = buildCoordinator();
         secondCoordinator.setRegistrationNumber("C70000002");
@@ -65,14 +65,14 @@ class CoordinatorDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         Coordinator retrieved = dao.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -83,7 +83,7 @@ class CoordinatorDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -94,14 +94,14 @@ class CoordinatorDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         Coordinator retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllCoordinatorsWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         List<Coordinator> all = dao.findAllCoordinators();
         assertTrue(all.isEmpty());
     }
@@ -109,7 +109,7 @@ class CoordinatorDAOTest extends BaseDAOTest {
     @Test
     void testFindAllCoordinatorsAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         List<Coordinator> all = dao.findAllCoordinators();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
@@ -117,14 +117,14 @@ class CoordinatorDAOTest extends BaseDAOTest {
     @Test
     void testFindActiveCoordinatorsReturnsOnlyActive() throws ServiceException, ValidationException {
         persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         List<Coordinator> active = dao.findActiveCoordinators();
         assertEquals(TestConstants.SINGLE_RESULT, active.size());
     }
 
     @Test
     void testDeleteCoordinatorWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -136,7 +136,7 @@ class CoordinatorDAOTest extends BaseDAOTest {
     @Test
     void testDeleteCoordinatorReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistCoordinatorViaBuilders();
-        CoordinatorDAO dao = buildDao();
+        CoordinatorDAO dao = buildDAO();
         boolean result = dao.delete(idUser);
         assertTrue(result);
     }

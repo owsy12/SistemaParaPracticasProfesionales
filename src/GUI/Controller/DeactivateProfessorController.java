@@ -89,8 +89,8 @@ public class DeactivateProfessorController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
             LOGGER.log(Level.INFO,
-                    "Usuario {0} inactivó al profesor {1}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), user.getId()});
+                    "User {0} deactivated professor {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getIdUser(), user.getIdUser()});
             showAlert("Profesor desactivado", "El profesor ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);
         } catch (ValidationException validationException) {

@@ -74,7 +74,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 isSaved = true;
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar organización '{0}': {1}",
+            LOGGER.log(Level.SEVERE, "Error saving organization '{0}': {1}",
                     new Object[]{linkedOrganization.getName(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -101,7 +101,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar organización con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding organization with ID {0}: {1}",
                     new Object[]{idOrganizacion, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -124,7 +124,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar todas las organizaciones vinculadas: {0}",
+                    "Error retrieving all linked organizations: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -146,7 +146,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 organizationList.add(mapLinkedOrganization(rs));
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar organizaciones activas: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving active organizations: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -178,7 +178,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 isUpdated = true;
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar organización con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating organization with ID {0}: {1}",
                     new Object[]{linkedOrganization.getIdLinkedOrganization(),
                             sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -205,7 +205,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 isDeactivated = true;
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al desactivar organización con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deactivating organization with ID {0}: {1}",
                     new Object[]{idOrganizacion, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
@@ -234,7 +234,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar proyectos de organización con ID {0}: {1}",
+                    "Error verifying projects for organization with ID {0}: {1}",
                     new Object[]{idOrganization, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al verificar proyectos asociados a la organización.", sqlException);
@@ -271,14 +271,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
                 } catch (SQLException sqlException) {
                     safeRollback(connection);
                     LOGGER.log(Level.SEVERE,
-                            "Error en transacción al eliminar organización con ID {0}: {1}",
+                            "Transaction error while deleting organization with ID {0}: {1}",
                             new Object[]{idOrganization, sqlException.getMessage()});
                     throw new ServiceException(
                             "Error al eliminar la organización vinculada.", sqlException);
                 }
             } catch (SQLException sqlException) {
                 LOGGER.log(Level.SEVERE,
-                        "Error de conexión al eliminar organización con ID {0}: {1}",
+                        "Connection error while deleting organization with ID {0}: {1}",
                         new Object[]{idOrganization, sqlException.getMessage()});
                 throw new ServiceException(
                         "Error de conexión al eliminar la organización vinculada.", sqlException);
@@ -291,7 +291,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         try {
             connection.rollback();
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al ejecutar rollback: {0}",
+            LOGGER.log(Level.SEVERE, "Error executing rollback: {0}",
                     sqlException.getMessage());
         }
     }

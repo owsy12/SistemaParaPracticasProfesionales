@@ -83,7 +83,7 @@ public class InternContextLoader {
             activities = activityDAO.findByInternAndProject(internId, projectId);
         } catch (ValidationException | ServiceException persistenceException) {
             LOGGER.log(Level.WARNING,
-                    "No se pudieron cargar actividades del practicante {0} en el proyecto {1}: {2}",
+                    "Could not load activities for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, persistenceException.getMessage()});
         }
         return activities;

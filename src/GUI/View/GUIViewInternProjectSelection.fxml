@@ -77,7 +77,7 @@
                                         <cellValueFactory><PropertyValueFactory property="organizationName"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="placesColumn" prefWidth="80.0" text="Lugares">
-                                        <cellValueFactory><PropertyValueFactory property="avaliablePlacesDisplay"/></cellValueFactory>
+                                        <cellValueFactory><PropertyValueFactory property="availablePlacesDisplay"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="datesColumn" prefWidth="160.0" text="Fechas">
                                         <cellValueFactory><PropertyValueFactory property="periodIsoDisplay"/></cellValueFactory>

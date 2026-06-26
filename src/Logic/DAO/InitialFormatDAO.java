@@ -79,7 +79,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar formato inicial para practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving initial format for intern {0}: {1}",
                     new Object[]{initialFormat.getIdIntern(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -112,7 +112,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar formato inicial con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving initial format with ID {0}: {1}",
                     new Object[]{idInitialFormat, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -138,7 +138,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                 initialFormats.add(mapResultSet(resultSet));
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todos los formatos iniciales: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving all initial formats: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -170,7 +170,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar formatos iniciales del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving initial formats for intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -208,7 +208,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
         } catch (SQLException sqlException) {
 
-            LOGGER.log(Level.SEVERE, "Error al recuperar formatos pendientes del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving pending formats for intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
 
             throw new ServiceException("Error al recuperar los formatos pendientes del practicante.",
@@ -237,7 +237,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
         } catch (SQLException sqlException) {
 
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar estado del formato inicial con ID {0}: {1}",
+                    "Error updating initial format status with ID {0}: {1}",
                     new Object[]{initialFormat.getIdInitialFormat(), sqlException.getMessage()});
 
             throw new ServiceException(
@@ -289,7 +289,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar formatos del practicante {0} en proyecto {1}: {2}",
+                    "Error deleting formats for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al eliminar formatos del practicante.", sqlException);

@@ -50,6 +50,8 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 public class UpdateProjectController implements ChangeListener<Intern> {
 
     private static final Logger LOGGER = Logger.getLogger(UpdateProjectController.class.getName());
+    private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
+    private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
 
     @FXML
     private javafx.scene.layout.AnchorPane anchorPane;
@@ -129,7 +131,8 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         boolean isInternMissing = selectedIntern == null;
         if (isInternMissing) {
             internsStatusLabel.setText("Seleccione un practicante de la tabla.");
-            internsStatusLabel.setStyle("-fx-text-fill: red;");
+            internsStatusLabel.getStyleClass().removeAll(STATUS_SUCCESS_STYLE_CLASS, STATUS_ERROR_STYLE_CLASS);
+            internsStatusLabel.getStyleClass().add(STATUS_ERROR_STYLE_CLASS);
         } else {
 
             String confirmMessage = "¿Eliminar la asignación de "
@@ -146,7 +149,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     }
 
     private void removeInternProcess() {
-        int internId = selectedIntern.getId();
+        int internId = selectedIntern.getIdUser();
         int projectId = project.getIdProject();
 
         try {
@@ -176,7 +179,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar asignación del practicante {0} del proyecto {1}: {2}",
+                    "Error deleting assignment for intern {0} from project {1}: {2}",
                     new Object[]{internId, projectId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo eliminar la asignación. Intente más tarde.",
@@ -211,8 +214,8 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                 project.setDescription(descriptionTextField.getText().trim());
                 project.setObjetivo(objetivoTextArea.getText().trim());
                 project.setMaximumPlaces(newCapacity);
-                project.setAvaliablePlaces(newCapacity - currentInternCount);
-                project.setIdProfessor(professorComboBox.getValue().getId());
+                project.setAvailablePlaces(newCapacity - currentInternCount);
+                project.setIdProfessor(professorComboBox.getValue().getIdUser());
                 project.setIdTechnicalResponsible(
                         technicalComboBox.getValue().getIdTechnicalResponsible());
 
@@ -224,8 +227,8 @@ public class UpdateProjectController implements ChangeListener<Intern> {
                     ProjectDAO projectDAO = new ProjectDAO();
                     projectDAO.update(project);
                     LOGGER.log(Level.INFO,
-                            "Usuario {0} actualizó el proyecto {1}",
-                            new Object[]{SessionManager.getInstance().getUser().getId(), project.getName()});
+                            "User {0} updated project {1}",
+                            new Object[]{SessionManager.getInstance().getUser().getIdUser(), project.getName()});
                     showAlert("Éxito", "Proyecto actualizado correctamente.",
                             Alert.AlertType.INFORMATION);
                     openWelcomePage(anchorPane);
@@ -250,7 +253,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         snapshot.setDescription(project.getDescription());
         snapshot.setObjetivo(project.getObjetivo());
         snapshot.setMaximumPlaces(project.getMaximumPlaces());
-        snapshot.setAvaliablePlaces(project.getAvaliablePlaces());
+        snapshot.setAvailablePlaces(project.getAvailablePlaces());
         snapshot.setIdProfessor(project.getIdProfessor());
         snapshot.setIdTechnicalResponsible(project.getIdTechnicalResponsible());
         return snapshot;
@@ -266,7 +269,8 @@ public class UpdateProjectController implements ChangeListener<Intern> {
             selectedIntern = newValue;
             String selectionText = "Practicante seleccionado: " + newValue.getFullName();
             internsStatusLabel.setText(selectionText);
-            internsStatusLabel.setStyle("-fx-text-fill: green;");
+            internsStatusLabel.getStyleClass().removeAll(STATUS_ERROR_STYLE_CLASS, STATUS_SUCCESS_STYLE_CLASS);
+            internsStatusLabel.getStyleClass().add(STATUS_SUCCESS_STYLE_CLASS);
         }
     }
 
@@ -311,10 +315,10 @@ public class UpdateProjectController implements ChangeListener<Intern> {
             internsStatusLabel.setText("");
             selectedIntern = null;
         } catch (ValidationException validationException) {
-            LOGGER.log(Level.SEVERE, "Error de validación al cargar practicantes: {0}",
+            LOGGER.log(Level.SEVERE, "Validation error while loading interns: {0}",
                     validationException.getMessage());
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar practicantes del proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error loading interns for project {0}: {1}",
                     new Object[]{project.getIdProject(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los practicantes. Intente más tarde.",
@@ -337,7 +341,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     private void preselectProfessor() {
         List<Professor> professorList = professorComboBox.getItems();
         for (Professor professor : professorList) {
-            boolean matchesProject = professor.getId() == project.getIdProfessor();
+            boolean matchesProject = professor.getIdUser() == project.getIdProfessor();
             if (matchesProject) {
                 professorComboBox.getSelectionModel().select(professor);
                 break;

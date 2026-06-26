@@ -13,7 +13,7 @@ public class Project {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
-    private int avaliablePlaces;
+    private int availablePlaces;
     private int maximumPlaces;
     private String organizationName;
     private String status;
@@ -22,7 +22,7 @@ public class Project {
     private String period;
 
 
-    public Project(int idProject, int idOrganization, int idTechnicalResponsible, String name, String description, LocalDate startDate, LocalDate endDate, int avaliablePlaces, int maximumPlaces) {
+    public Project(int idProject, int idOrganization, int idTechnicalResponsible, String name, String description, LocalDate startDate, LocalDate endDate, int availablePlaces, int maximumPlaces) {
         this.idProject = idProject;
         this.idOrganization = idOrganization;
         this.idTechnicalResponsible = idTechnicalResponsible;
@@ -30,7 +30,7 @@ public class Project {
         this.description = description;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.avaliablePlaces = avaliablePlaces;
+        this.availablePlaces = availablePlaces;
         this.maximumPlaces = maximumPlaces;
     }
 
@@ -93,12 +93,12 @@ public class Project {
         this.endDate = endDate;
     }
 
-    public int getAvaliablePlaces() {
-        return avaliablePlaces;
+    public int getAvailablePlaces() {
+        return availablePlaces;
     }
 
-    public void setAvaliablePlaces(int avaliablePlaces) {
-        this.avaliablePlaces = avaliablePlaces;
+    public void setAvailablePlaces(int availablePlaces) {
+        this.availablePlaces = availablePlaces;
     }
 
     public int getMaximumPlaces() {
@@ -241,8 +241,8 @@ public class Project {
         return display;
     }
 
-    public String getAvaliablePlacesDisplay() {
-        String display = String.valueOf(avaliablePlaces);
+    public String getAvailablePlacesDisplay() {
+        String display = String.valueOf(availablePlaces);
         return display;
     }
 
@@ -272,7 +272,7 @@ public class Project {
                 && idOrganization == otherProject.idOrganization
                 && idTechnicalResponsible == otherProject.idTechnicalResponsible
                 && IdProfessor == otherProject.IdProfessor
-                && avaliablePlaces == otherProject.avaliablePlaces
+                && availablePlaces == otherProject.availablePlaces
                 && maximumPlaces == otherProject.maximumPlaces
                 && Objects.equals(name, otherProject.name)
                 && Objects.equals(description, otherProject.description)
@@ -288,7 +288,7 @@ public class Project {
     @Override
     public int hashCode() {
         return Objects.hash(idProject, idOrganization, idTechnicalResponsible,
-                IdProfessor, avaliablePlaces, maximumPlaces, name, description,
+                IdProfessor, availablePlaces, maximumPlaces, name, description,
                 startDate, endDate, organizationName, status, objetivo, nrc);
     }
 

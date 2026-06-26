@@ -24,7 +24,7 @@ class InternDAOTest extends BaseDAOTest {
     private static final String INTERN_LAST_NAME = "Reyes";
     private static final int UPDATED_CREDITS = 280;
 
-    private InternDAO buildDao() throws ServiceException, ValidationException {
+    private InternDAO buildDAO() throws ServiceException, ValidationException {
         return new InternDAO();
     }
 
@@ -44,7 +44,7 @@ class InternDAOTest extends BaseDAOTest {
 
     @Test
     void testSaveValidInternReturnsTrue() throws ServiceException, ValidationException {
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         boolean result = dao.saveIntern(buildIntern());
         assertTrue(result);
     }
@@ -52,14 +52,14 @@ class InternDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistInternViaBuilders();
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         Intern retrieved = dao.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -70,14 +70,14 @@ class InternDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         Intern retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testDeactivateInternWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -89,7 +89,7 @@ class InternDAOTest extends BaseDAOTest {
     @Test
     void testDeactivateInternReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistInternViaBuilders();
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         boolean result = dao.deactivateIntern(idUser);
         assertTrue(result);
     }
@@ -97,14 +97,14 @@ class InternDAOTest extends BaseDAOTest {
     @Test
     void testUpdateCreditsReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistInternViaBuilders();
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         boolean result = dao.updateCredits(idUser, UPDATED_CREDITS);
         assertTrue(result);
     }
 
     @Test
     void testUpdateCreditsWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -116,14 +116,14 @@ class InternDAOTest extends BaseDAOTest {
     @Test
     void testFindAllActiveInternsAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistInternViaBuilders();
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         List<Intern> active = dao.findAllActiveinterns();
         assertEquals(TestConstants.SINGLE_RESULT, active.size());
     }
 
     @Test
     void testFindByProjectWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        InternDAO dao = buildDao();
+        InternDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {

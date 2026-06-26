@@ -277,7 +277,7 @@ public class FinalReportGenerator {
         Path path = Paths.get(storagePath);
         Files.createDirectories(path.getParent());
         Files.write(path, pdfBytes);
-        LOGGER.log(Level.INFO, "PDF guardado en: {0}", path.toAbsolutePath());
+        LOGGER.log(Level.INFO, "PDF saved to: {0}", path.toAbsolutePath());
     }
 
     private static void showSaveDialog(byte[] pdfBytes, String fileName,

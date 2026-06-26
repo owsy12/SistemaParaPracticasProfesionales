@@ -79,7 +79,7 @@ public class AssignmentDAO implements IAssignmentDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar asignación para practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving assignment for intern {0}: {1}",
                     new Object[]{assignment.getIdIntern(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -112,7 +112,7 @@ public class AssignmentDAO implements IAssignmentDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar asignación con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding assignment with ID {0}: {1}",
                     new Object[]{idAssignment, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -138,7 +138,7 @@ public class AssignmentDAO implements IAssignmentDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todas las asignaciones: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving all assignments: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -171,7 +171,7 @@ public class AssignmentDAO implements IAssignmentDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar asignación por practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding assignment by intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -207,7 +207,7 @@ public class AssignmentDAO implements IAssignmentDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar asignaciones por proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding assignments by project {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
 
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -270,7 +270,7 @@ public class AssignmentDAO implements IAssignmentDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar asignación del practicante {0} del proyecto {1}: {2}",
+                    "Error deleting assignment for intern {0} from project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(

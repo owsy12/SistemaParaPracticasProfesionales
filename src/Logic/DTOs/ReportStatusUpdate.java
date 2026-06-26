@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.sql.Date;
 
 public class ReportStatusUpdate {
@@ -35,13 +36,13 @@ public class ReportStatusUpdate {
             return false;
         }
         ReportStatusUpdate other = (ReportStatusUpdate) object;
-        return java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(professorObservations, other.professorObservations)
-                && java.util.Objects.equals(reviewDate, other.reviewDate);
+        return Objects.equals(status, other.status)
+                && Objects.equals(professorObservations, other.professorObservations)
+                && Objects.equals(reviewDate, other.reviewDate);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(status, professorObservations, reviewDate);
+        return Objects.hash(status, professorObservations, reviewDate);
     }
 }

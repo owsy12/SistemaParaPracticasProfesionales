@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class PartialAndFinalReport extends Report{
     private int idPartialAndFinalReport;
     private int reportNumber;
@@ -80,14 +82,14 @@ public class PartialAndFinalReport extends Report{
         return idPartialAndFinalReport == other.idPartialAndFinalReport
                 && reportNumber == other.reportNumber
                 && coveredHours == other.coveredHours
-                && java.util.Objects.equals(methodology, other.methodology)
-                && java.util.Objects.equals(obtainedResults, other.obtainedResults)
-                && java.util.Objects.equals(observations, other.observations)
-                && java.util.Objects.equals(generalObjective, other.generalObjective);
+                && Objects.equals(methodology, other.methodology)
+                && Objects.equals(obtainedResults, other.obtainedResults)
+                && Objects.equals(observations, other.observations)
+                && Objects.equals(generalObjective, other.generalObjective);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), idPartialAndFinalReport, reportNumber, coveredHours, methodology, obtainedResults, observations, generalObjective);
+        return Objects.hash(super.hashCode(), idPartialAndFinalReport, reportNumber, coveredHours, methodology, obtainedResults, observations, generalObjective);
     }
 }

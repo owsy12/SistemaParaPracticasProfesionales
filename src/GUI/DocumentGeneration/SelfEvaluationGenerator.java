@@ -166,7 +166,7 @@ public class SelfEvaluationGenerator {
     private static String buildStoragePath(SelfEvaluation evaluation, String matricula) {
         String path = "storage/intern_" + matricula
                 + "/project_" + evaluation.getIdProject()
-                + "/self_evaluation/self_evaluation_" + evaluation.getIdSelfEvalation() + ".pdf";
+                + "/self_evaluation/self_evaluation_" + evaluation.getIdSelfEvaluation() + ".pdf";
         return path;
     }
 
@@ -174,7 +174,7 @@ public class SelfEvaluationGenerator {
         Path path = Paths.get(storagePath);
         Files.createDirectories(path.getParent());
         Files.write(path, pdfBytes);
-        LOGGER.log(Level.INFO, "PDF guardado en: {0}", path.toAbsolutePath());
+        LOGGER.log(Level.INFO, "PDF saved to: {0}", path.toAbsolutePath());
     }
 
     private static void showSaveDialog(byte[] pdfBytes, String fileName, Window window) throws IOException {

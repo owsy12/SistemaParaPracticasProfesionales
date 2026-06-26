@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.time.LocalDateTime;
 
 public class OVEvaluation {
@@ -74,13 +75,13 @@ public class OVEvaluation {
         return idOVEvaluation == other.idOVEvaluation
                 && idIntern == other.idIntern
                 && idProject == other.idProject
-                && java.util.Objects.equals(documentPath, other.documentPath)
-                && java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(deliveryDate, other.deliveryDate);
+                && Objects.equals(documentPath, other.documentPath)
+                && Objects.equals(status, other.status)
+                && Objects.equals(deliveryDate, other.deliveryDate);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idOVEvaluation, idIntern, idProject, documentPath, status, deliveryDate);
+        return Objects.hash(idOVEvaluation, idIntern, idProject, documentPath, status, deliveryDate);
     }
 }

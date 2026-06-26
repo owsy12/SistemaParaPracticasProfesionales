@@ -16,8 +16,6 @@ import Logic.DTOs.Report;
 import Logic.DTOs.SelfEvaluation;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
-import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,10 +25,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.Pane;
-import javafx.util.Callback;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,8 +42,7 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ViewsUtils.findContentPane;
 import static GUI.Utils.ViewsUtils.wrapInScrollableContent;
 
-public class SelectionInternProjectController
-        implements Callback<CellDataFeatures<Intern, String>, ObservableValue<String>> {
+public class SelectionInternProjectController {
 
     private static final Logger LOGGER =
             Logger.getLogger(SelectionInternProjectController.class.getName());
@@ -87,22 +82,6 @@ public class SelectionInternProjectController
     private final Map<Integer, List<String[]>> internDocumentsMap = new HashMap<>();
     private List<Intern> allInterns = new ArrayList<>();
 
-    @FXML
-    private void initialize() {
-        projectColumn.setCellValueFactory(this);
-    }
-
-    @Override
-    public ObservableValue<String> call(CellDataFeatures<Intern, String> cellData) {
-        Intern intern = cellData.getValue();
-        Project project = internProjectMap.get(intern.getId());
-        String projectName = "";
-        if (project != null) {
-            projectName = project.getName();
-        }
-        return new ReadOnlyStringWrapper(projectName);
-    }
-
     public void setReviewContext(EducationalExperience experience) {
         currentExperience = experience;
         experienceContextLabel.setText("EE: " + experience.toString());
@@ -117,7 +96,7 @@ public class SelectionInternProjectController
             showAlert("Sin selección",
                     "Seleccione un practicante de la tabla.", Alert.AlertType.WARNING);
         } else {
-            Project project = internProjectMap.get(selectedIntern.getId());
+            Project project = internProjectMap.get(selectedIntern.getIdUser());
             openReportReview(project, selectedIntern);
         }
     }
@@ -140,8 +119,9 @@ public class SelectionInternProjectController
             for (Project project : projects) {
                 List<Intern> interns = internDAO.findByProject(project.getIdProject());
                 for (Intern intern : interns) {
-                    internProjectMap.put(intern.getId(), project);
-                    internDocumentsMap.put(intern.getId(), collectInternDocuments(intern, project));
+                    intern.setProjectName(project.getName());
+                    internProjectMap.put(intern.getIdUser(), project);
+                    internDocumentsMap.put(intern.getIdUser(), collectInternDocuments(intern, project));
                     allInterns.add(intern);
                 }
             }
@@ -153,7 +133,7 @@ public class SelectionInternProjectController
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al cargar practicantes de la experiencia educativa {0}: {1}",
+                    "Error loading interns for educational experience {0}: {1}",
                     new Object[]{experience.getNrc(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los practicantes. Intente más tarde.",
@@ -186,7 +166,7 @@ public class SelectionInternProjectController
         boolean statusFilterActive = selectedStatus != null && !FILTER_ALL.equals(selectedStatus);
         boolean hasMatch = !typeFilterActive && !statusFilterActive;
 
-        List<String[]> documents = internDocumentsMap.get(intern.getId());
+        List<String[]> documents = internDocumentsMap.get(intern.getIdUser());
         boolean shouldInspectDocuments = !hasMatch && documents != null;
         if (shouldInspectDocuments) {
             for (String[] document : documents) {
@@ -208,36 +188,36 @@ public class SelectionInternProjectController
         List<String[]> documents = new ArrayList<>();
 
         ReportDAO reportDAO = new ReportDAO();
-        List<Report> reports = reportDAO.getByInternAndProject(intern.getId(), project.getIdProject());
+        List<Report> reports = reportDAO.getByInternAndProject(intern.getIdUser(), project.getIdProject());
         for (Report report : reports) {
             documents.add(new String[]{report.getReportType(), report.getStatus()});
         }
 
         InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
-        List<InitialFormat> initialFormats = initialFormatDAO.getByIdIntern(intern.getId());
+        List<InitialFormat> initialFormats = initialFormatDAO.getByIdIntern(intern.getIdUser());
         for (InitialFormat initialFormat : initialFormats) {
             documents.add(new String[]{initialFormat.getFormatType(), initialFormat.getStatus()});
         }
 
         SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
-        SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(intern.getId());
+        SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(intern.getIdUser());
         if (selfEvaluation != null) {
             documents.add(new String[]{DOCUMENT_TYPE_SELF_EVALUATION, selfEvaluation.getStatus()});
         }
 
         OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
         OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
-                intern.getId(), project.getIdProject());
+                intern.getIdUser(), project.getIdProject());
         if (ovEvaluation != null) {
             documents.add(new String[]{DOCUMENT_TYPE_OV_EVALUATION, ovEvaluation.getStatus()});
         }
 
         PracticeDAO practiceDAO = new PracticeDAO();
-        String closureRecordPath = practiceDAO.findClosureRecordPath(intern.getId());
+        String closureRecordPath = practiceDAO.findClosureRecordPath(intern.getIdUser());
         boolean isClosureRecordSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
         if (isClosureRecordSubmitted) {
             String closureStatus = STATUS_CLOSURE_PENDING;
-            boolean isPracticeConcluded = practiceDAO.hasConcludedPractice(intern.getId());
+            boolean isPracticeConcluded = practiceDAO.hasConcludedPractice(intern.getIdUser());
             if (isPracticeConcluded) {
                 closureStatus = STATUS_CLOSURE_VALIDATED;
             }
@@ -303,7 +283,7 @@ public class SelectionInternProjectController
                 contentPane.getChildren().setAll(wrapInScrollableContent(view));
             }
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar la vista de reportes: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading reports view: {0}",
                     ioException.getMessage());
             showAlert("Error de navegación",
                     "No se pudo abrir la vista de reportes.", Alert.AlertType.ERROR);
@@ -322,7 +302,7 @@ public class SelectionInternProjectController
                 contentPane.getChildren().setAll(wrapInScrollableContent(view));
             }
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al regresar a la vista anterior: {0}",
+            LOGGER.log(Level.SEVERE, "Error returning to previous view: {0}",
                     ioException.getMessage());
             showAlert("Error de navegación",
                     "No se pudo regresar a la vista anterior.", Alert.AlertType.ERROR);

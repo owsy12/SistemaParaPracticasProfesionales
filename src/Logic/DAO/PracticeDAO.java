@@ -109,7 +109,7 @@ public class PracticeDAO implements IPracticeDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar practica para practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving practice for intern {0}: {1}",
                     new Object[]{practice.getIdIntern(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -143,7 +143,7 @@ public class PracticeDAO implements IPracticeDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar practica con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding practice with ID {0}: {1}",
                     new Object[]{idPractice, sqlException.getMessage()});
             throw new ServiceException("Error al buscar la practica.", sqlException);
         }
@@ -171,7 +171,7 @@ public class PracticeDAO implements IPracticeDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar practicas por NRC {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding practices by NRC {0}: {1}",
                     new Object[]{nrc, sqlException.getMessage()});
             throw new ServiceException("Error al buscar las practicas por NRC.", sqlException);
         }
@@ -200,7 +200,7 @@ public class PracticeDAO implements IPracticeDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar practicas del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding practices for intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             throw new ServiceException("Error al buscar las practicas del practicante.", sqlException);
         }
@@ -236,7 +236,7 @@ public class PracticeDAO implements IPracticeDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar practica con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating practice with ID {0}: {1}",
                     new Object[]{practice.getIdPractice(), sqlException.getMessage()});
             throw new ServiceException("Error al actualizar la practica.", sqlException);
         }
@@ -263,7 +263,7 @@ public class PracticeDAO implements IPracticeDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al eliminar practica con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deleting practice with ID {0}: {1}",
                     new Object[]{idPractice, sqlException.getMessage()});
             throw new ServiceException("Error al eliminar la practica.", sqlException);
         }
@@ -291,7 +291,7 @@ public class PracticeDAO implements IPracticeDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar práctica activa del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding active practice for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al buscar la práctica activa.", sqlException);
         }
@@ -320,7 +320,7 @@ public class PracticeDAO implements IPracticeDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar práctica concluida del practicante {0}: {1}",
+                    "Error verifying concluded practice for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al verificar estado de la práctica.", sqlException);
         }
@@ -355,7 +355,7 @@ public class PracticeDAO implements IPracticeDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al concluir la práctica del practicante {0}: {1}",
+                    "Error concluding practice for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al concluir la práctica.", sqlException);
         }
@@ -384,7 +384,7 @@ public class PracticeDAO implements IPracticeDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar el acta de cierre del practicante {0}: {1}",
+                    "Error finding closure record for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al buscar el acta de cierre.", sqlException);
         }
@@ -413,7 +413,7 @@ public class PracticeDAO implements IPracticeDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al registrar el acta de cierre pendiente del practicante {0}: {1}",
+                    "Error registering pending closure record for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al registrar el acta de cierre.", sqlException);
         }
@@ -448,7 +448,7 @@ public class PracticeDAO implements IPracticeDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al concluir con acta la práctica del practicante {0}: {1}",
+                    "Error concluding practice with closure record for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al registrar el acta de cierre.", sqlException);
         }
@@ -478,7 +478,7 @@ public class PracticeDAO implements IPracticeDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al cancelar práctica del practicante {0} en proyecto {1}: {2}",
+                    "Error cancelling practice for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException("Error al cancelar la práctica.", sqlException);
         }
@@ -505,7 +505,7 @@ public class PracticeDAO implements IPracticeDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al reactivar práctica del practicante {0}: {1}",
+                    "Error reactivating practice for intern {0}: {1}",
                     new Object[]{practice.getIdIntern(), sqlException.getMessage()});
             throw new ServiceException("Error al reactivar la práctica.", sqlException);
         }

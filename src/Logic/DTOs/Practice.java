@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.time.LocalDate;
 
 public class Practice {
@@ -90,17 +91,17 @@ public class Practice {
         }
         Practice other = (Practice) object;
         return idPractice == other.idPractice
-                && java.util.Objects.equals(nrc, other.nrc)
-                && java.util.Objects.equals(period, other.period)
+                && Objects.equals(nrc, other.nrc)
+                && Objects.equals(period, other.period)
                 && idIntern == other.idIntern
-                && java.util.Objects.equals(startDate, other.startDate)
-                && java.util.Objects.equals(endDate, other.endDate)
-                && java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(grade, other.grade);
+                && Objects.equals(startDate, other.startDate)
+                && Objects.equals(endDate, other.endDate)
+                && Objects.equals(status, other.status)
+                && Objects.equals(grade, other.grade);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idPractice, nrc, period, idIntern, startDate, endDate, status, grade);
+        return Objects.hash(idPractice, nrc, period, idIntern, startDate, endDate, status, grade);
     }
 }

@@ -32,7 +32,7 @@ class MonthlyReportDAOTest extends BaseDAOTest {
         monthlyReport.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
         monthlyReport.setStatus(TestConstants.STATUS_REPORT_PENDING);
         monthlyReport.setReportedHours(TestConstants.DEFAULT_MONTHLY_HOURS);
-        monthlyReport.setSumissionDate(new Date());
+        monthlyReport.setSubmissionDate(new Date());
         monthlyReport.setMonth(TestConstants.DEFAULT_REPORT_MONTH);
         monthlyReport.setYear(TestConstants.DEFAULT_REPORT_YEAR);
         monthlyReport.setMonthlyHours(TestConstants.DEFAULT_MONTHLY_HOURS);

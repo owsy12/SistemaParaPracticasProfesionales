@@ -81,7 +81,9 @@
                                     <TableColumn fx:id="fullNameColumn" prefWidth="290.0" text="Nombre">
                                         <cellValueFactory><PropertyValueFactory property="fullName"/></cellValueFactory>
                                     </TableColumn>
-                                    <TableColumn fx:id="projectColumn" prefWidth="200.0" text="Proyecto"/>
+                                    <TableColumn fx:id="projectColumn" prefWidth="200.0" text="Proyecto">
+                                        <cellValueFactory><PropertyValueFactory property="projectName"/></cellValueFactory>
+                                    </TableColumn>
                                 </columns>
                             </TableView>
                         </VBox>

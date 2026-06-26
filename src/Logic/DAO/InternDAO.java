@@ -62,8 +62,8 @@ public class InternDAO extends UserDAO implements IInternDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar practicante con ID {0}: {1}",
-                    new Object[]{intern.getId(), sqlException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error saving intern with ID {0}: {1}",
+                    new Object[]{intern.getIdUser(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -98,7 +98,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar practicante con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
 
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -125,7 +125,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar la lista de practicantes: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving intern list: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -156,7 +156,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al desactivar practicante con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deactivating intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -192,7 +192,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar créditos del practicante con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating credits for intern with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -244,7 +244,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar practicantes del proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving interns for project {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -260,7 +260,7 @@ public class InternDAO extends UserDAO implements IInternDAO {
 
     private Intern mapIntern(ResultSet resultSet) throws SQLException {
         Intern intern = new Intern();
-        intern.setId(resultSet.getInt("id_usuario"));
+        intern.setIdUser(resultSet.getInt("id_usuario"));
         intern.setRegistrationNumber(resultSet.getString("matricula"));
         intern.setFirstName(resultSet.getString("nombre"));
         intern.setLastName(resultSet.getString("apellido_paterno"));

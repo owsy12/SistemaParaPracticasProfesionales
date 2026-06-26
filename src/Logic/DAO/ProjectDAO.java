@@ -117,7 +117,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setDate(7, Date.valueOf(project.getStartDate()));
             preparedStatement.setDate(8, Date.valueOf(project.getEndDate()));
             preparedStatement.setInt(9, project.getMaximumPlaces());
-            preparedStatement.setInt(10, project.getAvaliablePlaces());
+            preparedStatement.setInt(10, project.getAvailablePlaces());
             preparedStatement.setString(11, STATUS_AVAILABLE);
             preparedStatement.setString(12, project.getNrc());
             preparedStatement.setString(13, project.getPeriod());
@@ -132,7 +132,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving project {0}: {1}",
                     new Object[]{project.getName(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -167,7 +167,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar proyecto con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding project with ID {0}: {1}",
                     new Object[]{idProjecto, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -203,7 +203,7 @@ public class ProjectDAO implements IProjectDAO {
                 project.setStartDate(resultSet.getDate("fecha_inicio").toLocalDate());
                 project.setEndDate(resultSet.getDate("fecha_fin").toLocalDate());
                 project.setMaximumPlaces(resultSet.getInt("cupo_maximo"));
-                project.setAvaliablePlaces(resultSet.getInt("cupo_disponible"));
+                project.setAvailablePlaces(resultSet.getInt("cupo_disponible"));
                 project.setStatus(resultSet.getString("estado"));
                 project.setNrc(resultSet.getString("nrc"));
                 project.setPeriod(resultSet.getString("periodo"));
@@ -214,7 +214,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
 
-            LOGGER.log(Level.SEVERE, "Error al recuperar todos los proyectos: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error retrieving all projects: {0}", sqlException.getMessage());
 
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
 
@@ -242,7 +242,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar proyectos disponibles: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving available projects: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -276,7 +276,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar proyectos del coordinador {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding projects for coordinator {0}: {1}",
                     new Object[]{idCoordinador, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -306,7 +306,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setDate (6, java.sql.Date.valueOf(project.getStartDate()));
             preparedStatement.setDate (7, java.sql.Date.valueOf(project.getEndDate()));
             preparedStatement.setInt (8, project.getMaximumPlaces());
-            preparedStatement.setInt (9, project.getAvaliablePlaces());
+            preparedStatement.setInt (9, project.getAvailablePlaces());
             preparedStatement.setString(10, project.getStatus());
             preparedStatement.setInt (11, project.getIdProject());
 
@@ -315,7 +315,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar proyecto con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating project with ID {0}: {1}",
                     new Object[]{project.getIdProject(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -347,7 +347,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al cancelar proyecto con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error cancelling project with ID {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -379,7 +379,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al reducir cupo del proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error decreasing slots for project {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -419,7 +419,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar proyectos disponibles del profesor {0}: {1}",
+                    "Error retrieving available projects for professor {0}: {1}",
                     new Object[]{professorId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los proyectos del profesor.", sqlException);
@@ -457,7 +457,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar proyectos de la experiencia educativa {0}-{1}: {2}",
+                    "Error retrieving projects for educational experience {0}-{1}: {2}",
                     new Object[]{nrc, period, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los proyectos de la experiencia educativa.", sqlException);
@@ -486,7 +486,7 @@ public class ProjectDAO implements IProjectDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al incrementar cupo del proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error increasing slots for project {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
             throw new ServiceException("Error al incrementar el cupo del proyecto.", sqlException);
         }
@@ -519,7 +519,7 @@ public class ProjectDAO implements IProjectDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar existencia de proyecto por NRC {0} y periodo {1}: {2}",
+                    "Error verifying project existence by NRC {0} and period {1}: {2}",
                     new Object[]{nrc, period, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al verificar el NRC de la experiencia educativa.", sqlException);
@@ -543,7 +543,7 @@ public class ProjectDAO implements IProjectDAO {
             deletedRows = preparedStatement.executeUpdate();
 
         }catch (SQLException sqlException){
-            LOGGER.log(Level.SEVERE, "Error al eliminar el proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deleting project {0}: {1}",
                     new Object[]{idProject, sqlException.getMessage()});
             if (ReferentialIntegrityException.isForeignKeyViolation(sqlException)) {
                 throw new ReferentialIntegrityException(

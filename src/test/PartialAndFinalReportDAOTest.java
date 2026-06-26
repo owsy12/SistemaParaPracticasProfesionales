@@ -32,7 +32,7 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
         partialReport.setDocumentPath(TestConstants.DEFAULT_DOCUMENT_PATH);
         partialReport.setStatus(TestConstants.STATUS_REPORT_PENDING);
         partialReport.setReportedHours(TestConstants.DEFAULT_REPORTED_HOURS);
-        partialReport.setSumissionDate(new Date());
+        partialReport.setSubmissionDate(new Date());
         partialReport.setReportNumber(TestConstants.DEFAULT_REPORT_NUMBER);
         partialReport.setCoveredHours(TestConstants.DEFAULT_REPORTED_HOURS);
         partialReport.setGeneralObjective(TestConstants.DEFAULT_GENERAL_OBJECTIVE);

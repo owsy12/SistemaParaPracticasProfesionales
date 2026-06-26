@@ -66,7 +66,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al registrar opción de proyecto para solicitud {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error registering project option for application {0}: {1}",
                     new Object[]{projectApplication.getIdApplication(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -101,7 +101,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar opción de proyecto con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding project option with ID {0}: {1}",
                     new Object[]{projectApplicationId, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -135,7 +135,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar opciones para solicitud {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding options for application {0}: {1}",
                     new Object[]{applicationId, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -162,7 +162,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todas las opciones de proyecto: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving all project options: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -195,7 +195,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al eliminar opción de proyecto con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deleting project option with ID {0}: {1}",
                     new Object[]{projectApplicationId, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -228,7 +228,7 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar proyectos seleccionados por practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding projects selected by intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los proyectos seleccionados por el practicante.", sqlException);

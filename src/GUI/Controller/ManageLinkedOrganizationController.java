@@ -76,8 +76,8 @@ public class ManageLinkedOrganizationController {
 
     private void loadOrganizations() {
         try {
-            LinkedOrganizationDAO linkedOrganizationDao = new LinkedOrganizationDAO();
-            List<LinkedOrganization> organizationList = linkedOrganizationDao.findAll();
+            LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
+            List<LinkedOrganization> organizationList = linkedOrganizationDAO.findAll();
 
             if (organizationList.isEmpty()) {
                 showAlert("Sin registros",
@@ -97,8 +97,8 @@ public class ManageLinkedOrganizationController {
 
     private void deleteLinkedOrganizationProcess(int idLinkedOrganization) {
         try {
-            LinkedOrganizationDAO linkedOrganizationDao = new LinkedOrganizationDAO();
-            linkedOrganizationDao.deleteLinkedOrganization(idLinkedOrganization);
+            LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
+            linkedOrganizationDAO.deleteLinkedOrganization(idLinkedOrganization);
             showAlert("Eliminación exitosa",
                     "La organización y sus técnicos responsables fueron eliminados.",
                     Alert.AlertType.INFORMATION);

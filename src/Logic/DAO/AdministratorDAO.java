@@ -29,23 +29,23 @@ public class AdministratorDAO implements IAdministratorDAO {
 
     @Override
     public boolean saveAdmin(Administrator administrator) throws ServiceException, ValidationException {
-        if (administrator.getId() <= 0) {
+        if (administrator.getIdUser() <= 0) {
             throw new ValidationException(
-                    "El ID del administrador debe ser mayor a cero. ID recibido: " + administrator.getId());
+                    "El ID del administrador debe ser mayor a cero. ID recibido: " + administrator.getIdUser());
         }
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_ADMINISTRATOR_SQL)) {
 
-            preparedStatement.setInt(1, administrator.getId());
+            preparedStatement.setInt(1, administrator.getIdUser());
             if (preparedStatement.executeUpdate() > 0) {
                 isSaved = true;
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar administrador con ID {0}: {1}",
-                    new Object[]{administrator.getId(), sqlException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error saving administrator with ID {0}: {1}",
+                    new Object[]{administrator.getIdUser(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -77,7 +77,7 @@ public class AdministratorDAO implements IAdministratorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar administrador con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding administrator with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -103,7 +103,7 @@ public class AdministratorDAO implements IAdministratorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar la lista de administradores: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving administrator list: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -118,7 +118,7 @@ public class AdministratorDAO implements IAdministratorDAO {
 
     private Administrator mapAdministrator(ResultSet resultSet) throws SQLException {
         Administrator administrator = new Administrator();
-        administrator.setId(resultSet.getInt("id_usuario"));
+        administrator.setIdUser(resultSet.getInt("id_usuario"));
         administrator.setRegistrationNumber(resultSet.getString("matricula"));
         administrator.setFirstName(resultSet.getString("nombre"));
         administrator.setLastName(resultSet.getString("apellido_paterno"));

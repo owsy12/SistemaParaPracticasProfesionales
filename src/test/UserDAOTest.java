@@ -39,20 +39,20 @@ class UserDAOTest extends BaseDAOTest {
         return user;
     }
 
-    private UserDAO buildDao() throws ServiceException {
+    private UserDAO buildDAO() throws ServiceException {
         return new UserDAO();
     }
 
     @Test
     void testSaveValidUserAssignsGeneratedId() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
     void testFindByIdAfterSaveReturnsCorrectRegistrationNumber() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findById(generatedId);
         assertEquals(NEW_USER_REGISTRATION_NUMBER, retrieved.getRegistrationNumber());
@@ -60,7 +60,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -71,7 +71,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -82,21 +82,21 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         User retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         List<User> all = dao.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testFindAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         List<User> all = dao.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
@@ -104,7 +104,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdentifierByRegistrationNumberReturnsUser() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findByIdentifier(NEW_USER_REGISTRATION_NUMBER);
         assertNotNull(retrieved);
@@ -112,7 +112,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdentifierByEmailReturnsUser() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findByIdentifier(NEW_USER_EMAIL);
         assertNotNull(retrieved);
@@ -120,14 +120,14 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testFindByIdentifierWithUnknownReturnsNull() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         User retrieved = dao.findByIdentifier(NON_EXISTENT_REGISTRATION_NUMBER);
         assertNull(retrieved);
     }
 
     @Test
     void testFindByEmailReturnsCorrectRegistrationNumber() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User retrieved = dao.findByEmail(NEW_USER_EMAIL);
         assertEquals(NEW_USER_REGISTRATION_NUMBER, retrieved.getRegistrationNumber());
@@ -135,7 +135,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testUpdateUserReturnsTrue() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User user = dao.findById(generatedId);
         user.setFirstName(UPDATED_FIRST_NAME);
@@ -146,7 +146,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testUpdateUserPersistsNewFirstName() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         int generatedId = dao.saveUser(buildUser(NEW_USER_REGISTRATION_NUMBER, NEW_USER_EMAIL));
         User user = dao.findById(generatedId);
         user.setFirstName(UPDATED_FIRST_NAME);
@@ -158,7 +158,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteUserReturnsTrue() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         int generatedId = persistStandaloneUser();
         boolean result = dao.delete(generatedId);
         assertTrue(result);
@@ -166,7 +166,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteUserRemovesRecord() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         int generatedId = persistStandaloneUser();
         dao.delete(generatedId);
         User retrieved = dao.findById(generatedId);
@@ -175,7 +175,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteUserWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
@@ -186,7 +186,7 @@ class UserDAOTest extends BaseDAOTest {
 
     @Test
     void testDeleteNonExistentUserReturnsFalse() throws ServiceException, ValidationException {
-        UserDAO dao = buildDao();
+        UserDAO dao = buildDAO();
         boolean result = dao.delete(TestConstants.NON_EXISTENT_ID);
         assertFalse(result);
     }

@@ -1,10 +1,11 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.util.List;
 
 public class User{
 
-    protected int id;
+    protected int idUser;
     protected String registrationNumber;
     protected String firstName;
     protected String lastName;
@@ -17,9 +18,9 @@ public class User{
 
     public User() {}
 
-    public User(int id, String registrationNumber, String firstName, String lastName,
+    public User(int idUser, String registrationNumber, String firstName, String lastName,
                    String secondLastName, String password, String status) {
-        this.id = id;
+        this.idUser = idUser;
         this.registrationNumber = registrationNumber;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -44,8 +45,8 @@ public class User{
         this.roles = roles;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getIdUser() { return idUser; }
+    public void setIdUser(int idUser) { this.idUser = idUser; }
 
     public String getRegistrationNumber() { return registrationNumber; }
     public void setRegistrationNumber(String registrationNumber) { this.registrationNumber = registrationNumber; }
@@ -92,20 +93,20 @@ public class User{
             return false;
         }
         User other = (User) object;
-        return id == other.id
-                && java.util.Objects.equals(registrationNumber, other.registrationNumber)
-                && java.util.Objects.equals(firstName, other.firstName)
-                && java.util.Objects.equals(lastName, other.lastName)
-                && java.util.Objects.equals(secondLastName, other.secondLastName)
-                && java.util.Objects.equals(password, other.password)
-                && java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(role, other.role)
-                && java.util.Objects.equals(roles, other.roles)
-                && java.util.Objects.equals(email, other.email);
+        return idUser == other.idUser
+                && Objects.equals(registrationNumber, other.registrationNumber)
+                && Objects.equals(firstName, other.firstName)
+                && Objects.equals(lastName, other.lastName)
+                && Objects.equals(secondLastName, other.secondLastName)
+                && Objects.equals(password, other.password)
+                && Objects.equals(status, other.status)
+                && Objects.equals(role, other.role)
+                && Objects.equals(roles, other.roles)
+                && Objects.equals(email, other.email);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(id, registrationNumber, firstName, lastName, secondLastName, password, status, role, roles, email);
+        return Objects.hash(idUser, registrationNumber, firstName, lastName, secondLastName, password, status, role, roles, email);
     }
 }

@@ -219,7 +219,7 @@ public class GenerateReportController {
     }
 
     private void handleContextLoadFailed(Exception loadException) {
-        LOGGER.log(Level.SEVERE, "Error al cargar contexto del practicante: {0}",
+        LOGGER.log(Level.SEVERE, "Error loading intern context: {0}",
                 loadException.getMessage());
         showAlert("Servicio no disponible",
                 "No se pudo cargar su información. Intente más tarde.",
@@ -311,7 +311,7 @@ public class GenerateReportController {
     }
 
     private void tryLoadInternData() {
-        int internId = SessionManager.getInstance().getUser().getId();
+        int internId = SessionManager.getInstance().getUser().getIdUser();
         try {
             InternContext context = InternContextLoader.load(internId);
             handleContextLoaded(context);
@@ -374,7 +374,7 @@ public class GenerateReportController {
                 processGeneration(reportType);
             }
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al verificar reglas de negocio: {0}",
+            LOGGER.log(Level.SEVERE, "Error verifying business rules: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudo verificar las condiciones para generar el reporte.",
@@ -476,7 +476,7 @@ public class GenerateReportController {
         if (hasIntern) {
             try {
                 ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
-                List<Integer> usedIds = reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(currentIntern.getId());
+                List<Integer> usedIds = reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(currentIntern.getIdUser());
                 List<Activity> unused = new ArrayList<>();
                 for (Activity activity : candidates) {
                     boolean isAlreadyUsed = usedIds.contains(activity.getIdActivity());
@@ -486,7 +486,7 @@ public class GenerateReportController {
                 }
                 result = unused;
             } catch (ValidationException | ServiceException persistenceException) {
-                LOGGER.log(Level.WARNING, "No se pudieron filtrar actividades ya usadas en reportes mensuales: {0}",
+                LOGGER.log(Level.WARNING, "Could not filter activities already used in monthly reports: {0}",
                         persistenceException.getMessage());
             }
         }
@@ -500,7 +500,7 @@ public class GenerateReportController {
             try {
                 ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
                 List<Integer> usedActivityIds =
-                        reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(currentIntern.getId());
+                        reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(currentIntern.getIdUser());
 
                 boolean hasMonthlyReports = !usedActivityIds.isEmpty();
                 if (!hasMonthlyReports) {
@@ -517,7 +517,7 @@ public class GenerateReportController {
                 }
             } catch (ValidationException | ServiceException persistenceException) {
                 LOGGER.log(Level.WARNING,
-                        "No se pudieron cargar las actividades de reportes mensuales: {0}",
+                        "Could not load monthly report activities: {0}",
                         persistenceException.getMessage());
                 projectActivities.setAll(allProjectActivities);
             }
@@ -755,7 +755,7 @@ public class GenerateReportController {
     }
 
     private boolean validateBusinessRules(String reportType) throws ServiceException {
-        int internId = currentIntern.getId();
+        int internId = currentIntern.getIdUser();
         int projectId = currentProject.getIdProject();
         ReportDAO reportDAO = new ReportDAO();
         boolean isValid = true;
@@ -833,13 +833,13 @@ public class GenerateReportController {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar el reporte: {0}",
+            LOGGER.log(Level.SEVERE, "Error saving report: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudo guardar el reporte. Intente más tarde.",
                     Alert.AlertType.ERROR);
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al generar PDF: {0}", ioException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error generating PDF: {0}", ioException.getMessage());
             showAlert("Error al generar PDF",
                     "El reporte se registró pero no se pudo crear el archivo PDF.",
                     Alert.AlertType.WARNING);
@@ -879,7 +879,7 @@ public class GenerateReportController {
         int totalHours = approvedHours + reportedHoursCount;
 
         MonthlyReport report = new MonthlyReport();
-        report.setIdIntern(currentIntern.getId());
+        report.setIdIntern(currentIntern.getIdUser());
         report.setIdProject(currentProject.getIdProject());
         report.setIdProfessor(currentProject.getIdProfessor());
         report.setReportType(REPORT_TYPE_MONTHLY);
@@ -891,7 +891,7 @@ public class GenerateReportController {
         report.setReportedHours(reportedHoursCount);
         report.setReportNumber(reportNumber);
         report.setDocumentPath("");
-        report.setSumissionDate(new Date());
+        report.setSubmissionDate(new Date());
 
         MonthlyReportDAO monthlyReportDAO = new MonthlyReportDAO();
         int rowsAffected = monthlyReportDAO.save(report);
@@ -907,8 +907,8 @@ public class GenerateReportController {
             monthlyReportDAO.updateDocumentPath(report.getIdReport(), internalPath);
 
             LOGGER.log(Level.INFO,
-                    "Usuario {0} generó el reporte {1} del practicante {2}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), report.getReportType(), report.getIdIntern()});
+                    "User {0} generated report {1} for intern {2}",
+                    new Object[]{SessionManager.getInstance().getUser().getIdUser(), report.getReportType(), report.getIdIntern()});
             showAlert("Reporte generado", "Reporte mensual generado correctamente.",
                     Alert.AlertType.INFORMATION);
             clearForm();
@@ -967,7 +967,7 @@ public class GenerateReportController {
 
     private PartialAndFinalReport buildPartialFinalReport(String reportType, String period) {
         PartialAndFinalReport report = new PartialAndFinalReport();
-        report.setIdIntern(currentIntern.getId());
+        report.setIdIntern(currentIntern.getIdUser());
         report.setIdProject(currentProject.getIdProject());
         report.setIdProfessor(currentProject.getIdProfessor());
         report.setReportType(reportType);
@@ -975,7 +975,7 @@ public class GenerateReportController {
         report.setStatus(STATUS_PENDING);
         report.setReportedHours(approvedHours);
         report.setDocumentPath("");
-        report.setSumissionDate(new Date());
+        report.setSubmissionDate(new Date());
         report.setReportNumber(Integer.parseInt(reportNumberTextField.getText()));
         report.setCoveredHours(approvedHours);
         report.setGeneralObjective(resolveProjectObjective());
@@ -1023,8 +1023,8 @@ public class GenerateReportController {
         partialAndFinalReportDAO.updateDocumentPath(report.getIdReport(), internalPath);
 
         LOGGER.log(Level.INFO,
-                "Usuario {0} generó el reporte {1} del practicante {2}",
-                new Object[]{SessionManager.getInstance().getUser().getId(),
+                "User {0} generated report {1} for intern {2}",
+                new Object[]{SessionManager.getInstance().getUser().getIdUser(),
                         report.getReportType(), report.getIdIntern()});
         showAlert("Reporte generado",
                 "Reporte " + reportType.toLowerCase() + " generado correctamente.",
@@ -1070,7 +1070,7 @@ public class GenerateReportController {
             try {
                 reportActivityDAO.save(reportActivity);
             } catch (ValidationException | ServiceException persistenceException) {
-                LOGGER.log(Level.WARNING, "Error al guardar actividad del reporte: {0}",
+                LOGGER.log(Level.WARNING, "Error saving report activity: {0}",
                         persistenceException.getMessage());
             }
         }
@@ -1083,7 +1083,7 @@ public class GenerateReportController {
             try {
                 reportActivityDAO.saveDeliverable(reportDeliverable);
             } catch (ValidationException | ServiceException persistenceException) {
-                LOGGER.log(Level.WARNING, "Error al guardar entregable del reporte: {0}",
+                LOGGER.log(Level.WARNING, "Error saving report deliverable: {0}",
                         persistenceException.getMessage());
             }
         }

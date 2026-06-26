@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class ReportActivity {
     private int idReporteActividad;
     private int idReport;
@@ -163,16 +165,16 @@ public class ReportActivity {
         return idReporteActividad == other.idReporteActividad
                 && idReport == other.idReport
                 && idActivity == other.idActivity
-                && java.util.Objects.equals(activityName, other.activityName)
-                && java.util.Objects.equals(periodo, other.periodo)
-                && java.util.Objects.equals(planSemanas, other.planSemanas)
-                && java.util.Objects.equals(realSemanas, other.realSemanas)
+                && Objects.equals(activityName, other.activityName)
+                && Objects.equals(periodo, other.periodo)
+                && Objects.equals(planSemanas, other.planSemanas)
+                && Objects.equals(realSemanas, other.realSemanas)
                 && advancePercentage == other.advancePercentage
-                && java.util.Objects.equals(observaciones, other.observaciones);
+                && Objects.equals(observaciones, other.observaciones);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idReporteActividad, idReport, idActivity, activityName, periodo, planSemanas, realSemanas, advancePercentage, observaciones);
+        return Objects.hash(idReporteActividad, idReport, idActivity, activityName, periodo, planSemanas, realSemanas, advancePercentage, observaciones);
     }
 }

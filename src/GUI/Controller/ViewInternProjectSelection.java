@@ -116,7 +116,7 @@ public class ViewInternProjectSelection {
     private void loadProjectList() {
         try {
             ApplicationDAO applicationDAO = new ApplicationDAO();
-            Application application = applicationDAO.findActiveApplicationByIntern(user.getId());
+            Application application = applicationDAO.findActiveApplicationByIntern(user.getIdUser());
 
             boolean hasNoPendingApplication = application == null;
             if (hasNoPendingApplication) {
@@ -140,7 +140,7 @@ public class ViewInternProjectSelection {
 
                 for (ProjectApplication projectApplication : projectApplications) {
                     Project project = projectDAO.findById(projectApplication.getIdProject());
-                    boolean isAvailable = project != null && project.getAvaliablePlaces() > 0;
+                    boolean isAvailable = project != null && project.getAvailablePlaces() > 0;
                     if (isAvailable) {
                         project.setPreferenceLabel(LABEL_SELECTED);
                         projectList.add(project);
@@ -160,7 +160,7 @@ public class ViewInternProjectSelection {
             }
 
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar proyectos para asignación: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading projects for assignment: {0}",
                     serviceException.getMessage());
             showAlert("Error", "No se pudieron cargar los proyectos. Intente más tarde.",
                     Alert.AlertType.ERROR);
@@ -211,7 +211,7 @@ public class ViewInternProjectSelection {
     }
 
     private void assignProjectProcess(Project project, String justification) {
-        boolean hasNoCapacity = project.getAvaliablePlaces() <= 0;
+        boolean hasNoCapacity = project.getAvailablePlaces() <= 0;
         if (hasNoCapacity) {
             showAlert("Sin cupo disponible",
                     "El proyecto seleccionado ya no cuenta con cupos disponibles.",
@@ -233,7 +233,7 @@ public class ViewInternProjectSelection {
                 boolean cupoNotDecremented = !cupoDecremented;
                 if (cupoNotDecremented) {
                     LOGGER.log(Level.WARNING,
-                            "No se pudo decrementar cupo del proyecto {0}: sin cupo disponible",
+                            "Could not decrease slots for project {0}: no slots available",
                             project.getIdProject());
                 }
 
@@ -244,14 +244,14 @@ public class ViewInternProjectSelection {
                 createOrReactivatePractice(project);
 
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} asignó el proyecto {1} mediante la solicitud {2}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(), project.getIdProject(), applicationId});
+                        "User {0} assigned project {1} through application {2}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(), project.getIdProject(), applicationId});
                 showAlert("Éxito", "El proyecto ha sido asignado correctamente.",
                         Alert.AlertType.INFORMATION);
                 navigateBackToAssignProject();
 
             } catch (ServiceException serviceException) {
-                LOGGER.log(Level.SEVERE, "Error al asignar proyecto: {0}",
+                LOGGER.log(Level.SEVERE, "Error assigning project: {0}",
                         serviceException.getMessage());
                 showAlert("Error", "No se pudo procesar la asignación. Intente más tarde.",
                         Alert.AlertType.ERROR);
@@ -266,9 +266,9 @@ public class ViewInternProjectSelection {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/GUI/View/GUIAssignProject.fxml"));
-            Parent vista = loader.load();
+            Parent view = loader.load();
             AnchorPane parentPane = (AnchorPane) anchorPane.getParent();
-            parentPane.getChildren().setAll(vista);
+            parentPane.getChildren().setAll(view);
         } catch (IOException ioException) {
             showAlert("Error", "No se pudo regresar a la lista de asignación.",
                     Alert.AlertType.ERROR);
@@ -280,22 +280,22 @@ public class ViewInternProjectSelection {
         boolean hasNrc = nrc != null && !nrc.isBlank();
         if (!hasNrc) {
             LOGGER.log(Level.WARNING,
-                    "Proyecto {0} sin NRC: no se puede crear práctica.", project.getIdProject());
+                    "Project {0} has no NRC: cannot create practice.", project.getIdProject());
         } else {
 
             try {
                 Practice practice = new Practice();
-                practice.setIdIntern(user.getId());
+                practice.setIdIntern(user.getIdUser());
                 practice.setNrc(nrc);
                 practice.setPeriod(project.getPeriod());
                 practice.setStartDate(LocalDate.now(ZoneId.of("America/Mexico_City")));
                 PracticeDAO practiceDAO = new PracticeDAO();
                 practiceDAO.reactivateOrCreate(practice);
             } catch (ServiceException serviceException) {
-                LOGGER.log(Level.SEVERE, "Error al gestionar práctica para practicante {0}: {1}",
-                        new Object[]{user.getId(), serviceException.getMessage()});
+                LOGGER.log(Level.SEVERE, "Error managing practice for intern {0}: {1}",
+                        new Object[]{user.getIdUser(), serviceException.getMessage()});
             } catch (ValidationException validationException) {
-                LOGGER.log(Level.WARNING, "Validación al gestionar práctica: {0}",
+                LOGGER.log(Level.WARNING, "Validation while managing practice: {0}",
                         validationException.getMessage());
             }
         }
@@ -306,7 +306,7 @@ public class ViewInternProjectSelection {
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
             InitialFormat initialFormat = new InitialFormat();
             initialFormat.setFormatType(INITIAL_DOCUMENT_TYPES.get(i));
-            initialFormat.setIdIntern(user.getId());
+            initialFormat.setIdIntern(user.getIdUser());
             initialFormat.setIdProject(idProject);
             initialFormat.setStatus(STATUS_PENDING);
             initialFormatDAO.save(initialFormat);

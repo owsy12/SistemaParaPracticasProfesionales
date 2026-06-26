@@ -126,7 +126,7 @@ public class RequestProjectController {
 
     private void verifyActiveInternProjectApplication() {
         try {
-            int currentUserId = SessionManager.getInstance().getUser().getId();
+            int currentUserId = SessionManager.getInstance().getUser().getIdUser();
 
             PracticeDAO practiceDAO = new PracticeDAO();
             boolean hasConcluded = practiceDAO.hasConcludedPractice(currentUserId);
@@ -180,10 +180,10 @@ public class RequestProjectController {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/GUI/view/GUIViewProjectSelection.fxml"));
-            Parent vista = loader.load();
+            Parent view = loader.load();
             ViewProjectSelectionController controller = loader.getController();
             controller.setProjectList(projects);
-            anchorPane.getChildren().setAll(vista);
+            anchorPane.getChildren().setAll(view);
 
         } catch (IOException ioException) {
             showAlert("Error", "Error al cargar.", Alert.AlertType.ERROR);

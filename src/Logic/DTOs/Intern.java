@@ -1,8 +1,11 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class Intern extends User {
 
     private int credits;
+    private String projectName;
 
     public Intern() {
         super();
@@ -23,6 +26,14 @@ public class Intern extends User {
 
     public void setCredits(int credits) {
         this.credits = credits;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     @Override
@@ -52,6 +63,6 @@ public class Intern extends User {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), credits);
+        return Objects.hash(super.hashCode(), credits);
     }
 }

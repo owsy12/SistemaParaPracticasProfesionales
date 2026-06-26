@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class Professor extends User{
     private String academicArea;
 
@@ -42,11 +44,11 @@ public class Professor extends User{
             return false;
         }
         Professor other = (Professor) object;
-        return java.util.Objects.equals(academicArea, other.academicArea);
+        return Objects.equals(academicArea, other.academicArea);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(super.hashCode(), academicArea);
+        return Objects.hash(super.hashCode(), academicArea);
     }
 }

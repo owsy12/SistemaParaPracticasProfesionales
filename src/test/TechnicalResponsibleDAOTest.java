@@ -32,7 +32,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
         supervisor.setName(TECH_FIRST_NAME);
         supervisor.setLastName(TECH_LAST_NAME);
         supervisor.setSecondLastName(TECH_LAST_NAME);
-        supervisor.seteMail(TECH_EMAIL);
+        supervisor.setEmail(TECH_EMAIL);
         supervisor.setPosition(TECH_POSITION);
         return supervisor;
     }

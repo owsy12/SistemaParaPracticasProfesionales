@@ -58,7 +58,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar experiencia educativa {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving educational experience {0}: {1}",
                     new Object[]{educationalExperience.getNrc(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -91,7 +91,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar experiencia educativa con NRC {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding educational experience by NRC {0}: {1}",
                     new Object[]{nrc, sqlException.getMessage()});
             throw new ServiceException("Error al buscar la experiencia educativa.", sqlException);
         }
@@ -112,7 +112,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar experiencias educativas: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving educational experiences: {0}",
                     sqlException.getMessage());
             throw new ServiceException("Error al recuperar las experiencias educativas.", sqlException);
         }
@@ -141,7 +141,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar experiencias educativas del profesor {0}: {1}",
+                    "Error retrieving educational experiences for professor {0}: {1}",
                     new Object[]{professorId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar las experiencias educativas del profesor.", sqlException);
@@ -169,7 +169,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar experiencia educativa {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating educational experience {0}: {1}",
                     new Object[]{educationalExperience.getNrc(), sqlException.getMessage()});
             throw new ServiceException("Error al actualizar la experiencia educativa.", sqlException);
         }
@@ -195,7 +195,7 @@ public class EducationalExperienceDAO implements IEducationalExperienceDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al eliminar experiencia educativa {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deleting educational experience {0}: {1}",
                     new Object[]{nrc, sqlException.getMessage()});
             throw new ServiceException("Error al eliminar la experiencia educativa.", sqlException);
         }

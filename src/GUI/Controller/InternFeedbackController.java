@@ -142,7 +142,7 @@ public class InternFeedbackController {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
         } else {
-            int internId = SessionManager.getInstance().getUser().getId();
+            int internId = SessionManager.getInstance().getUser().getIdUser();
             loadAssignmentReason(internId);
             loadFinalGrade(internId);
             loadReportFeedback(internId);
@@ -165,7 +165,7 @@ public class InternFeedbackController {
             }
             assignmentReasonLabel.setText(reasonText);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar el motivo de asignación: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading assignment reason: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudo cargar el motivo de asignación.", Alert.AlertType.ERROR);
@@ -189,7 +189,7 @@ public class InternFeedbackController {
             }
             finalGradeLabel.setText(gradeText);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar la calificación final: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading final grade: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudo cargar la calificación final de la práctica.", Alert.AlertType.ERROR);
@@ -204,7 +204,7 @@ public class InternFeedbackController {
             List<Report> reports = reportDAO.getByIdInternWithMonth(internId);
             reportsTableView.setItems(FXCollections.observableArrayList(reports));
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar la retroalimentación de reportes: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading report feedback: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudieron cargar las observaciones de los reportes.", Alert.AlertType.ERROR);
@@ -223,7 +223,7 @@ public class InternFeedbackController {
             try {
                 Desktop.getDesktop().open(file);
             } catch (IOException ioException) {
-                LOGGER.log(Level.SEVERE, "Error al abrir documento: {0}", ioException.getMessage());
+                LOGGER.log(Level.SEVERE, "Error opening document: {0}", ioException.getMessage());
                 showAlert("Error al abrir",
                         "No se pudo abrir el documento con el visor predeterminado.",
                         Alert.AlertType.ERROR);
@@ -253,7 +253,7 @@ public class InternFeedbackController {
                             "Documento guardado correctamente en: " + destination.getAbsolutePath(),
                             Alert.AlertType.INFORMATION);
                 } catch (IOException ioException) {
-                    LOGGER.log(Level.SEVERE, "Error al guardar copia: {0}", ioException.getMessage());
+                    LOGGER.log(Level.SEVERE, "Error saving copy: {0}", ioException.getMessage());
                     showAlert("Error al guardar",
                             "No se pudo guardar la copia del documento.", Alert.AlertType.ERROR);
                 }

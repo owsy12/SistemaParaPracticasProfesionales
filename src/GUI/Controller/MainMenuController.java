@@ -297,10 +297,10 @@ public class MainMenuController implements EventHandler<ActionEvent> {
     private void loadView(String fxmlPath) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-            Parent vista = loader.load();
-            contentPane.getChildren().setAll(wrapInScrollableContent(vista));
-        } catch (Exception exception) {
-            LOGGER.log(Level.SEVERE, "Error al cargar la vista: " + fxmlPath, exception);
+            Parent view = loader.load();
+            contentPane.getChildren().setAll(wrapInScrollableContent(view));
+        } catch (IOException exception) {
+            LOGGER.log(Level.SEVERE, "Error loading view: " + fxmlPath, exception);
             showAlert("Error", "Error al cargar la vista: " ,   Alert.AlertType.ERROR);
         }
     }

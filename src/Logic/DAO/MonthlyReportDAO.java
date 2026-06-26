@@ -67,7 +67,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                     preparedStatement.setString(6, monthlyReport.getDocumentPath());
                     preparedStatement.setString(7, monthlyReport.getStatus());
                     preparedStatement.setInt (8, monthlyReport.getMonthlyHours());
-                    preparedStatement.setDate (9, new java.sql.Date(monthlyReport.getSumissionDate().getTime()));
+                    preparedStatement.setDate (9, new java.sql.Date(monthlyReport.getSubmissionDate().getTime()));
 
                     rowsAffected = preparedStatement.executeUpdate();
 
@@ -93,12 +93,12 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
 
             } catch (SQLException sqlException) {
                 connection.rollback();
-                LOGGER.log(Level.SEVERE, "Error al guardar reporte mensual: {0}", sqlException.getMessage());
+                LOGGER.log(Level.SEVERE, "Error saving monthly report: {0}", sqlException.getMessage());
                 throw new ServiceException("Error al guardar el reporte mensual.", sqlException);
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al conectar a la base de datos: {0}", sqlException.getMessage());
+            LOGGER.log(Level.SEVERE, "Error connecting to the database: {0}", sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -129,7 +129,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reporte mensual con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving monthly report with ID {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -154,7 +154,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                 reports.add(mapResultSet(resultSet));
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todos los reportes mensuales: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving all monthly reports: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -179,7 +179,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
                 reports.add(mapResultSet(resultSet));
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reportes mensuales pendientes: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving pending monthly reports: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -205,7 +205,7 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
         report.setSignedDocumentPath (resultSet.getString("ruta_documento_firmado"));
         report.setStatus (resultSet.getString("estado"));
         report.setProfessorObservations (resultSet.getString("observaciones_profesor"));
-        report.setSumissionDate (resultSet.getDate ("fecha_entrega"));
+        report.setSubmissionDate (resultSet.getDate ("fecha_entrega"));
 
         java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
         if (reviewDate != null) {

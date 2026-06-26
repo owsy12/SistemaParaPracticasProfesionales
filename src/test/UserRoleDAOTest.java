@@ -26,7 +26,7 @@ class UserRoleDAOTest extends BaseDAOTest {
 
     private User buildUserWithIdAndRole(int idUser, String role) {
         User user = new User();
-        user.setId(idUser);
+        user.setIdUser(idUser);
         user.setRole(role);
         user.setStatus(TestConstants.STATUS_ACTIVE_USER);
         return user;

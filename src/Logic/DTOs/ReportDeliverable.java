@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class ReportDeliverable {
     private int idReporteEntregable;
     private int idReport;
@@ -91,14 +93,14 @@ public class ReportDeliverable {
         ReportDeliverable other = (ReportDeliverable) object;
         return idReporteEntregable == other.idReporteEntregable
                 && idReport == other.idReport
-                && java.util.Objects.equals(resultado, other.resultado)
-                && java.util.Objects.equals(descripcion, other.descripcion)
+                && Objects.equals(resultado, other.resultado)
+                && Objects.equals(descripcion, other.descripcion)
                 && advancePercentage == other.advancePercentage
-                && java.util.Objects.equals(observaciones, other.observaciones);
+                && Objects.equals(observaciones, other.observaciones);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idReporteEntregable, idReport, resultado, descripcion, advancePercentage, observaciones);
+        return Objects.hash(idReporteEntregable, idReport, resultado, descripcion, advancePercentage, observaciones);
     }
 }

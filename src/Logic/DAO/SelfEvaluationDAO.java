@@ -84,11 +84,11 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    selfEvaluation.setIdSelfEvalation(generatedKeys.getInt(1));
+                    selfEvaluation.setIdSelfEvaluation(generatedKeys.getInt(1));
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar autoevaluación del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving self-evaluation for intern {0}: {1}",
                     new Object[]{selfEvaluation.getIdIntern(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -121,7 +121,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar autoevaluación con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving self-evaluation with ID {0}: {1}",
                     new Object[]{idSelfEvaluation, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -147,7 +147,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
                 selfEvaluations.add(mapResultSet(resultSet));
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todas las autoevaluaciones: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving all self-evaluations: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -184,7 +184,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar ruta de documento de autoevaluación {0}: {1}",
+                    "Error updating self-evaluation document path {0}: {1}",
                     new Object[]{idSelfEvaluation, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al actualizar la ruta del documento de la autoevaluación.", sqlException);
@@ -212,7 +212,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar autoevaluación del practicante {0}: {1}",
+                    "Error retrieving self-evaluation for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar la autoevaluación del practicante.", sqlException);
@@ -244,7 +244,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar estado de autoevaluación {0}: {1}",
+                    "Error updating self-evaluation status {0}: {1}",
                     new Object[]{idSelfEvaluation, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al actualizar el estado de la autoevaluación.", sqlException);
@@ -255,7 +255,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
     private SelfEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
-        selfEvaluation.setIdSelfEvalation(resultSet.getInt ("id_autoevaluacion"));
+        selfEvaluation.setIdSelfEvaluation(resultSet.getInt ("id_autoevaluacion"));
         selfEvaluation.setIdIntern (resultSet.getInt ("id_practicante"));
         selfEvaluation.setIdProject (resultSet.getInt ("id_proyecto"));
         selfEvaluation.setPeriod (resultSet.getString("periodo"));
@@ -299,7 +299,7 @@ public class SelfEvaluationDAO implements ISelfEvaluationDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar autoevaluaciones del practicante {0} en proyecto {1}: {2}",
+                    "Error deleting self-evaluations for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al eliminar autoevaluaciones del practicante.", sqlException);

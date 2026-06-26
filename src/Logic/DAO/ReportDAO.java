@@ -133,7 +133,7 @@ public class ReportDAO implements IReportDAO {
             statement.setString(6, report.getDocumentPath());
             statement.setString(7, report.getStatus());
             statement.setInt(8, report.getReportedHours());
-            statement.setDate(9, new java.sql.Date(report.getSumissionDate().getTime()));
+            statement.setDate(9, new java.sql.Date(report.getSubmissionDate().getTime()));
             statement.setDate(10, report.getDeadline() != null
                     ? java.sql.Date.valueOf(report.getDeadline()) : null);
             statement.setBoolean(11, report.isEntregaTardia());
@@ -146,7 +146,7 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar reporte del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving report for intern {0}: {1}",
                     new Object[]{report.getIdIntern(), sqlException.getMessage()});
             throw new ServiceException("Error al guardar el reporte.", sqlException);
         }
@@ -174,7 +174,7 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reporte con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving report with ID {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException("Error al recuperar el reporte con ID " + idReport,
                     sqlException);
@@ -195,7 +195,7 @@ public class ReportDAO implements IReportDAO {
                 reports.add(mapResultSetToReport(resultSet));
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todos los reportes: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving all reports: {0}",
                     sqlException.getMessage());
             throw new ServiceException("Error al recuperar la lista de reportes.", sqlException);
         }
@@ -215,7 +215,7 @@ public class ReportDAO implements IReportDAO {
                 reports.add(mapResultSetToReport(resultSet));
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reportes pendientes: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving pending reports: {0}",
                     sqlException.getMessage());
             throw new ServiceException("Error al recuperar los reportes pendientes.", sqlException);
         }
@@ -243,7 +243,7 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reportes del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving reports for intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los reportes del practicante.", sqlException);
@@ -273,7 +273,7 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reportes con mes del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving reports with month for intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los reportes del practicante.", sqlException);
@@ -310,7 +310,7 @@ public class ReportDAO implements IReportDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reportes del profesor {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving reports for professor {0}: {1}",
                     new Object[]{idProfessor, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los reportes del profesor.", sqlException);
@@ -346,7 +346,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar reportes del practicante {0} para el profesor {1}: {2}",
+                    "Error retrieving reports for intern {0} for professor {1}: {2}",
                     new Object[]{internId, professorId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los reportes del practicante.", sqlException);
@@ -382,7 +382,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar reportes del practicante {0} en proyecto {1}: {2}",
+                    "Error retrieving reports for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los reportes del practicante.", sqlException);
@@ -416,7 +416,7 @@ public class ReportDAO implements IReportDAO {
                 isUpdated = true;
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar estado del reporte {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating report status {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException("Error al actualizar el estado del reporte.", sqlException);
         }
@@ -452,7 +452,7 @@ public class ReportDAO implements IReportDAO {
                 isUpdated = true;
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar la calificación del reporte {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving report grade {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException("Error al guardar la calificación del reporte.", sqlException);
         }
@@ -483,7 +483,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al calcular la calificación promedio del practicante {0}: {1}",
+                    "Error calculating average grade for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException("Error al calcular la calificación de la práctica.",
                     sqlException);
@@ -516,7 +516,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar ruta firmada del reporte {0}: {1}",
+                    "Error updating signed path for report {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al actualizar la ruta del documento firmado.", sqlException);
@@ -542,7 +542,7 @@ public class ReportDAO implements IReportDAO {
                 isUpdated = true;
             }
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al marcar entrega tardía del reporte {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error marking late submission for report {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException("Error al registrar la entrega tardía.", sqlException);
         }
@@ -573,7 +573,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar ruta de documento del reporte {0}: {1}",
+                    "Error updating report document path {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al actualizar la ruta del documento del reporte.", sqlException);
@@ -604,7 +604,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al calcular horas aprobadas del practicante {0}: {1}",
+                    "Error calculating approved hours for intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al calcular las horas aprobadas del practicante.", sqlException);
@@ -630,7 +630,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar existencia de reporte mensual: {0}",
+                    "Error verifying monthly report existence: {0}",
                     sqlException.getMessage());
             throw new ServiceException(
                     "Error al verificar reporte mensual existente.", sqlException);
@@ -655,7 +655,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar existencia de reporte parcial: {0}",
+                    "Error verifying partial report existence: {0}",
                     sqlException.getMessage());
             throw new ServiceException(
                     "Error al verificar reporte parcial existente.", sqlException);
@@ -680,7 +680,7 @@ public class ReportDAO implements IReportDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar existencia de reporte final: {0}",
+                    "Error verifying final report existence: {0}",
                     sqlException.getMessage());
             throw new ServiceException(
                     "Error al verificar reporte final existente.", sqlException);
@@ -702,7 +702,7 @@ public class ReportDAO implements IReportDAO {
         report.setStatus (resultSet.getString("estado"));
         report.setReportedHours(resultSet.getInt ("horas_reportadas"));
         report.setProfessorObservations(resultSet.getString("observaciones_profesor"));
-        report.setSumissionDate(resultSet.getDate("fecha_entrega"));
+        report.setSubmissionDate(resultSet.getDate("fecha_entrega"));
 
         java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
         if (reviewDate != null) {
@@ -751,7 +751,7 @@ public class ReportDAO implements IReportDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar reportes del practicante {0} en proyecto {1}: {2}",
+                    "Error deleting reports for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al eliminar reportes del practicante.", sqlException);

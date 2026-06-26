@@ -83,8 +83,8 @@ public class DeactivateCoordinatorController {
             UserRoleDAO userRoleDAO = new UserRoleDAO();
             userRoleDAO.updateUserRolStatus(user);
             LOGGER.log(Level.INFO,
-                    "Usuario {0} inactivó al coordinador {1}",
-                    new Object[]{SessionManager.getInstance().getUser().getId(), user.getId()});
+                    "User {0} deactivated coordinator {1}",
+                    new Object[]{SessionManager.getInstance().getUser().getIdUser(), user.getIdUser()});
             showAlert("Coordinador desactivado",
                     "El coordinador ha sido desactivado exitosamente.",
                     Alert.AlertType.INFORMATION);

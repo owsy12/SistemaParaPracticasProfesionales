@@ -38,6 +38,8 @@ import static GUI.Utils.ViewsUtils.openWelcomePage;
 
 public class UploadClosureRecordController implements EventHandler<DragEvent> {
 
+    private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
+    private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
     private static final Logger LOGGER =
             Logger.getLogger(UploadClosureRecordController.class.getName());
 
@@ -120,7 +122,7 @@ public class UploadClosureRecordController implements EventHandler<DragEvent> {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
         } else {
-            internId = SessionManager.getInstance().getUser().getId();
+            internId = SessionManager.getInstance().getUser().getIdUser();
             internRegistrationNumber = SessionManager.getInstance().getUser().getRegistrationNumber();
             loadInternData();
         }
@@ -149,7 +151,7 @@ public class UploadClosureRecordController implements EventHandler<DragEvent> {
                     "Error al recuperar su información.", Alert.AlertType.ERROR);
             openWelcomePage(anchorPane);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar datos del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error loading data for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron recuperar sus datos. Intente más tarde.",
@@ -202,7 +204,7 @@ public class UploadClosureRecordController implements EventHandler<DragEvent> {
 
             if (registered) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} subió el acta de cierre del proyecto {1}; pendiente de validación",
+                        "User {0} uploaded the closure record for project {1}; pending validation",
                         new Object[]{internId, projectId});
                 showAlert("Acta enviada",
                         "El acta de cierre fue enviada y está pendiente de validación por el "
@@ -220,13 +222,13 @@ public class UploadClosureRecordController implements EventHandler<DragEvent> {
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar acta de cierre del practicante {0}: {1}",
+                    "Error saving closure record for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo guardar el documento. Intente más tarde.",
                     Alert.AlertType.ERROR);
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al copiar archivo del acta de cierre: {0}",
+            LOGGER.log(Level.SEVERE, "Error copying closure record file: {0}",
                     ioException.getMessage());
             showAlert("Error de archivo",
                     "No se pudo copiar el archivo al almacenamiento.",
@@ -246,8 +248,9 @@ public class UploadClosureRecordController implements EventHandler<DragEvent> {
     }
 
     private void showStatus(String message, boolean isError) {
-        String textFillStyle = isError ? "-fx-text-fill: red;" : "-fx-text-fill: green;";
-        statusLabel.setStyle(textFillStyle);
+        String styleClass = isError ? STATUS_ERROR_STYLE_CLASS : STATUS_SUCCESS_STYLE_CLASS;
+        statusLabel.getStyleClass().removeAll(STATUS_ERROR_STYLE_CLASS, STATUS_SUCCESS_STYLE_CLASS);
+        statusLabel.getStyleClass().add(styleClass);
         statusLabel.setText(message);
     }
 

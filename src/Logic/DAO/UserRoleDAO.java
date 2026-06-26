@@ -40,16 +40,16 @@ public class UserRoleDAO implements IUserRoleDAO {
 
     @Override
     public boolean saveUserRole(User user) throws ServiceException, ValidationException {
-        if (user.getId() <= 0) {
+        if (user.getIdUser() <= 0) {
             throw new ValidationException(
-                    "El ID del usuario debe ser mayor a cero. ID recibido: " + user.getId());
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " + user.getIdUser());
         }
         boolean isSaved = false;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(INSERT_USER_ROLE_SQL)) {
 
-            preparedStatement.setInt(1, user.getId());
+            preparedStatement.setInt(1, user.getIdUser());
             preparedStatement.setString(2, user.getRole());
             preparedStatement.setString(3, STATUS_ACTIVE);
 
@@ -59,7 +59,7 @@ public class UserRoleDAO implements IUserRoleDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error saving role {0} for user {1}: {2}",
-                    new Object[]{user.getRole(), user.getId(), sqlException.getMessage()});
+                    new Object[]{user.getRole(), user.getIdUser(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -172,9 +172,9 @@ public class UserRoleDAO implements IUserRoleDAO {
 
     public boolean updateUserRolStatus(User user) throws ServiceException, ValidationException {
 
-        if (user.getId() <= 0) {
+        if (user.getIdUser() <= 0) {
             throw new ValidationException(
-                    "El ID del usuario debe ser mayor a cero. ID recibido: " + user.getId());
+                    "El ID del usuario debe ser mayor a cero. ID recibido: " + user.getIdUser());
         }
 
         boolean isUpdated = false;
@@ -184,7 +184,7 @@ public class UserRoleDAO implements IUserRoleDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_USER_ROLE_STATUS)) {
 
             preparedStatement.setString(1, user.getStatus());
-            preparedStatement.setInt(2, user.getId());
+            preparedStatement.setInt(2, user.getIdUser());
             preparedStatement.setString(3, user.getRole());
 
             if (preparedStatement.executeUpdate() > 0) {
@@ -193,7 +193,7 @@ public class UserRoleDAO implements IUserRoleDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating status for role {0} of user {1}: {2}",
-                    new Object[]{user.getRole(), user.getId(), sqlException.getMessage()});
+                    new Object[]{user.getRole(), user.getIdUser(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",

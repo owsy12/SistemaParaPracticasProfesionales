@@ -15,22 +15,23 @@
             prefHeight="640.0"
             xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="GUI.Controller.InternFeedbackController">
+            fx:controller="GUI.Controller.InternFeedbackController"
+            stylesheets="@css/GUIInternFeedbackStyles.css">
     <children>
         <VBox spacing="14.0"
               AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0"
               AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
             <padding><Insets top="28.0" right="32.0" bottom="28.0" left="32.0"/></padding>
 
-            <Label text="Retroalimentación recibida" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Label text="Retroalimentación recibida" styleClass="feedbackTitleLabel"/>
 
-            <Label text="Motivo de tu asignación de proyecto" style="-fx-font-weight: bold;"/>
+            <Label text="Motivo de tu asignación de proyecto" styleClass="sectionHeadingLabel"/>
             <Label fx:id="assignmentReasonLabel" text="" wrapText="true"/>
 
-            <Label text="Calificación final de la práctica" style="-fx-font-weight: bold;"/>
+            <Label text="Calificación final de la práctica" styleClass="sectionHeadingLabel"/>
             <Label fx:id="finalGradeLabel" text="" wrapText="true"/>
 
-            <Label text="Reportes y observaciones del profesor" style="-fx-font-weight: bold;"/>
+            <Label text="Reportes y observaciones del profesor" styleClass="sectionHeadingLabel"/>
             <TableView fx:id="reportsTableView" VBox.vgrow="ALWAYS">
                 <columns>
                     <TableColumn fx:id="typeColumn" prefWidth="150.0" text="Tipo">

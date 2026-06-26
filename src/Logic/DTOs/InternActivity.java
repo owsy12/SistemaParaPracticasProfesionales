@@ -1,5 +1,6 @@
 package Logic.DTOs;
 
+import java.util.Objects;
 import java.time.LocalDate;
 
 public class InternActivity {
@@ -114,14 +115,14 @@ public class InternActivity {
                 && idActivity == other.idActivity
                 && idIntern == other.idIntern
                 && dedicatedHours == other.dedicatedHours
-                && java.util.Objects.equals(status, other.status)
-                && java.util.Objects.equals(completionDate, other.completionDate)
-                && java.util.Objects.equals(observations, other.observations)
-                && java.util.Objects.equals(activityName, other.activityName);
+                && Objects.equals(status, other.status)
+                && Objects.equals(completionDate, other.completionDate)
+                && Objects.equals(observations, other.observations)
+                && Objects.equals(activityName, other.activityName);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idInternActivity, idActivity, idIntern, dedicatedHours, status, completionDate, observations, activityName);
+        return Objects.hash(idInternActivity, idActivity, idIntern, dedicatedHours, status, completionDate, observations, activityName);
     }
 }

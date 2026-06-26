@@ -10,13 +10,13 @@ public class ServiceException extends Exception {
 
     public ServiceException(String message, SQLException cause) {
         super(message, cause);
-        LOGGER.log(Level.SEVERE, "Error en base de datos: {0} | Causa: {1}",
+        LOGGER.log(Level.SEVERE, "Database error: {0} | Cause: {1}",
                 new Object[]{message, cause.getMessage()});
     }
 
     public ServiceException(String message, Throwable cause) {
         super(message, cause);
-        LOGGER.log(Level.SEVERE, "Error en base de datos: {0} | Causa: {1}",
+        LOGGER.log(Level.SEVERE, "Database error: {0} | Cause: {1}",
                 new Object[]{message, cause.getMessage()});
     }
 }

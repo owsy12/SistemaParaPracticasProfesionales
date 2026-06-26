@@ -67,7 +67,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
                     preparedStatement.setString(5, partialAndFinalReport.getPeriod());
                     preparedStatement.setString(6, partialAndFinalReport.getDocumentPath());
                     preparedStatement.setString(7, partialAndFinalReport.getStatus());
-                    preparedStatement.setDate (8, new java.sql.Date(partialAndFinalReport.getSumissionDate().getTime()));
+                    preparedStatement.setDate (8, new java.sql.Date(partialAndFinalReport.getSubmissionDate().getTime()));
 
                     rowsAffected = preparedStatement.executeUpdate();
 
@@ -94,13 +94,13 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
             } catch (SQLException sqlException) {
                 connection.rollback();
-                LOGGER.log(Level.SEVERE, "Error al guardar reporte parcial/final: {0}",
+                LOGGER.log(Level.SEVERE, "Error saving partial/final report: {0}",
                         sqlException.getMessage());
                 throw new ServiceException("Error al guardar el reporte parcial/final.", sqlException);
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error de conexión al guardar reporte parcial/final: {0}",
+            LOGGER.log(Level.SEVERE, "Connection error while saving partial/final report: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -133,7 +133,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reporte con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving report with ID {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -159,7 +159,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar todos los reportes parciales/finales: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving all partial/final reports: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -185,7 +185,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar reportes parciales/finales pendientes: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving pending partial/final reports: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -212,7 +212,7 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
         report.setStatus (resultSet.getString("estado"));
         report.setReportedHours (resultSet.getInt ("horas_reportadas"));
         report.setProfessorObservations (resultSet.getString("observaciones_profesor"));
-        report.setSumissionDate (resultSet.getDate ("fecha_entrega"));
+        report.setSubmissionDate (resultSet.getDate ("fecha_entrega"));
 
         java.sql.Date reviewDate = resultSet.getDate("fecha_revision");
         if (reviewDate != null) {

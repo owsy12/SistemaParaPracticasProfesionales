@@ -45,7 +45,7 @@ public class UserDAO implements IUserDAO {
                 try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
                     if (resultSet.next()) {
                         generatedId = resultSet.getInt(1);
-                        user.setId(generatedId);
+                        user.setIdUser(generatedId);
                         user.setStatus(STATUS_ACTIVE);
                     }
                     UserRoleDAO userRoleDAO = new UserRoleDAO();
@@ -143,7 +143,7 @@ public class UserDAO implements IUserDAO {
             preparedStatement.setString(2, user.getLastName());
             preparedStatement.setString(3, user.getSecondLastName());
             preparedStatement.setString(4, user.getStatus());
-            preparedStatement.setInt(5, user.getId());
+            preparedStatement.setInt(5, user.getIdUser());
 
             if (preparedStatement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -151,7 +151,7 @@ public class UserDAO implements IUserDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error updating user with ID {0}: {1}",
-                    new Object[]{user.getId(), sqlException.getMessage()});
+                    new Object[]{user.getIdUser(), sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
                         "Ya existe un registro con esa clave en la base de datos.",
@@ -273,7 +273,7 @@ public class UserDAO implements IUserDAO {
 
     private User mapUser(ResultSet resultSet) throws SQLException {
         User user = new User();
-        user.setId(resultSet.getInt("id_usuario"));
+        user.setIdUser(resultSet.getInt("id_usuario"));
         user.setRegistrationNumber(resultSet.getString("matricula"));
         user.setFirstName(resultSet.getString("nombre"));
         user.setLastName(resultSet.getString("apellido_paterno"));

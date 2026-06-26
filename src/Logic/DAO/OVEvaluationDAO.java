@@ -74,7 +74,7 @@ public class OVEvaluationDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar evaluación OV del practicante {0} en proyecto {1}: {2}",
+                    "Error saving OV evaluation for intern {0} in project {1}: {2}",
                     new Object[]{ovEvaluation.getIdIntern(), ovEvaluation.getIdProject(),
                                  sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -116,7 +116,7 @@ public class OVEvaluationDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar evaluación OV del practicante {0} en proyecto {1}: {2}",
+                    "Error finding OV evaluation for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al buscar la evaluación OV.", sqlException);
@@ -148,7 +148,7 @@ public class OVEvaluationDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar estado de la evaluación OV {0}: {1}",
+                    "Error updating OV evaluation status {0}: {1}",
                     new Object[]{idOVEvaluation, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al actualizar el estado de la evaluación OV.", sqlException);
@@ -196,7 +196,7 @@ public class OVEvaluationDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar evaluaciones OV del practicante {0} en proyecto {1}: {2}",
+                    "Error deleting OV evaluations for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al eliminar evaluaciones OV del practicante.", sqlException);

@@ -66,7 +66,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
         dao.save(selfEvaluation);
-        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvalation());
+        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvaluation());
         assertNotNull(retrieved);
     }
 
@@ -75,7 +75,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
         dao.save(selfEvaluation);
-        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvalation());
+        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvaluation());
         assertEquals(selfEvaluation, retrieved);
     }
 
@@ -133,7 +133,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
         dao.save(selfEvaluation);
         boolean result = dao.updateStatus(
-                selfEvaluation.getIdSelfEvalation(), TestConstants.STATUS_SELF_EVAL_DELIVERED);
+                selfEvaluation.getIdSelfEvaluation(), TestConstants.STATUS_SELF_EVAL_DELIVERED);
         assertTrue(result);
     }
 

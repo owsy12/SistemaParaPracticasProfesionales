@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class LinkedOrganization {
     private int idLinkedOrganization;
     private String name;
@@ -82,15 +84,15 @@ public class LinkedOrganization {
         }
         LinkedOrganization other = (LinkedOrganization) object;
         return idLinkedOrganization == other.idLinkedOrganization
-                && java.util.Objects.equals(name, other.name)
-                && java.util.Objects.equals(sector, other.sector)
-                && java.util.Objects.equals(address, other.address)
-                && java.util.Objects.equals(email, other.email)
-                && java.util.Objects.equals(status, other.status);
+                && Objects.equals(name, other.name)
+                && Objects.equals(sector, other.sector)
+                && Objects.equals(address, other.address)
+                && Objects.equals(email, other.email)
+                && Objects.equals(status, other.status);
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idLinkedOrganization, name, sector, address, email, status);
+        return Objects.hash(idLinkedOrganization, name, sector, address, email, status);
     }
 }

@@ -95,7 +95,7 @@ public class InternActivityDAO implements IInternActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar avance de actividad {0} para practicante {1}: {2}",
+                    "Error saving progress for activity {0} for intern {1}: {2}",
                     new Object[]{internActivity.getIdActivity(),
                                  internActivity.getIdIntern(),
                                  sqlException.getMessage()});
@@ -139,7 +139,7 @@ public class InternActivityDAO implements IInternActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar avance de actividad {0} para practicante {1}: {2}",
+                    "Error finding progress for activity {0} for intern {1}: {2}",
                     new Object[]{idActivity, idIntern, sqlException.getMessage()});
             throw new ServiceException("Error al buscar el avance de la actividad.", sqlException);
         }
@@ -176,7 +176,7 @@ public class InternActivityDAO implements IInternActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al recuperar avances del practicante {0} en proyecto {1}: {2}",
+                    "Error retrieving progress for intern {0} in project {1}: {2}",
                     new Object[]{idIntern, idProject, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al recuperar los avances del practicante.", sqlException);
@@ -209,7 +209,7 @@ public class InternActivityDAO implements IInternActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al calcular horas del practicante {0}: {1}",
+                    "Error calculating hours for intern {0}: {1}",
                     new Object[]{idIntern, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al calcular las horas del practicante.", sqlException);
@@ -249,7 +249,7 @@ public class InternActivityDAO implements IInternActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar avance con ID {0}: {1}",
+                    "Error updating progress with ID {0}: {1}",
                     new Object[]{internActivity.getIdInternActivity(), sqlException.getMessage()});
             throw new ServiceException("Error al actualizar el avance de actividad.", sqlException);
         }
@@ -301,7 +301,7 @@ public class InternActivityDAO implements IInternActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al eliminar actividades del practicante {0} en proyecto {1}: {2}",
+                    "Error deleting activities for intern {0} in project {1}: {2}",
                     new Object[]{internId, projectId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al eliminar actividades del practicante.", sqlException);

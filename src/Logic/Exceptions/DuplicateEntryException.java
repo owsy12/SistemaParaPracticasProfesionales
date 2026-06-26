@@ -12,7 +12,7 @@ public class DuplicateEntryException extends ServiceException {
     public static final int MYSQL_DUPLICATE_ENTRY = 1062;
     public DuplicateEntryException(String message, SQLException cause) {
         super(message, cause);
-        LOGGER.log(Level.WARNING, "Entrada duplicada detectada: {0}", message);
+        LOGGER.log(Level.WARNING, "Duplicate entry detected: {0}", message);
     }
     public static boolean isDuplicateEntry(SQLException sqlException) {
         return sqlException.getErrorCode() == MYSQL_DUPLICATE_ENTRY;

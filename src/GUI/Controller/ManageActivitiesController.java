@@ -158,7 +158,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar la actividad {0} en reportes: {1}",
+                    "Error verifying activity {0} in reports: {1}",
                     new Object[]{selectedActivity.getIdActivity(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo verificar la actividad. Intente más tarde.",
@@ -198,8 +198,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
             if (activityDAO.update(selectedActivity)) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} actualizó la actividad {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(),
+                        "User {0} updated activity {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(),
                                 selectedActivity.getIdActivity()});
                 showAlert("Actividad actualizada",
                         "La actividad fue actualizada correctamente.",
@@ -215,7 +215,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al actualizar actividad {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error updating activity {0}: {1}",
                     new Object[]{selectedActivity.getIdActivity(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo actualizar la actividad. Intente más tarde.",
@@ -225,12 +225,12 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     private void deleteProcess() {
         try {
-            ActivityDAO activityDao = new ActivityDAO();
+            ActivityDAO activityDAO = new ActivityDAO();
 
-            if (activityDao.delete(selectedActivity.getIdActivity())) {
+            if (activityDAO.delete(selectedActivity.getIdActivity())) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} eliminó la actividad {1}",
-                        new Object[]{SessionManager.getInstance().getUser().getId(),
+                        "User {0} deleted activity {1}",
+                        new Object[]{SessionManager.getInstance().getUser().getIdUser(),
                                 selectedActivity.getIdActivity()});
                 showAlert("Actividad eliminada",
                         "La actividad fue eliminada correctamente.",
@@ -246,7 +246,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al eliminar actividad {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deleting activity {0}: {1}",
                     new Object[]{selectedActivity.getIdActivity(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo eliminar la actividad. Intente más tarde.",
@@ -281,7 +281,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     private void loadProjects() {
         try {
-            int internId = SessionManager.getInstance().getUser().getId();
+            int internId = SessionManager.getInstance().getUser().getIdUser();
             AssignmentDAO assignmentDAO = new AssignmentDAO();
             Assignment assignment = assignmentDAO.getActiveByIdIntern(internId);
             boolean hasAssignment = assignment != null;
@@ -298,8 +298,8 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
                         Alert.AlertType.WARNING);
                 openWelcomePage(anchorPane);
             } else {
-                ProjectDAO projectDao = new ProjectDAO();
-                Project project = projectDao.findById(assignment.getIdProject());
+                ProjectDAO projectDAO = new ProjectDAO();
+                Project project = projectDAO.findById(assignment.getIdProject());
                 boolean hasProject = project != null;
                 if (hasProject) {
                     projectComboBox.getItems().setAll(project);
@@ -312,7 +312,7 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar el proyecto del practicante: {0}",
+            LOGGER.log(Level.SEVERE, "Error loading intern project: {0}",
                     serviceException.getMessage());
             showAlert("Servicio no disponible",
                     "No se pudo cargar su proyecto.", Alert.AlertType.ERROR);
@@ -321,15 +321,15 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
 
     private void refreshActivities(int idProject) {
         try {
-            int internId = SessionManager.getInstance().getUser().getId();
-            ActivityDAO activityDao = new ActivityDAO();
-            List<Activity> activities = activityDao.findByInternAndProject(internId, idProject);
+            int internId = SessionManager.getInstance().getUser().getIdUser();
+            ActivityDAO activityDAO = new ActivityDAO();
+            List<Activity> activities = activityDAO.findByInternAndProject(internId, idProject);
             activitiesTableView.setItems(FXCollections.observableArrayList(activities));
         } catch (ValidationException validationException) {
             showAlert("Error de validación", validationException.getMessage(),
                     Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar actividades del proyecto {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error loading activities for project {0}: {1}",
                     new Object[]{idProject, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar las actividades.", Alert.AlertType.ERROR);

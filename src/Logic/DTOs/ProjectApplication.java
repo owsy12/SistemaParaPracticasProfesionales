@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class ProjectApplication {
     private int idProjectApplication;
     private int idApplication;
@@ -66,6 +68,6 @@ public class ProjectApplication {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(idProjectApplication, idApplication, idProject, preferenceOrder);
+        return Objects.hash(idProjectApplication, idApplication, idProject, preferenceOrder);
     }
 }

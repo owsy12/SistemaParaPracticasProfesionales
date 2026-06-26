@@ -122,12 +122,12 @@ public class WelcomeController {
         showSection(practicanteContentVBox,
                 "Aquí tienes un resumen de tus prácticas profesionales y oportunidades activas.");
 
-        Assignment activeAssignment = loadActiveAssignment(user.getId());
-        boolean isPracticeConcluded = loadIsPracticeConcluded(user.getId());
-        List<Report> myReports = loadReportsByIntern(user.getId());
+        Assignment activeAssignment = loadActiveAssignment(user.getIdUser());
+        boolean isPracticeConcluded = loadIsPracticeConcluded(user.getIdUser());
+        List<Report> myReports = loadReportsByIntern(user.getIdUser());
         List<Report> myPendingReports = filterByStatus(myReports, STATUS_PENDING);
 
-        populatePracticeStatusCard(activeAssignment, isPracticeConcluded, user.getId());
+        populatePracticeStatusCard(activeAssignment, isPracticeConcluded, user.getIdUser());
         populatePendingReportsCard(myPendingReports);
         populateTutorEvalCard(myReports);
     }
@@ -175,10 +175,10 @@ public class WelcomeController {
                 detail = detail + "\nCalificación final: " + String.format("%.2f", finalGrade);
             }
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar la calificación final del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error loading final grade for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
         } catch (ValidationException validationException) {
-            LOGGER.log(Level.WARNING, "Validación al cargar la calificación final: {0}",
+            LOGGER.log(Level.WARNING, "Validation while loading final grade: {0}",
                     validationException.getMessage());
         }
         return detail;
@@ -190,10 +190,10 @@ public class WelcomeController {
             PracticeDAO practiceDAO = new PracticeDAO();
             isConcluded = practiceDAO.hasConcludedPractice(internId);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al verificar práctica concluida del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error verifying concluded practice for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
         } catch (ValidationException validationException) {
-            LOGGER.log(Level.WARNING, "Validación al verificar práctica concluida: {0}",
+            LOGGER.log(Level.WARNING, "Validation while verifying concluded practice: {0}",
                     validationException.getMessage());
         }
         return isConcluded;
@@ -233,10 +233,10 @@ public class WelcomeController {
                         + "\nSolo puedes estar asignado a un proyecto a la vez.";
             }
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.WARNING, "No se pudo cargar el proyecto asignado {0}: {1}",
+            LOGGER.log(Level.WARNING, "Could not load assigned project {0}: {1}",
                     new Object[]{assignment.getIdProject(), serviceException.getMessage()});
         } catch (ValidationException validationException) {
-            LOGGER.log(Level.WARNING, "Validación al cargar el proyecto asignado: {0}",
+            LOGGER.log(Level.WARNING, "Validation while loading assigned project: {0}",
                     validationException.getMessage());
         }
         return detail;
@@ -274,11 +274,11 @@ public class WelcomeController {
         showSection(profesorContentVBox, "Revisa los reportes de tus practicantes y registra tus evaluaciones.");
 
         List<Report> allPendingReports = loadAllPendingReports();
-        List<Report> myPendingReports = filterByProfessor(allPendingReports, user.getId());
+        List<Report> myPendingReports = filterByProfessor(allPendingReports, user.getIdUser());
         List<Report> allReports = loadAllReports();
-        List<Report> myTotalReports = filterByProfessor(allReports, user.getId());
+        List<Report> myTotalReports = filterByProfessor(allReports, user.getIdUser());
         populateProfesorCards(myPendingReports, myTotalReports);
-        populateProfesorEducationalExperiences(user.getId());
+        populateProfesorEducationalExperiences(user.getIdUser());
     }
 
     private void populateProfesorEducationalExperiences(int professorId) {
@@ -304,10 +304,10 @@ public class WelcomeController {
             }
             profEducationalExperiencesDetailLabel.setText(detail);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar experiencias educativas del profesor {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error loading educational experiences for professor {0}: {1}",
                     new Object[]{professorId, serviceException.getMessage()});
         } catch (ValidationException validationException) {
-            LOGGER.log(Level.WARNING, "Validación al cargar experiencias educativas: {0}",
+            LOGGER.log(Level.WARNING, "Validation while loading educational experiences: {0}",
                     validationException.getMessage());
         }
     }
@@ -337,8 +337,8 @@ public class WelcomeController {
     private List<Report> loadAllReports() {
         List<Report> result = new ArrayList<>();
         try {
-            ReportDAO reportDao = new ReportDAO();
-            result = reportDao.getAll();
+            ReportDAO reportDAO = new ReportDAO();
+            result = reportDAO.getAll();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error loading all reports");
         }
@@ -416,8 +416,8 @@ public class WelcomeController {
     private int countProjects() {
         int count = 0;
         try {
-            ProjectDAO projectDao = new ProjectDAO();
-            count = projectDao.findAll().size();
+            ProjectDAO projectDAO = new ProjectDAO();
+            count = projectDAO.findAll().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting projects");
         }
@@ -427,8 +427,8 @@ public class WelcomeController {
     private int countActiveInterns() {
         int count = 0;
         try {
-            InternDAO internDao = new InternDAO();
-            count = internDao.findAllActiveinterns().size();
+            InternDAO internDAO = new InternDAO();
+            count = internDAO.findAllActiveinterns().size();
         } catch (ServiceException | ValidationException e) {
             LOGGER.log(Level.SEVERE, "Error counting active interns");
         }
@@ -438,8 +438,8 @@ public class WelcomeController {
     private int countPendingReports() {
         int count = 0;
         try {
-            ReportDAO reportDao = new ReportDAO();
-            count = reportDao.getByStatusPending().size();
+            ReportDAO reportDAO = new ReportDAO();
+            count = reportDAO.getByStatusPending().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting pending reports");
         }
@@ -449,8 +449,8 @@ public class WelcomeController {
     private int countAvailableSlots() {
         int count = 0;
         try {
-            ProjectDAO projectDao = new ProjectDAO();
-            count = projectDao.findAllAvailable().size();
+            ProjectDAO projectDAO = new ProjectDAO();
+            count = projectDAO.findAllAvailable().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting available project slots");
         }
@@ -460,8 +460,8 @@ public class WelcomeController {
     private int countActiveCoordinators() {
         int count = 0;
         try {
-            CoordinatorDAO coordinatorDao = new CoordinatorDAO();
-            count = coordinatorDao.findActiveCoordinators().size();
+            CoordinatorDAO coordinatorDAO = new CoordinatorDAO();
+            count = coordinatorDAO.findActiveCoordinators().size();
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error counting active coordinators");
         }
@@ -471,8 +471,8 @@ public class WelcomeController {
     private int countActiveProfessors() {
         int count = 0;
         try {
-            ProfessorDAO professorDao = new ProfessorDAO();
-            count = professorDao.findActiveProfessors().size();
+            ProfessorDAO professorDAO = new ProfessorDAO();
+            count = professorDAO.findActiveProfessors().size();
         } catch (ServiceException | ValidationException e) {
             LOGGER.log(Level.SEVERE, "Error counting active professors");
         }

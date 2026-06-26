@@ -1,5 +1,7 @@
 package Logic.DTOs;
 
+import java.util.Objects;
+
 public class EducationalExperience {
     private String nrc;
     private String name;
@@ -65,14 +67,14 @@ public class EducationalExperience {
             return false;
         }
         EducationalExperience other = (EducationalExperience) object;
-        return java.util.Objects.equals(nrc, other.nrc)
-                && java.util.Objects.equals(period, other.period)
-                && java.util.Objects.equals(name, other.name)
+        return Objects.equals(nrc, other.nrc)
+                && Objects.equals(period, other.period)
+                && Objects.equals(name, other.name)
                 && idProfessor == other.idProfessor;
     }
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(nrc, period, name, idProfessor);
+        return Objects.hash(nrc, period, name, idProfessor);
     }
 }

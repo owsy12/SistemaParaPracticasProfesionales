@@ -49,7 +49,7 @@ public class ProfessorDAO implements IProfessorDAO {
                 }
 
             } catch (SQLException sqlException) {
-                LOGGER.log(Level.SEVERE, "Error al registrar profesor: {0}",
+                LOGGER.log(Level.SEVERE, "Error registering professor: {0}",
                         sqlException.getMessage());
                 throw new ServiceException("Error al registrar profesor.", sqlException);
             }
@@ -79,7 +79,7 @@ public class ProfessorDAO implements IProfessorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al buscar profesor con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error finding professor with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -106,7 +106,7 @@ public class ProfessorDAO implements IProfessorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar la lista de profesores: {0}",
+            LOGGER.log(Level.SEVERE, "Error retrieving professor list: {0}",
                     sqlException.getMessage());
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(
@@ -138,7 +138,7 @@ public class ProfessorDAO implements IProfessorDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al desactivar profesor con ID {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error deactivating professor with ID {0}: {1}",
                     new Object[]{id, sqlException.getMessage()});
 
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
@@ -210,7 +210,7 @@ public class ProfessorDAO implements IProfessorDAO {
     private Professor mapProfessor(ResultSet resultSet) throws SQLException {
 
         Professor professor = new Professor();
-        professor.setId(resultSet.getInt("id_usuario"));
+        professor.setIdUser(resultSet.getInt("id_usuario"));
         professor.setRegistrationNumber(resultSet.getString("matricula"));
         professor.setFirstName(resultSet.getString("nombre"));
         professor.setLastName(resultSet.getString("apellido_paterno"));

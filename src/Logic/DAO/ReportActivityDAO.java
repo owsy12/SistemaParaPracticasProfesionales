@@ -84,7 +84,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar actividad del reporte {0}: {1}",
+                    "Error saving report activity {0}: {1}",
                     new Object[]{ra.getIdReport(), sqlException.getMessage()});
             throw new ServiceException(
                     "Error al guardar la actividad del reporte.", sqlException);
@@ -114,7 +114,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar actividades del reporte {0}: {1}",
+                    "Error finding activities for report {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al buscar las actividades del reporte.", sqlException);
@@ -155,7 +155,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al guardar entregable del reporte {0}: {1}",
+                    "Error saving report deliverable {0}: {1}",
                     new Object[]{rd.getIdReport(), sqlException.getMessage()});
             throw new ServiceException(
                     "Error al guardar el entregable del reporte.", sqlException);
@@ -186,7 +186,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar entregables del reporte {0}: {1}",
+                    "Error finding deliverables for report {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al buscar los entregables del reporte.", sqlException);
@@ -218,7 +218,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al buscar IDs de actividades en reportes mensuales del practicante {0}: {1}",
+                    "Error finding activity IDs in monthly reports for intern {0}: {1}",
                     new Object[]{internId, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al buscar las actividades de reportes mensuales.", sqlException);
@@ -245,7 +245,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al verificar si la actividad {0} pertenece a un reporte: {1}",
+                    "Error verifying whether activity {0} belongs to a report: {1}",
                     new Object[]{idActivity, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al verificar la actividad en reportes.", sqlException);

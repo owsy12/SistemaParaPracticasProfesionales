@@ -61,6 +61,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
     private static final String STATUS_EVALUATED = "Evaluado";
     private static final String STATUS_REJECTED = "Rechazado";
     private static final String STATUS_DOCUMENT_EVALUATED = "Evaluada";
+    private static final String STATUS_UNDER_REVIEW = "En revision";
     private static final String CLOSURE_NOT_SUBMITTED = "No entregada";
     private static final String CLOSURE_PENDING = "Pendiente de validación";
     private static final String CLOSURE_VALIDATED = "Validada";
@@ -162,7 +163,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
 
     @FXML
     private void initialize() {
-        currentProfessorId = SessionManager.getInstance().getUser().getId();
+        currentProfessorId = SessionManager.getInstance().getUser().getIdUser();
         applyTextAreaRestriction(observationsTextArea, 200);
         gradeTextField.setRestriction(GRADE_MAX_LENGTH, GRADE_INPUT_PATTERN);
         configureListeners();
@@ -185,7 +186,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
     @FXML
     public void evaluateReport (ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
-        boolean isStatusInvalid = selectedReport != null && !"En revision".equals(selectedReport.getStatus());
+        boolean isStatusInvalid = selectedReport != null && !STATUS_UNDER_REVIEW.equals(selectedReport.getStatus());
         boolean isObservationEmpty = observationsTextArea.getText().isBlank();
         boolean isGradeInvalid = parseGrade(gradeTextField.getText().trim()) == null;
 
@@ -212,7 +213,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
     public void rejectReport(ActionEvent actionEvent) {
         boolean isReportMissing = selectedReport == null;
         boolean isStatusInvalid = selectedReport != null
-                && !"En revision".equals(selectedReport.getStatus());
+                && !STATUS_UNDER_REVIEW.equals(selectedReport.getStatus());
         boolean isObservationEmpty = observationsTextArea.getText().isBlank();
 
         if (isReportMissing) {
@@ -258,7 +259,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 contentPane.getChildren().setAll(wrapInScrollableContent(view));
             }
         } catch (IOException ioException) {
-            LOGGER.log(Level.SEVERE, "Error al regresar a la lista de practicantes: {0}",
+            LOGGER.log(Level.SEVERE, "Error returning to intern list: {0}",
                     ioException.getMessage());
             showAlert("Error de navegación",
                     "No se pudo regresar a la lista de practicantes.", Alert.AlertType.ERROR);
@@ -354,7 +355,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         if (selectedIntern == null) {
             showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
         } else {
-            tryOpenSelfEvaluation(selectedIntern.getId());
+            tryOpenSelfEvaluation(selectedIntern.getIdUser());
         }
     }
 
@@ -372,7 +373,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 tryOpenFile(selfEvaluation.getDocumentPath());
             }
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar la autoevaluación del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving self-evaluation for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo recuperar la autoevaluación.", Alert.AlertType.ERROR);
@@ -390,7 +391,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
             showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
                     Alert.AlertType.WARNING);
         } else {
-            tryOpenOVEvaluation(selectedIntern.getId(), selectedProject.getIdProject());
+            tryOpenOVEvaluation(selectedIntern.getIdUser(), selectedProject.getIdProject());
         }
     }
 
@@ -408,7 +409,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 tryOpenFile(ovEvaluation.getDocumentPath());
             }
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar la evaluación OV del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving OV evaluation for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo recuperar la evaluación OV.", Alert.AlertType.ERROR);
@@ -423,7 +424,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         if (selectedIntern == null) {
             showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
         } else {
-            tryEvaluateSelfEvaluation(selectedIntern.getId());
+            tryEvaluateSelfEvaluation(selectedIntern.getIdUser());
         }
     }
 
@@ -447,9 +448,9 @@ public class EvaluateReportController implements ChangeListener<Report> {
                         Alert.AlertType.INFORMATION);
             } else {
                 selfEvaluationDAO.updateStatus(
-                        selfEvaluation.getIdSelfEvalation(), STATUS_DOCUMENT_EVALUATED);
+                        selfEvaluation.getIdSelfEvaluation(), STATUS_DOCUMENT_EVALUATED);
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} marcó como evaluada la autoevaluación del practicante {1}",
+                        "User {0} marked the self-evaluation for intern {1} as evaluated",
                         new Object[]{currentProfessorId, internId});
                 showAlert("Autoevaluación evaluada",
                         "La autoevaluación fue marcada como evaluada.",
@@ -458,7 +459,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
             }
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al evaluar la autoevaluación del practicante {0}: {1}",
+                    "Error evaluating self-evaluation for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo evaluar la autoevaluación.", Alert.AlertType.ERROR);
@@ -476,7 +477,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
             showAlert("Sin selección", "Seleccione un proyecto y un practicante.",
                     Alert.AlertType.WARNING);
         } else {
-            tryEvaluateOVEvaluation(selectedIntern.getId(), selectedProject.getIdProject());
+            tryEvaluateOVEvaluation(selectedIntern.getIdUser(), selectedProject.getIdProject());
         }
     }
 
@@ -502,7 +503,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 ovEvaluationDAO.updateStatus(
                         ovEvaluation.getIdOVEvaluation(), STATUS_DOCUMENT_EVALUATED);
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} marcó como evaluada la evaluación OV del practicante {1}",
+                        "User {0} marked the OV evaluation for intern {1} as evaluated",
                         new Object[]{currentProfessorId, internId});
                 showAlert("Evaluación OV evaluada",
                         "La evaluación OV fue marcada como evaluada.",
@@ -511,7 +512,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
             }
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al evaluar la evaluación OV del practicante {0}: {1}",
+                    "Error evaluating OV evaluation for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo evaluar la evaluación OV.", Alert.AlertType.ERROR);
@@ -524,7 +525,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         String statusText = "—";
         try {
             SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
-            SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(currentIntern.getId());
+            SelfEvaluation selfEvaluation = selfEvaluationDAO.findByIdIntern(currentIntern.getIdUser());
             String documentPath = null;
             String status = null;
             if (selfEvaluation != null) {
@@ -533,11 +534,11 @@ public class EvaluateReportController implements ChangeListener<Report> {
             }
             statusText = describeDocumentStatus(documentPath, status);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al consultar el estado de la autoevaluación: {0}",
+            LOGGER.log(Level.SEVERE, "Error querying self-evaluation status: {0}",
                     serviceException.getMessage());
         } catch (ValidationException validationException) {
             LOGGER.log(Level.SEVERE,
-                    "Error de validación al consultar la autoevaluación: {0}",
+                    "Validation error while querying self-evaluation: {0}",
                     validationException.getMessage());
         }
         selfEvaluationStatusLabel.setText(statusText);
@@ -548,7 +549,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         try {
             OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
             OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
-                    currentIntern.getId(), currentProject.getIdProject());
+                    currentIntern.getIdUser(), currentProject.getIdProject());
             String documentPath = null;
             String status = null;
             if (ovEvaluation != null) {
@@ -557,11 +558,11 @@ public class EvaluateReportController implements ChangeListener<Report> {
             }
             statusText = describeDocumentStatus(documentPath, status);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al consultar el estado de la evaluación OV: {0}",
+            LOGGER.log(Level.SEVERE, "Error querying OV evaluation status: {0}",
                     serviceException.getMessage());
         } catch (ValidationException validationException) {
             LOGGER.log(Level.SEVERE,
-                    "Error de validación al consultar la evaluación OV: {0}",
+                    "Validation error while querying OV evaluation: {0}",
                     validationException.getMessage());
         }
         ovEvaluationStatusLabel.setText(statusText);
@@ -573,7 +574,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         if (!isDelivered) {
             description = "No entregada";
         } else if (STATUS_DOCUMENT_EVALUATED.equals(status)) {
-            description = "Evaluada";
+            description = STATUS_DOCUMENT_EVALUATED;
         } else {
             description = "Entregada (por evaluar)";
         }
@@ -586,7 +587,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         if (selectedIntern == null) {
             showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
         } else {
-            tryOpenClosureRecord(selectedIntern.getId());
+            tryOpenClosureRecord(selectedIntern.getIdUser());
         }
     }
 
@@ -603,7 +604,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 tryOpenFile(documentPath);
             }
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar el acta de cierre del practicante {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving closure record for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo recuperar el acta de cierre.", Alert.AlertType.ERROR);
@@ -618,7 +619,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
         if (selectedIntern == null) {
             showAlert("Sin selección", "Seleccione un practicante.", Alert.AlertType.WARNING);
         } else {
-            confirmAndValidateClosure(selectedIntern.getId());
+            confirmAndValidateClosure(selectedIntern.getIdUser());
         }
     }
 
@@ -655,7 +656,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                         internId, closureRecordPath, practiceGrade);
                 if (concluded) {
                     LOGGER.log(Level.INFO,
-                            "Usuario {0} validó el acta de cierre del practicante {1}; práctica concluida",
+                            "User {0} validated the closure record for intern {1}; practice concluded",
                             new Object[]{currentProfessorId, internId});
                     showAlert("Práctica concluida",
                             "El acta de cierre fue validada y la práctica fue marcada como Concluida.",
@@ -669,7 +670,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
             }
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al validar el acta de cierre del practicante {0}: {1}",
+                    "Error validating closure record for intern {0}: {1}",
                     new Object[]{internId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo validar el acta de cierre. Intente más tarde.",
@@ -684,9 +685,9 @@ public class EvaluateReportController implements ChangeListener<Report> {
         String statusText = "—";
         try {
             PracticeDAO practiceDAO = new PracticeDAO();
-            String closureRecordPath = practiceDAO.findClosureRecordPath(currentIntern.getId());
+            String closureRecordPath = practiceDAO.findClosureRecordPath(currentIntern.getIdUser());
             boolean isSubmitted = closureRecordPath != null && !closureRecordPath.isBlank();
-            boolean isConcluded = isSubmitted && practiceDAO.hasConcludedPractice(currentIntern.getId());
+            boolean isConcluded = isSubmitted && practiceDAO.hasConcludedPractice(currentIntern.getIdUser());
             if (!isSubmitted) {
                 statusText = CLOSURE_NOT_SUBMITTED;
             } else if (isConcluded) {
@@ -695,11 +696,11 @@ public class EvaluateReportController implements ChangeListener<Report> {
                 statusText = CLOSURE_PENDING;
             }
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al consultar el estado del acta de cierre: {0}",
+            LOGGER.log(Level.SEVERE, "Error querying closure record status: {0}",
                     serviceException.getMessage());
         } catch (ValidationException validationException) {
             LOGGER.log(Level.SEVERE,
-                    "Error de validación al consultar el acta de cierre: {0}",
+                    "Validation error while querying closure record: {0}",
                     validationException.getMessage());
         }
         closureRecordStatusLabel.setText(statusText);
@@ -715,7 +716,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
             try {
                 Desktop.getDesktop().open(file);
             } catch (IOException ioException) {
-                LOGGER.log(Level.SEVERE, "Error al abrir documento: {0}", ioException.getMessage());
+                LOGGER.log(Level.SEVERE, "Error opening document: {0}", ioException.getMessage());
                 showAlert("Error al abrir", "No se pudo abrir el documento con el visor predeterminado.",
                         Alert.AlertType.ERROR);
             }
@@ -745,7 +746,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                             "Documento guardado correctamente en: " + destination.getAbsolutePath(),
                             Alert.AlertType.INFORMATION);
                 } catch (IOException ioException) {
-                    LOGGER.log(Level.SEVERE, "Error al guardar copia: {0}",
+                    LOGGER.log(Level.SEVERE, "Error saving copy: {0}",
                             ioException.getMessage());
                     showAlert("Error al guardar",
                             "No se pudo guardar la copia del documento.", Alert.AlertType.ERROR);
@@ -770,7 +771,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
     private void loadReportsForIntern(Intern intern) {
         try {
             ReportDAO reportDAO = new ReportDAO();
-            List<Report> reportList = reportDAO.getByInternAndProject(intern.getId(), currentProject.getIdProject());
+            List<Report> reportList = reportDAO.getByInternAndProject(intern.getIdUser(), currentProject.getIdProject());
 
             reportsTableView.setItems(FXCollections.observableArrayList(reportList));
             clearForm();
@@ -778,8 +779,8 @@ public class EvaluateReportController implements ChangeListener<Report> {
             showAlert("Error de validación",
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
-            LOGGER.log(Level.SEVERE, "Error al cargar reportes del practicante {0}: {1}",
-                    new Object[]{intern.getId(), serviceException.getMessage()});
+            LOGGER.log(Level.SEVERE, "Error loading reports for intern {0}: {1}",
+                    new Object[]{intern.getIdUser(), serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudieron cargar los reportes. Intente más tarde.",
                     Alert.AlertType.ERROR);
@@ -789,15 +790,15 @@ public class EvaluateReportController implements ChangeListener<Report> {
     private void loadInitialFormatsForIntern(Intern intern) {
         try {
             InitialFormatDAO initialFormatDAO = new InitialFormatDAO();
-            List<InitialFormat> formats = initialFormatDAO.getByIdIntern(intern.getId());
+            List<InitialFormat> formats = initialFormatDAO.getByIdIntern(intern.getIdUser());
             initialFormatsTableView.setItems(FXCollections.observableArrayList(formats));
         } catch (ValidationException validationException) {
-            LOGGER.log(Level.SEVERE, "Error de validación al cargar documentos iniciales: {0}",
+            LOGGER.log(Level.SEVERE, "Validation error while loading initial documents: {0}",
                     validationException.getMessage());
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al cargar documentos iniciales del practicante {0}: {1}",
-                    new Object[]{intern.getId(), serviceException.getMessage()});
+                    "Error loading initial documents for intern {0}: {1}",
+                    new Object[]{intern.getIdUser(), serviceException.getMessage()});
         }
     }
 
@@ -807,11 +808,11 @@ public class EvaluateReportController implements ChangeListener<Report> {
             List<ReportActivity> activities = reportActivityDAO.findByReport(report.getIdReport());
             activitiesTableView.setItems(FXCollections.observableArrayList(activities));
         } catch (ValidationException validationException) {
-            LOGGER.log(Level.SEVERE, "Error de validación al cargar actividades: {0}",
+            LOGGER.log(Level.SEVERE, "Validation error while loading activities: {0}",
                     validationException.getMessage());
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al cargar actividades del reporte {0}: {1}",
+                    "Error loading activities for report {0}: {1}",
                     new Object[]{report.getIdReport(), serviceException.getMessage()});
         }
     }
@@ -840,7 +841,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
 
             if (updated) {
                 LOGGER.log(Level.INFO,
-                        "Usuario {0} evaluó el reporte {1} con estado {2} y calificación {3}",
+                        "User {0} evaluated report {1} with status {2} and grade {3}",
                         new Object[]{currentProfessorId, reportId, newStatus, String.valueOf(reportGrade)});
                 String message = buildStatusMessage(newStatus);
                 showAlert("Estado actualizado", message, Alert.AlertType.INFORMATION);
@@ -858,7 +859,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
                     validationException.getMessage(), Alert.AlertType.ERROR);
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE,
-                    "Error al actualizar estado del reporte {0}: {1}",
+                    "Error updating report status {0}: {1}",
                     new Object[]{reportId, serviceException.getMessage()});
             showAlert("Servicio no disponible",
                     "No se pudo actualizar el reporte. Intente más tarde.",

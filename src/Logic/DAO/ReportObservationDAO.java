@@ -51,7 +51,7 @@ public class ReportObservationDAO implements IReportObservationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al guardar observación del reporte {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error saving report observation {0}: {1}",
                     new Object[]{observation.getIdReport(), sqlException.getMessage()});
             throw new ServiceException("Error al guardar la observación del reporte.", sqlException);
         }
@@ -80,7 +80,7 @@ public class ReportObservationDAO implements IReportObservationDAO {
             }
 
         } catch (SQLException sqlException) {
-            LOGGER.log(Level.SEVERE, "Error al recuperar observaciones del reporte {0}: {1}",
+            LOGGER.log(Level.SEVERE, "Error retrieving observations for report {0}: {1}",
                     new Object[]{idReport, sqlException.getMessage()});
             throw new ServiceException("Error al recuperar las observaciones del reporte.", sqlException);
         }
