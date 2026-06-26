@@ -36,7 +36,7 @@
                    styleClass="welcomeSubtitleLabel"/>
          </VBox>
 
-         <VBox fx:id="practicanteContentVBox" spacing="16.0"
+         <VBox fx:id="internContentVBox" spacing="16.0"
                visible="false" managed="false">
 
             <HBox styleClass="summaryCardsHBox" spacing="16.0">
@@ -80,7 +80,7 @@
             </HBox>
          </VBox>
 
-         <VBox fx:id="profesorContentVBox" spacing="16.0"
+         <VBox fx:id="professorContentVBox" spacing="16.0"
                visible="false" managed="false">
 
             <Label text="RESUMEN DE ACTIVIDAD" styleClass="roleSectionTagLabel"/>

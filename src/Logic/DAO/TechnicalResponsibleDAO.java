@@ -79,16 +79,16 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public TechnicalResponsible findById(int idTecnico)
+    public TechnicalResponsible findById(int idTechnicalResponsible)
             throws ServiceException, ValidationException {
-        if (idTecnico <= 0) {
-            throw new ValidationException(VALIDATION_ID_TECHNICAL + idTecnico);
+        if (idTechnicalResponsible <= 0) {
+            throw new ValidationException(VALIDATION_ID_TECHNICAL + idTechnicalResponsible);
         }
         TechnicalResponsible technicalResult = null;
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_TECHNICAL_SUPERVISOR_BY_ID_SQL)) {
-            preparedStatement.setInt(1, idTecnico);
+            preparedStatement.setInt(1, idTechnicalResponsible);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     technicalResult = mapTechnicalResponsible(resultSet);
@@ -97,7 +97,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error finding technical responsible with ID {0}: {1}",
-                    new Object[]{idTecnico, sqlException.getMessage()});
+                    new Object[]{idTechnicalResponsible, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
             }
@@ -197,22 +197,22 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public boolean delete(int idTecnico) throws ServiceException, ValidationException {
-        if (idTecnico <= 0) {
-            throw new ValidationException(VALIDATION_ID_TECHNICAL + idTecnico);
+    public boolean delete(int idTechnicalResponsible) throws ServiceException, ValidationException {
+        if (idTechnicalResponsible <= 0) {
+            throw new ValidationException(VALIDATION_ID_TECHNICAL + idTechnicalResponsible);
         }
         boolean isDeleted = false;
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement =
                      connection.prepareStatement(DELETE_TECHNICAL_SUPERVISOR_SQL)) {
-            statement.setInt(1, idTecnico);
+            statement.setInt(1, idTechnicalResponsible);
             if (statement.executeUpdate() > 0) {
                 isDeleted = true;
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error deleting technical responsible with ID {0}: {1}",
-                    new Object[]{idTecnico, sqlException.getMessage()});
+                    new Object[]{idTechnicalResponsible, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
             }
@@ -222,19 +222,19 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         return isDeleted;
     }
 
-    public boolean deleteWithOrganizationValidation(int idTecnico)
+    public boolean deleteWithOrganizationValidation(int idTechnicalResponsible)
             throws ServiceException, ValidationException {
-        if (idTecnico <= 0) {
-            throw new ValidationException(VALIDATION_ID_TECHNICAL + idTecnico);
+        if (idTechnicalResponsible <= 0) {
+            throw new ValidationException(VALIDATION_ID_TECHNICAL + idTechnicalResponsible);
         }
         boolean isDeleted = false;
-        TechnicalResponsible technicalSupervisor = findById(idTecnico);
+        TechnicalResponsible technicalSupervisor = findById(idTechnicalResponsible);
         LinkedOrganizationDAO linkedOrganizationDAO = new LinkedOrganizationDAO();
         if (linkedOrganizationDAO.hasAssociatedProjects(
                 technicalSupervisor.getIdOrganization())) {
-            throw new ValidationException(ERROR_ORGANIZATION_HAS_PROJECTS + idTecnico);
+            throw new ValidationException(ERROR_ORGANIZATION_HAS_PROJECTS + idTechnicalResponsible);
         } else {
-            isDeleted = delete(idTecnico);
+            isDeleted = delete(idTechnicalResponsible);
         }
         return isDeleted;
     }

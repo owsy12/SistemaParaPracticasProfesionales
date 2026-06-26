@@ -39,7 +39,7 @@ public class WelcomeController {
     @FXML private Label welcomeUserGreetingLabel;
     @FXML private Label welcomeSubtitleLabel;
 
-    @FXML private VBox practicanteContentVBox;
+    @FXML private VBox internContentVBox;
     @FXML private Label internPracticeStatusBadgeLabel;
     @FXML private Label internPracticeStatusValueLabel;
     @FXML private Label internPracticeStatusSubLabel;
@@ -49,7 +49,7 @@ public class WelcomeController {
     @FXML private Label internTutorEvalLabel;
     @FXML private Label internTutorEvalDetailLabel;
 
-    @FXML private VBox profesorContentVBox;
+    @FXML private VBox professorContentVBox;
     @FXML private Label profPendingCountLabel;
     @FXML private Label profPendingDetailLabel;
     @FXML private Label profTotalReportsLabel;
@@ -119,7 +119,7 @@ public class WelcomeController {
     }
 
     private void loadInternDashboard(User user) {
-        showSection(practicanteContentVBox,
+        showSection(internContentVBox,
                 "Aquí tienes un resumen de tus prácticas profesionales y oportunidades activas.");
 
         Assignment activeAssignment = loadActiveAssignment(user.getIdUser());
@@ -271,7 +271,7 @@ public class WelcomeController {
     }
 
     private void loadProfessorDashboard(User user) {
-        showSection(profesorContentVBox, "Revisa los reportes de tus practicantes y registra tus evaluaciones.");
+        showSection(professorContentVBox, "Revisa los reportes de tus practicantes y registra tus evaluaciones.");
 
         List<Report> allPendingReports = loadAllPendingReports();
         List<Report> myPendingReports = filterByProfessor(allPendingReports, user.getIdUser());

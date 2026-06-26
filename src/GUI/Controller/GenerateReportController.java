@@ -740,10 +740,10 @@ public class GenerateReportController {
 
         Optional<ButtonType> dialogResult = dialog.showAndWait();
         boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
-        boolean isResultadoNotBlank = !resultField.getText().isBlank();
+        boolean isResultNotBlank = !resultField.getText().isBlank();
 
         Optional<ReportDeliverable> result = Optional.empty();
-        if (isConfirmed && isResultadoNotBlank) {
+        if (isConfirmed && isResultNotBlank) {
             ReportDeliverable deliverable = new ReportDeliverable();
             deliverable.setResult(resultField.getText().trim());
             deliverable.setDescription(descriptionField.getText().trim());
