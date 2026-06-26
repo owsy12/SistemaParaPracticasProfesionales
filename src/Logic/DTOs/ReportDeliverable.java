@@ -3,22 +3,22 @@ package Logic.DTOs;
 import java.util.Objects;
 
 public class ReportDeliverable {
-    private int idReporteEntregable;
+    private int idReportDeliverable;
     private int idReport;
-    private String resultado;
-    private String descripcion;
+    private String result;
+    private String description;
     private int advancePercentage;
-    private String observaciones;
+    private String observations;
 
     public ReportDeliverable() {
     }
 
-    public int getIdReporteEntregable() {
-        return idReporteEntregable;
+    public int getIdReportDeliverable() {
+        return idReportDeliverable;
     }
 
-    public void setIdReporteEntregable(int idReporteEntregable) {
-        this.idReporteEntregable = idReporteEntregable;
+    public void setIdReportDeliverable(int idReportDeliverable) {
+        this.idReportDeliverable = idReportDeliverable;
     }
 
     public int getIdReport() {
@@ -29,20 +29,20 @@ public class ReportDeliverable {
         this.idReport = idReport;
     }
 
-    public String getResultado() {
-        return resultado;
+    public String getResult() {
+        return result;
     }
 
-    public void setResultado(String resultado) {
-        this.resultado = resultado;
+    public void setResult(String result) {
+        this.result = result;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getAdvancePercentage() {
@@ -53,12 +53,12 @@ public class ReportDeliverable {
         this.advancePercentage = advancePercentage;
     }
 
-    public String getObservaciones() {
-        return observaciones;
+    public String getObservations() {
+        return observations;
     }
 
-    public void setObservaciones(String observaciones) {
-        this.observaciones = observaciones;
+    public void setObservations(String observations) {
+        this.observations = observations;
     }
 
     public String getAdvanceDisplay() {
@@ -66,18 +66,18 @@ public class ReportDeliverable {
         return display;
     }
 
-    public String getDescripcionDisplay() {
+    public String getDescriptionDisplay() {
         String display = "";
-        if (descripcion != null) {
-            display = descripcion;
+        if (description != null) {
+            display = description;
         }
         return display;
     }
 
-    public String getObservacionesDisplay() {
+    public String getObservationsDisplay() {
         String display = "";
-        if (observaciones != null) {
-            display = observaciones;
+        if (observations != null) {
+            display = observations;
         }
         return display;
     }
@@ -91,16 +91,16 @@ public class ReportDeliverable {
             return false;
         }
         ReportDeliverable other = (ReportDeliverable) object;
-        return idReporteEntregable == other.idReporteEntregable
+        return idReportDeliverable == other.idReportDeliverable
                 && idReport == other.idReport
-                && Objects.equals(resultado, other.resultado)
-                && Objects.equals(descripcion, other.descripcion)
+                && Objects.equals(result, other.result)
+                && Objects.equals(description, other.description)
                 && advancePercentage == other.advancePercentage
-                && Objects.equals(observaciones, other.observaciones);
+                && Objects.equals(observations, other.observations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idReporteEntregable, idReport, resultado, descripcion, advancePercentage, observaciones);
+        return Objects.hash(idReportDeliverable, idReport, result, description, advancePercentage, observations);
     }
 }

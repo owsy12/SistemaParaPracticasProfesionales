@@ -17,7 +17,7 @@ public class Project {
     private int maximumPlaces;
     private String organizationName;
     private String status;
-    private String objetivo;
+    private String objective;
     private String nrc;
     private String period;
 
@@ -132,12 +132,12 @@ public class Project {
         this.status = status;
     }
 
-    public String getObjetivo() {
-        return objetivo;
+    public String getObjective() {
+        return objective;
     }
 
-    public void setObjetivo(String objetivo) {
-        this.objetivo = objetivo;
+    public void setObjective(String objective) {
+        this.objective = objective;
     }
 
     public String getNrc() {
@@ -280,7 +280,7 @@ public class Project {
                 && Objects.equals(endDate, otherProject.endDate)
                 && Objects.equals(organizationName, otherProject.organizationName)
                 && Objects.equals(status, otherProject.status)
-                && Objects.equals(objetivo, otherProject.objetivo)
+                && Objects.equals(objective, otherProject.objective)
                 && Objects.equals(nrc, otherProject.nrc);
         return isEqual;
     }
@@ -289,7 +289,7 @@ public class Project {
     public int hashCode() {
         return Objects.hash(idProject, idOrganization, idTechnicalResponsible,
                 IdProfessor, availablePlaces, maximumPlaces, name, description,
-                startDate, endDate, organizationName, status, objetivo, nrc);
+                startDate, endDate, organizationName, status, objective, nrc);
     }
 
     @Override

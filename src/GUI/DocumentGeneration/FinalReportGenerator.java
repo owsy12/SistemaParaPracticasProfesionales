@@ -156,7 +156,7 @@ public class FinalReportGenerator {
         Map<String, String> row = new HashMap<>();
         row.put("activity_" + key, safe(activity.getActivityName()));
         row.put("a" + index + "_advance", activity.getAdvancePercentage() + "%");
-        row.put("a" + index + "_observations", safe(activity.getObservaciones()));
+        row.put("a" + index + "_observations", safe(activity.getObservations()));
         return row;
     }
 
@@ -211,9 +211,9 @@ public class FinalReportGenerator {
                                                                    int index) {
         String key = String.format("%02d", index);
         Map<String, String> row = new HashMap<>();
-        row.put("deliverable_result_" + key, safe(deliverable.getResultado()));
+        row.put("deliverable_result_" + key, safe(deliverable.getResult()));
         row.put("dr" + key + "_advance", deliverable.getAdvancePercentage() + "%");
-        row.put("dr" + key + "_observations", safe(deliverable.getObservaciones()));
+        row.put("dr" + key + "_observations", safe(deliverable.getObservations()));
         return row;
     }
 

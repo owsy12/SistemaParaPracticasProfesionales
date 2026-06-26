@@ -172,7 +172,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
                     loadAdministratorActions();
                     break;
                 case "Profesor":
-                    loadProfesorActions();
+                    loadProfessorActions();
                     break;
                 case "Coordinador":
                     loadCoordinadorActions();
@@ -216,7 +216,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
 
     }
 
-    private void loadProfesorActions() {
+    private void loadProfessorActions() {
         addButton("Revisar Reportes", "/GUI/View/GUISelectEducationalExperience.fxml");
     }
 

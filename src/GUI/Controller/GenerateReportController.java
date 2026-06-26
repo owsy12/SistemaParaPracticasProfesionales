@@ -578,10 +578,10 @@ public class GenerateReportController {
         return result;
     }
 
-    private ReportActivity buildMonthlyActivity(Activity activity, String periodo, String observaciones) {
+    private ReportActivity buildMonthlyActivity(Activity activity, String period, String observations) {
         ReportActivity reportActivity = createReportActivity(activity);
-        reportActivity.setPeriod(periodo);
-        reportActivity.setObservation(observaciones);
+        reportActivity.setPeriod(period);
+        reportActivity.setObservations(observations);
         return reportActivity;
     }
 
@@ -590,13 +590,13 @@ public class GenerateReportController {
         ButtonType confirmType = new ButtonType("Confirmar", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(confirmType, ButtonType.CANCEL);
 
-        String fechaInicioText = "—";
+        String startDateText = "—";
         if (activity.getStartDate() != null) {
-            fechaInicioText = activity.getStartDate().toString();
+            startDateText = activity.getStartDate().toString();
         }
-        String fechaFinText = "—";
+        String endDateText = "—";
         if (activity.getEndDate() != null) {
-            fechaFinText = activity.getEndDate().toString();
+            endDateText = activity.getEndDate().toString();
         }
 
         GridPane grid = buildDialogGrid();
@@ -610,9 +610,9 @@ public class GenerateReportController {
         applyTextAreaRestriction(observationsField, 150);
 
         grid.add(new Label("Fecha inicio planificada:"), 0, 0);
-        grid.add(new Label(fechaInicioText), 1, 0);
+        grid.add(new Label(startDateText), 1, 0);
         grid.add(new Label("Fecha fin planificada:"), 0, 1);
-        grid.add(new Label(fechaFinText), 1, 1);
+        grid.add(new Label(endDateText), 1, 1);
         grid.add(new Label("Real desde semana:"), 0, 2);
         grid.add(realStartWeekField, 1, 2);
         grid.add(new Label("Real hasta semana:"), 0, 3);
@@ -634,11 +634,11 @@ public class GenerateReportController {
     }
 
     private ReportActivity buildPartialActivity(Activity activity, String realWeeks,
-                                                 String observaciones) {
+                                                 String observations) {
         ReportActivity reportActivity = createReportActivity(activity);
         reportActivity.setWeeklyPlan("1:8");
         reportActivity.setRealWeeks(realWeeks);
-        reportActivity.setObservation(observaciones);
+        reportActivity.setObservations(observations);
         return reportActivity;
     }
 
@@ -673,10 +673,10 @@ public class GenerateReportController {
         return reportActivity;
     }
 
-    private ReportActivity buildFinalActivity(Activity activity, int advance, String observaciones) {
+    private ReportActivity buildFinalActivity(Activity activity, int advance, String observations) {
         ReportActivity reportActivity = createReportActivity(activity);
         reportActivity.setAdvancePercentage(advance);
-        reportActivity.setObservation(observaciones);
+        reportActivity.setObservations(observations);
         return reportActivity;
     }
 
@@ -712,13 +712,13 @@ public class GenerateReportController {
 
         GridPane grid = buildDialogGrid();
 
-        RestrictedTextField resultadoField = new RestrictedTextField();
-        resultadoField.setPromptText("Resultado entregable");
-        applyTextFieldRestriction(resultadoField, 100);
-        RestrictedTextArea descripcionField = new RestrictedTextArea();
-        descripcionField.setPromptText("Descripción");
-        descripcionField.setPrefRowCount(2);
-        applyTextAreaRestriction(descripcionField, 150);
+        RestrictedTextField resultField = new RestrictedTextField();
+        resultField.setPromptText("Resultado entregable");
+        applyTextFieldRestriction(resultField, 100);
+        RestrictedTextArea descriptionField = new RestrictedTextArea();
+        descriptionField.setPromptText("Descripción");
+        descriptionField.setPrefRowCount(2);
+        applyTextAreaRestriction(descriptionField, 150);
         RestrictedTextField advancePercentField = new RestrictedTextField("0");
         advancePercentField.setPromptText("Porcentaje 0-100");
         setTypeAndLength(advancePercentField, "Number");
@@ -728,9 +728,9 @@ public class GenerateReportController {
         applyTextAreaRestriction(observationsField, 150);
 
         grid.add(new Label("Resultado entregable:"), 0, 0);
-        grid.add(resultadoField, 1, 0);
+        grid.add(resultField, 1, 0);
         grid.add(new Label("Descripción:"), 0, 1);
-        grid.add(descripcionField, 1, 1);
+        grid.add(descriptionField, 1, 1);
         grid.add(new Label("% de avance:"), 0, 2);
         grid.add(advancePercentField, 1, 2);
         grid.add(new Label("Observaciones:"), 0, 3);
@@ -740,15 +740,15 @@ public class GenerateReportController {
 
         Optional<ButtonType> dialogResult = dialog.showAndWait();
         boolean isConfirmed = dialogResult.isPresent() && dialogResult.get() == confirmType;
-        boolean isResultadoNotBlank = !resultadoField.getText().isBlank();
+        boolean isResultadoNotBlank = !resultField.getText().isBlank();
 
         Optional<ReportDeliverable> result = Optional.empty();
         if (isConfirmed && isResultadoNotBlank) {
             ReportDeliverable deliverable = new ReportDeliverable();
-            deliverable.setResultado(resultadoField.getText().trim());
-            deliverable.setDescripcion(descripcionField.getText().trim());
+            deliverable.setResult(resultField.getText().trim());
+            deliverable.setDescription(descriptionField.getText().trim());
             deliverable.setAdvancePercentage(parseIntSafe(advancePercentField.getText().trim()));
-            deliverable.setObservaciones(observationsField.getText().trim());
+            deliverable.setObservations(observationsField.getText().trim());
             result = Optional.of(deliverable);
         }
         return result;
@@ -939,7 +939,7 @@ public class GenerateReportController {
             isValid = false;
         } else if (isObservationsBlank) {
             showAlert("Campos requeridos",
-                    "Las observaciones son obligatorias para el reporte final.",
+                    "Las observations son obligatorias para el reporte final.",
                     Alert.AlertType.WARNING);
             isValid = false;
         }
@@ -998,8 +998,8 @@ public class GenerateReportController {
 
     private String resolveProjectObjective() {
         String objective = "";
-        if (currentProject.getObjetivo() != null) {
-            objective = currentProject.getObjetivo();
+        if (currentProject.getObjective() != null) {
+            objective = currentProject.getObjective();
         }
         return objective;
     }

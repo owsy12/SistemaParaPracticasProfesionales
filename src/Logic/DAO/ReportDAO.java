@@ -136,7 +136,7 @@ public class ReportDAO implements IReportDAO {
             statement.setDate(9, new java.sql.Date(report.getSubmissionDate().getTime()));
             statement.setDate(10, report.getDeadline() != null
                     ? java.sql.Date.valueOf(report.getDeadline()) : null);
-            statement.setBoolean(11, report.isEntregaTardia());
+            statement.setBoolean(11, report.isLateDelivery());
 
             rowsAffected = statement.executeUpdate();
 
@@ -723,7 +723,7 @@ public class ReportDAO implements IReportDAO {
         if (deadline != null) {
             report.setDeadline(deadline.toLocalDate());
         }
-        report.setEntregaTardia(resultSet.getBoolean("entrega_tardia"));
+        report.setLateDelivery(resultSet.getBoolean("entrega_tardia"));
 
         return report;
     }

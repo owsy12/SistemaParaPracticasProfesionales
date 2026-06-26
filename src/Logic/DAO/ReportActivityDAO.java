@@ -69,15 +69,15 @@ public class ReportActivityDAO implements IReportActivityDAO {
             statement.setInt (1, ra.getIdReport());
             statement.setInt (2, ra.getIdActivity());
             statement.setString(3, ra.getPeriod());
-            statement.setString(4, ra.getPlanSemanas());
-            statement.setString(5, ra.getRealSemanas());
+            statement.setString(4, ra.getWeeklyPlan());
+            statement.setString(5, ra.getRealWeeks());
             statement.setInt (6, ra.getAdvancePercentage());
-            statement.setString(7, ra.getObservaciones());
+            statement.setString(7, ra.getObservations());
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
                 try (ResultSet keys = statement.getGeneratedKeys()) {
-                    if (keys.next()) ra.setIdReporteActividad(keys.getInt(1));
+                    if (keys.next()) ra.setIdReportActivity(keys.getInt(1));
                 }
             }
             return rows;
@@ -131,7 +131,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
         if (rd.getIdReport() <= 0) {
             throw new ValidationException("El ID de reporte debe ser mayor a cero.");
         }
-        if (rd.getResultado() == null || rd.getResultado().isBlank()) {
+        if (rd.getResult() == null || rd.getResult().isBlank()) {
             throw new ValidationException("El resultado del entregable es obligatorio.");
         }
 
@@ -140,15 +140,15 @@ public class ReportActivityDAO implements IReportActivityDAO {
                      SQL_INSERT_DELIVERABLE, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setInt (1, rd.getIdReport());
-            statement.setString(2, rd.getResultado());
-            statement.setString(3, rd.getDescripcion());
+            statement.setString(2, rd.getResult());
+            statement.setString(3, rd.getDescription());
             statement.setInt (4, rd.getAdvancePercentage());
-            statement.setString(5, rd.getObservaciones());
+            statement.setString(5, rd.getObservations());
 
             int rows = statement.executeUpdate();
             if (rows > 0) {
                 try (ResultSet keys = statement.getGeneratedKeys()) {
-                    if (keys.next()) rd.setIdReporteEntregable(keys.getInt(1));
+                    if (keys.next()) rd.setIdReportDeliverable(keys.getInt(1));
                 }
             }
             return rows;
@@ -256,7 +256,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
     private ReportActivity mapActivity(ResultSet rs) throws SQLException {
         ReportActivity ra = new ReportActivity();
-        ra.setIdReporteActividad(rs.getInt ("id_reporte_actividad"));
+        ra.setIdReportActivity(rs.getInt ("id_reporte_actividad"));
         ra.setIdReport (rs.getInt ("id_reporte"));
         ra.setIdActivity (rs.getInt ("id_actividad"));
         ra.setActivityName (rs.getString("actividad_nombre"));
@@ -264,18 +264,18 @@ public class ReportActivityDAO implements IReportActivityDAO {
         ra.setWeeklyPlan(rs.getString("plan_semanas"));
         ra.setRealWeeks(rs.getString("real_semanas"));
         ra.setAdvancePercentage (rs.getInt ("porcentaje_avance"));
-        ra.setObservation(rs.getString("observaciones"));
+        ra.setObservations(rs.getString("observaciones"));
         return ra;
     }
 
     private ReportDeliverable mapDeliverable(ResultSet rs) throws SQLException {
         ReportDeliverable rd = new ReportDeliverable();
-        rd.setIdReporteEntregable(rs.getInt ("id_reporte_entregable"));
+        rd.setIdReportDeliverable(rs.getInt ("id_reporte_entregable"));
         rd.setIdReport (rs.getInt ("id_reporte"));
-        rd.setResultado (rs.getString("resultado"));
-        rd.setDescripcion (rs.getString("descripcion"));
+        rd.setResult (rs.getString("resultado"));
+        rd.setDescription (rs.getString("descripcion"));
         rd.setAdvancePercentage (rs.getInt ("porcentaje_avance"));
-        rd.setObservaciones (rs.getString("observaciones"));
+        rd.setObservations (rs.getString("observaciones"));
         return rd;
     }
 }

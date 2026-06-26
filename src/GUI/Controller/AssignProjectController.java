@@ -111,7 +111,7 @@ public class AssignProjectController {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/GUI/view/GUIViewInternProjectSelection.fxml"));
             Parent view = loader.load();
-            ViewInternProjectSelection controller = loader.getController();
+            ViewInternProjectSelectionController controller = loader.getController();
             controller.setUser(user);
             anchorPane.getChildren().setAll(view);
         } catch (IOException ioException) {

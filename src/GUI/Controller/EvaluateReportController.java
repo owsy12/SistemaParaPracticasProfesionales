@@ -889,7 +889,7 @@ public class EvaluateReportController implements ChangeListener<Report> {
 
     private void populateReportDetail(Report report) {
         String tardyIndicator = "";
-        boolean isTardy = report.isEntregaTardia();
+        boolean isTardy = report.isLateDelivery();
         if (isTardy) {
             tardyIndicator = "  ENTREGA TARDÍA";
         }

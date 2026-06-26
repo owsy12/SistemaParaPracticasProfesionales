@@ -64,14 +64,14 @@ public class AddProjectController {
     private ComboBox<EducationalExperience> educationalExperienceComboBox;
 
     @FXML
-    private RestrictedTextArea objetivoTextArea;
+    private RestrictedTextArea objectiveTextArea;
 
     @FXML
     private void initialize() {
         setTypeAndLength(capacityTextField, "Number");
         setTypeAndLength(nameTextField, "Name");
         setTypeAndLength(descriptionTextField, "Text");
-        applyTextAreaRestriction(objetivoTextArea, 500);
+        applyTextAreaRestriction(objectiveTextArea, 500);
 
         loadOrganizations();
         loadEducationalExperiences();
@@ -146,7 +146,7 @@ public class AddProjectController {
         project.setEndDate(endDate.getValue());
         project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText().trim()));
         project.setAvailablePlaces(Integer.parseInt(capacityTextField.getText().trim()));
-        project.setObjetivo(objetivoTextArea.getText().trim());
+        project.setObjective(objectiveTextArea.getText().trim());
         return project;
     }
 
@@ -192,7 +192,7 @@ public class AddProjectController {
         boolean isNameEmpty = nameTextField.getText().isBlank();
         boolean isDescriptionEmpty = descriptionTextField.getText().isBlank();
         boolean isCapacityEmpty = capacityTextField.getText().isBlank();
-        boolean isObjectiveEmpty = objetivoTextArea.getText().isBlank();
+        boolean isObjectiveEmpty = objectiveTextArea.getText().isBlank();
         boolean isStartDateMissing = startDate.getValue() == null;
         boolean isEndDateMissing = endDate.getValue() == null;
         boolean hasAllDates = !isStartDateMissing && !isEndDateMissing;
@@ -243,7 +243,7 @@ public class AddProjectController {
         capacityTextField.clear();
         nameTextField.clear();
         descriptionTextField.clear();
-        objetivoTextArea.clear();
+        objectiveTextArea.clear();
         technicalComboBox.getSelectionModel().clearSelection();
         organizationComboBox.getSelectionModel().clearSelection();
         educationalExperienceComboBox.getSelectionModel().clearSelection();

@@ -85,16 +85,16 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     }
 
     @Override
-    public LinkedOrganization findById(int idOrganizacion)
+    public LinkedOrganization findById(int idOrganization)
             throws ServiceException, ValidationException {
-        if (idOrganizacion <= 0) {
-            throw new ValidationException(VALIDATION_ID_ORGANIZATION + idOrganizacion);
+        if (idOrganization <= 0) {
+            throw new ValidationException(VALIDATION_ID_ORGANIZATION + idOrganization);
         }
         LinkedOrganization organizationResult = null;
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_LINKED_ORGANIZATION_BY_ID_SQL)) {
-            preparedStatement.setInt(1, idOrganizacion);
+            preparedStatement.setInt(1, idOrganization);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     organizationResult = mapLinkedOrganization(resultSet);
@@ -102,7 +102,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error finding organization with ID {0}: {1}",
-                    new Object[]{idOrganizacion, sqlException.getMessage()});
+                    new Object[]{idOrganization, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
             }
@@ -191,22 +191,22 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     }
 
     @Override
-    public boolean deactivateLinkedOrganization(int idOrganizacion)
+    public boolean deactivateLinkedOrganization(int idOrganization)
             throws ServiceException, ValidationException {
-        if (idOrganizacion <= 0) {
-            throw new ValidationException(VALIDATION_ID_ORGANIZATION + idOrganizacion);
+        if (idOrganization <= 0) {
+            throw new ValidationException(VALIDATION_ID_ORGANIZATION + idOrganization);
         }
         boolean isDeactivated = false;
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(UPDATE_LINKED_ORGANIZATION_STATUS_SQL)) {
-            preparedStatement.setInt(1, idOrganizacion);
+            preparedStatement.setInt(1, idOrganization);
             if (preparedStatement.executeUpdate() > 0) {
                 isDeactivated = true;
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error deactivating organization with ID {0}: {1}",
-                    new Object[]{idOrganizacion, sqlException.getMessage()});
+                    new Object[]{idOrganization, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
             }

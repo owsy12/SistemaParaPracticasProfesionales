@@ -43,7 +43,7 @@ class ProjectDAOTest extends BaseDAOTest {
         project.setIdProfessor(context.idProfessor);
         project.setName(name);
         project.setDescription(NEW_PROJECT_DESCRIPTION);
-        project.setObjetivo(NEW_PROJECT_OBJECTIVE);
+        project.setObjective(NEW_PROJECT_OBJECTIVE);
         project.setStartDate(VALID_START);
         project.setEndDate(VALID_END);
         project.setMaximumPlaces(VALID_MAX_SLOTS);

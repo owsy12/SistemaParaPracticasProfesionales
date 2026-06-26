@@ -131,18 +131,18 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
     }
 
     @Override
-    public List<TechnicalResponsible> findByOrganization(int idOrganizacion)
+    public List<TechnicalResponsible> findByOrganization(int idOrganization)
             throws ServiceException, ValidationException {
-        if (idOrganizacion <= 0) {
+        if (idOrganization <= 0) {
             throw new ValidationException(
                     "El ID de la organización debe ser mayor a cero. ID recibido: "
-                            + idOrganizacion);
+                            + idOrganization);
         }
         List<TechnicalResponsible> technicalList = new ArrayList<>();
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(
                      SELECT_TECHNICAL_SUPERVISORS_BY_ORGANIZATION_SQL)) {
-            preparedStatement.setInt(1, idOrganizacion);
+            preparedStatement.setInt(1, idOrganization);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
                     technicalList.add(mapTechnicalResponsible(resultSet));
@@ -151,7 +151,7 @@ public class TechnicalResponsibleDAO implements ITechnicalResponsibleDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error finding technical responsibles for organization {0}: {1}",
-                    new Object[]{idOrganizacion, sqlException.getMessage()});
+                    new Object[]{idOrganization, sqlException.getMessage()});
             if (DuplicateEntryException.isDuplicateEntry(sqlException)) {
                 throw new DuplicateEntryException(ERROR_DUPLICATE_ENTRY, sqlException);
             }

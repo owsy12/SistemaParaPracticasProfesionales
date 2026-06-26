@@ -227,16 +227,16 @@
                                        prefHeight="140.0">
                                 <columns>
                                     <TableColumn fx:id="columnRreportdDeliverableResult" prefWidth="210.0" text="Resultado entregable">
-                                        <cellValueFactory><PropertyValueFactory property="resultado"/></cellValueFactory>
+                                        <cellValueFactory><PropertyValueFactory property="result"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="columnReportDeliverableDesc" prefWidth="220.0" text="Descripción">
-                                        <cellValueFactory><PropertyValueFactory property="descripcionDisplay"/></cellValueFactory>
+                                        <cellValueFactory><PropertyValueFactory property="descriptionDisplay"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="columnReportdDeliverableAdvance" prefWidth="90.0" text="Avance">
                                         <cellValueFactory><PropertyValueFactory property="advanceDisplay"/></cellValueFactory>
                                     </TableColumn>
                                     <TableColumn fx:id="columnReportDeliverableObseervations" prefWidth="310.0" text="Observaciones">
-                                        <cellValueFactory><PropertyValueFactory property="observacionesDisplay"/></cellValueFactory>
+                                        <cellValueFactory><PropertyValueFactory property="observationsDisplay"/></cellValueFactory>
                                     </TableColumn>
                                 </columns>
                             </TableView>

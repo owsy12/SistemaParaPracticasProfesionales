@@ -11,7 +11,7 @@ public interface ITechnicalResponsibleDAO {
             throws ServiceException, ValidationException;
     TechnicalResponsible findById(int idTecnico) throws ServiceException, ValidationException;
     List<TechnicalResponsible> findAll() throws ServiceException;
-    List<TechnicalResponsible> findByOrganization(int idOrganizacion)
+    List<TechnicalResponsible> findByOrganization(int idOrganization)
             throws ServiceException, ValidationException;
     boolean update(TechnicalResponsible technicalResponsible)
             throws ServiceException, ValidationException;

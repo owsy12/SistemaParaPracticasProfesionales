@@ -113,7 +113,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setInt(3, project.getIdProfessor());
             preparedStatement.setString(4, project.getName());
             preparedStatement.setString(5, project.getDescription());
-            preparedStatement.setString(6, project.getObjetivo());
+            preparedStatement.setString(6, project.getObjective());
             preparedStatement.setDate(7, Date.valueOf(project.getStartDate()));
             preparedStatement.setDate(8, Date.valueOf(project.getEndDate()));
             preparedStatement.setInt(9, project.getMaximumPlaces());
@@ -199,7 +199,7 @@ public class ProjectDAO implements IProjectDAO {
                 project.setIdProfessor(resultSet.getInt("id_profesor"));
                 project.setName(resultSet.getString("nombre"));
                 project.setDescription(resultSet.getString("descripcion"));
-                project.setObjetivo(resultSet.getString("objetivo"));
+                project.setObjective(resultSet.getString("objetivo"));
                 project.setStartDate(resultSet.getDate("fecha_inicio").toLocalDate());
                 project.setEndDate(resultSet.getDate("fecha_fin").toLocalDate());
                 project.setMaximumPlaces(resultSet.getInt("cupo_maximo"));
@@ -302,7 +302,7 @@ public class ProjectDAO implements IProjectDAO {
             preparedStatement.setInt (2, project.getIdTechnicalResponsible());
             preparedStatement.setString(3, project.getName());
             preparedStatement.setString(4, project.getDescription());
-            preparedStatement.setString(5, project.getObjetivo());
+            preparedStatement.setString(5, project.getObjective());
             preparedStatement.setDate (6, java.sql.Date.valueOf(project.getStartDate()));
             preparedStatement.setDate (7, java.sql.Date.valueOf(project.getEndDate()));
             preparedStatement.setInt (8, project.getMaximumPlaces());
@@ -618,7 +618,7 @@ public class ProjectDAO implements IProjectDAO {
                 resultSet.getInt ("cupo_maximo")
         );
         try {
-            project.setObjetivo(resultSet.getString("objetivo"));
+            project.setObjective(resultSet.getString("objetivo"));
         } catch (SQLException ignored) {
         }
         try {

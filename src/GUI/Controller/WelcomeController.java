@@ -94,11 +94,11 @@ public class WelcomeController {
             for (String role : roles) {
                 switch (role) {
                     case "Practicante":
-                        loadPracticanteDashboard(user);
+                        loadInternDashboard(user);
                         sectionLoaded = true;
                         break;
                     case "Profesor":
-                        loadProfesorDashboard(user);
+                        loadProfessorDashboard(user);
                         sectionLoaded = true;
                         break;
                     case "Coordinador":
@@ -118,7 +118,7 @@ public class WelcomeController {
         }
     }
 
-    private void loadPracticanteDashboard(User user) {
+    private void loadInternDashboard(User user) {
         showSection(practicanteContentVBox,
                 "Aquí tienes un resumen de tus prácticas profesionales y oportunidades activas.");
 
@@ -270,18 +270,18 @@ public class WelcomeController {
         }
     }
 
-    private void loadProfesorDashboard(User user) {
+    private void loadProfessorDashboard(User user) {
         showSection(profesorContentVBox, "Revisa los reportes de tus practicantes y registra tus evaluaciones.");
 
         List<Report> allPendingReports = loadAllPendingReports();
         List<Report> myPendingReports = filterByProfessor(allPendingReports, user.getIdUser());
         List<Report> allReports = loadAllReports();
         List<Report> myTotalReports = filterByProfessor(allReports, user.getIdUser());
-        populateProfesorCards(myPendingReports, myTotalReports);
-        populateProfesorEducationalExperiences(user.getIdUser());
+        populateProfessorCards(myPendingReports, myTotalReports);
+        populateProfessorEducationalExperiences(user.getIdUser());
     }
 
-    private void populateProfesorEducationalExperiences(int professorId) {
+    private void populateProfessorEducationalExperiences(int professorId) {
         try {
             EducationalExperienceDAO educationalExperienceDAO = new EducationalExperienceDAO();
             List<EducationalExperience> experiences =
@@ -374,7 +374,7 @@ public class WelcomeController {
         return count;
     }
 
-    private void populateProfesorCards(List<Report> pending, List<Report> total) {
+    private void populateProfessorCards(List<Report> pending, List<Report> total) {
         int pendingCount = pending.size();
         String pendingCountText = pendingCount + " reportes";
         if (pendingCount == 1) {

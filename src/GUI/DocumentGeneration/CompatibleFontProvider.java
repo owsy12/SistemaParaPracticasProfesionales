@@ -42,11 +42,8 @@ public class CompatibleFontProvider implements IFontProvider {
     }
 
     @Override
-    public Font getFont(String familyName,
-                        String encoding,
-                        float size,
-                        int style,
-                        java.awt.Color color) {
+    public Font getFont(String familyName, String encoding, float size,
+                        int style, java.awt.Color color) {
 
         String resolvedName = resolveFontName(familyName);
         String resolvedEncoding = resolveEncoding(encoding);

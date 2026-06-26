@@ -21,7 +21,7 @@ public class Report {
     private LocalDate reviewDate;
     private Date submissionDate;
     private LocalDate deadline;
-    private boolean entregaTardia;
+    private boolean lateDelivery;
     private String monthName;
     private Double grade;
     private LocalDate evaluationDate;
@@ -154,16 +154,16 @@ public class Report {
         this.deadline = deadline;
     }
 
-    public boolean isEntregaTardia() {
-        return entregaTardia;
+    public boolean isLateDelivery() {
+        return lateDelivery;
     }
 
-    public void setEntregaTardia(boolean entregaTardia) {
-        this.entregaTardia = entregaTardia;
+    public void setLateDelivery(boolean lateDelivery) {
+        this.lateDelivery = lateDelivery;
     }
 
     public String getDisplayStatus() {
-        boolean isLateDelivery = entregaTardia && STATUS_SUBMITTED.equals(status);
+        boolean isLateDelivery = lateDelivery && STATUS_SUBMITTED.equals(status);
         String statusLabel;
         if (isLateDelivery) {
             statusLabel = "Entrega tardía";
@@ -280,7 +280,7 @@ public class Report {
                 && Objects.equals(reviewDate, other.reviewDate)
                 && Objects.equals(submissionDate, other.submissionDate)
                 && Objects.equals(deadline, other.deadline)
-                && entregaTardia == other.entregaTardia
+                && lateDelivery == other.lateDelivery
                 && Objects.equals(monthName, other.monthName)
                 && Objects.equals(grade, other.grade)
                 && Objects.equals(evaluationDate, other.evaluationDate);
@@ -288,6 +288,6 @@ public class Report {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idReport, idIntern, idProject, idProfessor, reportType, period, documentPath, signedDocumentPath, status, reportedHours, professorObservations, reviewDate, submissionDate, deadline, entregaTardia, monthName, grade, evaluationDate);
+        return Objects.hash(idReport, idIntern, idProject, idProfessor, reportType, period, documentPath, signedDocumentPath, status, reportedHours, professorObservations, reviewDate, submissionDate, deadline, lateDelivery, monthName, grade, evaluationDate);
     }
 }

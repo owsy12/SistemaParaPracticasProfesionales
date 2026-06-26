@@ -43,12 +43,12 @@ import java.io.IOException;
 import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.Alert.showAlertAndWait;
 
-public class ViewInternProjectSelection {
+public class ViewInternProjectSelectionController {
     private static final String STATUS_ACCEPTED = "Aceptada";
     private static final String STATUS_PENDING = "Pendiente";
 
 
-    private static final Logger LOGGER = Logger.getLogger(ViewInternProjectSelection.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ViewInternProjectSelectionController.class.getName());
     private static final int INITIAL_DOCUMENTS_COUNT = 4;
     private static final List<String> INITIAL_DOCUMENT_TYPES = List.of(
             "Carta de Asignación", "Horario", "Certificado de Seguro", "Cronograma de Actividades");

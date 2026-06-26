@@ -87,7 +87,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
     private TextField nrcTextField;
 
     @FXML
-    private RestrictedTextArea objetivoTextArea;
+    private RestrictedTextArea objectiveTextArea;
 
     @FXML
     private TableView<Intern> internsTableView;
@@ -212,7 +212,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
 
                 project.setName(nameTextField.getText().trim());
                 project.setDescription(descriptionTextField.getText().trim());
-                project.setObjetivo(objetivoTextArea.getText().trim());
+                project.setObjective(objectiveTextArea.getText().trim());
                 project.setMaximumPlaces(newCapacity);
                 project.setAvailablePlaces(newCapacity - currentInternCount);
                 project.setIdProfessor(professorComboBox.getValue().getIdUser());
@@ -251,7 +251,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         Project snapshot = new Project();
         snapshot.setName(project.getName());
         snapshot.setDescription(project.getDescription());
-        snapshot.setObjetivo(project.getObjetivo());
+        snapshot.setObjective(project.getObjective());
         snapshot.setMaximumPlaces(project.getMaximumPlaces());
         snapshot.setAvailablePlaces(project.getAvailablePlaces());
         snapshot.setIdProfessor(project.getIdProfessor());
@@ -283,8 +283,8 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         nameTextField.setText(project.getName());
         descriptionTextField.setText(project.getDescription());
 
-        if (project.getObjetivo() != null) {
-            objetivoTextArea.setText(project.getObjetivo());
+        if (project.getObjective() != null) {
+            objectiveTextArea.setText(project.getObjective());
         }
 
         organizationComboBox.getItems().add(project.getOrganizationName());
@@ -302,7 +302,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         setTypeAndLength(nameTextField, "Name");
         setTypeAndLength(descriptionTextField, "Text");
         setTypeAndLength(capacityTextField, "Number");
-        applyTextAreaRestriction(objetivoTextArea, 500);
+        applyTextAreaRestriction(objectiveTextArea, 500);
 
         loadInternsForProject();
     }
@@ -391,7 +391,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         boolean isNameEmpty = nameTextField.getText().isBlank();
         boolean isDescriptionEmpty = descriptionTextField.getText().isBlank();
         boolean isCapacityEmpty = capacityTextField.getText().isBlank();
-        boolean isObjectiveEmpty = objetivoTextArea.getText().isBlank();
+        boolean isObjectiveEmpty = objectiveTextArea.getText().isBlank();
         boolean isProfessorMissing = professorComboBox.getValue() == null;
         boolean isTechnicalMissing = technicalComboBox.getValue() == null;
 

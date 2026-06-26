@@ -149,7 +149,7 @@ public class MonthlyReportGenerator {
         Map<String, String> row = new HashMap<>();
         row.put("activity_" + key, safe(activity.getActivityName()));
         row.put("activity_" + key + "_period", safe(activity.getPeriod()));
-        row.put("activity_" + key + "_observations", safe(activity.getObservaciones()));
+        row.put("activity_" + key + "_observations", safe(activity.getObservations()));
         return row;
     }
 

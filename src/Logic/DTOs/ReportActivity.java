@@ -3,25 +3,25 @@ package Logic.DTOs;
 import java.util.Objects;
 
 public class ReportActivity {
-    private int idReporteActividad;
+    private int idReportActivity;
     private int idReport;
     private int idActivity;
     private String activityName;
-    private String periodo;
-    private String planSemanas;
-    private String realSemanas;
+    private String period;
+    private String weeklyPlan;
+    private String realWeeks;
     private int advancePercentage;
-    private String observaciones;
+    private String observations;
 
     public ReportActivity() {
     }
 
-    public int getIdReporteActividad() {
-        return idReporteActividad;
+    public int getIdReportActivity() {
+        return idReportActivity;
     }
 
-    public void setIdReporteActividad(int idReporteActividad) {
-        this.idReporteActividad = idReporteActividad;
+    public void setIdReportActivity(int idReportActivity) {
+        this.idReportActivity = idReportActivity;
     }
 
     public int getIdReport() {
@@ -49,27 +49,27 @@ public class ReportActivity {
     }
 
     public String getPeriod() {
-        return periodo;
+        return period;
     }
 
-    public void setPeriod(String periodo) {
-        this.periodo = periodo;
+    public void setPeriod(String period) {
+        this.period = period;
     }
 
-    public String getPlanSemanas() {
-        return planSemanas;
+    public String getWeeklyPlan() {
+        return weeklyPlan;
     }
 
-    public void setWeeklyPlan(String planSemanas) {
-        this.planSemanas = planSemanas;
+    public void setWeeklyPlan(String weeklyPlan) {
+        this.weeklyPlan = weeklyPlan;
     }
 
-    public String getRealSemanas() {
-        return realSemanas;
+    public String getRealWeeks() {
+        return realWeeks;
     }
 
-    public void setRealWeeks(String realSemanas) {
-        this.realSemanas = realSemanas;
+    public void setRealWeeks(String realWeeks) {
+        this.realWeeks = realWeeks;
     }
 
     public int getAdvancePercentage() {
@@ -80,20 +80,20 @@ public class ReportActivity {
         this.advancePercentage = advancePercentage;
     }
 
-    public String getObservaciones() {
-        return observaciones;
+    public String getObservations() {
+        return observations;
     }
 
-    public void setObservation(String observaciones) {
-        this.observaciones = observaciones;
+    public void setObservations(String observations) {
+        this.observations = observations;
     }
 
     public String getPeriodDisplay() {
         String periodDisplay;
-        if (periodo != null) {
-            periodDisplay = periodo;
-        } else if (planSemanas != null) {
-            periodDisplay = "Plan:" + planSemanas;
+        if (period != null) {
+            periodDisplay = period;
+        } else if (weeklyPlan != null) {
+            periodDisplay = "Plan:" + weeklyPlan;
         } else {
             periodDisplay = "";
         }
@@ -104,30 +104,30 @@ public class ReportActivity {
         String detailDisplay;
         if (advancePercentage > 0) {
             detailDisplay = advancePercentage + "%";
-        } else if (observaciones != null) {
-            detailDisplay = observaciones;
+        } else if (observations != null) {
+            detailDisplay = observations;
         } else {
             detailDisplay = "";
         }
         return detailDisplay;
     }
 
-    public boolean[] getPlanWeeks() {
-        return parseRange(planSemanas);
+    public boolean[] getPlanWeekFlags() {
+        return parseRange(weeklyPlan);
     }
 
-    public boolean[] getRealWeeks() {
-        return parseRange(realSemanas);
+    public boolean[] getRealWeekFlags() {
+        return parseRange(realWeeks);
     }
 
     public String planCell(int week) {
-        boolean[] w = getPlanWeeks();
+        boolean[] w = getPlanWeekFlags();
         String cell = (week >= 1 && week <= 8 && w[week - 1]) ? "X" : "";
         return cell;
     }
 
     public String realCell(int week) {
-        boolean[] w = getRealWeeks();
+        boolean[] w = getRealWeekFlags();
         String cell = (week >= 1 && week <= 8 && w[week - 1]) ? "X" : "";
         return cell;
     }
@@ -162,19 +162,19 @@ public class ReportActivity {
             return false;
         }
         ReportActivity other = (ReportActivity) object;
-        return idReporteActividad == other.idReporteActividad
+        return idReportActivity == other.idReportActivity
                 && idReport == other.idReport
                 && idActivity == other.idActivity
                 && Objects.equals(activityName, other.activityName)
-                && Objects.equals(periodo, other.periodo)
-                && Objects.equals(planSemanas, other.planSemanas)
-                && Objects.equals(realSemanas, other.realSemanas)
+                && Objects.equals(period, other.period)
+                && Objects.equals(weeklyPlan, other.weeklyPlan)
+                && Objects.equals(realWeeks, other.realWeeks)
                 && advancePercentage == other.advancePercentage
-                && Objects.equals(observaciones, other.observaciones);
+                && Objects.equals(observations, other.observations);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(idReporteActividad, idReport, idActivity, activityName, periodo, planSemanas, realSemanas, advancePercentage, observaciones);
+        return Objects.hash(idReportActivity, idReport, idActivity, activityName, period, weeklyPlan, realWeeks, advancePercentage, observations);
     }
 }

@@ -27,17 +27,17 @@ class ReportActivityDAOTest extends BaseDAOTest {
         reportActivity.setWeeklyPlan(TestConstants.DEFAULT_PLAN_WEEKS);
         reportActivity.setRealWeeks(TestConstants.DEFAULT_REAL_WEEKS);
         reportActivity.setAdvancePercentage(TestConstants.DEFAULT_ADVANCE_PERCENTAGE);
-        reportActivity.setObservation(TestConstants.DEFAULT_OBSERVATIONS);
+        reportActivity.setObservations(TestConstants.DEFAULT_OBSERVATIONS);
         return reportActivity;
     }
 
     private ReportDeliverable buildDeliverable(int idReport) {
         ReportDeliverable deliverable = new ReportDeliverable();
         deliverable.setIdReport(idReport);
-        deliverable.setResultado(TestConstants.DEFAULT_DELIVERABLE_RESULT);
-        deliverable.setDescripcion(TestConstants.DEFAULT_DELIVERABLE_DESCRIPTION);
+        deliverable.setResult(TestConstants.DEFAULT_DELIVERABLE_RESULT);
+        deliverable.setDescription(TestConstants.DEFAULT_DELIVERABLE_DESCRIPTION);
         deliverable.setAdvancePercentage(TestConstants.DEFAULT_ADVANCE_PERCENTAGE);
-        deliverable.setObservaciones(TestConstants.DEFAULT_OBSERVATIONS);
+        deliverable.setObservations(TestConstants.DEFAULT_OBSERVATIONS);
         return deliverable;
     }
 
