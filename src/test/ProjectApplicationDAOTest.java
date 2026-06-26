@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProjectApplicationDAOTest extends BaseDAOTest {
 
-    private final ProjectApplicationDAO dao = new ProjectApplicationDAO();
+    private final ProjectApplicationDAO projectApplicationDAO = new ProjectApplicationDAO();
 
     private ProjectApplication buildProjectApplication(int idApplication, int idProject) {
         ProjectApplication projectApplication = new ProjectApplication();
@@ -31,7 +31,7 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     @Test
     void testCreateValidProjectApplicationReturnsTrue() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
-        boolean result = dao.create(buildProjectApplication(context.idApplication, context.idProject));
+        boolean result = projectApplicationDAO.create(buildProjectApplication(context.idApplication, context.idProject));
         assertTrue(result);
     }
 
@@ -42,7 +42,7 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.create(projectApplication);
+                projectApplicationDAO.create(projectApplication);
             }
         });
     }
@@ -50,38 +50,38 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterCreateReturnsNotNull() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
-        dao.create(buildProjectApplication(context.idApplication, context.idProject));
-        List<ProjectApplication> all = dao.findAll();
-        ProjectApplication retrieved = dao.findById(all.get(0).getIdProjectApplication());
+        projectApplicationDAO.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<ProjectApplication> all = projectApplicationDAO.findAll();
+        ProjectApplication retrieved = projectApplicationDAO.findById(all.get(0).getIdProjectApplication());
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        ProjectApplication retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        ProjectApplication retrieved = projectApplicationDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindByApplicationReturnsOneElement() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
-        dao.create(buildProjectApplication(context.idApplication, context.idProject));
-        List<ProjectApplication> byApplication = dao.findByApplication(context.idApplication);
+        projectApplicationDAO.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<ProjectApplication> byApplication = projectApplicationDAO.findByApplication(context.idApplication);
         assertEquals(TestConstants.SINGLE_RESULT, byApplication.size());
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<ProjectApplication> all = dao.findAll();
-        assertTrue(all.isEmpty());
+        List<ProjectApplication> projectApplicationList = projectApplicationDAO.findAll();
+        assertTrue(projectApplicationList.isEmpty());
     }
 
     @Test
     void testDeleteProjectApplicationReturnsTrue() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
-        dao.create(buildProjectApplication(context.idApplication, context.idProject));
-        List<ProjectApplication> all = dao.findAll();
-        boolean result = dao.delete(all.get(0).getIdProjectApplication());
+        projectApplicationDAO.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<ProjectApplication> projectApplicationList = projectApplicationDAO.findAll();
+        boolean result = projectApplicationDAO.delete(projectApplicationList.get(0).getIdProjectApplication());
         assertTrue(result);
     }
 
@@ -90,7 +90,7 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.delete(TestConstants.INVALID_ID_ZERO);
+                projectApplicationDAO.delete(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -98,8 +98,8 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
     @Test
     void testFindProjectIdsByInternReturnsOneElement() throws ServiceException, ValidationException {
         ProjectApplicationContext context = persistDependencies();
-        dao.create(buildProjectApplication(context.idApplication, context.idProject));
-        List<Integer> projectIds = dao.findProjectIdsByIntern(context.idIntern);
+        projectApplicationDAO.create(buildProjectApplication(context.idApplication, context.idProject));
+        List<Integer> projectIds = projectApplicationDAO.findProjectIdsByIntern(context.idIntern);
         assertEquals(TestConstants.SINGLE_RESULT, projectIds.size());
     }
 
@@ -108,7 +108,7 @@ class ProjectApplicationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findProjectIdsByIntern(TestConstants.INVALID_ID_ZERO);
+                projectApplicationDAO.findProjectIdsByIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }

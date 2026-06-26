@@ -24,7 +24,7 @@ class PracticeDAOTest extends BaseDAOTest {
     private static final LocalDate PRACTICE_END = LocalDate.of(2025, 7, 15);
     private static final LocalDate UPDATED_END = LocalDate.of(2025, 8, 15);
 
-    private final PracticeDAO dao = new PracticeDAO();
+    private final PracticeDAO practiceDAO = new PracticeDAO();
 
     private Practice buildPractice(int idIntern, String nrc) {
         Practice practice = new Practice();
@@ -40,7 +40,7 @@ class PracticeDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidPracticeReturnsTrue() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
-        boolean result = dao.save(buildPractice(scene.getInternId(), scene.getNrc()));
+        boolean result = practiceDAO.save(buildPractice(scene.getInternId(), scene.getNrc()));
         assertTrue(result);
     }
 
@@ -51,7 +51,7 @@ class PracticeDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(practice);
+                practiceDAO.save(practice);
             }
         });
     }
@@ -60,7 +60,7 @@ class PracticeDAOTest extends BaseDAOTest {
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         int idPractice = persistPractice(scene);
-        Practice retrieved = dao.findById(idPractice);
+        Practice retrieved = practiceDAO.findById(idPractice);
         assertNotNull(retrieved);
     }
 
@@ -69,14 +69,14 @@ class PracticeDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_ZERO);
+                practiceDAO.findById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        Practice retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        Practice retrieved = practiceDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
@@ -84,8 +84,8 @@ class PracticeDAOTest extends BaseDAOTest {
     void testFindByNrcReturnsOneElement() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
-        List<Practice> byNrc = dao.findByNrc(scene.getNrc());
-        assertEquals(TestConstants.SINGLE_RESULT, byNrc.size());
+        List<Practice> practiceList = practiceDAO.findByNrc(scene.getNrc());
+        assertEquals(TestConstants.SINGLE_RESULT, practiceList.size());
     }
 
     @Test
@@ -93,7 +93,7 @@ class PracticeDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findByNrc(TestConstants.BLANK_TEXT);
+                practiceDAO.findByNrc(TestConstants.BLANK_TEXT);
             }
         });
     }
@@ -102,7 +102,7 @@ class PracticeDAOTest extends BaseDAOTest {
     void testFindByInternReturnsOneElement() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
-        List<Practice> byIntern = dao.findByIntern(scene.getInternId());
+        List<Practice> byIntern = practiceDAO.findByIntern(scene.getInternId());
         assertEquals(TestConstants.SINGLE_RESULT, byIntern.size());
     }
 
@@ -110,9 +110,9 @@ class PracticeDAOTest extends BaseDAOTest {
     void testUpdatePracticeReturnsTrue() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         int idPractice = persistPractice(scene);
-        Practice practice = dao.findById(idPractice);
+        Practice practice = practiceDAO.findById(idPractice);
         practice.setEndDate(UPDATED_END);
-        boolean result = dao.update(practice);
+        boolean result = practiceDAO.update(practice);
         assertTrue(result);
     }
 
@@ -120,7 +120,7 @@ class PracticeDAOTest extends BaseDAOTest {
     void testDeletePracticeReturnsTrue() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         int idPractice = persistPractice(scene);
-        boolean result = dao.delete(idPractice);
+        boolean result = practiceDAO.delete(idPractice);
         assertTrue(result);
     }
 
@@ -129,7 +129,7 @@ class PracticeDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.delete(TestConstants.INVALID_ID_ZERO);
+                practiceDAO.delete(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -138,7 +138,7 @@ class PracticeDAOTest extends BaseDAOTest {
     void testFindActiveByInternReturnsNotNull() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
-        Practice active = dao.findActiveByIntern(scene.getInternId());
+        Practice active = practiceDAO.findActiveByIntern(scene.getInternId());
         assertNotNull(active);
     }
 
@@ -146,7 +146,7 @@ class PracticeDAOTest extends BaseDAOTest {
     void testHasConcludedPracticeReturnsFalseForActive() throws ServiceException, ValidationException {
         TestScene scene = persistScene();
         persistPractice(scene);
-        boolean concluded = dao.hasConcludedPractice(scene.getInternId());
+        boolean concluded = practiceDAO.hasConcludedPractice(scene.getInternId());
         assertFalse(concluded);
     }
 
@@ -155,7 +155,7 @@ class PracticeDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.concludeActiveByIntern(TestConstants.INVALID_ID_ZERO);
+                practiceDAO.concludeActiveByIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }

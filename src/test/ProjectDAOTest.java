@@ -34,7 +34,7 @@ class ProjectDAOTest extends BaseDAOTest {
     private static final int VALID_AVAILABLE_SLOTS = 6;
     private static final int INVALID_MAX_SLOTS = 0;
 
-    private final ProjectDAO dao = new ProjectDAO();
+    private final ProjectDAO projectDAO = new ProjectDAO();
 
     private Project buildProject(ProjectContext context, String name) {
         Project project = new Project();
@@ -55,7 +55,7 @@ class ProjectDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidProjectReturnsTrue() throws ServiceException, ValidationException {
         ProjectContext context = persistFKDependencies();
-        boolean result = dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
+        boolean result = projectDAO.saveProject(buildProject(context, NEW_PROJECT_NAME));
         assertTrue(result);
     }
 
@@ -67,7 +67,7 @@ class ProjectDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.saveProject(project);
+                projectDAO.saveProject(project);
             }
         });
     }
@@ -80,7 +80,7 @@ class ProjectDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.saveProject(project);
+                projectDAO.saveProject(project);
             }
         });
     }
@@ -88,11 +88,11 @@ class ProjectDAOTest extends BaseDAOTest {
     @Test
     void testSaveDuplicateNameSameOrganizationThrowsDuplicateEntryException() throws ServiceException, ValidationException {
         ProjectContext context = persistFKDependencies();
-        dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
+        projectDAO.saveProject(buildProject(context, NEW_PROJECT_NAME));
         assertThrows(DuplicateEntryException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.saveProject(buildProject(context, NEW_PROJECT_NAME));
+                projectDAO.saveProject(buildProject(context, NEW_PROJECT_NAME));
             }
         });
     }
@@ -100,7 +100,7 @@ class ProjectDAOTest extends BaseDAOTest {
     @Test
     void testFindByIdAfterPersistReturnsNotNull() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
-        Project retrieved = dao.findById(idProject);
+        Project retrieved = projectDAO.findById(idProject);
         assertNotNull(retrieved);
     }
 
@@ -109,70 +109,70 @@ class ProjectDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_ZERO);
+                projectDAO.findById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        Project retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        Project retrieved = projectDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllReturnsOneElement() throws ServiceException, ValidationException {
         persistProjectViaScene();
-        List<Project> all = dao.findAll();
-        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+        List<Project> projectList = projectDAO.findAll();
+        assertEquals(TestConstants.SINGLE_RESULT, projectList.size());
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<Project> all = dao.findAll();
-        assertTrue(all.isEmpty());
+        List<Project> projectList = projectDAO.findAll();
+        assertTrue(projectList.isEmpty());
     }
 
     @Test
     void testFindAllAvailableReturnsOneElement() throws ServiceException, ValidationException {
         persistProjectViaScene();
-        List<Project> available = dao.findAllAvailable();
-        assertEquals(TestConstants.SINGLE_RESULT, available.size());
+        List<Project> allAvailable = projectDAO.findAllAvailable();
+        assertEquals(TestConstants.SINGLE_RESULT, allAvailable.size());
     }
 
     @Test
     void testUpdateProjectReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
-        Project project = dao.findById(idProject);
+        Project project = projectDAO.findById(idProject);
         project.setName(UPDATED_PROJECT_NAME);
-        boolean result = dao.update(project);
+        boolean result = projectDAO.update(project);
         assertTrue(result);
     }
 
     @Test
     void testCancelProjectReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
-        boolean result = dao.cancelProject(idProject);
+        boolean result = projectDAO.cancelProject(idProject);
         assertTrue(result);
     }
 
     @Test
     void testDecrementAvailableSlotReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
-        boolean result = dao.decrementAvailableSlot(idProject);
+        boolean result = projectDAO.decrementAvailableSlot(idProject);
         assertTrue(result);
     }
 
     @Test
     void testIncrementAvailableSlotReturnsTrue() throws ServiceException, ValidationException {
         int idProject = persistProjectViaScene();
-        boolean result = dao.incrementAvailableSlot(idProject);
+        boolean result = projectDAO.incrementAvailableSlot(idProject);
         assertTrue(result);
     }
 
     @Test
     void testExistsByNrcReturnsFalseForUnusedNrc() throws ServiceException, ValidationException {
-        boolean exists = dao.existsByNrcAndPeriod(TestConstants.UNUSED_NRC, TestConstants.DEFAULT_PERIOD);
+        boolean exists = projectDAO.existsByNrcAndPeriod(TestConstants.UNUSED_NRC, TestConstants.DEFAULT_PERIOD);
         assertFalse(exists);
     }
 
@@ -181,7 +181,7 @@ class ProjectDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.existsByNrcAndPeriod(TestConstants.BLANK_TEXT, TestConstants.DEFAULT_PERIOD);
+                projectDAO.existsByNrcAndPeriod(TestConstants.BLANK_TEXT, TestConstants.DEFAULT_PERIOD);
             }
         });
     }
@@ -191,7 +191,7 @@ class ProjectDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.deleteProject(TestConstants.INVALID_ID_ZERO);
+                projectDAO.deleteProject(TestConstants.INVALID_ID_ZERO);
             }
         });
     }

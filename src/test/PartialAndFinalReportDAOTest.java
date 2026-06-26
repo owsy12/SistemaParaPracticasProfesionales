@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PartialAndFinalReportDAOTest extends BaseDAOTest {
 
-    private final PartialAndFinalReportDAO dao = new PartialAndFinalReportDAO();
+    private final PartialAndFinalReportDAO partialAndFinalReportDAO = new PartialAndFinalReportDAO();
 
     private PartialAndFinalReport buildPartialReport(ReportSceneContext context) {
         PartialAndFinalReport partialReport = new PartialAndFinalReport();
@@ -45,7 +45,7 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidPartialReportReturnsOneRowAffected() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
-        int result = dao.save(buildPartialReport(context));
+        int result = partialAndFinalReportDAO.save(buildPartialReport(context));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
@@ -57,7 +57,7 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
         assertThrows(ServiceException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(report);
+                partialAndFinalReportDAO.save(report);
             }
         });
     }
@@ -66,8 +66,8 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         PartialAndFinalReport report = buildPartialReport(context);
-        dao.save(report);
-        PartialAndFinalReport retrieved = dao.getById(report.getIdReport());
+        partialAndFinalReportDAO.save(report);
+        PartialAndFinalReport retrieved = partialAndFinalReportDAO.getById(report.getIdReport());
         assertNotNull(retrieved);
     }
 
@@ -75,8 +75,8 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
         PartialAndFinalReport report = buildPartialReport(context);
-        dao.save(report);
-        PartialAndFinalReport retrieved = dao.getById(report.getIdReport());
+        partialAndFinalReportDAO.save(report);
+        PartialAndFinalReport retrieved = partialAndFinalReportDAO.getById(report.getIdReport());
         assertEquals(report, retrieved);
     }
 
@@ -85,36 +85,36 @@ class PartialAndFinalReportDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getById(TestConstants.INVALID_ID_ZERO);
+                partialAndFinalReportDAO.getById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        PartialAndFinalReport retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
+        PartialAndFinalReport retrieved = partialAndFinalReportDAO.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
-        dao.save(buildPartialReport(context));
-        List<Report> all = dao.getAll();
-        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+        partialAndFinalReportDAO.save(buildPartialReport(context));
+        List<Report> reportList = partialAndFinalReportDAO.getAll();
+        assertEquals(TestConstants.SINGLE_RESULT, reportList.size());
     }
 
     @Test
     void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<Report> all = dao.getAll();
+        List<Report> all = partialAndFinalReportDAO.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testGetByStatusPendingReturnsOneElement() throws ServiceException, ValidationException {
         ReportSceneContext context = persistContext();
-        dao.save(buildPartialReport(context));
-        List<Report> pending = dao.getByStatusPending();
+        partialAndFinalReportDAO.save(buildPartialReport(context));
+        List<Report> pending = partialAndFinalReportDAO.getByStatusPending();
         assertEquals(TestConstants.SINGLE_RESULT, pending.size());
     }
 

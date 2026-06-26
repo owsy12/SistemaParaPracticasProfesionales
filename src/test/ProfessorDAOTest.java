@@ -44,78 +44,78 @@ class ProfessorDAOTest extends BaseDAOTest {
 
     @Test
     void testSaveValidProfessorReturnsTrue() throws ServiceException, ValidationException {
-        ProfessorDAO dao = buildDAO();
-        boolean result = dao.saveProfessor(buildProfessor());
+        ProfessorDAO professorDAO = buildDAO();
+        boolean result = professorDAO.saveProfessor(buildProfessor());
         assertTrue(result);
     }
 
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idUser = persistProfessorViaBuilders();
-        ProfessorDAO dao = buildDAO();
-        Professor retrieved = dao.findById(idUser);
+        ProfessorDAO professorDAO = buildDAO();
+        Professor retrieved = professorDAO.findById(idUser);
         assertNotNull(retrieved);
     }
 
     @Test
     void testFindByIdWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        ProfessorDAO dao = buildDAO();
+        ProfessorDAO professorDAO = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_ZERO);
+                professorDAO.findById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testFindByIdWithNegativeIdThrowsValidationException() throws ServiceException, ValidationException {
-        ProfessorDAO dao = buildDAO();
+        ProfessorDAO professorDAO = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_NEGATIVE);
+                professorDAO.findById(TestConstants.INVALID_ID_NEGATIVE);
             }
         });
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        ProfessorDAO dao = buildDAO();
-        Professor retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        ProfessorDAO professorDAO = buildDAO();
+        Professor retrieved = professorDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        ProfessorDAO dao = buildDAO();
-        List<Professor> all = dao.findAll();
-        assertTrue(all.isEmpty());
+        ProfessorDAO professorDAO = buildDAO();
+        List<Professor> professorList = professorDAO.findAll();
+        assertTrue(professorList.isEmpty());
     }
 
     @Test
     void testFindAllAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistProfessorViaBuilders();
-        ProfessorDAO dao = buildDAO();
-        List<Professor> all = dao.findAll();
-        assertEquals(TestConstants.SINGLE_RESULT, all.size());
+        ProfessorDAO professorDAO = buildDAO();
+        List<Professor> professorList = professorDAO.findAll();
+        assertEquals(TestConstants.SINGLE_RESULT, professorList.size());
     }
 
     @Test
     void testFindActiveProfessorsReturnsOnlyActive() throws ServiceException, ValidationException {
         persistProfessorViaBuilders();
-        ProfessorDAO dao = buildDAO();
-        List<Professor> active = dao.findActiveProfessors();
-        assertEquals(TestConstants.SINGLE_RESULT, active.size());
+        ProfessorDAO professorDAO = buildDAO();
+        List<Professor> activeProfessors = professorDAO.findActiveProfessors();
+        assertEquals(TestConstants.SINGLE_RESULT, activeProfessors.size());
     }
 
     @Test
     void testDeactivateProfessorWithZeroIdThrowsValidationException() throws ServiceException, ValidationException {
-        ProfessorDAO dao = buildDAO();
+        ProfessorDAO professorDAO = buildDAO();
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.deactivateProfessor(TestConstants.INVALID_ID_ZERO);
+                professorDAO.deactivateProfessor(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -123,8 +123,8 @@ class ProfessorDAOTest extends BaseDAOTest {
     @Test
     void testDeactivateProfessorReturnsTrue() throws ServiceException, ValidationException {
         int idUser = persistProfessorViaBuilders();
-        ProfessorDAO dao = buildDAO();
-        boolean result = dao.deactivateProfessor(idUser);
+        ProfessorDAO professorDAO = buildDAO();
+        boolean result = professorDAO.deactivateProfessor(idUser);
         assertTrue(result);
     }
 

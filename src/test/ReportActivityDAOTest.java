@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReportActivityDAOTest extends BaseDAOTest {
 
-    private final ReportActivityDAO dao = new ReportActivityDAO();
+    private final ReportActivityDAO reportActivityDAO = new ReportActivityDAO();
 
     private ReportActivity buildReportActivity(int idReport, int idActivity) {
         ReportActivity reportActivity = new ReportActivity();
@@ -44,7 +44,7 @@ class ReportActivityDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidReportActivityReturnsPositiveId() throws ServiceException, ValidationException {
         ReportActivityContext context = persistContext();
-        int generatedId = dao.save(buildReportActivity(context.idReport, context.idActivity));
+        int generatedId = reportActivityDAO.save(buildReportActivity(context.idReport, context.idActivity));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
@@ -56,7 +56,7 @@ class ReportActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(reportActivity);
+                reportActivityDAO.save(reportActivity);
             }
         });
     }
@@ -64,8 +64,8 @@ class ReportActivityDAOTest extends BaseDAOTest {
     @Test
     void testFindByReportAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         ReportActivityContext context = persistContext();
-        dao.save(buildReportActivity(context.idReport, context.idActivity));
-        List<ReportActivity> byReport = dao.findByReport(context.idReport);
+        reportActivityDAO.save(buildReportActivity(context.idReport, context.idActivity));
+        List<ReportActivity> byReport = reportActivityDAO.findByReport(context.idReport);
         assertEquals(TestConstants.SINGLE_RESULT, byReport.size());
     }
 
@@ -74,7 +74,7 @@ class ReportActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findByReport(TestConstants.INVALID_ID_ZERO);
+                reportActivityDAO.findByReport(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -82,15 +82,15 @@ class ReportActivityDAOTest extends BaseDAOTest {
     @Test
     void testSaveDeliverableReturnsPositiveId() throws ServiceException, ValidationException {
         ReportActivityContext context = persistContext();
-        int generatedId = dao.saveDeliverable(buildDeliverable(context.idReport));
+        int generatedId = reportActivityDAO.saveDeliverable(buildDeliverable(context.idReport));
         assertTrue(generatedId > TestConstants.ZERO_RESULTS);
     }
 
     @Test
     void testFindDeliverablesByReportAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         ReportActivityContext context = persistContext();
-        dao.saveDeliverable(buildDeliverable(context.idReport));
-        List<ReportDeliverable> deliverables = dao.findDeliverablesByReport(context.idReport);
+        reportActivityDAO.saveDeliverable(buildDeliverable(context.idReport));
+        List<ReportDeliverable> deliverables = reportActivityDAO.findDeliverablesByReport(context.idReport);
         assertEquals(TestConstants.SINGLE_RESULT, deliverables.size());
     }
 
@@ -99,7 +99,7 @@ class ReportActivityDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findActivityIdsInMonthlyReportsByIntern(TestConstants.INVALID_ID_ZERO);
+                reportActivityDAO.findActivityIdsInMonthlyReportsByIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
