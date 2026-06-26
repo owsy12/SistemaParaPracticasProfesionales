@@ -20,17 +20,15 @@ public class InternContext {
     private final List<Activity> activities;
     private final boolean hasAssignment;
 
-    public InternContext(Intern intern, Project project, LinkedOrganization organization,
-                         TechnicalResponsible supervisor, Professor professor,
-                         int approvedHours, List<Activity> activities, boolean hasAssignment) {
-        this.intern = intern;
-        this.project = project;
-        this.organization = organization;
-        this.supervisor = supervisor;
-        this.professor = professor;
-        this.approvedHours = approvedHours;
-        this.activities = activities;
-        this.hasAssignment = hasAssignment;
+    InternContext(InternContextBuilder builder) {
+        this.intern = builder.getIntern();
+        this.project = builder.getProject();
+        this.organization = builder.getOrganization();
+        this.supervisor = builder.getSupervisor();
+        this.professor = builder.getProfessor();
+        this.approvedHours = builder.getApprovedHours();
+        this.activities = builder.getActivities();
+        this.hasAssignment = builder.isHasAssignment();
     }
 
     public Intern getIntern() {

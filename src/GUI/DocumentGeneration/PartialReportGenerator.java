@@ -190,33 +190,31 @@ public class PartialReportGenerator {
         StringBuilder result = new StringBuilder();
         int position = 0;
 
-        while (position < cleaned.length()) {
+        boolean scanning = position < cleaned.length();
+        while (scanning) {
             int openPosition = cleaned.indexOf("{{", position);
-            boolean noMore = openPosition < 0;
-            if (noMore) {
+            int closePosition = (openPosition >= 0) ? cleaned.indexOf("}}", openPosition + 2) : -1;
+            boolean hasMarker = openPosition >= 0 && closePosition >= 0;
+            if (!hasMarker) {
                 result.append(cleaned, position, cleaned.length());
-                break;
-            }
-            int closePosition = cleaned.indexOf("}}", openPosition + 2);
-            boolean unclosed = closePosition < 0;
-            if (unclosed) {
-                result.append(cleaned, position, cleaned.length());
-                break;
-            }
-            String between = cleaned.substring(openPosition + 2, closePosition);
-            result.append(cleaned, position, openPosition);
-            boolean isPlainText = !between.contains("<");
-            if (isPlainText) {
-                result.append("{{").append(between).append("}}");
+                scanning = false;
             } else {
-                Matcher textMatcher = TEXT_IN_RUN.matcher(between);
-                StringBuilder markerName = new StringBuilder();
-                while (textMatcher.find()) {
-                    markerName.append(textMatcher.group(1));
+                String between = cleaned.substring(openPosition + 2, closePosition);
+                result.append(cleaned, position, openPosition);
+                boolean isPlainText = !between.contains("<");
+                if (isPlainText) {
+                    result.append("{{").append(between).append("}}");
+                } else {
+                    Matcher textMatcher = TEXT_IN_RUN.matcher(between);
+                    StringBuilder markerName = new StringBuilder();
+                    while (textMatcher.find()) {
+                        markerName.append(textMatcher.group(1));
+                    }
+                    result.append("{{").append(markerName.toString().trim()).append("}}");
                 }
-                result.append("{{").append(markerName.toString().trim()).append("}}");
+                position = closePosition + 2;
+                scanning = position < cleaned.length();
             }
-            position = closePosition + 2;
         }
         return result.toString();
     }

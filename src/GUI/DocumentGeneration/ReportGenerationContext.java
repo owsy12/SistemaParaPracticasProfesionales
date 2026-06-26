@@ -30,15 +30,41 @@ public class ReportGenerationContext {
         this.ownerWindow = builder.getOwnerWindow();
     }
 
-    public String getInternFullName() { return internFullName; }
-    public String getRegistrationNumber() { return registrationNumber; }
-    public String getNrc() { return nrc; }
-    public String getOrganizationName() { return organizationName; }
-    public String getOrganizationDepartment() { return organizationDepartment; }
-    public String getProfessorName() { return professorName; }
-    public String getTechnicianName() { return technicianName; }
-    public String getTechnicianPosition() { return technicianPosition; }
-    public String getProjectName() { return projectName; }
-    public int getTotalApprovedHours() { return totalApprovedHours; }
-    public Window getOwnerWindow() { return ownerWindow; }
+    public String getInternFullName() {
+        return internFullName;
+    }
+
+    public String getRegistrationNumber() {
+        return registrationNumber;
+    }
+
+    public String getNrc() {
+        return nrc;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public String getOrganizationDepartment() {
+        return organizationDepartment;
+    }
+    public String getProfessorName() {
+        return professorName;
+    }
+    public String getTechnicianName() {
+        return technicianName;
+    }
+    public String getTechnicianPosition()
+    { return technicianPosition;
+    }
+    public String getProjectName() {
+        return projectName;
+    }
+    public int getTotalApprovedHours() {
+        return totalApprovedHours;
+    }
+    public Window getOwnerWindow() {
+        return ownerWindow;
+    }
 }

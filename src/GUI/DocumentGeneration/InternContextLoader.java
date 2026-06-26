@@ -48,8 +48,9 @@ public class InternContextLoader {
     }
 
     private static InternContext buildContextWithoutProject(Intern intern) {
-        InternContext context = new InternContext(intern, null, null, null,
-                null, 0, new ArrayList<>(), false);
+        InternContext context = new InternContextBuilder()
+                .intern(intern)
+                .build();
         return context;
     }
 
@@ -72,7 +73,16 @@ public class InternContextLoader {
 
         List<Activity> activities = loadActivities(internId, project.getIdProject());
 
-        InternContext context = new InternContext(intern, project, organization, supervisor, professor, approvedHours, activities, true);
+        InternContext context = new InternContextBuilder()
+                .intern(intern)
+                .project(project)
+                .organization(organization)
+                .supervisor(supervisor)
+                .professor(professor)
+                .approvedHours(approvedHours)
+                .activities(activities)
+                .hasAssignment(true)
+                .build();
         return context;
     }
 

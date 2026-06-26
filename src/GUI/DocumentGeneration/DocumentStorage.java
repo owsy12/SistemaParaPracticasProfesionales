@@ -9,11 +9,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DocumentManagement {
+public class DocumentStorage {
 
-    private static final Logger LOGGER = Logger.getLogger(DocumentManagement.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DocumentStorage.class.getName());
 
-    private DocumentManagement() {
+    private DocumentStorage() {
     }
 
     public static void saveFile(File sourceFile, String relativeFolder, String newFileName) {
