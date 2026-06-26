@@ -107,9 +107,9 @@ public class ReportActivityDAO implements IReportActivityDAO {
              PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_REPORT)) {
 
             statement.setInt(1, idReport);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapActivity(rs));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    list.add(mapActivity(resultSet));
                 }
             }
             return list;
@@ -179,9 +179,9 @@ public class ReportActivityDAO implements IReportActivityDAO {
                      SQL_SELECT_DELIVERABLES_BY_REPORT)) {
 
             statement.setInt(1, idReport);
-            try (ResultSet rs = statement.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapDeliverable(rs));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    list.add(mapDeliverable(resultSet));
                 }
             }
             return list;

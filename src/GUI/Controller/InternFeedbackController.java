@@ -84,16 +84,16 @@ public class InternFeedbackController {
     @FXML
     public void viewReport(ActionEvent actionEvent) {
         Report selected = reportsTableView.getSelectionModel().getSelectedItem();
-        boolean hasSelection = selected != null;
+        boolean hasSelectionItem = selected != null;
         boolean hasDocument = false;
-        if (hasSelection) {
+        if (hasSelectionItem) {
             if (selected.getDocumentPath() != null) {
                 if (!selected.getDocumentPath().isBlank()) {
                     hasDocument = true;
                 }
             }
         }
-        if (!hasSelection) {
+        if (!hasSelectionItem) {
             showAlert("Selecciona un reporte",
                     "Selecciona un reporte de la tabla para verlo.", Alert.AlertType.WARNING);
         } else if (!hasDocument) {
@@ -108,16 +108,16 @@ public class InternFeedbackController {
     @FXML
     public void downloadReport(ActionEvent actionEvent) {
         Report selected = reportsTableView.getSelectionModel().getSelectedItem();
-        boolean hasSelection = selected != null;
+        boolean hasSelectionReport = selected != null;
         boolean hasDocument = false;
-        if (hasSelection) {
+        if (hasSelectionReport) {
             if (selected.getDocumentPath() != null) {
                 if (!selected.getDocumentPath().isBlank()) {
                     hasDocument = true;
                 }
             }
         }
-        if (!hasSelection) {
+        if (!hasSelectionReport) {
             showAlert("Selecciona un reporte",
                     "Selecciona un reporte de la tabla para descargarlo.", Alert.AlertType.WARNING);
         } else if (!hasDocument) {
@@ -132,16 +132,16 @@ public class InternFeedbackController {
     @FXML
     public void viewSignedDocument(ActionEvent actionEvent) {
         Report selected = reportsTableView.getSelectionModel().getSelectedItem();
-        boolean hasSelection = selected != null;
+        boolean hasSelectionReport = selected != null;
         boolean hasSigned = false;
-        if (hasSelection) {
+        if (hasSelectionReport) {
             if (selected.getSignedDocumentPath() != null) {
                 if (!selected.getSignedDocumentPath().isBlank()) {
                     hasSigned = true;
                 }
             }
         }
-        if (!hasSelection) {
+        if (!hasSelectionReport) {
             showAlert("Selecciona un reporte",
                     "Selecciona un reporte de la tabla para ver su documento firmado.",
                     Alert.AlertType.WARNING);
@@ -155,8 +155,8 @@ public class InternFeedbackController {
     }
 
     private void loadFeedback() {
-        boolean hasSession = SessionManager.getInstance().getUser() != null;
-        if (!hasSession) {
+        boolean hasSessionActive = SessionManager.getInstance().getUser() != null;
+        if (!hasSessionActive) {
             showAlert("Sesión inválida", "No hay una sesión activa.", Alert.AlertType.WARNING);
             openWelcomePage(anchorPane);
         } else {
@@ -197,9 +197,9 @@ public class InternFeedbackController {
     private void loadFinalGrade(int internId) {
         try {
             PracticeDAO practiceDAO = new PracticeDAO();
-            List<Practice> practices = practiceDAO.findByIntern(internId);
+            List<Practice> practiceList = practiceDAO.findByIntern(internId);
             Double finalGrade = null;
-            for (Practice practice : practices) {
+            for (Practice practice : practiceList) {
                 boolean hasGrade = practice.getGrade() != null;
                 if (hasGrade) {
                     finalGrade = practice.getGrade();
@@ -223,8 +223,8 @@ public class InternFeedbackController {
     private void loadReportFeedback(int internId) {
         try {
             ReportDAO reportDAO = new ReportDAO();
-            List<Report> reports = reportDAO.getByIdInternWithMonth(internId);
-            reportsTableView.setItems(FXCollections.observableArrayList(reports));
+            List<Report> reportList = reportDAO.getByIdInternWithMonth(internId);
+            reportsTableView.setItems(FXCollections.observableArrayList(reportList));
         } catch (ServiceException serviceException) {
             LOGGER.log(Level.SEVERE, "Error loading report feedback: {0}",
                     serviceException.getMessage());

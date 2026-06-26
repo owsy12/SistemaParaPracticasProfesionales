@@ -94,9 +94,9 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
             preparedStatement.setInt(1, projectApplicationId);
 
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                if (rs.next()) {
-                    projectApplicationResult = mapProjectApplication(rs);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    projectApplicationResult = mapProjectApplication(resultSet);
                 }
             }
 
@@ -128,9 +128,9 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
             preparedStatement.setInt(1, applicationId);
 
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                while (rs.next()) {
-                    projectApplicationList.add(mapProjectApplication(rs));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    projectApplicationList.add(mapProjectApplication(resultSet));
                 }
             }
 
@@ -221,9 +221,9 @@ public class ProjectApplicationDAO implements IProjectApplicationDAO {
 
             preparedStatement.setInt(1, idIntern);
 
-            try (ResultSet rs = preparedStatement.executeQuery()) {
-                while (rs.next()) {
-                    projectIds.add(rs.getInt("id_proyecto"));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    projectIds.add(resultSet.getInt("id_proyecto"));
                 }
             }
 

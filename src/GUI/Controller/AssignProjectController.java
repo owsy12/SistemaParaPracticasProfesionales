@@ -63,13 +63,13 @@ public class AssignProjectController {
                 "Confirmar cancelación",
                 "¿Desea salir sin asignar proyecto?",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = false;
+        boolean isConfirmedCancel = false;
         if (response.isPresent()) {
             if (response.get() == ButtonType.OK) {
-                isConfirmed = true;
+                isConfirmedCancel = true;
             }
         }
-        if (isConfirmed) {
+        if (isConfirmedCancel) {
             openWelcomePage(anchorPane);
         }
     }

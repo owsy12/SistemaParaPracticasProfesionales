@@ -138,15 +138,15 @@ public class AddProjectController {
     }
 
     private Project buildProject() {
-        EducationalExperience selectedEE = educationalExperienceComboBox.getValue();
+        EducationalExperience selectedEducationalExperience = educationalExperienceComboBox.getValue();
         Project project = new Project();
-        project.setNrc(selectedEE.getNrc());
-        project.setPeriod(selectedEE.getPeriod());
+        project.setNrc(selectedEducationalExperience.getNrc());
+        project.setPeriod(selectedEducationalExperience.getPeriod());
         project.setName(nameTextField.getText().trim());
         project.setDescription(descriptionTextField.getText().trim());
         project.setIdOrganization(organizationComboBox.getValue().getIdLinkedOrganization());
         project.setIdTechnicalResponsible(technicalComboBox.getValue().getIdTechnicalResponsible());
-        project.setIdProfessor(selectedEE.getIdProfessor());
+        project.setIdProfessor(selectedEducationalExperience.getIdProfessor());
         project.setStartDate(startDate.getValue());
         project.setEndDate(endDate.getValue());
         project.setMaximumPlaces(Integer.parseInt(capacityTextField.getText().trim()));

@@ -67,13 +67,13 @@ public class AddLinkedOrganizationController {
         Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = false;
+        boolean isConfirmedCancelation = false;
         if (response.isPresent()) {
             if (response.get() == ButtonType.OK) {
-                isConfirmed = true;
+                isConfirmedCancelation = true;
             }
         }
-        if (isConfirmed) {
+        if (isConfirmedCancelation) {
             clearFields();
             openWelcomePage(anchorPane);
         }

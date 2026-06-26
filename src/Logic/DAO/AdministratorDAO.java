@@ -96,10 +96,10 @@ public class AdministratorDAO implements IAdministratorDAO {
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_ADMINISTRATORS_SQL);
-             ResultSet rs = preparedStatement.executeQuery()) {
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (rs.next()) {
-                administratorList.add(mapAdministrator(rs));
+            while (resultSet.next()) {
+                administratorList.add(mapAdministrator(resultSet));
             }
 
         } catch (SQLException sqlException) {

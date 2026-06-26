@@ -119,9 +119,9 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_LINKED_ORGANIZATIONS_SQL);
-             ResultSet rs = preparedStatement.executeQuery()) {
-            while (rs.next()) {
-                organizationList.add(mapLinkedOrganization(rs));
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                organizationList.add(mapLinkedOrganization(resultSet));
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
@@ -142,9 +142,9 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement =
                      connection.prepareStatement(SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL);
-             ResultSet rs = preparedStatement.executeQuery()) {
-            while (rs.next()) {
-                organizationList.add(mapLinkedOrganization(rs));
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                organizationList.add(mapLinkedOrganization(resultSet));
             }
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE, "Error retrieving active organizations: {0}",

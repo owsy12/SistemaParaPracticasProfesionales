@@ -140,26 +140,26 @@ public class AddReportController implements EventHandler<DragEvent>, ChangeListe
         Optional<ButtonType> response = showAlertAndWait("Confirmar cancelación",
                 "¿Desea salir? Los datos ingresados no se guardarán.",
                 Alert.AlertType.CONFIRMATION);
-        boolean isConfirmed = false;
+        boolean isConfirmedCancel = false;
         if (response.isPresent()) {
             if (response.get() == ButtonType.OK) {
-                isConfirmed = true;
+                isConfirmedCancel = true;
             }
         }
-        if (isConfirmed) {
+        if (isConfirmedCancel) {
             clearSelection();
             openWelcomePage(anchorPane);
         }
     }
 
     private boolean isLateDelivery() {
-        boolean isLate = false;
+        boolean isLateDelivery = false;
         if (selectedReport.getDeadline() != null) {
             if (LocalDate.now().isAfter(selectedReport.getDeadline())) {
-                isLate = true;
+                isLateDelivery = true;
             }
         }
-        return isLate;
+        return isLateDelivery;
     }
 
     private void configureListeners() {

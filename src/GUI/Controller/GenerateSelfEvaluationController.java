@@ -139,8 +139,8 @@ public class GenerateSelfEvaluationController {
     }
 
     private boolean hasActiveSession() {
-        boolean hasSession = SessionManager.getInstance().getUser() != null;
-        return hasSession;
+        boolean hasActiveSession = SessionManager.getInstance().getUser() != null;
+        return hasActiveSession;
     }
 
     private void loadInternContext() {
@@ -247,24 +247,24 @@ public class GenerateSelfEvaluationController {
     }
 
     private boolean hasUnansweredQuestions() {
-        boolean hasUnanswered = false;
+        boolean hasUnansweredQuestions = false;
         for (ToggleGroup toggleGroup : questionToggleGroups) {
             if (toggleGroup.getSelectedToggle() == null) {
-                hasUnanswered = true;
+                hasUnansweredQuestions = true;
             }
         }
-        return hasUnanswered;
+        return hasUnansweredQuestions;
     }
 
     private boolean isPlaceAndDateEmpty() {
         String value = placeAndDateTextField.getText();
-        boolean isEmpty = false;
+        boolean isEmptyDate = false;
         if (value == null) {
-            isEmpty = true;
+            isEmptyDate = true;
         } else if (value.isBlank()) {
-            isEmpty = true;
+            isEmptyDate = true;
         }
-        return isEmpty;
+        return isEmptyDate;
     }
 
     private void processGeneration() {

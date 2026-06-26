@@ -229,28 +229,28 @@ public class GenerateReportController {
 
     @FXML
     public void addActivityToReport(ActionEvent actionEvent) {
-        Activity selected = projectActivitiesTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
+        Activity selectedActivity = projectActivitiesTable.getSelectionModel().getSelectedItem();
+        if (selectedActivity == null) {
             showAlert("Selección requerida", "Seleccione una actividad del proyecto.",
                     Alert.AlertType.WARNING);
         } else {
-            tryAddActivity(selected);
+            tryAddActivity(selectedActivity);
         }
     }
 
     @FXML
     public void removeActivityFromReport(ActionEvent actionEvent) {
-        ReportActivity selected = reportActivitiesTable.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            reportActivities.remove(selected);
+        ReportActivity selectedReportActivitt = reportActivitiesTable.getSelectionModel().getSelectedItem();
+        if (selectedReportActivitt != null) {
+            reportActivities.remove(selectedReportActivitt);
         }
     }
 
     @FXML
     public void addDeliverableToReport(ActionEvent actionEvent) {
-        Optional<ReportDeliverable> result = showDeliverableDialog();
-        if (result.isPresent()) {
-            reportDeliverables.add(result.get());
+        Optional<ReportDeliverable> deliverableOptional = showDeliverableDialog();
+        if (deliverableOptional.isPresent()) {
+            reportDeliverables.add(deliverableOptional.get());
         }
     }
 
@@ -622,14 +622,14 @@ public class GenerateReportController {
                 isConfirmed = true;
             }
         }
-        Optional<ReportActivity> result = Optional.empty();
+        Optional<ReportActivity> optionalReportActivity = Optional.empty();
         if (isConfirmed) {
-            result = Optional.of(
+            optionalReportActivity = Optional.of(
                     buildMonthlyActivity(activity,
                             periodField.getText().trim(),
                             observationsField.getText().trim()));
         }
-        return result;
+        return optionalReportActivity;
     }
 
     private ReportActivity buildMonthlyActivity(Activity activity, String period, String observations) {
@@ -801,92 +801,92 @@ public class GenerateReportController {
         dialog.getDialogPane().setContent(grid);
 
         Optional<ButtonType> dialogResult = dialog.showAndWait();
-        boolean isConfirmed = false;
+        boolean isConfirmedSave = false;
         if (dialogResult.isPresent()) {
             if (dialogResult.get() == confirmType) {
-                isConfirmed = true;
+                isConfirmedSave = true;
             }
         }
         boolean isResultNotBlank = !resultField.getText().isBlank();
 
-        Optional<ReportDeliverable> result = Optional.empty();
-        if (isConfirmed && isResultNotBlank) {
+        Optional<ReportDeliverable> reportDeliverable = Optional.empty();
+        if (isConfirmedSave && isResultNotBlank) {
             ReportDeliverable deliverable = new ReportDeliverable();
             deliverable.setResult(resultField.getText().trim());
             deliverable.setDescription(descriptionField.getText().trim());
             deliverable.setAdvancePercentage(parseIntSafe(advancePercentField.getText().trim()));
             deliverable.setObservations(observationsField.getText().trim());
-            result = Optional.of(deliverable);
+            reportDeliverable = Optional.of(deliverable);
         }
-        return result;
+        return reportDeliverable;
     }
 
     private boolean validateBusinessRules(String reportType) throws ServiceException {
         int internId = currentIntern.getIdUser();
         int projectId = currentProject.getIdProject();
         ReportDAO reportDAO = new ReportDAO();
-        boolean isValid = true;
+        boolean isValidBussinesRules = true;
 
         if (REPORT_TYPE_MONTHLY.equals(reportType)) {
-            isValid = validateMonthlyRules(internId, reportDAO);
+            isValidBussinesRules = validateMonthlyRules(internId, reportDAO);
         } else if (REPORT_TYPE_PARTIAL.equals(reportType)) {
-            isValid = validatePartialRules(internId, projectId, reportDAO);
+            isValidBussinesRules = validatePartialRules(internId, projectId, reportDAO);
         } else if (REPORT_TYPE_FINAL.equals(reportType)) {
-            isValid = validateFinalRules(internId, projectId, reportDAO);
+            isValidBussinesRules = validateFinalRules(internId, projectId, reportDAO);
         }
 
-        return isValid;
+        return isValidBussinesRules;
     }
 
     private boolean validateMonthlyRules(int internId, ReportDAO reportDAO) throws ServiceException {
-        boolean isValid = true;
+        boolean isValidMonthlyRules = true;
         if (monthComboBox.getValue() == null) {
             showAlert("Mes requerido", "Seleccione el mes para el reporte mensual.",
                     Alert.AlertType.WARNING);
-            isValid = false;
+            isValidMonthlyRules = false;
         } else {
             int year = LocalDate.now().getYear();
-            boolean exists = reportDAO.existsMonthlyByInternAndPeriod(
+            boolean existsMonthlyByInternAndPeriod = reportDAO.existsMonthlyByInternAndPeriod(
                     internId, monthComboBox.getValue(), year);
-            if (exists) {
+            if (existsMonthlyByInternAndPeriod) {
                 showAlert("Reporte duplicado", "Ya existe un reporte mensual para "
                         + monthComboBox.getValue() + " " + year + ".",
                         Alert.AlertType.WARNING);
-                isValid = false;
+                isValidMonthlyRules = false;
             }
         }
-        return isValid;
+        return isValidMonthlyRules;
     }
 
     private boolean validatePartialRules(int internId, int projectId, ReportDAO reportDAO) throws ServiceException {
-        boolean isValid = true;
+        boolean isValidPartialRules = true;
         if (approvedHours < PARTIAL_MIN_HOURS) {
             showAlert("Horas insuficientes", "Necesita al menos " + PARTIAL_MIN_HOURS
                     + " horas validadas. Actuales: " + approvedHours + ".",
                     Alert.AlertType.WARNING);
-            isValid = false;
+            isValidPartialRules = false;
         } else if (reportDAO.existsPartialByInternAndProject(internId, projectId)) {
             showAlert("Reporte duplicado", "Ya existe un reporte parcial para este proyecto.",
                     Alert.AlertType.WARNING);
-            isValid = false;
+            isValidPartialRules = false;
         }
-        return isValid;
+        return isValidPartialRules;
     }
 
     private boolean validateFinalRules(int internId, int projectId, ReportDAO reportDAO) throws ServiceException {
-        boolean isValid = true;
+        boolean isValidFinalRules = true;
         if (approvedHours < FINAL_MIN_HOURS) {
             showAlert("Horas insuficientes", "Necesita al menos " + FINAL_MIN_HOURS
                     + " horas validadas. Actuales: " + approvedHours + ".",
                     Alert.AlertType.WARNING);
-            isValid = false;
+            isValidFinalRules = false;
         } else if (reportDAO.existsFinalByInternAndProject(internId, projectId)) {
             showAlert("Reporte duplicado",
                     "Ya existe un reporte final para este proyecto.",
                     Alert.AlertType.WARNING);
-            isValid = false;
+            isValidFinalRules = false;
         }
-        return isValid;
+        return isValidFinalRules;
     }
 
     private void processGeneration(String reportType) {
@@ -920,21 +920,21 @@ public class GenerateReportController {
     }
 
     private boolean isMonthlyInputValid() {
-        boolean isValid = true;
+        boolean isValidMonthlyInput = true;
         if (monthComboBox.getValue() == null) {
             showAlert("Mes requerido",
                     "Seleccione el mes del reporte.", Alert.AlertType.WARNING);
-            isValid = false;
+            isValidMonthlyInput = false;
         } else if (reportNumberTextField.getText().isBlank()) {
             showAlert("Número de informe requerido",
                     "Ingrese el número de informe.", Alert.AlertType.WARNING);
-            isValid = false;
+            isValidMonthlyInput = false;
         } else if (reportedHoursTextField.getText().isBlank()) {
             showAlert("Horas requeridas",
                     "Ingrese las horas reportadas en el mes.", Alert.AlertType.WARNING);
-            isValid = false;
+            isValidMonthlyInput = false;
         }
-        return isValid;
+        return isValidMonthlyInput;
     }
 
     private void executeMonthlyGeneration() throws ValidationException, ServiceException, IOException {

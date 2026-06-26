@@ -292,23 +292,23 @@ public class ManageActivitiesController implements ChangeListener<Activity> {
     }
 
     private boolean isProjectStartPresent(Project project) {
-        boolean isPresent = false;
+        boolean isPresentStartValid = false;
         if (project != null) {
             if (project.getStartDate() != null) {
-                isPresent = true;
+                isPresentStartValid = true;
             }
         }
-        return isPresent;
+        return isPresentStartValid;
     }
 
     private boolean isProjectEndPresent(Project project) {
-        boolean isPresent = false;
+        boolean isPresentEndValid = false;
         if (project != null) {
             if (project.getEndDate() != null) {
-                isPresent = true;
+                isPresentEndValid = true;
             }
         }
-        return isPresent;
+        return isPresentEndValid;
     }
 
     private boolean isStartBeforeProjectStart(Project project, LocalDate startDate) {

@@ -141,13 +141,13 @@ public class LoginController {
     }
 
     private boolean isEmpty() {
-        boolean empty = false;
+        boolean isemptyFileds = false;
 
         if (userTextField.getText().isEmpty() || passwordField.getText().isEmpty()) {
-            empty = true;
+            isemptyFileds = true;
         }
 
-        return empty;
+        return isemptyFileds;
     }
 
     public void openWindow(String fxml, String title) {
