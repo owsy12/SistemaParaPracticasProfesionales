@@ -24,6 +24,8 @@ public class PracticeDAO implements IPracticeDAO {
     private static final Logger LOGGER = Logger.getLogger(PracticeDAO.class.getName());
 
     private static final String DEFAULT_STATUS = "Activa";
+    private static final String STATUS_CONCLUDED = "Concluida";
+    private static final String STATUS_CANCELLED = "Cancelada";
 
     private static final String SQL_INSERT =
             "INSERT INTO practica (nrc, periodo, id_practicante, fecha_inicio, fecha_fin, estado, calificacion) " +
@@ -43,36 +45,36 @@ public class PracticeDAO implements IPracticeDAO {
 
     private static final String SQL_SELECT_ACTIVE_BY_INTERN =
             SQL_SELECT_COLUMNS +
-            "FROM practica WHERE id_practicante = ? AND estado = 'Activa' LIMIT 1";
+            "FROM practica WHERE id_practicante = ? AND estado = '" + DEFAULT_STATUS + "' LIMIT 1";
 
     private static final String SQL_HAS_CONCLUDED =
-            "SELECT COUNT(*) AS total FROM practica WHERE id_practicante = ? AND estado = 'Concluida'";
+            "SELECT COUNT(*) AS total FROM practica WHERE id_practicante = ? AND estado = '" + STATUS_CONCLUDED + "'";
 
     private static final String SQL_CANCEL_BY_INTERN_AND_PROJECT =
             "UPDATE practica p " +
             "INNER JOIN proyecto pr ON p.nrc = pr.nrc AND p.periodo = pr.periodo " +
-            "SET p.estado = 'Cancelada' " +
-            "WHERE p.id_practicante = ? AND pr.id_proyecto = ? AND p.estado = 'Activa'";
+            "SET p.estado = '" + STATUS_CANCELLED + "' " +
+            "WHERE p.id_practicante = ? AND pr.id_proyecto = ? AND p.estado = '" + DEFAULT_STATUS + "'";
 
     private static final String SQL_REACTIVATE_CANCELLED =
-            "UPDATE practica SET estado = 'Activa', fecha_inicio = ? " +
-            "WHERE id_practicante = ? AND nrc = ? AND periodo = ? AND estado = 'Cancelada' LIMIT 1";
+            "UPDATE practica SET estado = '" + DEFAULT_STATUS + "', fecha_inicio = ? " +
+            "WHERE id_practicante = ? AND nrc = ? AND periodo = ? AND estado = '" + STATUS_CANCELLED + "' LIMIT 1";
 
     private static final String SQL_CONCLUDE_ACTIVE_BY_INTERN =
-            "UPDATE practica SET estado = 'Concluida', calificacion = ? " +
-            "WHERE id_practicante = ? AND estado = 'Activa'";
+            "UPDATE practica SET estado = '" + STATUS_CONCLUDED + "', calificacion = ? " +
+            "WHERE id_practicante = ? AND estado = '" + DEFAULT_STATUS + "'";
 
     private static final String SQL_SELECT_ACTA_BY_INTERN =
             "SELECT ruta_acta_cierre FROM practica " +
             "WHERE id_practicante = ? AND ruta_acta_cierre IS NOT NULL LIMIT 1";
 
     private static final String SQL_CONCLUDE_WITH_ACTA =
-            "UPDATE practica SET estado = 'Concluida', calificacion = ?, ruta_acta_cierre = ?, " +
-            "fecha_fin = ? WHERE id_practicante = ? AND estado = 'Activa'";
+            "UPDATE practica SET estado = '" + STATUS_CONCLUDED + "', calificacion = ?, ruta_acta_cierre = ?, " +
+            "fecha_fin = ? WHERE id_practicante = ? AND estado = '" + DEFAULT_STATUS + "'";
 
     private static final String SQL_MARK_ACTA_PENDING =
             "UPDATE practica SET ruta_acta_cierre = ? " +
-            "WHERE id_practicante = ? AND estado = 'Activa'";
+            "WHERE id_practicante = ? AND estado = '" + DEFAULT_STATUS + "'";
 
     private static final String SQL_UPDATE =
             "UPDATE practica SET nrc = ?, periodo = ?, id_practicante = ?, fecha_inicio = ?, " +

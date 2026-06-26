@@ -16,6 +16,11 @@ import java.util.logging.Logger;
 public class ProfessorDAO implements IProfessorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ProfessorDAO.class.getName());
+
+    private static final String ROLE_PROFESSOR = "Profesor";
+    private static final String STATUS_ACTIVE = "Activo";
+    private static final String STATUS_INACTIVE = "Inactivo";
+
     private static final String INSERT_PROFESSOR_SQL =
             "INSERT INTO profesor (id_usuario, academica) VALUES (?, ?)";
     private static final String SELECT_PROFESSOR_BY_ID_SQL =
@@ -26,7 +31,7 @@ public class ProfessorDAO implements IProfessorDAO {
             "SELECT u.*, p.academica FROM usuario u " +
                     "JOIN profesor p ON u.id_usuario = p.id_usuario";
     private static final String UPDATE_PROFESSOR_STATUS_SQL =
-            "UPDATE usuario SET estado = 'Inactivo' WHERE id_usuario = ?";
+            "UPDATE usuario SET estado = '" + STATUS_INACTIVE + "' WHERE id_usuario = ?";
 
     public ProfessorDAO() throws ValidationException, ServiceException {
     }
@@ -160,14 +165,14 @@ public class ProfessorDAO implements IProfessorDAO {
                 "FROM usuario u " +
                 "JOIN profesor p ON u.id_usuario = p.id_usuario " +
                 "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
-                "WHERE ur.rol = 'Profesor' " +
-                "AND ur.estado = 'Activo' " +
+                "WHERE ur.rol = '" + ROLE_PROFESSOR + "' " +
+                "AND ur.estado = '" + STATUS_ACTIVE + "' " +
                 "AND NOT EXISTS ( " +
                 "    SELECT 1" +
                 "    FROM usuario_rol ur2" +
                 "    WHERE ur2.id_usuario = u.id_usuario " +
-                "    AND ur2.rol <> 'Profesor'" +
-                "    AND ur2.estado = 'Activo')";
+                "    AND ur2.rol <> '" + ROLE_PROFESSOR + "'" +
+                "    AND ur2.estado = '" + STATUS_ACTIVE + "')";
 
         try (Connection databaseConnection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = databaseConnection.prepareStatement(sql);
@@ -189,8 +194,8 @@ public class ProfessorDAO implements IProfessorDAO {
                 "FROM usuario u " +
                 "JOIN profesor p ON u.id_usuario = p.id_usuario " +
                 "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
-                "WHERE ur.estado = 'Activo' " +
-                "AND ur.rol = 'Profesor'";
+                "WHERE ur.estado = '" + STATUS_ACTIVE + "' " +
+                "AND ur.rol = '" + ROLE_PROFESSOR + "'";
 
         try (Connection databaseConnection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = databaseConnection.prepareStatement(sql);

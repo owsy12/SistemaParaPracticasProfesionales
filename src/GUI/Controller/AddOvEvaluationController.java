@@ -3,10 +3,10 @@ package GUI.Controller;
 import GUI.SessionManager.SessionManager;
 import GUI.Utils.EvaluationPrerequisiteChecker;
 import Logic.DAO.AssignmentDAO;
-import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.OvEvaluationDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DTOs.Assignment;
-import Logic.DTOs.OVEvaluation;
+import Logic.DTOs.OvEvaluation;
 import Logic.DTOs.Project;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
@@ -39,14 +39,14 @@ import static GUI.Utils.Alert.showAlert;
 import static GUI.Utils.ValidationUtils.isPDF;
 import static GUI.Utils.ViewsUtils.openWelcomePage;
 
-public class AddOVEvaluationController implements EventHandler<DragEvent> {
+public class AddOvEvaluationController implements EventHandler<DragEvent> {
     private static final String STATUS_SUBMITTED = "Entregada";
 
 
     private static final String STATUS_ERROR_STYLE_CLASS = "statusErrorLabel";
     private static final String STATUS_SUCCESS_STYLE_CLASS = "statusSuccessLabel";
     private static final Logger LOGGER =
-            Logger.getLogger(AddOVEvaluationController.class.getName());
+            Logger.getLogger(AddOvEvaluationController.class.getName());
 
     @FXML
     private AnchorPane anchorPane;
@@ -87,7 +87,7 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     }
 
     @FXML
-    public void uploadOVEvaluation(ActionEvent actionEvent) {
+    public void uploadOvEvaluation(ActionEvent actionEvent) {
         boolean isFileMissing = selectedFile == null;
         if (isFileMissing) {
             showStatus("Seleccione el PDF de la evaluación OV.", true);
@@ -184,8 +184,8 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     }
 
     private void checkAlreadyDelivered() throws ServiceException, ValidationException {
-        OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
-        OVEvaluation existing = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+        OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
+        OvEvaluation existing = ovEvaluationDAO.findByInternAndProject(internId, projectId);
 
         if (existing != null) {
             showAlert("Evaluación OV ya entregada", "Ya entregó su evaluación OV para este proyecto.",
@@ -208,8 +208,8 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
     private void uploadProcess() {
         try {
             String filePath = copyFile();
-            OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
-            OVEvaluation ovEvaluation = buildOVEvaluation(filePath);
+            OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
+            OvEvaluation ovEvaluation = buildOvEvaluation(filePath);
             int rowsAffected = ovEvaluationDAO.save(ovEvaluation);
 
             if (rowsAffected > 0) {
@@ -249,8 +249,8 @@ public class AddOVEvaluationController implements EventHandler<DragEvent> {
         }
     }
 
-    private OVEvaluation buildOVEvaluation(String filePath) {
-        OVEvaluation ovEvaluation = new OVEvaluation();
+    private OvEvaluation buildOvEvaluation(String filePath) {
+        OvEvaluation ovEvaluation = new OvEvaluation();
         ovEvaluation.setIdIntern(internId);
         ovEvaluation.setIdProject(projectId);
         ovEvaluation.setDocumentPath(filePath);

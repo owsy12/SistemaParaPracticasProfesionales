@@ -21,6 +21,7 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     private static final Logger LOGGER = Logger.getLogger(LinkedOrganizationDAO.class.getName());
 
     private static final String STATUS_ACTIVE = "Activa";
+    private static final String STATUS_INACTIVE = "Inactiva";
 
     private static final String INSERT_LINKED_ORGANIZATION_SQL =
             "INSERT INTO organizacion_vinculada " +
@@ -36,14 +37,14 @@ public class LinkedOrganizationDAO implements ILinkedOrganizationDAO {
     private static final String SELECT_ALL_ACTIVE_LINKED_ORGANIZATIONS_SQL =
             "SELECT id_organizacion, nombre_organizacion, correo_organizacion, " +
                     "direccion, sector, estado FROM organizacion_vinculada " +
-                    "WHERE estado = 'Activa'";
+                    "WHERE estado = '" + STATUS_ACTIVE + "'";
     private static final String UPDATE_LINKED_ORGANIZATION_SQL =
             "UPDATE organizacion_vinculada " +
                     "SET nombre_organizacion = ?, correo_organizacion = ?, " +
                     "direccion = ?, sector = ?, estado = ? " +
                     "WHERE id_organizacion = ?";
     private static final String UPDATE_LINKED_ORGANIZATION_STATUS_SQL =
-            "UPDATE organizacion_vinculada SET estado = 'Inactiva' WHERE id_organizacion = ?";
+            "UPDATE organizacion_vinculada SET estado = '" + STATUS_INACTIVE + "' WHERE id_organizacion = ?";
     private static final String COUNT_PROJECTS_BY_ORGANIZATION_SQL =
             "SELECT COUNT(*) FROM proyecto WHERE id_organizacion = ?";
     private static final String DELETE_RESPONSIBLE_TECHNICIANS_BY_ORGANIZATION_SQL =

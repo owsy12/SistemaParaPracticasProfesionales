@@ -6,7 +6,7 @@ import Logic.DAO.AssignmentDAO;
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternActivityDAO;
 import Logic.DAO.InternDAO;
-import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.OvEvaluationDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProfessorDAO;
 import Logic.DAO.ProjectDAO;
@@ -191,7 +191,7 @@ public class UpdateProjectController implements ChangeListener<Intern> {
         new ReportDAO().deleteByInternAndProject(internId, projectId);
         new InitialFormatDAO().deleteByInternAndProject(internId, projectId);
         new SelfEvaluationDAO().deleteByInternAndProject(internId, projectId);
-        new OVEvaluationDAO().deleteByInternAndProject(internId, projectId);
+        new OvEvaluationDAO().deleteByInternAndProject(internId, projectId);
         new InternActivityDAO().deleteByInternAndProject(internId, projectId);
         new PracticeDAO().cancelActiveByInternAndProject(internId, projectId);
         new ApplicationDAO().cancelAcceptedByIntern(internId);

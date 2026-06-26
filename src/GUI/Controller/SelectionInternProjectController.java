@@ -2,7 +2,7 @@ package GUI.Controller;
 
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternDAO;
-import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.OvEvaluationDAO;
 import Logic.DAO.PracticeDAO;
 import Logic.DAO.ProjectDAO;
 import Logic.DAO.ReportDAO;
@@ -10,7 +10,7 @@ import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.EducationalExperience;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.Intern;
-import Logic.DTOs.OVEvaluation;
+import Logic.DTOs.OvEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.SelfEvaluation;
@@ -205,8 +205,8 @@ public class SelectionInternProjectController {
             documents.add(new String[]{DOCUMENT_TYPE_SELF_EVALUATION, selfEvaluation.getStatus()});
         }
 
-        OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
-        OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
+        OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
+        OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(
                 intern.getIdUser(), project.getIdProject());
         if (ovEvaluation != null) {
             documents.add(new String[]{DOCUMENT_TYPE_OV_EVALUATION, ovEvaluation.getStatus()});

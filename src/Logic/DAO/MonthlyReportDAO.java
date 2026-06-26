@@ -18,6 +18,9 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
 
     private static final Logger LOGGER = Logger.getLogger(MonthlyReportDAO.class.getName());
 
+    private static final String REPORT_TYPE_MONTHLY = "Mensual";
+    private static final String STATUS_PENDING = "Pendiente";
+
     private static final String SQL_INSERT_SPECIFIC =
             "INSERT INTO reporte_mensual " +
                     "(id_reporte_mensual, mes, anio, horas_reportadas, bloque, seccion) " +
@@ -36,11 +39,11 @@ public class MonthlyReportDAO extends ReportDAO implements IReportDAO {
             SQL_SELECT_BASE + " WHERE r.id_reporte = ?";
 
     private static final String SQL_SELECT_ALL =
-            SQL_SELECT_BASE + " WHERE r.tipo_reporte = 'Mensual'";
+            SQL_SELECT_BASE + " WHERE r.tipo_reporte = '" + REPORT_TYPE_MONTHLY + "'";
 
     private static final String SQL_SELECT_PENDING =
             SQL_SELECT_BASE +
-                    " WHERE r.tipo_reporte = 'Mensual' AND r.estado = 'Pendiente'";
+                    " WHERE r.tipo_reporte = '" + REPORT_TYPE_MONTHLY + "' AND r.estado = '" + STATUS_PENDING + "'";
 
     @Override
     public int save(Report report) throws ServiceException, ValidationException {

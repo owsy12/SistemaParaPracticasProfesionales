@@ -3,24 +3,24 @@ package Logic.DTOs;
 import java.util.Objects;
 import java.time.LocalDateTime;
 
-public class OVEvaluation {
+public class OvEvaluation {
 
-    private int idOVEvaluation;
+    private int idOvEvaluation;
     private int idIntern;
     private int idProject;
     private String documentPath;
     private String status;
     private LocalDateTime deliveryDate;
 
-    public OVEvaluation() {
+    public OvEvaluation() {
     }
 
-    public int getIdOVEvaluation() {
-        return idOVEvaluation;
+    public int getIdOvEvaluation() {
+        return idOvEvaluation;
     }
 
-    public void setIdOVEvaluation(int idOVEvaluation) {
-        this.idOVEvaluation = idOVEvaluation;
+    public void setIdOvEvaluation(int idOvEvaluation) {
+        this.idOvEvaluation = idOvEvaluation;
     }
 
     public int getIdIntern() {
@@ -71,8 +71,8 @@ public class OVEvaluation {
         if (object == null || getClass() != object.getClass()) {
             return false;
         }
-        OVEvaluation other = (OVEvaluation) object;
-        return idOVEvaluation == other.idOVEvaluation
+        OvEvaluation other = (OvEvaluation) object;
+        return idOvEvaluation == other.idOvEvaluation
                 && idIntern == other.idIntern
                 && idProject == other.idProject
                 && Objects.equals(documentPath, other.documentPath)
@@ -82,6 +82,6 @@ public class OVEvaluation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(idOVEvaluation, idIntern, idProject, documentPath, status, deliveryDate);
+        return Objects.hash(idOvEvaluation, idIntern, idProject, documentPath, status, deliveryDate);
     }
 }

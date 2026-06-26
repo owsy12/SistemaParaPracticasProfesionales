@@ -17,6 +17,10 @@ public class ApplicationDAO implements IApplicationDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ApplicationDAO.class.getName());
 
+    private static final String STATUS_PENDING = "Pendiente";
+    private static final String STATUS_ACCEPTED = "Aceptada";
+    private static final String STATUS_CANCELLED = "Cancelada";
+
     private static final String INSERT_SQL =
             "INSERT INTO solicitud (id_practicante, estado) VALUES (?, ?)";
 
@@ -41,11 +45,11 @@ public class ApplicationDAO implements IApplicationDAO {
 
     private static final String FIND_USER_PENDING_APPLICATION =
             "SELECT id_solicitud, id_practicante, estado, fecha_solicitud " +
-            "FROM solicitud WHERE id_practicante = ? AND estado = 'Pendiente'";
+            "FROM solicitud WHERE id_practicante = ? AND estado = '" + STATUS_PENDING + "'";
 
     private static final String CANCEL_ACCEPTED_BY_INTERN_SQL =
-            "UPDATE solicitud SET estado = 'Cancelada' " +
-            "WHERE id_practicante = ? AND estado = 'Aceptada'";
+            "UPDATE solicitud SET estado = '" + STATUS_CANCELLED + "' " +
+            "WHERE id_practicante = ? AND estado = '" + STATUS_ACCEPTED + "'";
 
     @Override
     public int create(Application application) throws ServiceException, ValidationException {

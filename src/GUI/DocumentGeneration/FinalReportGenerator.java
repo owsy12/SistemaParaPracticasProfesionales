@@ -85,8 +85,8 @@ public class FinalReportGenerator {
         try (ZipInputStream zipIn = new ZipInputStream(templateStream);
              ZipOutputStream zipOut = new ZipOutputStream(out)) {
 
-            ZipEntry entry;
-            while ((entry = zipIn.getNextEntry()) != null) {
+            ZipEntry entry = zipIn.getNextEntry();
+            while (entry != null) {
                 byte[] data = readAllBytes(zipIn);
                 if ("word/document.xml".equals(entry.getName())) {
                     String xml = new String(data, StandardCharsets.UTF_8);
@@ -99,6 +99,7 @@ public class FinalReportGenerator {
                 zipOut.putNextEntry(new ZipEntry(entry.getName()));
                 zipOut.write(data);
                 zipOut.closeEntry();
+                entry = zipIn.getNextEntry();
             }
         }
         return out.toByteArray();
@@ -303,9 +304,10 @@ public class FinalReportGenerator {
     private static byte[] readAllBytes(InputStream inputStream) throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] chunk = new byte[8192];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(chunk)) != -1) {
+        int bytesRead = inputStream.read(chunk);
+        while (bytesRead != -1) {
             buffer.write(chunk, 0, bytesRead);
+            bytesRead = inputStream.read(chunk);
         }
         byte[] result = buffer.toByteArray();
         return result;

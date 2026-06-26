@@ -21,7 +21,7 @@
 
     <stylesheets>
         <URL value="@css/SGPPTheme.css"/>
-        <URL value="@css/GUIAddOVEvaluationStyles.css"/>
+        <URL value="@css/GUIAddOvEvaluationStyles.css"/>
     </stylesheets>
 
     <children>

@@ -17,6 +17,8 @@ public class ReportActivityDAO implements IReportActivityDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ReportActivityDAO.class.getName());
 
+    private static final String REPORT_TYPE_MONTHLY = "Mensual";
+
     private static final String SQL_INSERT_ACTIVITY =
             "INSERT INTO reporte_actividad " +
             "(id_reporte, id_actividad, periodo, plan_semanas, real_semanas, " +
@@ -36,7 +38,7 @@ public class ReportActivityDAO implements IReportActivityDAO {
             "SELECT DISTINCT ra.id_actividad " +
             "FROM reporte_actividad ra " +
             "JOIN reporte r ON r.id_reporte = ra.id_reporte " +
-            "WHERE r.id_practicante = ? AND r.tipo_reporte = 'Mensual'";
+            "WHERE r.id_practicante = ? AND r.tipo_reporte = '" + REPORT_TYPE_MONTHLY + "'";
 
     private static final String SQL_EXISTS_BY_ACTIVITY =
             "SELECT COUNT(*) AS total FROM reporte_actividad WHERE id_actividad = ?";

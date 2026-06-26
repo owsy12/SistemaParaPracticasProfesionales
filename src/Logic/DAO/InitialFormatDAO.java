@@ -19,6 +19,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
 
 
     private static final Logger LOGGER = Logger.getLogger(InitialFormatDAO.class.getName());
+    private static final String STATUS_PENDING = "Pendiente";
     private static final String SQL_INSERT =
             "INSERT INTO formato_inicial " +
                     "(id_practicante, id_proyecto, tipo_formato, ruta_archivo, estado, fecha_entrega) " +
@@ -40,7 +41,7 @@ public class InitialFormatDAO implements IInitialFormatDAO {
             "SELECT id_formato, id_practicante, id_proyecto, tipo_formato, " +
                     "ruta_archivo, estado, fecha_entrega " +
                     "FROM formato_inicial " +
-                    "WHERE id_practicante = ? AND estado = 'Pendiente'";
+                    "WHERE id_practicante = ? AND estado = '" + STATUS_PENDING + "'";
 
     private static final String SQL_UPLOAD_UPDATE_STATUS =
             "UPDATE formato_inicial " +

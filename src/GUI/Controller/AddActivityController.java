@@ -194,8 +194,8 @@ public class AddActivityController {
         LocalDate startDate = startDatePicker.getValue();
         LocalDate endDate = endDatePicker.getValue();
         boolean bothProvided = startDate != null && endDate != null;
-        boolean invalid = bothProvided && !endDate.isAfter(startDate);
-        return invalid;
+        boolean hasInvalidDateOrder = bothProvided && !endDate.isAfter(startDate);
+        return hasInvalidDateOrder;
     }
 
     private boolean areDatesOutsideProjectRange() {

@@ -2,12 +2,12 @@ package GUI.Utils;
 
 import Logic.DAO.InitialFormatDAO;
 import Logic.DAO.InternActivityDAO;
-import Logic.DAO.OVEvaluationDAO;
+import Logic.DAO.OvEvaluationDAO;
 import Logic.DAO.ReportDAO;
 import Logic.DAO.SelfEvaluationDAO;
 import Logic.DTOs.InitialFormat;
 import Logic.DTOs.InternActivity;
-import Logic.DTOs.OVEvaluation;
+import Logic.DTOs.OvEvaluation;
 import Logic.DTOs.Project;
 import Logic.DTOs.Report;
 import Logic.DTOs.SelfEvaluation;
@@ -37,7 +37,7 @@ public class EvaluationPrerequisiteChecker {
                 && hasEvaluatedReportOfType(internId, REPORT_TYPE_PARTIAL)
                 && hasEvaluatedReportOfType(internId, REPORT_TYPE_FINAL)
                 && isSelfEvaluationEvaluated(internId)
-                && isOVEvaluationEvaluated(internId, projectId);
+                && isOvEvaluationEvaluated(internId, projectId);
         return complete;
     }
 
@@ -65,10 +65,10 @@ public class EvaluationPrerequisiteChecker {
         return evaluated;
     }
 
-    private static boolean isOVEvaluationEvaluated(int internId, int projectId)
+    private static boolean isOvEvaluationEvaluated(int internId, int projectId)
             throws ServiceException, ValidationException {
-        OVEvaluationDAO ovEvaluationDAO = new OVEvaluationDAO();
-        OVEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
+        OvEvaluationDAO ovEvaluationDAO = new OvEvaluationDAO();
+        OvEvaluation ovEvaluation = ovEvaluationDAO.findByInternAndProject(internId, projectId);
         boolean evaluated = ovEvaluation != null
                 && STATUS_DOCUMENT_EVALUATED.equals(ovEvaluation.getStatus());
         return evaluated;

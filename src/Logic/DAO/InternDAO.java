@@ -16,6 +16,11 @@ import java.util.logging.Logger;
 public class InternDAO extends UserDAO implements IInternDAO {
 
     private static final Logger LOGGER = Logger.getLogger(InternDAO.class.getName());
+
+    private static final String ROLE_INTERN = "Practicante";
+    private static final String STATUS_ACTIVE = "Activo";
+    private static final String STATUS_INACTIVE = "Inactivo";
+
     private static final String INSERT_INTERN_SQL =
             "INSERT INTO practicante (id_usuario, creditos) VALUES (?, ?)";
     private static final String SELECT_INTERN_BY_ID_SQL =
@@ -28,11 +33,11 @@ public class InternDAO extends UserDAO implements IInternDAO {
                     "u.apellido_materno, u.contrasenia, u.estado, p.creditos FROM usuario u " +
                     "JOIN practicante p ON u.id_usuario = p.id_usuario";
     private static final String UPDATE_INTERN_STATUS_SQL =
-            "UPDATE usuario_rol SET estado = 'Inactivo' WHERE id_usuario = ? AND rol = 'Practicante'";
+            "UPDATE usuario_rol SET estado = '" + STATUS_INACTIVE + "' WHERE id_usuario = ? AND rol = '" + ROLE_INTERN + "'";
     private static final String UPDATE_INTERN_CREDITS_SQL =
             "UPDATE practicante SET creditos = ? WHERE id_usuario = ?";
     private static final String FIND_ALL_ACTIVE_INTERNS =
-            "SELECT u.* FROM usuario u JOIN usuario_rol  ur ON u.id_usuario = ur.id_usuario WHERE ur.rol = 'Practicante' AND ur.estado = 'Activo'";
+            "SELECT u.* FROM usuario u JOIN usuario_rol  ur ON u.id_usuario = ur.id_usuario WHERE ur.rol = '" + ROLE_INTERN + "' AND ur.estado = '" + STATUS_ACTIVE + "'";
 
     private static final String SELECT_BY_PROJECT_SQL =
             "SELECT DISTINCT u.id_usuario, u.matricula, u.nombre, u.apellido_paterno, " +

@@ -17,6 +17,9 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
     private static final Logger LOGGER = Logger.getLogger(CoordinatorDAO.class.getName());
 
+    private static final String ROLE_COORDINATOR = "Coordinador";
+    private static final String STATUS_ACTIVE = "Activo";
+
     public CoordinatorDAO() throws ServiceException {
         super();
     }
@@ -131,14 +134,14 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         String sql = "SELECT u.*" +
                 "FROM usuario u " +
                 "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
-                "WHERE ur.rol = 'Coordinador' " +
-                "AND ur.estado = 'Activo' " +
+                "WHERE ur.rol = '" + ROLE_COORDINATOR + "' " +
+                "AND ur.estado = '" + STATUS_ACTIVE + "' " +
                 "AND NOT EXISTS ( " +
                 "    SELECT 1 " +
                 "    FROM usuario_rol ur2 " +
                 "    WHERE ur2.id_usuario = u.id_usuario " +
-                "    AND ur2.rol <> 'Coordinador'" +
-                "    AND ur2.estado = 'Activo')";
+                "    AND ur2.rol <> '" + ROLE_COORDINATOR + "'" +
+                "    AND ur2.estado = '" + STATUS_ACTIVE + "')";
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -161,8 +164,8 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
         String sql = "SELECT u.* " +
                 "FROM usuario u " +
                 "JOIN usuario_rol ur ON u.id_usuario = ur.id_usuario " +
-                "WHERE ur.estado = 'Activo' " +
-                "AND ur.rol = 'Coordinador' ";
+                "WHERE ur.estado = '" + STATUS_ACTIVE + "' " +
+                "AND ur.rol = '" + ROLE_COORDINATOR + "' ";
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement preparedStatement = connection.prepareStatement(sql);
@@ -180,7 +183,7 @@ public class CoordinatorDAO extends UserDAO implements ICoordinatorDAO {
 
     private int countActiveCoordinators() throws ServiceException {
         int count = 0;
-        String sql = "SELECT COUNT(*) FROM usuario_rol WHERE rol = 'Coordinador' AND estado = 'Activo'";
+        String sql = "SELECT COUNT(*) FROM usuario_rol WHERE rol = '" + ROLE_COORDINATOR + "' AND estado = '" + STATUS_ACTIVE + "'";
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {

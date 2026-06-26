@@ -18,6 +18,13 @@ public class ReportDAO implements IReportDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ReportDAO.class.getName());
 
+    private static final String STATUS_PENDING = "Pendiente";
+    private static final String STATUS_IN_REVIEW = "En revision";
+    private static final String STATUS_EVALUATED = "Evaluado";
+    private static final String STATUS_APPROVED = "Aprobado";
+    private static final String REPORT_TYPE_PARTIAL = "Parcial";
+    private static final String REPORT_TYPE_FINAL = "Final";
+
     private static final String SQL_INSERT =
             "INSERT INTO reporte " +
             "(id_practicante, id_proyecto, id_profesor, tipo_reporte, periodo, " +
@@ -37,7 +44,7 @@ public class ReportDAO implements IReportDAO {
             SQL_SELECT_COLUMNS + "FROM reporte";
 
     private static final String SQL_SELECT_PENDING =
-            SQL_SELECT_COLUMNS + "FROM reporte WHERE estado = 'Pendiente'";
+            SQL_SELECT_COLUMNS + "FROM reporte WHERE estado = '" + STATUS_PENDING + "'";
 
     private static final String SQL_SELECT_BY_INTERN =
             SQL_SELECT_COLUMNS + "FROM reporte WHERE id_practicante = ? ORDER BY fecha_entrega DESC";
@@ -84,7 +91,7 @@ public class ReportDAO implements IReportDAO {
             "UPDATE reporte SET ruta_documento = ? WHERE id_reporte = ?";
 
     private static final String SQL_UPDATE_SIGNED_PATH =
-            "UPDATE reporte SET ruta_documento_firmado = ?, estado = 'En revision' " +
+            "UPDATE reporte SET ruta_documento_firmado = ?, estado = '" + STATUS_IN_REVIEW + "' " +
             "WHERE id_reporte = ?";
 
     private static final String SQL_MARK_LATE_DELIVERY =
@@ -95,7 +102,7 @@ public class ReportDAO implements IReportDAO {
             "FROM reporte r " +
             "JOIN reporte_mensual rm ON rm.id_reporte_mensual = r.id_reporte " +
             "WHERE r.id_practicante = ? " +
-            "  AND (r.estado = 'Evaluado' OR r.estado = 'Aprobado')";
+            "  AND (r.estado = '" + STATUS_EVALUATED + "' OR r.estado = '" + STATUS_APPROVED + "')";
 
     private static final String SQL_EXISTS_MONTHLY =
             "SELECT COUNT(*) AS total " +
@@ -105,11 +112,11 @@ public class ReportDAO implements IReportDAO {
 
     private static final String SQL_EXISTS_PARTIAL =
             "SELECT COUNT(*) AS total FROM reporte " +
-            "WHERE id_practicante = ? AND id_proyecto = ? AND tipo_reporte = 'Parcial'";
+            "WHERE id_practicante = ? AND id_proyecto = ? AND tipo_reporte = '" + REPORT_TYPE_PARTIAL + "'";
 
     private static final String SQL_EXISTS_FINAL =
             "SELECT COUNT(*) AS total FROM reporte " +
-            "WHERE id_practicante = ? AND id_proyecto = ? AND tipo_reporte = 'Final'";
+            "WHERE id_practicante = ? AND id_proyecto = ? AND tipo_reporte = '" + REPORT_TYPE_FINAL + "'";
 
     @Override
     public int save(Report report) throws ServiceException, ValidationException {

@@ -34,7 +34,7 @@ public class UserRoleDAO implements IUserRoleDAO {
     private static final String DELETE_USER_ROLE_SQL =
             "DELETE FROM usuario_rol WHERE id_usuario = ? AND rol = ?";
     private static final String USER_ACTIVE_ROLS =
-            "SELECT id_usuario, rol FROM usuario_rol WHERE id_usuario = ? AND estado = 'Activo'";
+            "SELECT id_usuario, rol FROM usuario_rol WHERE id_usuario = ? AND estado = '" + STATUS_ACTIVE + "'";
     private static final String UPDATE_USER_ROLE_STATUS =
             "UPDATE usuario_rol SET estado = ? WHERE id_usuario = ? AND rol = ?";
 

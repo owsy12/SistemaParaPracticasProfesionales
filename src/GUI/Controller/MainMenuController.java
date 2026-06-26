@@ -244,7 +244,7 @@ public class MainMenuController implements EventHandler<ActionEvent> {
         addButton("Añadir Reporte", "/GUI/View/GUIAddReport.fxml");
         addButton("Generar Autoevaluación", "/GUI/View/GUIGenerateSelfEvaluation.fxml");
         addButton("Añadir Autoevaluación", "/GUI/View/GUIAddSelfEvaluation.fxml");
-        addButton("Añadir Evaluación OV", "/GUI/View/GUIAddOVEvaluation.fxml");
+        addButton("Añadir Evaluación OV", "/GUI/View/GUIAddOvEvaluation.fxml");
         addButton("Subir Acta de Cierre", "/GUI/View/GUIUploadClosureRecord.fxml");
         addButton("Retroalimentación", "/GUI/View/GUIInternFeedback.fxml");
     }

@@ -21,6 +21,9 @@ public class ProjectDAO implements IProjectDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ProjectDAO.class.getName());
 
+    private static final String STATUS_FULL = "Lleno";
+    private static final String STATUS_CANCELLED = "Cancelado";
+
     private static final String INSERT_PROJECT_SQL =
             "INSERT INTO proyecto " +
                     "(id_organizacion, id_tecnico, id_profesor, nombre, descripcion, objetivo, " +
@@ -49,7 +52,7 @@ public class ProjectDAO implements IProjectDAO {
                     "p.cupo_disponible, p.nrc, p.periodo, ov.id_organizacion, ov.nombre_organizacion " +
                     "FROM proyecto p " +
                     "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
-                    "WHERE p.estado = 'Disponible' AND p.cupo_disponible > 0";
+                    "WHERE p.estado = '" + STATUS_AVAILABLE + "' AND p.cupo_disponible > 0";
     private static final String SELECT_PROJECTS_BY_COORDINATOR_SQL =
             "SELECT id_proyecto, id_organizacion, id_tecnico, id_coordinador, " +
                     "nombre, descripcion, fecha_inicio, fecha_fin, cupo_maximo, " +
@@ -60,11 +63,11 @@ public class ProjectDAO implements IProjectDAO {
                     "fecha_inicio = ?, fecha_fin = ?, cupo_maximo = ?, cupo_disponible = ?, " +
                     "estado = ? WHERE id_proyecto = ?";
     private static final String UPDATE_PROJECT_STATUS_SQL =
-            "UPDATE proyecto SET estado = 'Cancelado' WHERE id_proyecto = ?";
+            "UPDATE proyecto SET estado = '" + STATUS_CANCELLED + "' WHERE id_proyecto = ?";
     private static final String UPDATE_AVAILABLE_SLOT_SQL =
             "UPDATE proyecto " +
                     "SET cupo_disponible = cupo_disponible - 1, " +
-                    "    estado = CASE WHEN cupo_disponible - 1 = 0 THEN 'Lleno' ELSE estado END " +
+                    "    estado = CASE WHEN cupo_disponible - 1 = 0 THEN '" + STATUS_FULL + "' ELSE estado END " +
                     "WHERE id_proyecto = ? AND cupo_disponible > 0";
     private static final String DELETE_PROYECT =
             "DELETE FROM proyecto WHERE id_proyecto = ?";
@@ -76,7 +79,7 @@ public class ProjectDAO implements IProjectDAO {
             "       ov.nombre_organizacion " +
             "FROM proyecto p " +
             "JOIN spp.organizacion_vinculada ov ON ov.id_organizacion = p.id_organizacion " +
-            "WHERE p.id_profesor = ? AND p.estado = 'Disponible'";
+            "WHERE p.id_profesor = ? AND p.estado = '" + STATUS_AVAILABLE + "'";
 
     private static final String SQL_SELECT_BY_EDUCATIONAL_EXPERIENCE =
             "SELECT p.id_proyecto, p.id_tecnico, p.id_profesor, " +
@@ -94,7 +97,7 @@ public class ProjectDAO implements IProjectDAO {
     private static final String SQL_INCREMENT_AVAILABLE_SLOT =
             "UPDATE proyecto " +
             "SET cupo_disponible = cupo_disponible + 1, " +
-            "    estado = CASE WHEN estado = 'Lleno' THEN 'Disponible' ELSE estado END " +
+            "    estado = CASE WHEN estado = '" + STATUS_FULL + "' THEN '" + STATUS_AVAILABLE + "' ELSE estado END " +
             "WHERE id_proyecto = ?";
 
 

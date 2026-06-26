@@ -20,6 +20,9 @@ public class ActivityDAO implements IActivityDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ActivityDAO.class.getName());
 
+    private static final String STATUS_ACTIVE = "Activa";
+    private static final String STATUS_INACTIVE = "Inactiva";
+
     private static final String SQL_INSERT =
             "INSERT INTO actividad (id_proyecto, id_practicante, nombre, descripcion, " +
             "fecha_inicio, fecha_fin, fecha_creacion, estado) " +
@@ -34,14 +37,14 @@ public class ActivityDAO implements IActivityDAO {
             "SELECT id_actividad, id_proyecto, id_practicante, nombre, descripcion, " +
             "fecha_inicio, fecha_fin, fecha_creacion, estado " +
             "FROM actividad WHERE id_proyecto = ? " +
-            "AND estado = 'Activa' " +
+            "AND estado = '" + STATUS_ACTIVE + "' " +
             "ORDER BY fecha_creacion ASC";
 
     private static final String SQL_SELECT_BY_INTERN_AND_PROJECT =
             "SELECT id_actividad, id_proyecto, id_practicante, nombre, descripcion, " +
             "fecha_inicio, fecha_fin, fecha_creacion, estado " +
             "FROM actividad WHERE id_practicante = ? AND id_proyecto = ? " +
-            "AND estado = 'Activa' " +
+            "AND estado = '" + STATUS_ACTIVE + "' " +
             "ORDER BY fecha_creacion ASC";
 
     private static final String SQL_UPDATE =
@@ -50,7 +53,7 @@ public class ActivityDAO implements IActivityDAO {
             "WHERE id_actividad = ?";
 
     private static final String SQL_DEACTIVATE =
-            "UPDATE actividad SET estado = 'Inactiva' WHERE id_actividad = ?";
+            "UPDATE actividad SET estado = '" + STATUS_INACTIVE + "' WHERE id_actividad = ?";
 
     private static final String SQL_DELETE =
             "DELETE FROM actividad WHERE id_actividad = ?";

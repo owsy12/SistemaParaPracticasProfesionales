@@ -109,9 +109,9 @@ public class ReportObservationDAO implements IReportObservationDAO {
         observation.setIdProfessor(resultSet.getInt("id_profesor"));
         observation.setComment(resultSet.getString("comentario"));
 
-        Timestamp ts = resultSet.getTimestamp("fecha_observacion");
-        if (ts != null) {
-            observation.setObservationDate(ts.toLocalDateTime());
+        Timestamp observationTimestamp = resultSet.getTimestamp("fecha_observacion");
+        if (observationTimestamp != null) {
+            observation.setObservationDate(observationTimestamp.toLocalDateTime());
         }
 
         return observation;

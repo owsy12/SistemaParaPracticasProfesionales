@@ -18,6 +18,10 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
 
     private static final Logger LOGGER = Logger.getLogger(PartialAndFinalReportDAO.class.getName());
 
+    private static final String REPORT_TYPE_PARTIAL = "Parcial";
+    private static final String REPORT_TYPE_FINAL = "Final";
+    private static final String STATUS_PENDING = "Pendiente";
+
     private static final String SQL_INSERT_SPECIFIC =
             "INSERT INTO reporte_parcial_y_final " +
                     "(id_reporte_parcial, numero_informe, horas_cubiertas, " +
@@ -38,11 +42,11 @@ public class PartialAndFinalReportDAO extends ReportDAO implements IReportDAO {
             SQL_SELECT_BASE + " WHERE r.id_reporte = ?";
 
     private static final String SQL_SELECT_ALL =
-            SQL_SELECT_BASE + " WHERE r.tipo_reporte IN ('Parcial', 'Final')";
+            SQL_SELECT_BASE + " WHERE r.tipo_reporte IN ('" + REPORT_TYPE_PARTIAL + "', '" + REPORT_TYPE_FINAL + "')";
 
     private static final String SQL_SELECT_PENDING =
             SQL_SELECT_BASE +
-                    " WHERE r.tipo_reporte IN ('Parcial', 'Final') AND r.estado = 'Pendiente'";
+                    " WHERE r.tipo_reporte IN ('" + REPORT_TYPE_PARTIAL + "', '" + REPORT_TYPE_FINAL + "') AND r.estado = '" + STATUS_PENDING + "'";
 
     @Override
     public int save(Report report) throws ServiceException, ValidationException {

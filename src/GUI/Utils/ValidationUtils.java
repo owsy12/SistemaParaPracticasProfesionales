@@ -72,8 +72,8 @@ public class ValidationUtils {
     }
 
     public static boolean isValidEmail(String email) {
-        boolean valid = email != null && VALID_EMAIL_PATTERN.matcher(email).matches();
-        return valid;
+        boolean isEmailValid = email != null && VALID_EMAIL_PATTERN.matcher(email).matches();
+        return isEmailValid;
     }
 
     public static boolean isPDF(File file) {

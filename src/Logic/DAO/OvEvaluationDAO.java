@@ -1,7 +1,7 @@
 package Logic.DAO;
 
 import DataAccess.DataBaseConnection;
-import Logic.DTOs.OVEvaluation;
+import Logic.DTOs.OvEvaluation;
 import Logic.Exceptions.DuplicateEntryException;
 import Logic.Exceptions.ServiceException;
 import Logic.Exceptions.ValidationException;
@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class OVEvaluationDAO {
+public class OvEvaluationDAO {
     private static final String STATUS_SUBMITTED = "Entregada";
 
 
-    private static final Logger LOGGER = Logger.getLogger(OVEvaluationDAO.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(OvEvaluationDAO.class.getName());
 
     private static final String SQL_INSERT =
             "INSERT INTO evaluacion_ov " +
@@ -36,7 +36,7 @@ public class OVEvaluationDAO {
     private static final String SQL_UPDATE_STATUS =
             "UPDATE evaluacion_ov SET estado = ? WHERE id_evaluacion_ov = ?";
 
-    public int save(OVEvaluation ovEvaluation) throws ServiceException, ValidationException {
+    public int save(OvEvaluation ovEvaluation) throws ServiceException, ValidationException {
         if (ovEvaluation.getIdIntern() <= 0) {
             throw new ValidationException(
                     "El ID del practicante debe ser mayor a cero. ID recibido: "
@@ -68,7 +68,7 @@ public class OVEvaluationDAO {
 
             try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
-                    ovEvaluation.setIdOVEvaluation(generatedKeys.getInt(1));
+                    ovEvaluation.setIdOvEvaluation(generatedKeys.getInt(1));
                 }
             }
 
@@ -88,7 +88,7 @@ public class OVEvaluationDAO {
         return rowsAffected;
     }
 
-    public OVEvaluation findByInternAndProject(int internId, int projectId)
+    public OvEvaluation findByInternAndProject(int internId, int projectId)
             throws ServiceException, ValidationException {
         if (internId <= 0) {
             throw new ValidationException(
@@ -99,7 +99,7 @@ public class OVEvaluationDAO {
                     "El ID del proyecto debe ser mayor a cero. ID recibido: " + projectId);
         }
 
-        OVEvaluation ovEvaluation = null;
+        OvEvaluation ovEvaluation = null;
 
         try (Connection connection = DataBaseConnection.connectDatabase();
              PreparedStatement statement =
@@ -125,11 +125,11 @@ public class OVEvaluationDAO {
         return ovEvaluation;
     }
 
-    public boolean updateStatus(int idOVEvaluation, String status)
+    public boolean updateStatus(int idOvEvaluation, String status)
             throws ServiceException, ValidationException {
-        if (idOVEvaluation <= 0) {
+        if (idOvEvaluation <= 0) {
             throw new ValidationException(
-                    "El ID de la evaluación OV debe ser mayor a cero. ID recibido: " + idOVEvaluation);
+                    "El ID de la evaluación OV debe ser mayor a cero. ID recibido: " + idOvEvaluation);
         }
         if (status == null || status.isBlank()) {
             throw new ValidationException("El estado no puede estar vacío.");
@@ -141,7 +141,7 @@ public class OVEvaluationDAO {
              PreparedStatement statement = connection.prepareStatement(SQL_UPDATE_STATUS)) {
 
             statement.setString(1, status);
-            statement.setInt (2, idOVEvaluation);
+            statement.setInt (2, idOvEvaluation);
 
             if (statement.executeUpdate() > 0) {
                 isUpdated = true;
@@ -149,7 +149,7 @@ public class OVEvaluationDAO {
         } catch (SQLException sqlException) {
             LOGGER.log(Level.SEVERE,
                     "Error updating OV evaluation status {0}: {1}",
-                    new Object[]{idOVEvaluation, sqlException.getMessage()});
+                    new Object[]{idOvEvaluation, sqlException.getMessage()});
             throw new ServiceException(
                     "Error al actualizar el estado de la evaluación OV.", sqlException);
         }
@@ -157,9 +157,9 @@ public class OVEvaluationDAO {
         return isUpdated;
     }
 
-    private OVEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
-        OVEvaluation ovEvaluation = new OVEvaluation();
-        ovEvaluation.setIdOVEvaluation(resultSet.getInt ("id_evaluacion_ov"));
+    private OvEvaluation mapResultSet(ResultSet resultSet) throws SQLException {
+        OvEvaluation ovEvaluation = new OvEvaluation();
+        ovEvaluation.setIdOvEvaluation(resultSet.getInt ("id_evaluacion_ov"));
         ovEvaluation.setIdIntern (resultSet.getInt ("id_practicante"));
         ovEvaluation.setIdProject (resultSet.getInt ("id_proyecto"));
         ovEvaluation.setDocumentPath (resultSet.getString("ruta_documento"));

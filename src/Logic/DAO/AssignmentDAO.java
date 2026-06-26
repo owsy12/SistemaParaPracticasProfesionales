@@ -16,6 +16,9 @@ import java.util.logging.Logger;
 public class AssignmentDAO implements IAssignmentDAO {
 
     private static final Logger LOGGER = Logger.getLogger(AssignmentDAO.class.getName());
+
+    private static final String STATUS_ACTIVE = "Activa";
+
     private static final String SQL_INSERT =
             "INSERT INTO asignacion (id_practicante, id_proyecto, id_solicitud, fecha_asignacion, razon_asignacion) " +
                     "VALUES (?, ?, ?, ?, ?)";
@@ -41,7 +44,7 @@ public class AssignmentDAO implements IAssignmentDAO {
     private static final String SQL_GET_ACTIVE_BY_USER =
             "SELECT id_asignacion, id_practicante, id_proyecto, id_solicitud, " +
                     "fecha_asignacion, estado, razon_asignacion " +
-                    "FROM asignacion WHERE id_practicante = ? AND estado = 'Activa'";
+                    "FROM asignacion WHERE id_practicante = ? AND estado = '" + STATUS_ACTIVE + "'";
 
     private static final String SQL_DELETE_BY_INTERN_AND_PROJECT =
             "DELETE FROM asignacion WHERE id_practicante = ? AND id_proyecto = ?";
