@@ -135,8 +135,8 @@ public class WelcomeController {
     private Assignment loadActiveAssignment(int userId) {
         Assignment assignment = null;
         try {
-            AssignmentDAO dao = new AssignmentDAO();
-            assignment = dao.getActiveByIdIntern(userId);
+            AssignmentDAO assignmentDAO = new AssignmentDAO();
+            assignment = assignmentDAO.getActiveByIdIntern(userId);
         } catch (ServiceException e) {
             LOGGER.log(Level.SEVERE, "Error loading active assignment for intern {0}", userId);
         }

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SelfEvaluationDAOTest extends BaseDAOTest {
 
-    private final SelfEvaluationDAO dao = new SelfEvaluationDAO();
+    private final SelfEvaluationDAO selfEvaluationDAO = new SelfEvaluationDAO();
 
     private SelfEvaluation buildSelfEvaluation(int idIntern, int idProject) {
         SelfEvaluation selfEvaluation = new SelfEvaluation();
@@ -45,7 +45,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidSelfEvaluationReturnsOneRowAffected() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
-        int result = dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        int result = selfEvaluationDAO.save(buildSelfEvaluation(context.idIntern, context.idProject));
         assertEquals(TestConstants.ONE_ROW_AFFECTED, result);
     }
 
@@ -56,7 +56,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.save(selfEvaluation);
+                selfEvaluationDAO.save(selfEvaluation);
             }
         });
     }
@@ -65,8 +65,8 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
-        dao.save(selfEvaluation);
-        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvaluation());
+        selfEvaluationDAO.save(selfEvaluation);
+        SelfEvaluation retrieved = selfEvaluationDAO.getById(selfEvaluation.getIdSelfEvaluation());
         assertNotNull(retrieved);
     }
 
@@ -74,8 +74,8 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     void testGetByIdAfterSaveReturnsEqualObject() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
-        dao.save(selfEvaluation);
-        SelfEvaluation retrieved = dao.getById(selfEvaluation.getIdSelfEvaluation());
+        selfEvaluationDAO.save(selfEvaluation);
+        SelfEvaluation retrieved = selfEvaluationDAO.getById(selfEvaluation.getIdSelfEvaluation());
         assertEquals(selfEvaluation, retrieved);
     }
 
@@ -84,36 +84,36 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.getById(TestConstants.INVALID_ID_ZERO);
+                selfEvaluationDAO.getById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testGetByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        SelfEvaluation retrieved = dao.getById(TestConstants.NON_EXISTENT_ID);
+        SelfEvaluation retrieved = selfEvaluationDAO.getById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testGetAllAfterSaveReturnsOneElement() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
-        dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
-        List<SelfEvaluation> all = dao.getAll();
+        selfEvaluationDAO.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        List<SelfEvaluation> all = selfEvaluationDAO.getAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
     @Test
     void testGetAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<SelfEvaluation> all = dao.getAll();
+        List<SelfEvaluation> all = selfEvaluationDAO.getAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testFindByIdInternAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
-        dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
-        SelfEvaluation retrieved = dao.findByIdIntern(context.idIntern);
+        selfEvaluationDAO.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        SelfEvaluation retrieved = selfEvaluationDAO.findByIdIntern(context.idIntern);
         assertNotNull(retrieved);
     }
 
@@ -122,7 +122,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findByIdIntern(TestConstants.INVALID_ID_ZERO);
+                selfEvaluationDAO.findByIdIntern(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -131,8 +131,8 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     void testUpdateStatusReturnsTrue() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
         SelfEvaluation selfEvaluation = buildSelfEvaluation(context.idIntern, context.idProject);
-        dao.save(selfEvaluation);
-        boolean result = dao.updateStatus(
+        selfEvaluationDAO.save(selfEvaluation);
+        boolean result = selfEvaluationDAO.updateStatus(
                 selfEvaluation.getIdSelfEvaluation(), TestConstants.STATUS_SELF_EVAL_DELIVERED);
         assertTrue(result);
     }
@@ -142,7 +142,7 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.updateStatus(TestConstants.INVALID_ID_ZERO, TestConstants.STATUS_SELF_EVAL_DELIVERED);
+                selfEvaluationDAO.updateStatus(TestConstants.INVALID_ID_ZERO, TestConstants.STATUS_SELF_EVAL_DELIVERED);
             }
         });
     }
@@ -150,8 +150,8 @@ class SelfEvaluationDAOTest extends BaseDAOTest {
     @Test
     void testDeleteByInternAndProjectReturnsTrue() throws ServiceException, ValidationException {
         SelfEvalContext context = persistContext();
-        dao.save(buildSelfEvaluation(context.idIntern, context.idProject));
-        boolean result = dao.deleteByInternAndProject(context.idIntern, context.idProject);
+        selfEvaluationDAO.save(buildSelfEvaluation(context.idIntern, context.idProject));
+        boolean result = selfEvaluationDAO.deleteByInternAndProject(context.idIntern, context.idProject);
         assertTrue(result);
     }
 

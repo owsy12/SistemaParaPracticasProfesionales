@@ -24,7 +24,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     private static final String TECH_POSITION = "Líder de proyecto";
     private static final String UPDATED_TECH_POSITION = "Directora de proyecto";
 
-    private final TechnicalResponsibleDAO dao = new TechnicalResponsibleDAO();
+    private final TechnicalResponsibleDAO technicalResponsibleDAO = new TechnicalResponsibleDAO();
 
     private TechnicalResponsible buildSupervisor(int idOrganization) {
         TechnicalResponsible supervisor = new TechnicalResponsible();
@@ -40,14 +40,14 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     @Test
     void testSaveValidSupervisorReturnsTrue() throws ServiceException, ValidationException {
         int idOrganization = persistOrganization();
-        boolean result = dao.saveTechnicalResponsible(buildSupervisor(idOrganization));
+        boolean result = technicalResponsibleDAO.saveTechnicalResponsible(buildSupervisor(idOrganization));
         assertTrue(result);
     }
 
     @Test
     void testFindByIdAfterSaveReturnsNotNull() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
-        TechnicalResponsible retrieved = dao.findById(idTechnical);
+        TechnicalResponsible retrieved = technicalResponsibleDAO.findById(idTechnical);
         assertNotNull(retrieved);
     }
 
@@ -56,27 +56,27 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findById(TestConstants.INVALID_ID_ZERO);
+                technicalResponsibleDAO.findById(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
 
     @Test
     void testFindByIdWithNonExistentIdReturnsNull() throws ServiceException, ValidationException {
-        TechnicalResponsible retrieved = dao.findById(TestConstants.NON_EXISTENT_ID);
+        TechnicalResponsible retrieved = technicalResponsibleDAO.findById(TestConstants.NON_EXISTENT_ID);
         assertNull(retrieved);
     }
 
     @Test
     void testFindAllWithNoDataReturnsEmptyList() throws ServiceException, ValidationException {
-        List<TechnicalResponsible> all = dao.findAll();
+        List<TechnicalResponsible> all = technicalResponsibleDAO.findAll();
         assertTrue(all.isEmpty());
     }
 
     @Test
     void testFindAllAfterPersistReturnsOneElement() throws ServiceException, ValidationException {
         persistSupervisorViaBuilders();
-        List<TechnicalResponsible> all = dao.findAll();
+        List<TechnicalResponsible> all = technicalResponsibleDAO.findAll();
         assertEquals(TestConstants.SINGLE_RESULT, all.size());
     }
 
@@ -90,7 +90,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
         } catch (SQLException sqlException) {
             throw new ServiceException("Failed to access test database connection", sqlException);
         }
-        List<TechnicalResponsible> byOrg = dao.findByOrganization(idOrganization);
+        List<TechnicalResponsible> byOrg = technicalResponsibleDAO.findByOrganization(idOrganization);
         assertEquals(TestConstants.SINGLE_RESULT, byOrg.size());
     }
 
@@ -99,7 +99,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.findByOrganization(TestConstants.INVALID_ID_ZERO);
+                technicalResponsibleDAO.findByOrganization(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -107,9 +107,9 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     @Test
     void testUpdateSupervisorReturnsTrue() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
-        TechnicalResponsible supervisor = dao.findById(idTechnical);
+        TechnicalResponsible supervisor = technicalResponsibleDAO.findById(idTechnical);
         supervisor.setPosition(UPDATED_TECH_POSITION);
-        boolean result = dao.update(supervisor);
+        boolean result = technicalResponsibleDAO.update(supervisor);
         assertTrue(result);
     }
 
@@ -118,7 +118,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
         assertThrows(ValidationException.class, new Executable() {
             @Override
             public void execute() throws Throwable {
-                dao.delete(TestConstants.INVALID_ID_ZERO);
+                technicalResponsibleDAO.delete(TestConstants.INVALID_ID_ZERO);
             }
         });
     }
@@ -126,7 +126,7 @@ class TechnicalResponsibleDAOTest extends BaseDAOTest {
     @Test
     void testDeleteSupervisorReturnsTrue() throws ServiceException, ValidationException {
         int idTechnical = persistSupervisorViaBuilders();
-        boolean result = dao.delete(idTechnical);
+        boolean result = technicalResponsibleDAO.delete(idTechnical);
         assertTrue(result);
     }
 
